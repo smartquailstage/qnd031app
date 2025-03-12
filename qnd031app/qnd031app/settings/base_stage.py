@@ -4,6 +4,9 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 from django.utils.translation import gettext_lazy as _
+from django.templatetags.static import static
+from django.urls import reverse_lazy
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 # Load environment variables from the .env_local file.
@@ -27,6 +30,10 @@ if SECRET_KEY is None:
 INSTALLED_APPS = [
    
     "unfold",  # before django.contrib.admin
+
+    #'webapp',
+
+
     "unfold.contrib.filters",  # optional, if special filters are needed
     "unfold.contrib.forms",  # optional, if special form elements are needed
     "unfold.contrib.inlines",  # optional, if special inlines are needed
@@ -34,39 +41,27 @@ INSTALLED_APPS = [
     "unfold.contrib.guardian",  # optional, if django-guardian package is used
     "unfold.contrib.simple_history",
 
-    'parler',
+    #'shop',
+    #'orders',
+    #'payment',
+    #'coupons',
+    'usuarios',
+
+   
     'django.contrib.contenttypes',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
 
 
 
+    #'parler',
     'core',
-    'wagtail',
-    'wagtailmedia',
-    "wagtail_modeladmin",
-    'wagtail.contrib.forms',
-    'wagtail.contrib.redirects',
     'django.contrib.humanize',
-    'wagtail.embeds',
-    'wagtail.sites',
-    'wagtail.users',
-    'wagtail.snippets',
-    'wagtail.documents',
-    'wagtail.images',
-    'wagtail.search',
-   # 'wagtail.locales',
-    'wagtail_localize.locales',
-    'rosetta',   
-    'wagtail.admin',
-    'wagtail.contrib.routable_page',
-    "wagtail_localize",
-    'wagtailgmaps',
-    'wagtailmenus',
+
+
 
 
 
@@ -86,9 +81,6 @@ INSTALLED_APPS = [
     'boto3',
     'rest_framework',
     'ckeditor',
-    'wagtail.contrib.settings',
-    "wagtail_ai",
-
     'localflavor',
    
     'jquery',
@@ -97,11 +89,7 @@ INSTALLED_APPS = [
     'bootstrap5',
 
     'bootstrap_datepicker_plus',
-     "webapp",
-      'shop',
-    'orders',
-    'payment',
-    'coupons',
+
     #WEBAPP
     #'wagtail_modeltranslation',
     #'wagtail_modeltranslation.makemigrations',
@@ -111,22 +99,164 @@ INSTALLED_APPS = [
 ]
 
 
+UNFOLD = {
+    "SITE_TITLE": "MEDDES-Centro de rehabilitación integral",
+    "SITE_HEADER": "MEDDES",
+    "SITE_SUBHEADER": "Centro de rehabilitación integral",
+    "SITE_DROPDOWN": [
+        {
+            "icon": "diamond",
+            "title": _("My site"),
+            "link": "admin:shop_category_changelist",
+        },
+        # ...
+    ],
+    "SITE_URL": "/",
+    # "SITE_ICON": lambda request: static("icon.svg"),  # both modes, optimise for 32px height
+    "SITE_ICON": {
+        "light": lambda request: static("img/BA-LOGOS/logo_test.png"),
+        "dark": lambda request: static("img/BA-LOGOS/logo_test.png"),
+    },
+    "SITE_LOGO": {
+        "light": lambda request: static("img/BA-LOGOS/logo_test.png"),
+        "dark": lambda request: static("img/BA-LOGOS/logo_test.png"),
+    },
+    "SITE_SYMBOL": "speed",
+    "SITE_FAVICONS": [
+        {
+            "rel": "icon",
+            "sizes": "32x32",
+            "type": "image/svg+xml",
+            "href": lambda request: static("img/BA-LOGOS/logo_test.png"),
+        },
+    ],
+    "SHOW_HISTORY": True,
+    "SHOW_VIEW_ON_SITE": True,
+    "SHOW_BACK_BUTTON": False,
+    
+    "ENVIRONMENT": "Production.environment_callback",
+    "THEME": "light",
+    "LOGIN": {
+        "image": lambda request: static("img/BA-BG/test.png"),
+       # "redirect_after": lambda request: reverse_lazy("admin:usuarios_changelist"),
+    },
+    "STYLES": [
+        lambda request: static("css/style.css"),
+    ],
+    "SCRIPTS": [
+        lambda request: static("js/script.js"),
+    ],
+    "BORDER_RADIUS": "6px",
+    "COLORS": {
+        "base": {
+            "50": "0, 180, 81",
+            "100": "243 244 246",
+            "200": "229 231 235",
+            "300": "209 213 219",
+            "400": "156 163 175",
+            "500": "0, 180, 81",
+            "600": "75 85 99",
+            "700": "55 65 81",
+            "800": "31 41 55",
+            "900": "17 24 39",
+            "950": "3 7 18",
+        },
+        "primary": {
+            "50": "250 245 255",
+            "100": "243 232 255",
+            "200": "233 213 255",
+            "300": "216 180 254",
+            "400": "192 132 252",
+            "500": "168 85 247",
+            "600": "46 168 77",
+            "700": "126 34 206",
+            "800": "107 33 168",
+            "900": "88 28 135",
+            "950": "59 7 100",
+        },
+        "font": {
+            "subtle-light": "var(--color-base-500)",  # text-base-500
+            "subtle-dark": "var(--color-base-400)",  # text-base-400
+            "default-light": "var(--color-base-600)",  # text-base-600
+            "default-dark": "var(--color-base-300)",  # text-base-300
+            "important-light": "var(--color-base-900)",  # text-base-900
+            "important-dark": "var(--color-base-100)",  # text-base-100
+        },
+    },
+    "EXTENSIONS": {
+        "modeltranslation": {
+            "flags": {
+                "en": "🇬🇧",
+                "fr": "🇫🇷",
+                "nl": "🇧🇪",
+            },
+        },
+    },
+ "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": True,
+        "navigation": [
+            {
+                "title": _("Users and Groups Management"),
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": _("Users"),
+                        "icon": "people",
+                        "link": reverse_lazy("admin:auth_user_changelist"),
+                    },
+                    {
+                        "title": _("Groups"),
+                        "icon": "groups",
+                        "link": reverse_lazy("admin:auth_group_changelist"),
+                    },
+                ],
+            },
+        ],
+    },
+ 
+    "MENU": [
+        {
+            "title": _("Dashboard"),
+            "icon": "dashboard",
+            "link": reverse_lazy("admin:index"),
+            "permission": lambda request: request.user.is_superuser,
+        },
+        {
+            "title": _("Users"),
+            "icon": "people",
+            "link": reverse_lazy("admin:auth_user_changelist"),
+        },
+    ],
+
+
+}
+
+
+
+
+
+def environment_callback(request):
+    """
+    Callback has to return a list of two values represeting text value and the color
+    type of the label displayed in top right corner.
+    """
+    return ["Production", "danger"] # info, danger, warning, success
+
+
+def badge_callback(request):
+    return 3
+
+
+
+
+
 PARLER_DEFAULT_LANGUAGE_CODE = 'en'
 PARLER_DEFAULT_ACTIVATE = True
 PARLER_SHOW_EXCLUDED_LANGUAGE_TABS = False
 
 
-# Configuración de `parler`
-PARLER_LANGUAGES = {
-    None: (
-        {'code': 'en',},
-        {'code': 'es',},
-    ),
-    'default': {
-        'fallbacks': ['en'],  # Los idiomas de reserva
-        'hide_untranslated': False,  # Ocultar campos no traducidos
-    }
-}
 
 
 
@@ -146,43 +276,20 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.contrib.sites.middleware.CurrentSiteMiddleware',
     #'wagtail.core.middleware.site.SiteMiddleware',
-    'wagtail.contrib.redirects.middleware.RedirectMiddleware',
+    #'wagtail.contrib.redirects.middleware.RedirectMiddleware',
    # 'shop.middleware.LocaleRedirectMiddleware', 
 ]
 
 
 
-WAGTAIL_AI = {
-    "BACKENDS": {
-        "default": {
-            "CLASS": "wagtail_ai.ai.llm.LLMBackend",
-            "CONFIG": {
-                # Model ID recognizable by the "LLM" library.
-                "MODEL_ID": os.path.join('WAGTAIL_AI_MODEL_ID'),
-                "PROMPT_KWARGS": {"system": "A custom, global system prompt."},
-            },
-        }
-    }
-}
 
 ROOT_URLCONF = os.environ.get('ROOT_URLCONF')
-LOCALE_PATHS =  (
-    os.path.join(BASE_DIR, 'locale/'),
-)
-
-#WAGTAIL SETUPS
-WAGTAILSEARCH_BACKENDS = {
-    'default': {
-        'BACKEND': 'wagtail.search.backends.database',
-    }
-}
 #SITE_ID = 1
 #WagtailAnalitycs
-GA_KEY_CONTENT = os.environ.get('GA_KEY_CONTENT_ENV')
-GA_VIEW_ID = os.environ.get('GA_VIEW_ID_ENV')
 
 
-WAGTAIL_SITE_NAME = os.environ.get('WAGTAIL_SITE_NAME ')
+
+#WAGTAIL_SITE_NAME = os.environ.get('WAGTAIL_SITE_NAME ')
 
 #RESTFRAMEWORK
 REST_FRAMEWORK = {
@@ -223,10 +330,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = os.environ.get('WSGI_APPLICATION')
 
-WAGTAIL_ADMIN_BASE_URL =  os.environ.get('DOMAINS')
-WAGTAILIMAGES_MAX_UPLOAD_SIZE = os.environ.get('WAGTAILIMAGES_MAX_UPLOAD_SIZE')
-WAGTAILIMAGES_MAX_IMAGE_PIXELS = os.environ.get('WAGTAILIMAGES_MAX_IMAGE_PIXELS')
-MODELTRANSLATION_AUTOPOPULATE = False
+
 
 
 
@@ -271,36 +375,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
-
-# Internationalization
-# https://docs.djangoproject.com/en/3.2/topics/i18n/
-
-LANGUAGE_CODE = os.environ.get('LANGUAGE_CODE')
-TIME_ZONE = os.environ.get('TIME_ZONE')
-USE_I18N = os.environ.get('USE_I18N') 
-USE_L10N = os.environ.get('USE_L10N') 
-USE_TZ = os.environ.get('USE_TZ') 
-
-WAGTAILLOCALIZE = {
-    'ENABLE_TRANSLATION_FIELD': True,  # Activar campos traducibles
-    'DEFAULT_LANGUAGE': 'en',  # El idioma predeterminado para la localización
-}
-
-
-
-WAGTAIL_CONTENT_LANGUAGES = LANGUAGES = [
-    ('en', _('English')),
-    ('es', _('Spanish')),
-]
-
-
-WAGTAIL_I18N_ENABLED = True
-
-LOCALE_PATHS = [
-    os.path.join(BASE_DIR, 'locale'),
-]
-
 
 
 
