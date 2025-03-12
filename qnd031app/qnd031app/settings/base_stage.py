@@ -69,7 +69,7 @@ INSTALLED_APPS = [
     #'subscription',
 
     'django_social_share',
-    'taggit',
+   # 'taggit',
     'widget_tweaks',
     'django_forms_bootstrap',
     'bootstrap4',
