@@ -257,24 +257,8 @@ MIDDLEWARE = [
 
 
 
-ROOT_URLCONF = 'qnd41app.urls'
-LOCALE_PATHS =  (
-    os.path.join(BASE_DIR, 'locale/'),
-)
+ROOT_URLCONF = os.environ.get('ROOT_URLCONF')
 
-#WAGTAIL SETUPS
-WAGTAILSEARCH_BACKENDS = {
-    'default': {
-        'BACKEND': 'wagtail.search.backends.database',
-    }
-}
-#SITE_ID = 1
-#WagtailAnalitycs
-GA_KEY_CONTENT = os.environ.get('GA_KEY_CONTENT_ENV')
-GA_VIEW_ID = os.environ.get('GA_VIEW_ID_ENV')
-
-
-WAGTAIL_SITE_NAME = 'Smart Business Media'
 
 #RESTFRAMEWORK
 REST_FRAMEWORK = {
@@ -357,11 +341,11 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'qnd41app.wsgi.application'
+WSGI_APPLICATION = os.environ.get('WSGI_APPLICATION')
 
-WAGTAIL_ADMIN_BASE_URL =  os.environ.get('DOMAINS')
-WAGTAILIMAGES_MAX_UPLOAD_SIZE = 5 * 1024 * 1024 * 1024  # 5 GB en bytes
-WAGTAILIMAGES_MAX_IMAGE_PIXELS = 1000000000  # 1 millardo de píxeles (1 Gb)
+#WAGTAIL_ADMIN_BASE_URL =  os.environ.get('DOMAINS')
+#WAGTAILIMAGES_MAX_UPLOAD_SIZE = 5 * 1024 * 1024 * 1024  # 5 GB en bytes
+#WAGTAILIMAGES_MAX_IMAGE_PIXELS = 1000000000  # 1 millardo de píxeles (1 Gb)
 
 
 
