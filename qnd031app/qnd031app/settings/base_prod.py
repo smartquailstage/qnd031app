@@ -276,9 +276,9 @@ REST_FRAMEWORK = {
 
 #LOGINGS REDIRECT
 
-#LOGIN_REDIRECT_URL = 'accounts:dashboard'
-#LOGIN_URL = 'login'
-#LOGOUT_URL = 'logout'
+LOGIN_REDIRECT_URL = 'usuarios:perfil'
+LOGIN_URL = 'login'
+LOGOUT_URL = 'logout'
 
 #from django.urls import reverse_lazy
 #LOGIN_REDIRECT_URL = reverse_lazy('course_list')
