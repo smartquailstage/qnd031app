@@ -10,7 +10,7 @@ load_dotenv(str(ENV_FILE_PATH))
 
 DEBUG=os.environ.get("DEBUG")
 
-ALLOWED_HOSTS = os.environ.get("ENV_ALLOWED_HOSTS", "").split(",") if os.environ.get("ENV_ALLOWED_HOSTS") else []
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "").split(",") if os.environ.get("ALLOWED_HOSTS") else []
 
 
 

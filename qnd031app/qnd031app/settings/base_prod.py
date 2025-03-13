@@ -24,23 +24,25 @@ if SECRET_KEY is None:
 # Application definition
 
 INSTALLED_APPS = [
+   
     "unfold",  # before django.contrib.admin
+
+    #'webapp',
+
+
     "unfold.contrib.filters",  # optional, if special filters are needed
     "unfold.contrib.forms",  # optional, if special form elements are needed
     "unfold.contrib.inlines",  # optional, if special inlines are needed
     "unfold.contrib.import_export",  # optional, if django-import-export package is used
     "unfold.contrib.guardian",  # optional, if django-guardian package is used
     "unfold.contrib.simple_history",
-  # optional, if django-simple-history package is used
-    #'usuarios',
-    #'baton',
-    #'editorial_literaria',
-    #'account',
-    #'courses',
-    #'courses_exams',
-    #'card_test',
-    #'thumbnails',
-    #'cart',
+
+    #'shop',
+    #'orders',
+    #'payment',
+    #'coupons',
+    'usuarios',
+
    
     'django.contrib.contenttypes',
     'django.contrib.admin',
@@ -48,155 +50,91 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-   # 'django.contrib.sites',
-    #'django_comments',
-    #Wagtail Inicials
+
+
+
+    #'parler',
     'core',
-    
-    #'wagtail',
-    'wagtail',
-    'wagtailmedia',
-    'wagtail.contrib.forms',
-    'wagtail.contrib.redirects',
     'django.contrib.humanize',
-    'wagtail.embeds',
-    'wagtail.sites',
-    'wagtail.users',
-    'wagtail.snippets',
-    'wagtail.documents',
-    'wagtail.images',
-    'wagtail.search',
-    
-    'wagtail.locales',
-    'rosetta',
-    #'wagtail.contrib.settings',
-    
-    'wagtail.admin',
-   # 'wagtail.core',
-   # 'wagtail.contrib.settings',
-    'wagtail.contrib.routable_page',
-    #'wagtail.contrib.modeladmin',
-    #'wagalytics',
-    #'wagtailfontawesome',
-    "wagtail_localize",
-    #"wagtail_localize.locales",
-    #'wagtail_ai',
-    'wagtailgmaps',
-    'wagtailmenus',
-    #'wagtail.contrib.modeladmin',
+
+
+
+
+
+   
+    #'subscription',
+
     'django_social_share',
-    'mailing',
-    'taggit',
-    #'proyectos',
-   # 'students',
-  #  'webapp_0',
-   # 'actividades_espacio_publico',
-  #  'streams',
+   # 'taggit',
     'widget_tweaks',
     'django_forms_bootstrap',
-
-   # 'datetimewidget',
-   #SMARTQUAIL-BUSINESS-CONSULTING
-    #'shop',
-    #'coupons',
-    #'cart',
-    #'todo_en_orden',
-    #'coupons',
-    #'orders',
-    #'contracts',
-    #'services',
-    #'cart',
-    #'cart_c',
-    #'payment',
-    #'django_phonenumbers',
-    #'phonenumber_field',
-    #'shop',
-    #'cart',
-
-
-
-    'sbmshop',
-    'sbmorders',
-    'sbmcoupons',
-    'sbmpayments',
-
-    'sblcart',
-    'sblshop',
-    'sblorders',
-
-    
-    'sbtcart',
-    'sbtshop',
-    'sbtorders',
-
- 
-
-    'sbacart',
-    'sbashop',
-    'sbaorders',
-
     'bootstrap4',
-    'webapp',
     'social_django',
     'sorl.thumbnail',
-    #'students',
     'embed_video',
     'qr_code',
     'storages',
-    #'actions',
     'boto3',
-   
-    #'memcache_status',
     'rest_framework',
     'ckeditor',
-   # 'js_blog_app',
-    'wagtail.contrib.settings',
-    "wagtail_ai",
-    
-    "bootstrap_datepicker_plus",
-
-    
-    #'baton.autodiscover',
+    'localflavor',
    
+    'jquery',
+    'phone_field',
+    'phonenumber_field',
+    'bootstrap5',
+
+    'bootstrap_datepicker_plus',
+
+    #WEBAPP
+    #'wagtail_modeltranslation',
+    #'wagtail_modeltranslation.makemigrations',
+    #'wagtail_modeltranslation.migrate',
+
+  
 ]
 
 
-from django.templatetags.static import static
-from django.urls import reverse_lazy
-from django.utils.translation import gettext_lazy as _
-
 UNFOLD = {
-    "SITE_TITLE": "SmartBusinessAnalytics",
-    "SITE_HEADER": "SmartBusinessAnalytics",
+    "SITE_TITLE": "MEDDES-Centro de rehabilitación integral",
+    "SITE_HEADER": "MEDDES",
+    "SITE_SUBHEADER": "Centro de rehabilitación integral",
+    "SITE_DROPDOWN": [
+        {
+            "icon": "diamond",
+            "title": _("My site"),
+            "link": "admin:shop_category_changelist",
+        },
+        # ...
+    ],
     "SITE_URL": "/",
     # "SITE_ICON": lambda request: static("icon.svg"),  # both modes, optimise for 32px height
     "SITE_ICON": {
-        "light": lambda request: static("img/logo.png"),  # light mode
-        "dark": lambda request: static("img/logo.png"),  # dark mode
+        "light": lambda request: static("img/BA-LOGOS/logo_test.png"),
+        "dark": lambda request: static("img/BA-LOGOS/logo_test.png"),
     },
-    # "SITE_LOGO": lambda request: static("logo.svg"),  # both modes, optimise for 32px height
     "SITE_LOGO": {
-        "light": lambda request: static("img/smartbusinessanalytics.png"),  # light mode
-        "dark": lambda request: static("img/smartbusinessanalytics.png"),  # dark mode
+        "light": lambda request: static("img/BA-LOGOS/logo_test.png"),
+        "dark": lambda request: static("img/BA-LOGOS/logo_test.png"),
     },
-    "SITE_SYMBOL": "speed",  # symbol from icon set
+    "SITE_SYMBOL": "speed",
     "SITE_FAVICONS": [
         {
             "rel": "icon",
             "sizes": "32x32",
             "type": "image/svg+xml",
-            "href": lambda request: static("img/logo.png"),
+            "href": lambda request: static("img/BA-LOGOS/logo_test.png"),
         },
     ],
-    "SHOW_HISTORY": True, # show/hide "History" button, default: True
-    "SHOW_VIEW_ON_SITE": True, # show/hide "View on site" button, default: True
-    "SHOW_BACK_BUTTON": True, # show/hide "Back" button on changeform in header, default: False
-    "ENVIRONMENT": "danger.environment_callback",
-    #"DASHBOARD_CALLBACK": "sbmshop.dashboard_callback",
-    "THEME": "light", # Force theme: "dark" or "light". Will disable theme switcher
+    "SHOW_HISTORY": True,
+    "SHOW_VIEW_ON_SITE": True,
+    "SHOW_BACK_BUTTON": False,
+    
+    "ENVIRONMENT": "Production.environment_callback",
+    "THEME": "light",
     "LOGIN": {
-        "image": lambda request: static("img/login_splash.jpg"),
-        #"redirect_after": lambda request: reverse_lazy("admin:APP_MODEL_changelist"),
+        "image": lambda request: static("img/BA-BG/test.png"),
+       # "redirect_after": lambda request: reverse_lazy("admin:usuarios_changelist"),
     },
     "STYLES": [
         lambda request: static("css/style.css"),
@@ -204,30 +142,29 @@ UNFOLD = {
     "SCRIPTS": [
         lambda request: static("js/script.js"),
     ],
-    "BORDER_RADIUS": "3px",
+    "BORDER_RADIUS": "6px",
     "COLORS": {
         "base": {
-            "50": "249 250 251",
+            "50": "0, 180, 81",
             "100": "243 244 246",
             "200": "229 231 235",
             "300": "209 213 219",
             "400": "156 163 175",
-            "500": "107 114 128",
+            "500": "0, 180, 81",
             "600": "75 85 99",
             "700": "55 65 81",
             "800": "31 41 55",
             "900": "17 24 39",
             "950": "3 7 18",
         },
-        
         "primary": {
             "50": "250 245 255",
             "100": "243 232 255",
             "200": "233 213 255",
             "300": "216 180 254",
             "400": "192 132 252",
-            "500": "194 2 2",
-            "600": "254 2 2",
+            "500": "168 85 247",
+            "600": "46 168 77",
             "700": "126 34 206",
             "800": "107 33 168",
             "900": "88 28 135",
@@ -251,78 +188,44 @@ UNFOLD = {
             },
         },
     },
-
-    "SIDEBAR": {
-        "show_search": True,  # Search in applications and models names
-        "show_all_applications": True,  # Dropdown with all applications and models
+ "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": True,
         "navigation": [
             {
-                "title": _("Business Analytics"),
-                "separator": True,  # Top border
-                "collapsible": True,  # Collapsible group of links
+                "title": _("Users and Groups Management"),
+                "separator": True,
+                "collapsible": True,
                 "items": [
-                    {
-                        "title": _("Dashboard"),
-                        "icon": "dashboard",  # Supported icon set: https://fonts.google.com/icons
-                        "link": reverse_lazy("admin:index"),
-                       # "badge": "sample_app.badge_callback",
-                        "permission": lambda request: request.user.is_superuser,
-                    },
                     {
                         "title": _("Users"),
                         "icon": "people",
                         "link": reverse_lazy("admin:auth_user_changelist"),
                     },
                     {
-                        "title": _("SmartBusinessMedia"),
-                        "icon": "analytics",
-                        "link": reverse_lazy("admin:sbmshop_category_changelist"),
+                        "title": _("Groups"),
+                        "icon": "groups",
+                        "link": reverse_lazy("admin:auth_group_changelist"),
                     },
                 ],
             },
-
-                        {
-                "title": _("Business Analytics"),
-                "separator": True,  # Top border
-                "collapsible": True,  # Collapsible group of links
-                "items": [
-                    {
-                        "title": _("Dashboard"),
-                        "icon": "dashboard",  # Supported icon set: https://fonts.google.com/icons
-                        "link": reverse_lazy("admin:index"),
-                       # "badge": "sample_app.badge_callback",
-                        "permission": lambda request: request.user.is_superuser,
-                    },
-                    {
-                        "title": _("Users"),
-                        "icon": "people",
-                        "link": reverse_lazy("admin:auth_user_changelist"),
-                    },
-                    {
-                        "title": _("SmartBusinessMedia"),
-                        "icon": "analytics",
-                        "link": reverse_lazy("admin:sbmshop_category_changelist"),
-                    },
-                ],
-            },
-
         ],
     },
-
-    "TABS": [
+ 
+    "MENU": [
         {
-            "models": [
-                "sbmshop.category",
-            ],
-            "items": [
-                {
-                    "title": _("Categories"),
-                    "link": reverse_lazy("admin:sbmshop_category_changelist"),
-                   # "permission": "sample_app.permission_callback",
-                },
-            ],
+            "title": _("Dashboard"),
+            "icon": "dashboard",
+            "link": reverse_lazy("admin:index"),
+            "permission": lambda request: request.user.is_superuser,
+        },
+        {
+            "title": _("Users"),
+            "icon": "people",
+            "link": reverse_lazy("admin:auth_user_changelist"),
         },
     ],
+
 
 }
 
