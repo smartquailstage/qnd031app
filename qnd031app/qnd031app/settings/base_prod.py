@@ -249,7 +249,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.contrib.sites.middleware.CurrentSiteMiddleware',
     #'wagtail.core.middleware.site.SiteMiddleware',
-    'wagtail.contrib.redirects.middleware.RedirectMiddleware',
+    #'wagtail.contrib.redirects.middleware.RedirectMiddleware',
 ]
 
 
@@ -333,8 +333,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'wagtailmenus.context_processors.wagtailmenus',
-                'wagtail.contrib.settings.context_processors.settings',
+                #'wagtailmenus.context_processors.wagtailmenus',
+                #'wagtail.contrib.settings.context_processors.settings',
                 'django.template.context_processors.i18n',
             ],
         },
@@ -392,22 +392,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'es-Ec'
 TIME_ZONE = 'America/Guayaquil'
-
-
-
-
-WAGTAIL_CONTENT_LANGUAGES = LANGUAGES = [
-    ('en', 'English'),
-    ('fr', 'French'),
-    ('es', 'Spanish'),
-]
-
-
-WAGTAIL_I18N_ENABLED = True
-
-LOCALE_PATHS = [
-    os.path.join(BASE_DIR, 'locale'),
-]
 
 
 
