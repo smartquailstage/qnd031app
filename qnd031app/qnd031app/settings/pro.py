@@ -10,7 +10,7 @@ DOMAIN = os.environ.get("DOMAIN")
 HOST = os.environ.get("HOST")
 
 
-ALLOWED_HOSTS = ['127.0.0.1','localhost',IP, DOMAIN, HOST, '*']
+ALLOWED_HOSTS = ['127.0.0.1','localhost','meddes.smartquail.io', '164.90.247.153', '*']
 
 
 #import wagtail_ai
@@ -25,7 +25,7 @@ ALLOWED_HOSTS = ['127.0.0.1','localhost',IP, DOMAIN, HOST, '*']
 #]
 
 
-#CSRF_COOKIE_DOMAIN=".www.smartquail.io"
+#CSRF_COOKIE_DOMAIN="meddes.smartquail.io"
 #CSRF_COOKIE_SECURE = True
 #CSRF_TRUSTED_ORIGINS = ['https://www.smartquail.io','https://146.190.164.22']
 #CORS_ALLOWED_ORIGINS = [
