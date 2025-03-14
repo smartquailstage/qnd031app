@@ -10,7 +10,7 @@ DOMAIN = os.environ.get("DOMAIN")
 HOST = os.environ.get("HOST")
 
 
-ALLOWED_HOSTS = ['IP', 'DOMAIN', 'HOST', '*']
+ALLOWED_HOSTS = ['127.0.0.1','localhost','IP', 'DOMAIN', 'HOST', '*']
 
 
 #import wagtail_ai
