@@ -4,7 +4,13 @@ from .base_prod import *
 
 DEBUG=True
 
-ALLOWED_HOSTS = ['*']
+# Obtener las variables de entorno desde Kubernetes
+IP = os.environ.get("IP")
+DOMAIN = os.environ.get("DOMAIN")
+HOST = os.environ.get("HOST")
+
+
+ALLOWED_HOSTS = [IP, DOMAIN, HOST]
 
 
 #import wagtail_ai
