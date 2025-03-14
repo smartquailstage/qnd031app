@@ -127,9 +127,6 @@ CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
         'LOCATION': 'redis://redis:6379/1',
-        'OPTIONS': {
-            'PASSWORD': os.getenv('REDIS_PASSWORD'),
-    }
 }
 }
 
