@@ -99,6 +99,12 @@ INSTALLED_APPS = [
 ]
 
 
+#LOGINGS REDIRECT
+
+LOGIN_REDIRECT_URL = 'usuarios:perfil'
+LOGIN_URL = 'login'
+LOGOUT_URL = 'logout'
+
 UNFOLD = {
     "SITE_TITLE": "MEDDES-Centro de rehabilitación integral",
     "SITE_HEADER": "MEDDES",

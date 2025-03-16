@@ -29,7 +29,7 @@ def user_login(request):
                 if user.is_active:
                     login(request, user)
                     user_profile = Profile.objects.get(user=user)
-                    return redirect('usuarios:dashboard')
+                    return redirect('usuarios:perfil')
                 else:
                     return HttpResponse('Disabled account')
             else:
