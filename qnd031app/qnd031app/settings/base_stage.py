@@ -32,6 +32,8 @@ INSTALLED_APPS = [
     "unfold",  # before django.contrib.admin
 
     #'webapp',
+    'django_celery_results',
+    'django_celery_beat',
 
 
     "unfold.contrib.filters",  # optional, if special filters are needed
@@ -140,7 +142,8 @@ UNFOLD = {
     "SHOW_VIEW_ON_SITE": True,
     "SHOW_BACK_BUTTON": False,
     
-    "ENVIRONMENT": "Production.environment_callback",
+    "ENVIRONMENT": "qnd031app.utils.environment.environment_callback",
+
     "THEME": "light",
     "LOGIN": {
         "image": lambda request: static("img/BA-BG/test.png"),
@@ -155,16 +158,16 @@ UNFOLD = {
     "BORDER_RADIUS": "6px",
     "COLORS": {
         "base": {
-            "50": "0, 180, 81",
-            "100": "243 244 246",
-            "200": "229 231 235",
+            "50": "240 240 240",
+            "100": "236 236 236",
+            "200": "211 213 205",
             "300": "209 213 219",
-            "400": "156 163 175",
+            "400": "41 168 80",
             "500": "0, 180, 81",
             "600": "75 85 99",
-            "700": "55 65 81",
-            "800": "31 41 55",
-            "900": "17 24 39",
+            "700": "7 121 176",
+            "800": "4 168 79",
+            "900": "38 134 4",
             "950": "3 7 18",
         },
         "primary": {
@@ -173,11 +176,11 @@ UNFOLD = {
             "200": "233 213 255",
             "300": "216 180 254",
             "400": "192 132 252",
-            "500": "168 85 247",
-            "600": "46 168 77",
+            "500": "229 234 231",
+            "600": "48 169 81",
             "700": "126 34 206",
             "800": "107 33 168",
-            "900": "88 28 135",
+            "900": "24 85 2",
             "950": "59 7 100",
         },
         "font": {
@@ -243,12 +246,6 @@ UNFOLD = {
 
 
 
-def environment_callback(request):
-    """
-    Callback has to return a list of two values represeting text value and the color
-    type of the label displayed in top right corner.
-    """
-    return ["Production", "danger"] # info, danger, warning, success
 
 
 def badge_callback(request):

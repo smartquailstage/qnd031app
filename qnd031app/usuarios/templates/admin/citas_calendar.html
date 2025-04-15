@@ -1,0 +1,62 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Calendario de Citas{% endblock %}
+
+{% block extrahead %}
+<style>
+    #calendar {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 0 10px;
+        background: white;
+        border-radius: 6px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <h1>Calendario de Citas</h1>
+    <div id="calendar"></div>
+{% endblock %}
+
+{% block extrajs %}
+<!-- FullCalendar JS (v6+) -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            locale: 'es',
+            navLinks: true,
+            editable: false,
+            events: [
+                {% for cita in citas %}
+                {
+                    title: '{{ cita.titulo|escapejs }}',
+                    start: '{{ cita.fecha_inicio|date:"c" }}',
+                    end: '{{ cita.fecha_fin|date:"c" }}',
+                    allDay: {{ cita.todo_el_dia|yesno:"true,false" }},
+                    description: '{{ cita.descripcion|default_if_none:""|escapejs }}',
+                },
+                {% endfor %}
+            ],
+            eventClick: function(info) {
+                alert("Evento: " + info.event.title);
+                // Más lógica si necesitas mostrar detalles
+            }
+        });
+
+        calendar.render();
+    });
+</script>
+{% endblock %}

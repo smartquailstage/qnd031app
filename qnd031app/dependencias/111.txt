@@ -150,3 +150,6 @@ qrcode
 
 twilio 
 requests
+
+django-celery-beat 
+django-celery-results
