@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 # usuarios/tasks.py
 from celery import shared_task
-from django.core.mail import send_mail,BadHeaderError
+from django.core.mail import send_mail,BadHeaderError,EmailMultiAlternatives
 import requests
 from django.conf import settings
 from twilio.rest import Client
 from django.core.mail.message import EmailMessage
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+from email.header import Header
+from email.utils import formataddr
 
 
 from django.utils.html import strip_tags
@@ -17,32 +19,31 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-
-
 @shared_task
-def enviar_correo_async(emisor, receptor_email, asunto, cuerpo):
+def enviar_correo_async(emisor, receptor_email, asunto, cuerpo_html):
     try:
-        # Crea el mensaje de correo
-        email = EmailMessage(
+        cuerpo_texto = "Este es un mensaje alternativo en texto plano."
+
+        # Garantizamos codificación segura con Header y formataddr
+        asunto = Header(asunto, 'utf-8').encode()
+        emisor = formataddr((str(Header(emisor, 'utf-8')), settings.DEFAULT_FROM_EMAIL))
+
+        email = EmailMultiAlternatives(
             subject=asunto,
-            body=cuerpo,  # Esto es el texto que se mostrará si no soporta HTML
-            from_email=settings.DEFAULT_FROM_EMAIL,
+            body=cuerpo_texto,
+            from_email=emisor,
             to=[receptor_email]
         )
 
-        # Asegúrate de que el cuerpo sea un HTML
-        email.content_subtype = "html"
+        email.attach_alternative(cuerpo_html, "text/html")
         email.encoding = 'utf-8'
 
-        # Usamos attach_alternative para enviar el contenido HTML
-        #email.attach_alternative(cuerpo, "text/html")
-
-        # Enviar el correo
         email.send()
         logger.info("📧 Correo enviado exitosamente a %s", receptor_email)
 
     except Exception as e:
-        logger.error("❌ Error general al enviar el correo: %s", e)
+        logger.error("❌ Error general al enviar el correo a %s: %s", receptor_email, str(e))
+
 
 @shared_task
 def enviar_whatsapp_async(telefono, mensaje):

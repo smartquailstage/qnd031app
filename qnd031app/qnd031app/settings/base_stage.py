@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "unfold.contrib.simple_history",
     'appointment',
     'django_q',
+    'django_extensions',
    # 'django_q',  # Optional: for email reminders
 
     #'shop',
