@@ -78,6 +78,14 @@ if DB_IS_AVAILABLE:
 #Static files DevMod
 
 
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'full',
+        'height': 300,
+        'width': '100%',
+    },
+}
+
 # settings.py
 
 DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
@@ -87,4 +95,44 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # celery setup
 
+# celery setup
 
+
+Q_CLUSTER = {
+   'name': 'DjangORM',
+   'workers': 4,
+   'timeout': 90,
+   'retry': 120,
+   'queue_limit': 50,
+   'bulk': 10,
+   'orm': 'default',
+}
+USE_DJANGO_Q_FOR_EMAILS = True
+
+
+# Configuración del broker y serialización en Celery
+CELERY_BROKER_URL = 'pyamqp://guest:guest@localhost//'
+
+# Configuración de serialización actualizada (según las advertencias)
+accept_content = ['json']  # Esto reemplaza 'CELERY_ACCEPT_CONTENT'
+task_serializer = 'json'   # Esto reemplaza 'CELERY_TASK_SERIALIZER'
+result_serializer = 'json'  # Esto reemplaza 'CELERY_RESULT_SERIALIZER'
+
+# Si deseas mantener el comportamiento de reconexión automática en el inicio del broker, usa:
+#broker_connection_retry_on_startup = True
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Para Gmail
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'tu_correo@gmail.com'  # Tu correo de Gmail
+EMAIL_HOST_PASSWORD = 'tu_contraseña'  # La contraseña de tu cuenta de Gmail
+DEFAULT_FROM_EMAIL = 'webmaster@localhost'
+
+
+
+
+TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
+TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
+TWILIO_WHATSAPP_FROM = os.getenv("TWILIO_WHATSAPP_FROM")

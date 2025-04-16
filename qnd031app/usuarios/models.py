@@ -9,6 +9,7 @@ from django.contrib.auth.models import User, Group
 from django.core.validators import RegexValidator
 from datetime import date
 from django.contrib.auth.models import AbstractUser
+from ckeditor.fields import RichTextField
 
 
 
@@ -351,7 +352,7 @@ class Mensaje(models.Model):
     emisor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='mensajes_enviados', on_delete=models.CASCADE)
     receptor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='mensajes_recibidos', on_delete=models.CASCADE)
     asunto = models.CharField(max_length=50, choices=ASUNTOS_CHOICES, default='Consulta')  
-    cuerpo = models.TextField(blank=True, null=True)
+    cuerpo = RichTextField(blank=True, null=True)
     leido = models.BooleanField(default=False)
     fecha_envio = models.DateTimeField(auto_now_add=True)
 
