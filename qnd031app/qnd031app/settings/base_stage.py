@@ -273,7 +273,7 @@ UNFOLD = {
                 "items": [
                     {
                         "title": _("Bandeja de Mensajes"),
-                        "icon": "mail",
+                        "icon": "inbox",
                         "link": reverse_lazy("admin:usuarios_mensaje_changelist"),
                     },
                 ],

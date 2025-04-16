@@ -10,7 +10,7 @@ def manejar_mensaje(sender, instance, created, **kwargs):
         return
 
     receptor = instance.receptor
-    telefono = receptor.profile.telefono  # Asegúrate de que exista
+    telefono = str(receptor.profile.celular)  
     cuerpo = instance.cuerpo
     asunto = instance.asunto
 
@@ -20,3 +20,4 @@ def manejar_mensaje(sender, instance, created, **kwargs):
     
     elif asunto == "Informativo":
         enviar_whatsapp_async.delay(telefono, f"📢 Mensaje informativo:\n{cuerpo}")
+
