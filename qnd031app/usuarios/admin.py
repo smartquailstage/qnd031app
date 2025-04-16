@@ -18,6 +18,8 @@ from django.utils.safestring import mark_safe
 from django.urls import path
 from django.template.response import TemplateResponse
 from unfold.contrib.filters.admin import RangeDateFilter, RangeDateTimeFilter
+from django.core.serializers.json import DjangoJSONEncoder
+import json
 
 
 #def profile_pdf(obj):
@@ -308,47 +310,99 @@ class MensajeAdmin(ModelAdmin):
 
 @admin.register(pagos)
 class PagosAdmin(ModelAdmin):
-    list_display = ['profile', 'cuenta', 'colegio', 'plan','servicio','estado_de_pago','convenio']
+    list_display = ['profile', 'cuenta', 'colegio', 'plan','servicio','estado_de_pago','convenio','pago']
     list_filter_sheet = True
     list_filter_submit = True  # Submit button at the bottom of the filter
+    actions = [ export_to_csv, export_to_excel]
+
+        # Display fields in changeform in compressed mode
+    compressed_fields = True  # Default: False
+
+    # Warn before leaving unsaved changes in changeform
+    warn_unsaved_form = True  # Default: False
+
+    # Preprocess content of readonly fields before render
+    readonly_preprocess_fields = {
+        "model_field_name": "html.unescape",
+        "other_field_name": lambda content: content.strip(),
+    }
+
+    # Display submit button in filters
+    list_filter_submit = False
+
+    # Display changelist in fullwidth
+    list_fullwidth = False
+
+    # Set to False, to enable filter as "sidebar"
+    list_filter_sheet = True
+
+    # Position horizontal scrollbar in changelist at the top
+    list_horizontal_scrollbar_top = False
+
+    # Dsable select all action in changelist
+    list_disable_select_all = False
+
+    # Custom actions
+    actions_list = []  # Displayed above the results list
+    actions_row = []  # Displayed in a table row in results list
+    actions_detail = []  # Displayed at the top of for in object detail
+    actions_submit_line = []  # Displayed near save in object detail
+
+    # Changeform templates (located inside the form)
+    #change_form_before_template = "some/template.html"
+    #change_form_after_template = "some/template.html"
+
+    # Located outside of the form
+   # change_form_outer_before_template = "some/template.html"
+   # change_form_outer_after_template = "some/template.html"
+
+    # Display cancel button in submit line in changeform
+    change_form_show_cancel_button = True # show/hide cancel button in changeform, default: False
+
+    formfield_overrides = {
+        models.TextField: {
+            "widget": WysiwygWidget,
+        },
+        ArrayField: {
+            "widget": ArrayWidget,
+        }
+    }
 
 
-class CitaAdmin(ModelAdmin):
-    change_list_template = "admin/citas_calendar.html"
-    list_display = ['creador', 'destinatario', 'fecha', 'estado']
-    
+
+
+@admin.register(Cita)
+class CitaAdmin(admin.ModelAdmin):
+    change_list_template = 'admin/citas_calendar.html'
+
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
-            path('calendario/', self.admin_site.admin_view(self.calendar_view), name='citas_calendar'),
+            path('calendar/', self.admin_site.admin_view(self.calendar_view), name='citas_calendar'),
+            path('events/', self.admin_site.admin_view(self.calendar_events), name='citas_calendar_events'),
         ]
         return custom_urls + urls
 
     def calendar_view(self, request):
-        citas = Cita.objects.all()
-        eventos = []
-        for cita in citas:
-            eventos.append({
-                "title": f"{cita.creador.username} → {cita.destinatario.username}",
-                "start": cita.fecha.isoformat(),
-                "url": f"/admin/usuarios/cita/{cita.id}/change/"
-            })
-
         context = dict(
             self.admin_site.each_context(request),
             title='Calendario de Citas',
-            eventos=eventos,
         )
-        return TemplateResponse(request, "admin/citas_calendar.html", context)
-    
-    def changelist_view(self, request, extra_context=None):
-        extra_context = extra_context or {}
-        extra_context['calendar_link'] = mark_safe(
-            '<a class="button" href="calendario/">🗓️ Ver Calendario</a>'
-        )
-        return super().changelist_view(request, extra_context=extra_context)
+        return TemplateResponse(request, 'admin/citas_calendar.html', context)
 
-admin.site.register(Cita, CitaAdmin)
+    def calendar_events(self, request):
+        citas = Cita.objects.all()
+        eventos = [
+            {
+                'title': cita.motivo,
+                'start': cita.fecha.isoformat(),
+                'end': cita.fecha.isoformat(),
+                'description': cita.notas or '',
+                'allDay': False,
+            }
+            for cita in citas
+        ]
+        return JsonResponse(eventos, safe=False)
 
 
 class PagosItemInline(admin.TabularInline):

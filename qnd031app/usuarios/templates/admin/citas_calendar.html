@@ -1,62 +1,57 @@
-{% extends "admin/base_site.html" %}
+{% extends 'unfold/base.html' %}
 {% load static %}
 
-{% block title %}Calendario de Citas{% endblock %}
+{% block content %}
 
-{% block extrahead %}
-<style>
-    #calendar {
-        max-width: 900px;
-        margin: 40px auto;
-        padding: 0 10px;
-        background: white;
-        border-radius: 6px;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-    }
-</style>
+
+{% block customCSS %}{% endblock %}
+{% block title %}{% endblock %}
+{% block description %}{% endblock %}
+{% block body %}{% endblock %}
+{% block customJS %}{% endblock %}
+
+
+<div class="container max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="card">
+        <div class="card-body">
+            <div id="calendar"></div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
-{% block content %}
-    <h1>Calendario de Citas</h1>
-    <div id="calendar"></div>
+{% block extrastyle %}
+{{ block.super }}
+<!-- rrule lib --> 
+<script src='https://cdn.jsdelivr.net/npm/rrule@2.6.4/dist/es5/rrule.min.js'></script>
+
+<!-- fullcalendar bundle  "IMPORTANT"--> 
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+<!-- or download fullcalendar@6.x.xx (static) and link it from there -->
+
+<!-- the rrule-to-fullcalendar connector. must go AFTER the rrule lib -->
+<script src='https://cdn.jsdelivr.net/npm/@fullcalendar/rrule@6.1.11/index.global.min.js'></script>
 {% endblock %}
 
 {% block extrajs %}
-<!-- FullCalendar JS (v6+) -->
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
-
+{{ block.super }}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        var calendarEl = document.getElementById('calendar');
-
-        var calendar = new FullCalendar.Calendar(calendarEl, {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
+            
+            //event data : 
+            events: '/mp/', /*. URL from urls.py (JSON output from views.py) */
             headerToolbar: {
-                left: 'prev,next today',
+                left: 'prev,next today', 
                 center: 'title',
                 right: 'dayGridMonth,timeGridWeek,timeGridDay'
             },
-            locale: 'es',
-            navLinks: true,
-            editable: false,
-            events: [
-                {% for cita in citas %}
-                {
-                    title: '{{ cita.titulo|escapejs }}',
-                    start: '{{ cita.fecha_inicio|date:"c" }}',
-                    end: '{{ cita.fecha_fin|date:"c" }}',
-                    allDay: {{ cita.todo_el_dia|yesno:"true,false" }},
-                    description: '{{ cita.descripcion|default_if_none:""|escapejs }}',
-                },
-                {% endfor %}
-            ],
-            eventClick: function(info) {
-                alert("Evento: " + info.event.title);
-                // Más lógica si necesitas mostrar detalles
-            }
+            
+            });
+            calendar.render();
         });
 
-        calendar.render();
-    });
 </script>
 {% endblock %}

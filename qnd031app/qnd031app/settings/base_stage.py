@@ -42,12 +42,17 @@ INSTALLED_APPS = [
     "unfold.contrib.import_export",  # optional, if django-import-export package is used
     "unfold.contrib.guardian",  # optional, if django-guardian package is used
     "unfold.contrib.simple_history",
+    'appointment',
+    'django_q',
+   # 'django_q',  # Optional: for email reminders
 
     #'shop',
     #'orders',
     #'payment',
     #'coupons',
     'usuarios',
+
+    
 
    
     'django.contrib.contenttypes',
@@ -206,19 +211,70 @@ UNFOLD = {
         "show_all_applications": True,
         "navigation": [
             {
-                "title": _("Users and Groups Management"),
+                "title": _("Registros Administrativos"),
                 "separator": True,
                 "collapsible": True,
                 "items": [
                     {
-                        "title": _("Users"),
+                        "title": _("Ingreso de Usuarios"),
                         "icon": "people",
                         "link": reverse_lazy("admin:auth_user_changelist"),
                     },
                     {
-                        "title": _("Groups"),
+                        "title": _("Ingreso de Departamentos"),
                         "icon": "groups",
                         "link": reverse_lazy("admin:auth_group_changelist"),
+                    },
+                    {
+                        "title": _("Ingreso de Pacientes"),
+                        "icon": "list",
+                        "link": reverse_lazy("admin:usuarios_profile_changelist"),
+                    },
+                    {
+                        "title": _("Ingreso de Terapistas"),
+                        "icon": "list",
+                        "link": reverse_lazy("admin:usuarios_perfil_terapeuta_changelist"),
+                    },
+
+                    {
+                        "title": _("Ingreso de Citas"),
+                        "icon": "calendar_today",
+                        "link": reverse_lazy("admin:usuarios_cita_changelist"),
+                    },
+
+                    {
+                        "title": _("Ingreso de Prospecto de Paciente"),
+                        "icon": "edit",    
+                        "link": reverse_lazy("admin:usuarios_prospecion_administrativa_changelist"),
+                    },
+                    {
+                        "title": _("Ingreso de Pagos por servicios Terapéuticos"),
+                        "icon": "payment",
+                        "link": reverse_lazy("admin:usuarios_pagos_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": _("Registros Terapéuticos"),
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": _("Ingreso de Tareas Terapéuticas "),
+                        "icon": "task",
+                        "link": reverse_lazy("admin:usuarios_tareas_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": _("Comunicaciones"),
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": _("Bandeja de Mensajes"),
+                        "icon": "mail",
+                        "link": reverse_lazy("admin:usuarios_mensaje_changelist"),
                     },
                 ],
             },
@@ -261,7 +317,7 @@ PARLER_SHOW_EXCLUDED_LANGUAGE_TABS = False
 
 
 
-
+#AUTH_USER_MODEL = 'usuarios.Cita'
 
 
 MIDDLEWARE = [

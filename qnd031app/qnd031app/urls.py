@@ -23,6 +23,7 @@ from django.contrib.auth import views as auth_views
 # Change the parentheses to square brackets for a list
 urlpatterns = [
     path('analytics/', admin.site.urls),
+    path('appointment/', include('appointment.urls')),
     path('social-auth/', include('social_django.urls', namespace='social')),
     path('rosetta/', include('rosetta.urls')),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),

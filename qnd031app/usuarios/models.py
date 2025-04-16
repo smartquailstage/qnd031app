@@ -8,6 +8,7 @@ from django.core.cache import cache
 from django.contrib.auth.models import User, Group
 from django.core.validators import RegexValidator
 from datetime import date
+from django.contrib.auth.models import AbstractUser
 
 
 
