@@ -20,7 +20,27 @@ from django.template.response import TemplateResponse
 from unfold.contrib.filters.admin import RangeDateFilter, RangeDateTimeFilter
 from django.core.serializers.json import DjangoJSONEncoder
 import json
+from django.utils.html import format_html
+from unfold.sections import TableSection, TemplateSection
+from .sites import custom_admin_site
+from unfold.sites import UnfoldAdminSite
 
+
+
+class CustomAdminSite(UnfoldAdminSite):
+    site_header = "Panel de Administración"
+    site_title = "QNODES"
+    index_title = "Dashboard"
+
+    def each_context(self, request):
+        context = super().each_context(request)
+        # Aquí podés agregar tus citas si querés pasarlas al template
+        from usuarios.models import Cita  # ajustá si tu modelo se llama distinto
+
+        context["citas"] = Cita.objects.all()
+        return context
+
+custom_admin_site = CustomAdminSite(name="custom_admin_site")
 
 #def profile_pdf(obj):
 #    return mark_safe('<a href="{}">ver perfil</a>'.format(
@@ -300,12 +320,34 @@ class prospecion_administrativaAdmin(ModelAdmin):
 
 @admin.register(Mensaje)
 class MensajeAdmin(ModelAdmin):
-    list_display = ['emisor', 'receptor', 'fecha_envio', 'asunto','leido']
+    list_display = ['emisor', 'receptor', 'fecha_envio', 'asunto','leido','estado_tarea_coloreado']
     list_filter_sheet = True
     list_filter_submit = True  # Submit button at the bottom of the filter
     list_filter = (
         ("fecha_envio", RangeDateTimeFilter),
     )
+
+    def estado_tarea_coloreado(self, obj):
+        estado = obj.estado_tarea
+
+        colores = {
+            'PENDING': 'gray',
+            'RECEIVED': 'gray',
+            'STARTED': 'blue',
+            'RETRY': 'orange',
+            'SUCCESS': 'green',
+            'FAILURE': 'red',
+        }
+
+        color = colores.get(estado.upper(), 'black')
+
+        return format_html(
+            '<span style="padding:2px 6px; background-color:{}; color:white; border-radius:4px;">{}</span>',
+            color, estado
+        )
+
+    estado_tarea_coloreado.short_description = "Estado de la tarea"
+    estado_tarea_coloreado.admin_order_field = 'task_id'
 
 
 @admin.register(pagos)
@@ -369,40 +411,16 @@ class PagosAdmin(ModelAdmin):
     }
 
 
+class CardSection(TemplateSection):
+    template_name = "admin/citas_calendar.html"
 
+@admin.register(Cita, site=custom_admin_site)
+class CitaAdmin(ModelAdmin):  # Usamos unfold.ModelAdmin
+    list_display = ("creador", "destinatario", "fecha", "estado")
+    search_fields = ("motivo", "notas", "creador__username", "destinatario__username")
+    list_filter = ("estado", "fecha")
+    list_sections = [CardSection]
 
-@admin.register(Cita)
-class CitaAdmin(admin.ModelAdmin):
-    change_list_template = 'admin/citas_calendar.html'
-
-    def get_urls(self):
-        urls = super().get_urls()
-        custom_urls = [
-            path('calendar/', self.admin_site.admin_view(self.calendar_view), name='citas_calendar'),
-            path('events/', self.admin_site.admin_view(self.calendar_events), name='citas_calendar_events'),
-        ]
-        return custom_urls + urls
-
-    def calendar_view(self, request):
-        context = dict(
-            self.admin_site.each_context(request),
-            title='Calendario de Citas',
-        )
-        return TemplateResponse(request, 'admin/citas_calendar.html', context)
-
-    def calendar_events(self, request):
-        citas = Cita.objects.all()
-        eventos = [
-            {
-                'title': cita.motivo,
-                'start': cita.fecha.isoformat(),
-                'end': cita.fecha.isoformat(),
-                'description': cita.notas or '',
-                'allDay': False,
-            }
-            for cita in citas
-        ]
-        return JsonResponse(eventos, safe=False)
 
 
 class PagosItemInline(admin.TabularInline):

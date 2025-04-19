@@ -17,6 +17,18 @@ from django.core.cache import cache
 from .models import Dashboard
 
 
+
+@staff_member_required
+def dashboard_view(request):
+    return render(request, "admin/custom_dashboard.html")
+
+def dashboard_callback(request, context):
+    context.update({
+        "custom_variable": "value",
+    })
+
+    return context
+
 def user_login(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)

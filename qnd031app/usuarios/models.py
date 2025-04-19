@@ -10,6 +10,8 @@ from django.core.validators import RegexValidator
 from datetime import date
 from django.contrib.auth.models import AbstractUser
 from ckeditor.fields import RichTextField
+from django_celery_results.models import TaskResult
+
 
 
 
@@ -337,14 +339,15 @@ class tareas(models.Model):
 
     
 
+
 class Mensaje(models.Model):
     ASUNTOS_CHOICES = [
         ('Consulta', 'Consulta'),
         ('Sugerencia', 'Sugerencia'),   
         ('Informativo', 'Informativo'),
-        ('Terapéutico', 'Terapéutico'),
+        ('Terapéutico', 'Terapeutico'),
         ('Solicitud de pago vencido', 'Solicitud de pago vencido'),
-        ('Solicitud de Certificado Médico', 'Solicitud de Certificado Médico'),
+        ('Solicitud de Certificado Médico', 'Solicitud de Certificado Medico'),
         ('Reclamo del servicio  Médico', 'Reclamo del servicio  Médico'),
         ('Cancelación del servicio Médico', 'Cancelación del servicio Médico'),
     ]
@@ -356,6 +359,10 @@ class Mensaje(models.Model):
     leido = models.BooleanField(default=False)
     fecha_envio = models.DateTimeField(auto_now_add=True)
 
+    # ➕ Campo para vincular con Celery
+    task_id = models.CharField(max_length=255, blank=True, null=True, help_text="ID de la tarea de Celery asociada")
+    task_status = models.CharField(max_length=50, blank=True, null=True, help_text="Estado de la tarea de Celery asociada")
+
     class Meta:
         ordering = ['-fecha_envio']
         verbose_name_plural = "Bandeja de entrada MEDDES"
@@ -364,6 +371,29 @@ class Mensaje(models.Model):
     def __str__(self):
         fecha = self.fecha_envio.strftime("%d/%m/%Y %H:%M") if self.fecha_envio else "Sin fecha"
         return f"{self.emisor} - {fecha}"
+
+    @property
+    def estado_tarea(self):
+        """Devuelve el estado de la tarea de Celery asociada, si existe"""
+        if self.task_id:
+            task_result = TaskResult.objects.filter(task_id=self.task_id).order_by('-date_done').first()
+            if task_result:
+                return task_result.task_state  # o .status si prefieres
+            return "Desconocido"
+        return "No asignada"
+
+    def save(self, *args, **kwargs):
+        """Sobrescribe el método save para actualizar el estado de la tarea"""
+        if self.task_id:
+            task_result = TaskResult.objects.filter(task_id=self.task_id).order_by('-date_done').first()
+            if task_result:
+                self.task_status = task_result.task_state  # Actualiza el estado de la tarea
+            else:
+                self.task_status = "Desconocido"
+        else:
+            self.task_status = "No asignada"
+        super().save(*args, **kwargs)
+
 
 class Cita(models.Model):
     creador = models.ForeignKey(

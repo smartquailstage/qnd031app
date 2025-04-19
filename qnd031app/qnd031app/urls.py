@@ -19,9 +19,13 @@ from django.conf.urls.static import static
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
+from usuarios.views import dashboard_view
+from .sites import custom_admin_site
 
 # Change the parentheses to square brackets for a list
 urlpatterns = [
+    path("admin2/", custom_admin_site.urls),
+    path("admin/", dashboard_view),
     path('analytics/', admin.site.urls),
     path('appointment/', include('appointment.urls')),
     path('social-auth/', include('social_django.urls', namespace='social')),

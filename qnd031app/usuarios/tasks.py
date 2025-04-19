@@ -19,12 +19,11 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-@shared_task
-def enviar_correo_async(emisor, receptor_email, asunto, cuerpo_html):
+@shared_task(bind=True, max_retries=3, default_retry_delay=60)  # 3 intentos, 60s entre cada uno
+def enviar_correo_async(self, emisor, receptor_email, asunto, cuerpo_html):
     try:
         cuerpo_texto = "Este es un mensaje alternativo en texto plano."
 
-        # Garantizamos codificación segura con Header y formataddr
         asunto = Header(asunto, 'utf-8').encode()
         emisor = formataddr((str(Header(emisor, 'utf-8')), settings.DEFAULT_FROM_EMAIL))
 
@@ -34,7 +33,6 @@ def enviar_correo_async(emisor, receptor_email, asunto, cuerpo_html):
             from_email=emisor,
             to=[receptor_email]
         )
-
         email.attach_alternative(cuerpo_html, "text/html")
         email.encoding = 'utf-8'
 
@@ -42,21 +40,24 @@ def enviar_correo_async(emisor, receptor_email, asunto, cuerpo_html):
         logger.info("📧 Correo enviado exitosamente a %s", receptor_email)
 
     except Exception as e:
-        logger.error("❌ Error general al enviar el correo a %s: %s", receptor_email, str(e))
+        logger.error("❌ Error al enviar correo a %s: %s", receptor_email, str(e))
+        raise self.retry(exc=e)
 
 
-@shared_task
-def enviar_whatsapp_async(telefono, mensaje):
+@shared_task(bind=True, max_retries=3, default_retry_delay=30)  # 3 intentos, 30s entre cada uno
+def enviar_whatsapp_async(self, telefono, mensaje):
     try:
         client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
 
         message = client.messages.create(
             body=mensaje,
-            from_=settings.TWILIO_WHATSAPP_FROM,  # Ej: 'whatsapp:+14155238886'
-            to=f"whatsapp:{telefono}",             # Ej: 'whatsapp:+593991234567'
+            from_=settings.TWILIO_WHATSAPP_FROM,
+            to=f"whatsapp:{telefono}",
         )
 
-        logger.info(f"✅ Mensaje WhatsApp enviado a {telefono}: SID={message.sid}")
+        logger.info(f"✅ WhatsApp enviado a {telefono}: SID={message.sid}")
 
     except Exception as e:
         logger.error(f"❌ Error enviando WhatsApp a {telefono}: {e}")
+        raise self.retry(exc=e)
+

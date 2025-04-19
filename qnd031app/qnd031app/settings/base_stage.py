@@ -32,8 +32,7 @@ INSTALLED_APPS = [
     "unfold",  # before django.contrib.admin
 
     #'webapp',
-    'django_celery_results',
-    'django_celery_beat',
+
 
 
     "unfold.contrib.filters",  # optional, if special filters are needed
@@ -51,6 +50,8 @@ INSTALLED_APPS = [
     #'orders',
     #'payment',
     #'coupons',
+    'django_celery_results',
+    'django_celery_beat',
     'usuarios',
 
     
@@ -97,6 +98,7 @@ INSTALLED_APPS = [
     'bootstrap5',
 
     'bootstrap_datepicker_plus',
+   
 
     #WEBAPP
     #'wagtail_modeltranslation',
@@ -147,6 +149,7 @@ UNFOLD = {
     "SHOW_HISTORY": True,
     "SHOW_VIEW_ON_SITE": True,
     "SHOW_BACK_BUTTON": False,
+    "DASHBOARD_CALLBACK": "usuarios.views.dashboard_callback",
     
     "ENVIRONMENT": "qnd031app.utils.environment.environment_callback",
 
@@ -237,11 +240,6 @@ UNFOLD = {
                         "link": reverse_lazy("admin:usuarios_perfil_terapeuta_changelist"),
                     },
 
-                    {
-                        "title": _("Ingreso de Citas"),
-                        "icon": "calendar_today",
-                        "link": reverse_lazy("admin:usuarios_cita_changelist"),
-                    },
 
                     {
                         "title": _("Ingreso de Prospecto de Paciente"),
@@ -281,6 +279,7 @@ UNFOLD = {
             },
         ],
     },
+
  
     "MENU": [
         {
@@ -339,6 +338,7 @@ MIDDLEWARE = [
     #'wagtail.contrib.redirects.middleware.RedirectMiddleware',
    # 'shop.middleware.LocaleRedirectMiddleware', 
 ]
+
 
 
 

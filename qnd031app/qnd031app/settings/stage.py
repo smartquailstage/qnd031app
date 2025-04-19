@@ -38,6 +38,7 @@ ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "").split(",") if os.environ.get
 
 
 
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -110,8 +111,22 @@ Q_CLUSTER = {
 USE_DJANGO_Q_FOR_EMAILS = True
 
 
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/0",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
 # Configuración del broker y serialización en Celery
 CELERY_BROKER_URL = 'pyamqp://guest:guest@localhost//'
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60 
+
 
 # Configuración de serialización actualizada (según las advertencias)
 accept_content = ['json']  # Esto reemplaza 'CELERY_ACCEPT_CONTENT'
@@ -122,13 +137,14 @@ result_serializer = 'json'  # Esto reemplaza 'CELERY_RESULT_SERIALIZER'
 #broker_connection_retry_on_startup = True
 
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 EMAIL_HOST = 'smtp.gmail.com'  # Para Gmail
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'tu_correo@gmail.com'  # Tu correo de Gmail
-EMAIL_HOST_PASSWORD = 'tu_contraseña'  # La contraseña de tu cuenta de Gmail
-DEFAULT_FROM_EMAIL = 'webmaster@localhost'
+EMAIL_HOST_USER = 'phys.mauricio.silva@gmail.com'  # Tu correo de Gmail
+EMAIL_HOST_PASSWORD = '1719183830'  # La contraseña de tu cuenta de Gmail
+DEFAULT_FROM_EMAIL = 'phys.mauricio.silva@gmail.com'
 
 
 
