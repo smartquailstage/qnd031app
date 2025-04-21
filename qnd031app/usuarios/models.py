@@ -11,6 +11,7 @@ from datetime import date
 from django.contrib.auth.models import AbstractUser
 from ckeditor.fields import RichTextField
 from django_celery_results.models import TaskResult
+from djmoney.models.fields import MoneyField
 
 
 
@@ -242,7 +243,14 @@ class pagos(models.Model):
 
     fecha_emision_factura = models.DateField(blank=True, null=True, verbose_name="Fecha de emisión de factura")
     numero_factura = models.CharField(max_length=255, blank=True, null=True, verbose_name="Número de Factura")
-    pago = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, verbose_name="Saldo a cancelar")
+    pago = MoneyField(
+    max_digits=10,
+    decimal_places=2,
+    default_currency='USD',  # o 'PEN', 'ARS', etc.
+    blank=True,
+    null=True,
+    verbose_name="Saldo a cancelar"
+    )
     fecha_pago = models.DateField(blank=True, null=True, verbose_name="Fecha de pago")
     fecha_vencimiento = models.DateField(blank=True, null=True, verbose_name="Fecha de vencimiento de pago")
     estado_de_pago = models.CharField(

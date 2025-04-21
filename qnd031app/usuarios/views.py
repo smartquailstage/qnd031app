@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import LoginForm                    
+from .forms import LoginForm,MensajeForm                   
 from .models import Profile
 from django.shortcuts import get_object_or_404
 from django.conf import settings
@@ -14,7 +14,7 @@ import weasyprint
 from django.conf import settings
 from pathlib import Path
 from django.core.cache import cache
-from .models import Dashboard
+from .models import Dashboard, Mensaje
 
 
 
@@ -65,6 +65,37 @@ def profile_view(request):
     # Obtener el perfil del usuario actualmente autenticado
     profile = Profile.objects.get(user=request.user)
     return render(request, 'usuarios/profile.html', {'profile': profile})
+
+def ver_mensaje(request, pk):
+    mensaje = get_object_or_404(Mensaje, pk=pk)
+    return render(request, 'admin/ver_mensaje.html', {'mensaje': mensaje})
+
+@login_required
+def enviar_mensaje(request):
+    destinatario = User.objects.get(id=1)  # <--- usuario fijo al que se envían los mensajes
+
+    if request.method == 'POST':
+        form = MensajeForm(request.POST)
+        if form.is_valid():
+            mensaje = form.save(commit=False)
+            mensaje.emisor = request.user
+            mensaje.receptor = User.objects.get(id=1)  # <-- se asigna automáticamente
+            mensaje.save()
+            return redirect('bandeja_entrada')  # o donde prefieras
+    else:
+        form = MensajeForm()
+    
+    return render(request, 'usuarios/enviar_mensaje.html', {'form': form})
+
+@login_required
+def inbox_view(request):
+    profile = Profile.objects.get(user=request.user)
+    mensajes = request.user.mensajes_recibidos.all()
+
+    return render(request, 'usuarios/inbox.html', {
+        'mensajes': mensajes,
+        'profile': profile,
+    })
 
 @login_required
 def config_view(request):

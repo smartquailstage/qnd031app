@@ -17,27 +17,47 @@
     </div>
     <!--navigation-->
     <ul class="metismenu" id="menu">
-        <li>
-            <a href="{% url 'usuarios:dashboard' %}">
-                <div class="parent-icon">
-                    <ion-icon name="home-outline"></ion-icon>
-                </div>
-                <div class="menu-title">Inicio</div>
-            </a>
-        </li>
- 
-                       
 
+                    
         
-        <li class="menu-label">Configuraciones </li>
+        <li class="menu-label">Ficha Medica Pacientes MEDDES</li>
+
         <li>
             <a href="{% url 'usuarios:perfil' %}">
                 <div class="parent-icon">
                     <ion-icon name="person-circle-outline"></ion-icon>
                 </div>
-                <div class="menu-title">Perfil de usuario</div>
+                <div class="menu-title">Mi Perfil</div>
             </a>
         </li>
+
+        <li>
+            <a href="{% url 'usuarios:perfil' %}">
+                <div class="parent-icon">
+                    <ion-icon name="medkit"></ion-icon>
+                </div>
+                <div class="menu-title">Mis Terapias</div>
+            </a>
+        </li>
+
+        <li>
+            <a href="{% url 'usuarios:inbox' %}">
+                <div class="parent-icon">
+                    <ion-icon name="calendar"></ion-icon>
+                </div>
+                <div class="menu-title">Agendar Cita </div>
+            </a>
+        </li>
+
+        <li>
+            <a href="{% url 'usuarios:inbox' %}">
+                <div class="parent-icon">
+                    <ion-icon name="archive"></ion-icon>
+                </div>
+                <div class="menu-title">Bandeja de entrada</div>
+            </a>
+        </li>
+
 
 
     
@@ -55,7 +75,7 @@
                 <div class="parent-icon">
                     <ion-icon name="exit-outline"></ion-icon>
                 </div>
-                <div class="menu-title">Salir</div>
+                <div class="menu-title">Salir de MEDDES</div>
             </a>
         </li>
     </ul>

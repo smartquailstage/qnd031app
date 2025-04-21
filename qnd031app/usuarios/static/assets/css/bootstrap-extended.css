@@ -2,8 +2,8 @@
 /* Components */
 
 .card {
-    border: 1px solid #e2e3e4;
-    margin-bottom: 1.5rem;
+    border: 0px solid #e2e3e4;
+    margin-bottom: 1rem;
     box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075);
 }
 

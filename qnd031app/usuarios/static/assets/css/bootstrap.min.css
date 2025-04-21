@@ -1604,16 +1604,16 @@ progress {
 	--bs-table-bg-type: initial;
 	--bs-table-color-state: initial;
 	--bs-table-bg-state: initial;
-	--bs-table-color: var(--bs-body-color);
-	--bs-table-bg: var(--bs-body-bg);
-	--bs-table-border-color: var(--bs-border-color);
+	--bs-table-color: #fff;
+	--bs-table-bg: #3c9aae;
+	--bs-table-border-color: rgb(23 187 107);
 	--bs-table-accent-bg: transparent;
 	--bs-table-striped-color: var(--bs-body-color);
 	--bs-table-striped-bg: rgba(0, 0, 0, 0.05);
 	--bs-table-active-color: var(--bs-body-color);
 	--bs-table-active-bg: rgba(0, 0, 0, 0.1);
-	--bs-table-hover-color: var(--bs-body-color);
-	--bs-table-hover-bg: rgba(0, 0, 0, 0.075);
+    --bs-table-hover-color: #ffffff;
+    --bs-table-hover-bg: rgb(23 187 107);
 	width: 100%;
 	margin-bottom: 1rem;
 	vertical-align: top;
@@ -1683,17 +1683,17 @@ progress {
 	border-color: var(--bs-table-border-color)
 }
 .table-secondary {
-	--bs-table-color: #000;
-	--bs-table-bg: #e2e3e5;
-	--bs-table-border-color: #cbccce;
-	--bs-table-striped-bg: #d7d8da;
-	--bs-table-striped-color: #000;
-	--bs-table-active-bg: #cbccce;
-	--bs-table-active-color: #000;
-	--bs-table-hover-bg: #d1d2d4;
-	--bs-table-hover-color: #000;
-	color: var(--bs-table-color);
-	border-color: var(--bs-table-border-color)
+    --bs-table-color: #ffffff;
+    --bs-table-bg: #17bb6b;
+    --bs-table-border-color: #cbccce;
+    --bs-table-striped-bg: #d7d8da;
+    --bs-table-striped-color: #000;
+    --bs-table-active-bg: #cbccce;
+    --bs-table-active-color: #000;
+    --bs-table-hover-bg: #d1d2d4;
+    --bs-table-hover-color: #000;
+    color: #ffffff;
+    border-color: var(--bs-table-border-color);
 }
 .table-success {
 	--bs-table-color: #000;
@@ -3922,8 +3922,8 @@ textarea.form-control-lg {
 	--bs-card-cap-bg: rgba(var(--bs-body-color-rgb), 0.03);
 	--bs-card-cap-color: ;
 	--bs-card-height: ;
-	--bs-card-color: ;
-	--bs-card-bg: var(--bs-body-bg);
+	--bs-card-color: #ffff;
+	--bs-card-bg: #3c9aae;
 	--bs-card-img-overlay-padding: 1rem;
 	--bs-card-group-margin: 0.75rem;
 	position: relative;
@@ -7120,7 +7120,7 @@ textarea.form-control-lg {
 	color: #fff;
 }
 .my-5 {
-	margin-top: 0rem!important;
+	margin-top: 23rem!important;
 	margin-bottom: 3rem!important;
     background-color: #00000057; 
 }
@@ -7782,7 +7782,7 @@ textarea.form-control-lg {
 }
 .bg-white {
 	--bs-bg-opacity: 1;
-	background-color: #f0f8ffc4
+	background-color: #1b9db4;
 }
 .bg-body {
 	--bs-bg-opacity: 1;
