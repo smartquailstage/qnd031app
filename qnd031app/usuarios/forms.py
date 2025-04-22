@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 #from django.contrib.admin.widgets import AdminDateWidget
 from django.forms.fields import DateField
 from django.forms import DateInput
-from .models import Mensaje
+from .models import Mensaje, Cita   
 from ckeditor.widgets import CKEditorWidget
 
 class LoginForm(forms.Form):
@@ -33,3 +33,13 @@ class LeidoForm(forms.ModelForm):
         widgets = {
             'leido': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
+
+class MarcarLeidoForm(forms.ModelForm):
+    class Meta:
+        model = Mensaje
+        fields = []
+
+class CitaForm(forms.ModelForm):
+    class Meta:
+        model = Cita
+        fields = ['fecha', 'motivo']  # Ajusta los campos que se pueden editar

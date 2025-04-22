@@ -24,30 +24,24 @@
           <div class="card">
             <div class="card-body">
               <div class="d-flex align-items-center">
-            <h3><ion-icon name="notifications"></ion-icon> Notificaciones</h3>
+            <h3> {{ total }} <ion-icon name="notifications"></ion-icon> /  {{ leidos }} <ion-icon name="mail-open"></ion-icon>  / {{ no_leidos }} <ion-icon name="mail-unread"></ion-icon></h3>
+          
             <hr/>
               </div>
               <div class="table-responsive mt-3">
                 <table class="table align-middle table-hover table-bordered"  style="width:100%">
                   <thead>
                     <tr>
-                      <th scope="col">Fecha</th>
-                      <th scope="col">Estado</th>
+                      <th scope="col">Bandeja de Entrada</th>
                     </tr>
                   </thead>  
                   <tbody>
                     {% for mensaje in mensajes %}
-                    <tr onclick="window.location.href='/notificacion/{{ mensaje.id }}';">
-                      <td>
-                        {% if mensaje.leido %}
-                          <ion-icon name="mail-open"></ion-icon>
-                        {% else %}
-                          <ion-icon name="mail-unread"></ion-icon>
-                        {% endif %}
-                        {{ mensaje.fecha_envio|date:"j/n/Y" }} {{ mensaje.fecha_envio|date:"H:i" }}
-                      </td>
+                    <tr onclick="window.location.href='{% url 'usuarios:ver_mensaje' mensaje.id %}'" style="cursor: pointer;">
+
 
                       <td>
+                        
                         <div>
                           {% if mensaje.asunto == 'consulta' or mensaje.asunto == 'Sugerencia' or mensaje.asunto == 'Informativo' %}
                             <span class="badge bg-success">Informativo</span>
@@ -58,6 +52,12 @@
                           {% endif %}
                         </div>
                         <p>{{ mensaje.asunto }}</p>
+                        {% if mensaje.leido %}
+                        <ion-icon name="mail-open"></ion-icon>Leído
+                      {% else %}
+                        <ion-icon name="mail-unread"></ion-icon>Nuevo
+                      {% endif %}
+                      {{ mensaje.fecha_envio|date:"j/n/Y" }} {{ mensaje.fecha_envio|date:"H:i" }}
                       </td>
                     </tr>
                     {% empty %}
@@ -73,6 +73,7 @@
             </div>
           </div>
         </div>
+</div>  
 
 
 

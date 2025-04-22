@@ -25,9 +25,9 @@
         <li>
             <a href="{% url 'usuarios:perfil' %}">
                 <div class="parent-icon">
-                    <ion-icon name="person-circle-outline"></ion-icon>
+                    <ion-icon name="home"></ion-icon>
                 </div>
-                <div class="menu-title">Mi Perfil</div>
+                <div class="menu-title">Inicio</div>
             </a>
         </li>
 
@@ -36,30 +36,39 @@
                 <div class="parent-icon">
                     <ion-icon name="medkit"></ion-icon>
                 </div>
-                <div class="menu-title">Mis Terapias</div>
+                <div class="menu-title">Terapias Realizadas</div>
             </a>
         </li>
 
         <li>
-            <a href="{% url 'usuarios:inbox' %}">
+            <a href="{% url 'usuarios:citas' %}">
                 <div class="parent-icon">
                     <ion-icon name="calendar"></ion-icon>
                 </div>
-                <div class="menu-title">Agendar Cita </div>
+                <div class="menu-title">Citas Médicas </div>
             </a>
         </li>
 
         <li>
             <a href="{% url 'usuarios:inbox' %}">
                 <div class="parent-icon">
-                    <ion-icon name="archive"></ion-icon>
+                    <ion-icon name="notifications-outline"></ion-icon>
                 </div>
-                <div class="menu-title">Bandeja de entrada</div>
+                <div class="menu-title">Notificaciones</div>
+            </a>
+        </li>
+
+        <li>
+            <a href="{% url 'usuarios:inbox' %}">
+                <div class="parent-icon">
+                    <ion-icon name="cash"></ion-icon>
+                </div>
+                <div class="menu-title">Pagos </div>
             </a>
         </li>
 
 
-
+        <li class="menu-label">Configuraciones</li>
     
         <li>
             <a class="nav-link dark-mode-icon" href="javascript:;">

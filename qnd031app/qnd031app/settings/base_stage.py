@@ -117,9 +117,9 @@ LOGIN_URL = 'login'
 LOGOUT_URL = 'logout'
 
 UNFOLD = {
-    "SITE_TITLE": "MEDDES-Centro de rehabilitación integral",
+    "SITE_TITLE": "MEDDES-ERP",
     "SITE_HEADER": "MEDDES",
-    "SITE_SUBHEADER": "Centro de rehabilitación integral",
+    "SITE_SUBHEADER": "ERP Center Data",
     "SITE_DROPDOWN": [
         {
             "icon": "diamond",

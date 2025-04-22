@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import LoginForm,MensajeForm                   
+from .forms import LoginForm,MensajeForm,CitaForm                   
 from .models import Profile
 from django.shortcuts import get_object_or_404
 from django.conf import settings
@@ -68,7 +68,13 @@ def profile_view(request):
 
 def ver_mensaje(request, pk):
     mensaje = get_object_or_404(Mensaje, pk=pk)
-    return render(request, 'admin/ver_mensaje.html', {'mensaje': mensaje})
+
+    # Si el mensaje no ha sido leído, lo marcamos como leído
+    if not mensaje.leido:
+        mensaje.leido = True
+        mensaje.save()
+
+    return render(request, 'usuarios/mensaje.html', {'mensaje': mensaje})
 
 @login_required
 def enviar_mensaje(request):
@@ -81,7 +87,7 @@ def enviar_mensaje(request):
             mensaje.emisor = request.user
             mensaje.receptor = User.objects.get(id=1)  # <-- se asigna automáticamente
             mensaje.save()
-            return redirect('bandeja_entrada')  # o donde prefieras
+            return redirect('usuarios:inbox')  # o donde prefieras
     else:
         form = MensajeForm()
     
@@ -92,9 +98,16 @@ def inbox_view(request):
     profile = Profile.objects.get(user=request.user)
     mensajes = request.user.mensajes_recibidos.all()
 
+    leidos = mensajes.filter(leido=True).count()
+    no_leidos = mensajes.filter(leido=False).count()
+    total = mensajes.count()
+
     return render(request, 'usuarios/inbox.html', {
         'mensajes': mensajes,
         'profile': profile,
+        'leidos': leidos,
+        'no_leidos': no_leidos,
+        'total': total,
     })
 
 @login_required
@@ -102,3 +115,52 @@ def config_view(request):
     # Obtener el perfil del usuario actualmente autenticado
     profile = Profile.objects.get(user=request.user)
     return render(request, 'usuarios/config.html', {'profile': profile})
+
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from .models import Cita  # Asegúrate de usar la ruta correcta
+
+@login_required
+def gestionar_citas_view(request):
+    citas = Cita.objects.filter(destinatario=request.user).order_by('-fecha')
+
+    citas_confirmadas = citas.filter(estado='confirmada').count()
+    citas_pendientes = citas.filter(estado='pendiente').count()
+    citas_canceladas = citas.filter(estado='cancelada').count()
+
+    return render(request, 'usuarios/calendar.html', {
+        'citas': citas,
+        'citas_confirmadas': citas_confirmadas,
+        'citas_pendientes': citas_pendientes,
+        'citas_canceladas': citas_canceladas,
+    })
+
+
+@login_required
+def cancelar_cita_view(request, cita_id):
+    cita = get_object_or_404(Cita, id=cita_id, destinatario=request.user)
+    
+    if cita.estado == 'cancelada':
+        messages.info(request, 'La cita ya está cancelada.')
+    else:
+        cita.estado = 'cancelada'
+        cita.save()
+        messages.success(request, 'La cita ha sido cancelada correctamente.')
+
+    return redirect('gestionar_citas')
+
+@login_required
+def editar_cita_view(request, cita_id):
+    cita = get_object_or_404(Cita, id=cita_id, destinatario=request.user)
+
+    if request.method == 'POST':
+        form = CitaForm(request.POST, instance=cita)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'La cita ha sido actualizada correctamente.')
+            return redirect('gestionar_citas')
+    else:
+        form = CitaForm(instance=cita)
+
+    return render(request, 'usuarios/editar_cita.html', {'form': form, 'cita': cita})
