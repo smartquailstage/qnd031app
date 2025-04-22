@@ -131,12 +131,12 @@ UNFOLD = {
     "SITE_URL": "/",
     # "SITE_ICON": lambda request: static("icon.svg"),  # both modes, optimise for 32px height
     "SITE_ICON": {
-        "light": lambda request: static("img/BA-LOGOS/logo_test.png"),
-        "dark": lambda request: static("img/BA-LOGOS/logo_test.png"),
+        "light": lambda request: static("img/BA-LOGOS/loro.png"),
+        "dark": lambda request: static("img/BA-LOGOS/loro.png"),
     },
     "SITE_LOGO": {
-        "light": lambda request: static("img/BA-LOGOS/logo_test.png"),
-        "dark": lambda request: static("img/BA-LOGOS/logo_test.png"),
+        "light": lambda request: static("img/BA-LOGOS/logo.png"),
+        "dark": lambda request: static("img/BA-LOGOS/logo.png"),
     },
     "SITE_SYMBOL": "speed",
     "SITE_FAVICONS": [
@@ -144,7 +144,7 @@ UNFOLD = {
             "rel": "icon",
             "sizes": "32x32",
             "type": "image/svg+xml",
-            "href": lambda request: static("img/BA-LOGOS/logo_test.png"),
+            "href": lambda request: static("img/BA-LOGOS/loro.png"),
         },
     ],
     "SHOW_HISTORY": True,
