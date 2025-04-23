@@ -117,7 +117,7 @@ LOGIN_URL = 'login'
 LOGOUT_URL = 'logout'
 
 UNFOLD = {
-    "SITE_TITLE": "MEDDES-ERP",
+    "SITE_TITLE": "Plataforma de planificación de recursos médicos & terapéuticos de MEDDES.S.A.",
     "SITE_HEADER": "MEDDES",
     "SITE_SUBHEADER": "ERP Center Data",
     "SITE_DROPDOWN": [
@@ -187,7 +187,7 @@ UNFOLD = {
             "300": "216 180 254",
             "400": "192 132 252",
             "500": "229 234 231",
-            "600": "48 169 81",
+            "600": "75 144 140",
             "700": "126 34 206",
             "800": "107 33 168",
             "900": "24 85 2",
