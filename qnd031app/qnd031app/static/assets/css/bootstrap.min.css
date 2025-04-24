@@ -208,7 +208,7 @@ hr {
 	margin-bottom: .5rem;
 	font-weight: 500;
 	line-height: 1.2;
-	color: var(--bs-heading-color)
+	color: #ffff;
 }
 .h1, h1 {
 	font-size: calc(1.375rem + 1.5vw)
@@ -243,7 +243,8 @@ hr {
 	}
 }
 .h5, h5 {
-	font-size: 1.25rem
+	font-size: 1.25rem;
+	color: #ffff;
 }
 .h6, h6 {
 	font-size: 1rem
@@ -1604,16 +1605,16 @@ progress {
 	--bs-table-bg-type: initial;
 	--bs-table-color-state: initial;
 	--bs-table-bg-state: initial;
-	--bs-table-color: var(--bs-body-color);
-	--bs-table-bg: var(--bs-body-bg);
-	--bs-table-border-color: var(--bs-border-color);
+	--bs-table-color: #fff;
+	--bs-table-bg: #3c9aae;
+	--bs-table-border-color: rgb(23 187 107);
 	--bs-table-accent-bg: transparent;
 	--bs-table-striped-color: var(--bs-body-color);
 	--bs-table-striped-bg: rgba(0, 0, 0, 0.05);
 	--bs-table-active-color: var(--bs-body-color);
 	--bs-table-active-bg: rgba(0, 0, 0, 0.1);
-	--bs-table-hover-color: var(--bs-body-color);
-	--bs-table-hover-bg: rgba(0, 0, 0, 0.075);
+    --bs-table-hover-color: #ffffff;
+    --bs-table-hover-bg: rgb(23 187 107);
 	width: 100%;
 	margin-bottom: 1rem;
 	vertical-align: top;
@@ -1622,7 +1623,7 @@ progress {
 .table>:not(caption)>*>* {
 	padding: .5rem .5rem;
 	color: var(--bs-table-color-state, var(--bs-table-color-type, var(--bs-table-color)));
-	background-color: var(--bs-table-bg);
+	background-color: #3ba779;
 	border-bottom-width: var(--bs-border-width);
 	box-shadow: inset 0 0 0 9999px var(--bs-table-bg-state, var(--bs-table-bg-type, var(--bs-table-accent-bg)))
 }
@@ -1683,17 +1684,17 @@ progress {
 	border-color: var(--bs-table-border-color)
 }
 .table-secondary {
-	--bs-table-color: #000;
-	--bs-table-bg: #e2e3e5;
-	--bs-table-border-color: #cbccce;
-	--bs-table-striped-bg: #d7d8da;
-	--bs-table-striped-color: #000;
-	--bs-table-active-bg: #cbccce;
-	--bs-table-active-color: #000;
-	--bs-table-hover-bg: #d1d2d4;
-	--bs-table-hover-color: #000;
-	color: var(--bs-table-color);
-	border-color: var(--bs-table-border-color)
+    --bs-table-color: #ffffff;
+    --bs-table-bg: #17bb6b;
+    --bs-table-border-color: #cbccce;
+    --bs-table-striped-bg: #d7d8da;
+    --bs-table-striped-color: #000;
+    --bs-table-active-bg: #cbccce;
+    --bs-table-active-color: #000;
+    --bs-table-hover-bg: #d1d2d4;
+    --bs-table-hover-color: #000;
+    color: #ffffff;
+    border-color: var(--bs-table-border-color);
 }
 .table-success {
 	--bs-table-color: #000;
@@ -3923,7 +3924,7 @@ textarea.form-control-lg {
 	--bs-card-cap-color: ;
 	--bs-card-height: ;
 	--bs-card-color: #ffff;
-	--bs-card-bg: #52a51b;
+	--bs-card-bg: #3ba779;
 	--bs-card-img-overlay-padding: 1rem;
 	--bs-card-group-margin: 0.75rem;
 	position: relative;
@@ -3982,7 +3983,7 @@ textarea.form-control-lg {
 .card-header {
 	padding: var(--bs-card-cap-padding-y) var(--bs-card-cap-padding-x);
 	margin-bottom: 0;
-	color: var(--bs-card-cap-color);
+	color: #ffff;;
 	background-color: var(--bs-card-cap-bg);
 	border-bottom: var(--bs-card-border-width) solid var(--bs-card-border-color)
 }
@@ -7120,7 +7121,7 @@ textarea.form-control-lg {
 	color: #fff;
 }
 .my-5 {
-	margin-top: 0rem!important;
+	margin-top: 23rem!important;
 	margin-bottom: 3rem!important;
     background-color: #00000057; 
 }
@@ -7782,7 +7783,7 @@ textarea.form-control-lg {
 }
 .bg-white {
 	--bs-bg-opacity: 1;
-	background-color: #f0f8ffc4
+	background-color: #3ba779;
 }
 .bg-body {
 	--bs-bg-opacity: 1;

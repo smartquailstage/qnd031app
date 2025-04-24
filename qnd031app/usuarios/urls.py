@@ -7,6 +7,7 @@ app_name = 'usuarios'
 
 urlpatterns = [
     # previous login view
+    
     path('ingresar/', views.user_login, name='login'),
     path('dashboard', views.dashboard, name='dashboard'),
     path('inbox/', views.inbox_view , name='inbox'),

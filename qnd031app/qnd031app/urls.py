@@ -26,6 +26,8 @@ from .sites import custom_admin_site
 urlpatterns = [
     path("admin2/", custom_admin_site.urls),
     path("admin/", dashboard_view),
+    path('calendario/', include('schedule.urls')),
+  #  path('calendar/', include('calendarium.urls'))
     path('analytics/', admin.site.urls),
     path('appointment/', include('appointment.urls')),
     path('social-auth/', include('social_django.urls', namespace='social')),

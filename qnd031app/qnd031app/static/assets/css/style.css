@@ -32,13 +32,13 @@ body {
     color: #4c5258;
     font-size: 14px;
     letter-spacing: .5px;
-    background-color: #ffffff;
+    background-color: #36aa635e;
     overflow-x: hidden;
     font-family: Roboto, sans-serif;
 }
 
 a {
-    color: #2eaa57;
+    color: #fbff00;
     text-decoration: none;
 }
 
@@ -340,7 +340,7 @@ ion-icon {
     border-bottom: 1px solid rgba(233, 236, 239, 0);
     background-clip: border-box;
     /* Gradiente en escala de verde con tres colores */
-    background: linear-gradient(to right, #a8d08d, #6fae3a, #2f6b20);
+    background: linear-gradient(to right, #fff, #79d8c2, #2ea950);
     z-index: 5;
     transition: 0.3s all;
     box-shadow: none;
@@ -406,7 +406,7 @@ ion-icon {
     width: 35px;
     height: 35px;
     border-radius: 50%;
-    background-color: #ffffff;
+    background-color:#3cae6b;
     margin: 0 2px;
 }
 
@@ -415,7 +415,7 @@ ion-icon {
 }
 
 .top-header .navbar .top-navbar-right .nav-link {
-    color: #293445;
+    color: #ffffff;
     font-size: 18px;
     font-weight: 500;
     padding-right: .7rem;
@@ -977,7 +977,7 @@ ion-icon {
 }
 
 .profile-cover {
-    background-image: url("../images/profile_bg.jpg");
+    background-image: url("../images/login_bg/test2.jpg");
     background-size: cover;
     height: 10rem;
     background-position: center;
@@ -1300,7 +1300,7 @@ ul.categories-list li {
 }
 
 .seperator-2 {
-    background-color: #ffffff;
+    background-color: #56aa18;
     left: 45%;
     padding: 0px 10px;
 }
@@ -1376,7 +1376,7 @@ ul.categories-list li {
 }
 
 .au-reset-password-cover {
-    background-image: url("../images/login_bg/bg.png");
+    background-image: url("../images/login_bg/test2.jpg");
     background-position: center;
     background-size: cover;
     width: 100%;
@@ -1410,7 +1410,7 @@ ul.categories-list li {
 }
 
 .au-reset-password-basic {
-    background-image: url("../images/login_bg/bg.png");
+    background-image: url("../images/login_bg/login_bg.jpg");
     background-position: center;
     background-size: cover;
 }
@@ -1526,6 +1526,6 @@ ul.categories-list li {
 
     .login-cover-wrapper {
         width: auto;
-        height: auto;
+        height: 630px;
     }
 }

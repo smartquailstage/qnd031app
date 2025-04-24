@@ -12,25 +12,108 @@ from django.contrib.auth.models import AbstractUser
 from ckeditor.fields import RichTextField
 from django_celery_results.models import TaskResult
 from djmoney.models.fields import MoneyField
+from django.core.validators import FileExtensionValidator
+from django.utils import timezone
+from datetime import timedelta
+from schedule.models import Event, Calendar
+from django.utils.datetime_safe import datetime
+from django.utils.timezone import make_aware
 
 
 
 
 class prospecion_administrativa(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Nombre de Usuario")
-    especialidad = models.CharField(max_length=255, blank=True, null=True, verbose_name="Especialidad")
+    ESTADOS = [
+        ('por_contactar', 'Por Contactar'),
+        ('contactado', 'Contactado'),
+        ('en_cita', 'En Cita'),
+        ('convenio_firmado', 'Convenio Firmado'),
+        ('capacitacion', 'Capacitación'),
+        ('valoracion', 'Valoración'),
+        ('en_terapia', 'En Terapia'),
+        ('rechazado', 'Rechazado'),
+        ('finalizado', 'Finalizado'),
+        ('inactivo', 'Inactivo'),
+    ]
+
+    nombre = models.CharField(max_length=255, verbose_name="Nombre del Colegio",null=True, blank=True)
+    estado = models.CharField(max_length=30, choices=ESTADOS, default='por_contactar',null=True, blank=True)    
+    fecha_estado_actualizado = models.DateField(auto_now=True)
+
+    regional = models.CharField(max_length=100,null=True, blank=True)   
+    ciudad = models.CharField(max_length=100, null=True, blank=True)
+    direccion = models.TextField(null=True, blank=True) 
+
+    mails_colegio =models.EmailField(blank=True, null=True, verbose_name="Correo Electrónico de Colegio")
+    phone_regex = RegexValidator(
+        regex=r'^\+?593?\d{9,15}$',
+        message="El número de teléfono debe estar en formato internacional. Ejemplo: +593XXXXXXXXX."
+    )
+    telefonos_colegio = PhoneNumberField(verbose_name="Teléfono de persona a cargo",validators=[phone_regex],default='+593')
+
+    nombre_persona_cargo = models.CharField(max_length=150,null=True, blank=True)
+    telefono_persona_cargo = models.CharField(max_length=50,null=True, blank=True)
+    correo_persona_cargo = models.EmailField(blank=True, null=True, verbose_name="Correo Electrónico Persona a cargo")
+
+    terapeutas_asignados = models.ManyToManyField('auth.User', limit_choices_to={'groups__name': 'Terapeutas'},null=True, blank=True)
+    ejecutivo_encargado = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True, blank=True, related_name='colegios_asignados')
+
+    convenio_pdf = models.FileField(
+        upload_to='convenios/',
+        null=True,
+        blank=True,
+        validators=[FileExtensionValidator(['pdf'])],
+        help_text="Cargar archivo en PDF"
+    )
 
     class Meta:
-        ordering = ['user']
+        ordering = ['nombre']
         verbose_name_plural = "Registros Administrativos / Ingreso de Prospecto de Paciente"
         verbose_name = "Administrativo / prospeciónes"
+
+    def alerta_estado_inactivo(self):
+        if self.estado != 'inactivo':
+            return False
+        return timezone.now().date() - self.fecha_estado_actualizado > timedelta(days=15)
+    
+    alerta_estado_inactivo.boolean = True
+    alerta_estado_inactivo.short_description = "Alerta de inactividad (15 días)"
 
     def __str__(self):
         return 'Registro de prospecto : {}'.format(self.user.username)
 
+
+
+
+
 class Perfil_Terapeuta(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Nombre de Usuario")
     especialidad = models.CharField(max_length=255, blank=True, null=True, verbose_name="Especialidad")
+    SEXO_OPCIONES = [
+        ('M', 'Masculino'),
+        ('F', 'Femenino'),
+        ('O', 'Otro'),
+    ]
+
+    #usuario = models.OneToOneField(User, on_delete=models.CASCADE, related_name='perfil_terapeuta')
+    nombres_completos = models.CharField(max_length=200,null=True, blank=True)
+    edad = models.PositiveIntegerField(null=True, blank=True)   
+    sexo = models.CharField(max_length=1, choices=SEXO_OPCIONES, null=True, blank=True) 
+    fecha_nacimiento = models.DateField(null=True, blank=True)  
+    cedula = models.CharField(max_length=20,null=True, blank=True)  
+    fecha_ingreso = models.DateField(null=True, blank=True) 
+
+    titulo_universitario = models.FileField(upload_to='documentos/terapeutas/titulo/', blank=True, null=True)
+    antecedentes_penales = models.FileField(upload_to='documentos/terapeutas/antecedentes/', blank=True, null=True)
+    certificados = models.FileField(upload_to='documentos/terapeutas/certificados/', blank=True, null=True)
+
+    telefono = models.CharField(max_length=50, null =True, blank=True)  
+    datos_bancarios = models.TextField(help_text="Ej: Banco, número de cuenta, tipo", null=True, blank=True)    
+    pago_por_hora = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)  
+    tipo_servicio = models.CharField(max_length=100, null=True, blank=True)
+    servicio_domicilio = models.BooleanField(default=False, null=True, blank=True)
+    servicio_institucion = models.BooleanField(default=True, null=True, blank=True)
+
 
     class Meta:
         ordering = ['user']
@@ -38,7 +121,43 @@ class Perfil_Terapeuta(models.Model):
         verbose_name_plural = "Registro Administrativo / Ingreso de Terapista"
 
     def __str__(self):
-        return 'Registro de Terapista: {}'.format(self.user.username)
+        return 'Terapista: {}'.format(self.user.username)
+
+
+class AsistenciaTerapeuta(models.Model):
+    terapeuta = models.ForeignKey(Perfil_Terapeuta, on_delete=models.CASCADE, related_name='asistencias')
+    fecha = models.DateField()
+    hora_entrada = models.TimeField()
+    hora_salida = models.TimeField(null=True, blank=True)
+    observaciones = models.TextField(blank=True)
+    evento = models.OneToOneField(Event, null=True, blank=True, on_delete=models.SET_NULL)
+    #cita_relacionada = models.ForeignKey('Cita', on_delete=models.SET_NULL, null=True, blank=True)
+
+    class Meta:
+        unique_together = ('terapeuta', 'fecha', 'hora_entrada')
+        ordering = ['-fecha', 'hora_entrada']
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        if not self.evento:
+            calendario, _ = Calendar.objects.get_or_create(name='terapeutas', slug='terapeutas')
+            
+            start = make_aware(datetime.combine(self.fecha, self.hora_entrada))
+            end = make_aware(datetime.combine(self.fecha, self.hora_salida or self.hora_entrada))
+
+            evento = Event.objects.create(
+                title=f"Asistencia de {self.terapeuta.nombres_completos}",
+                start=start,
+                end=end,
+                calendar=calendario,
+                description=self.observaciones
+            )
+            self.evento = evento
+            super().save(update_fields=['evento'])
+
+    def __str__(self):
+        return f"Asistencia {self.terapeuta.nombres_completos} - {self.fecha}"
 
 
 
@@ -427,6 +546,7 @@ class Cita(models.Model):
     )
     notas = models.TextField(blank=True, null=True)
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE,null=True, blank=True)
+    
 
     class Meta:
         ordering = ['-fecha']

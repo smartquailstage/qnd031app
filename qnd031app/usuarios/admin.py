@@ -4,7 +4,7 @@ import datetime
 import datetime
 from django.contrib import admin
 from django.http import HttpResponse
-from .models import Profile, Perfil_Terapeuta, Mensaje, Cita ,prospecion_administrativa, tareas, pagos
+from .models import Profile, Perfil_Terapeuta, Mensaje, Cita ,AsistenciaTerapeuta,prospecion_administrativa, tareas, pagos
 from django.contrib.postgres.fields import ArrayField
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -31,6 +31,7 @@ class CustomAdminSite(UnfoldAdminSite):
     site_header = "Panel de Administración"
     site_title = "QNODES"
     index_title = "Dashboard"
+
 
     def each_context(self, request):
         context = super().each_context(request)
@@ -190,11 +191,75 @@ class Perfil_TerapeutaAdmin(ModelAdmin):
             "widget": ArrayWidget,
         }
     }
-
+    search_fields = ('paciente__nombre', 'terapeuta__nombres_completos')  # Ajusta a tus campos
     list_display = ['user', 'especialidad']
     actions = [ export_to_csv, export_to_excel]
     verbose_name = "Registro Administrativo / Ingreso de Terapeuta"
     verbose_name_plural = "Registro Administrativo / Ingreso de Terapeuta"
+
+@admin.register(AsistenciaTerapeuta)
+class AsistenciaTerapeutaAdmin(admin.ModelAdmin):
+            # Display fields in changeform in compressed mode
+    compressed_fields = True  # Default: False
+
+    # Warn before leaving unsaved changes in changeform
+    warn_unsaved_form = True  # Default: False
+
+    # Preprocess content of readonly fields before render
+    readonly_preprocess_fields = {
+        "model_field_name": "html.unescape",
+        "other_field_name": lambda content: content.strip(),
+    }
+
+    # Display submit button in filters
+    list_filter_submit = False
+
+    # Display changelist in fullwidth
+    list_fullwidth = False
+
+    # Set to False, to enable filter as "sidebar"
+    list_filter_sheet = True
+
+    # Position horizontal scrollbar in changelist at the top
+    list_horizontal_scrollbar_top = False
+
+    # Dsable select all action in changelist
+    list_disable_select_all = False
+
+    # Custom actions
+    actions_list = []  # Displayed above the results list
+    actions_row = []  # Displayed in a table row in results list
+    actions_detail = []  # Displayed at the top of for in object detail
+    actions_submit_line = []  # Displayed near save in object detail
+
+    # Changeform templates (located inside the form)
+  #  change_form_before_template = "some/template.html"
+  #  change_form_after_template = "some/template.html"
+
+    # Located outside of the form
+  #  change_form_outer_before_template = "some/template.html"
+  #  change_form_outer_after_template = "some/template.html"
+
+    # Display cancel button in submit line in changeform
+    change_form_show_cancel_button = True # show/hide cancel button in changeform, default: False
+
+    formfield_overrides = {
+        models.TextField: {
+            "widget": WysiwygWidget,
+        },
+        ArrayField: {
+            "widget": ArrayWidget,
+        }
+    }
+    verbose_name = "Registro Administrativo / Asistencia Terapeuta"
+    verbose_name_plural = "Registro Administrativo / Asistencia Terapeuta"
+    actions = [ export_to_csv, export_to_excel]
+    list_display = (
+        'terapeuta', 'fecha', 'hora_entrada', 'hora_salida'
+    )
+    list_filter = ('fecha', 'terapeuta')
+    search_fields = ('terapeuta__nombres_completos',)
+    autocomplete_fields = ['terapeuta']
 
 
 @admin.register(tareas)
@@ -294,12 +359,12 @@ class prospecion_administrativaAdmin(ModelAdmin):
     actions_submit_line = []  # Displayed near save in object detail
 
     # Changeform templates (located inside the form)
-    change_form_before_template = "some/template.html"
-    change_form_after_template = "some/template.html"
+    #change_form_before_template = "some/template.html"
+    #change_form_after_template = "some/template.html"
 
     # Located outside of the form
-    change_form_outer_before_template = "some/template.html"
-    change_form_outer_after_template = "some/template.html"
+    #change_form_outer_before_template = "some/template.html"
+    #change_form_outer_after_template = "some/template.html"
 
     # Display cancel button in submit line in changeform
     change_form_show_cancel_button = True # show/hide cancel button in changeform, default: False
@@ -313,7 +378,7 @@ class prospecion_administrativaAdmin(ModelAdmin):
         }
     }
 
-    list_display = ['user', 'especialidad']
+    list_display = ['nombre', 'estado', 'fecha_estado_actualizado','ciudad','regional','mails_colegio','nombre_persona_cargo']
     actions = [ export_to_csv, export_to_excel]
     verbose_name = "Prospección Administrativa"
     verbose_name_plural = "Prospecciónes Administrativas"
@@ -414,13 +479,71 @@ class PagosAdmin(ModelAdmin):
 class CardSection(TemplateSection):
     template_name = "admin/citas_calendar.html"
 
-@admin.register(Cita, site=custom_admin_site)
+#@admin.register(Cita, site=custom_admin_site)
+#class CitaAdmin(ModelAdmin):  # Usamos unfold.ModelAdmin
+
+
+@admin.register(Cita)
 class CitaAdmin(ModelAdmin):  # Usamos unfold.ModelAdmin
     list_display = ("creador", "destinatario", "fecha", "estado")
     search_fields = ("motivo", "notas", "creador__username", "destinatario__username")
     list_filter = ("estado", "fecha")
-    list_sections = [CardSection]
+    actions = [ export_to_csv, export_to_excel]
 
+        # Display fields in changeform in compressed mode
+    compressed_fields = True  # Default: False
+
+    # Warn before leaving unsaved changes in changeform
+    warn_unsaved_form = True  # Default: False
+
+    # Preprocess content of readonly fields before render
+    readonly_preprocess_fields = {
+        "model_field_name": "html.unescape",
+        "other_field_name": lambda content: content.strip(),
+    }
+
+    # Display submit button in filters
+    list_filter_submit = False
+
+    # Display changelist in fullwidth
+    list_fullwidth = False
+
+    # Set to False, to enable filter as "sidebar"
+    list_filter_sheet = True
+
+    # Position horizontal scrollbar in changelist at the top
+    list_horizontal_scrollbar_top = False
+
+    # Dsable select all action in changelist
+    list_disable_select_all = False
+
+    # Custom actions
+    actions_list = []  # Displayed above the results list
+    actions_row = []  # Displayed in a table row in results list
+    actions_detail = []  # Displayed at the top of for in object detail
+    actions_submit_line = []  # Displayed near save in object detail
+
+    # Changeform templates (located inside the form)
+    #change_form_before_template = "some/template.html"
+    #change_form_after_template = "some/template.html"
+
+    # Located outside of the form
+   # change_form_outer_before_template = "some/template.html"
+   # change_form_outer_after_template = "some/template.html"
+
+    # Display cancel button in submit line in changeform
+    change_form_show_cancel_button = True # show/hide cancel button in changeform, default: False
+
+    formfield_overrides = {
+        models.TextField: {
+            "widget": WysiwygWidget,
+        },
+        ArrayField: {
+            "widget": ArrayWidget,
+        }
+    }
+
+    #list_sections = [CardSection]
 
 
 class PagosItemInline(admin.TabularInline):

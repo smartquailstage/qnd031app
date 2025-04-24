@@ -53,6 +53,8 @@ INSTALLED_APPS = [
     'django_celery_results',
     'django_celery_beat',
     'usuarios',
+    'schedule',
+
 
     
 
@@ -122,12 +124,24 @@ UNFOLD = {
     "SITE_SUBHEADER": "ERP Center Data",
     "SITE_DROPDOWN": [
         {
-            "icon": "diamond",
-            "title": _("My site"),
+            "icon": "notes",
+            "title": _(" V.QND.0.3.1.0.1 Dev - Notes"), 
             "link": "admin:shop_category_changelist",
         },
-        # ...
+
+        {
+            "icon": "person",
+            "title": _("Grupo de Usuarios del sistema"),
+            "link": "admin:shop_category_changelist",
+        },
+
+        {
+            "icon": "people",
+            "title": _("Usuarios del sistema"),
+            "link": reverse_lazy("admin:auth_user_changelist"),
+        }
     ],
+
     "SITE_URL": "/",
     # "SITE_ICON": lambda request: static("icon.svg"),  # both modes, optimise for 32px height
     "SITE_ICON": {
@@ -221,34 +235,30 @@ UNFOLD = {
                 "collapsible": True,
                 "items": [
                     {
-                        "title": _("Ingreso de Usuarios"),
-                        "icon": "people",
-                        "link": reverse_lazy("admin:auth_user_changelist"),
-                    },
-                    {
-                        "title": _("Ingreso de Departamentos"),
-                        "icon": "groups",
-                        "link": reverse_lazy("admin:auth_group_changelist"),
-                    },
-                    {
-                        "title": _("Ingreso de Pacientes"),
-                        "icon": "list",
+                        "title": _("Perfil de Pacientes"),
+                        "icon": "person",
                         "link": reverse_lazy("admin:usuarios_profile_changelist"),
                     },
                     {
-                        "title": _("Ingreso de Terapistas"),
-                        "icon": "list",
+                        "title": _("Perfil de Terapistas"),
+                        "icon": "medical_services",
                         "link": reverse_lazy("admin:usuarios_perfil_terapeuta_changelist"),
+                    },
+
+                    {
+                        "title": _("Agenda de Citas"), 
+                        "icon": "calendar_today",
+                        "link": reverse_lazy("admin:usuarios_cita_changelist"),
                     },
 
 
                     {
-                        "title": _("Ingreso de Prospecto de Paciente"),
+                        "title": _("Prospección Administrativa"),
                         "icon": "edit",    
                         "link": reverse_lazy("admin:usuarios_prospecion_administrativa_changelist"),
                     },
                     {
-                        "title": _("Ingreso de Pagos por servicios Terapéuticos"),
+                        "title": _("Pagos de servicios"),
                         "icon": "payment",
                         "link": reverse_lazy("admin:usuarios_pagos_changelist"),
                     },
@@ -260,9 +270,14 @@ UNFOLD = {
                 "collapsible": True,
                 "items": [
                     {
-                        "title": _("Ingreso de Tareas Terapéuticas "),
+                        "title": _("Tareas Terapéuticas "),
                         "icon": "task",
                         "link": reverse_lazy("admin:usuarios_tareas_changelist"),
+                    },
+                    {
+                        "title": _("Asistencia Terapeutica"), 
+                        "icon": "calendar_today",
+                        "link": reverse_lazy("admin:usuarios_asistenciaterapeuta_changelist"),
                     },
                 ],
             },
@@ -276,6 +291,7 @@ UNFOLD = {
                         "icon": "inbox",
                         "link": reverse_lazy("admin:usuarios_mensaje_changelist"),
                     },
+
                 ],
             },
         ],
@@ -312,7 +328,7 @@ def badge_callback(request):
 
 
 
-PARLER_DEFAULT_LANGUAGE_CODE = 'en'
+PARLER_DEFAULT_LANGUAGE_CODE = 'es'
 PARLER_DEFAULT_ACTIVATE = True
 PARLER_SHOW_EXCLUDED_LANGUAGE_TABS = False
 
@@ -384,6 +400,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',
+                
             ],
         },
     },
