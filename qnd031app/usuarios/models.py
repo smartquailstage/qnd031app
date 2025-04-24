@@ -534,6 +534,7 @@ class Cita(models.Model):
         on_delete=models.CASCADE
     )
     fecha = models.DateTimeField()
+    fecha_final = models.DateTimeField(null=True, blank=True)
     motivo = models.CharField(max_length=255)
     estado = models.CharField(
         max_length=20,

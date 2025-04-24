@@ -24,8 +24,10 @@ from django.utils.html import format_html
 from unfold.sections import TableSection, TemplateSection
 from .sites import custom_admin_site
 from unfold.sites import UnfoldAdminSite
-
-
+from schedule.models import Calendar, Event, Rule, Occurrence
+from schedule.admin import CalendarAdmin 
+from django.utils.timezone import localtime
+from django.utils.timezone import make_aware
 
 class CustomAdminSite(UnfoldAdminSite):
     site_header = "Panel de Administración"
@@ -199,49 +201,16 @@ class Perfil_TerapeutaAdmin(ModelAdmin):
 
 @admin.register(AsistenciaTerapeuta)
 class AsistenciaTerapeutaAdmin(admin.ModelAdmin):
-            # Display fields in changeform in compressed mode
-    compressed_fields = True  # Default: False
+    # Configuraciones de visualización y comportamiento
+    change_list_template = "admin/dashboard_calendar.html"
+    change_form_show_cancel_button = True
 
-    # Warn before leaving unsaved changes in changeform
-    warn_unsaved_form = True  # Default: False
-
-    # Preprocess content of readonly fields before render
-    readonly_preprocess_fields = {
-        "model_field_name": "html.unescape",
-        "other_field_name": lambda content: content.strip(),
-    }
-
-    # Display submit button in filters
-    list_filter_submit = False
-
-    # Display changelist in fullwidth
-    list_fullwidth = False
-
-    # Set to False, to enable filter as "sidebar"
-    list_filter_sheet = True
-
-    # Position horizontal scrollbar in changelist at the top
-    list_horizontal_scrollbar_top = False
-
-    # Dsable select all action in changelist
-    list_disable_select_all = False
-
-    # Custom actions
-    actions_list = []  # Displayed above the results list
-    actions_row = []  # Displayed in a table row in results list
-    actions_detail = []  # Displayed at the top of for in object detail
-    actions_submit_line = []  # Displayed near save in object detail
-
-    # Changeform templates (located inside the form)
-  #  change_form_before_template = "some/template.html"
-  #  change_form_after_template = "some/template.html"
-
-    # Located outside of the form
-  #  change_form_outer_before_template = "some/template.html"
-  #  change_form_outer_after_template = "some/template.html"
-
-    # Display cancel button in submit line in changeform
-    change_form_show_cancel_button = True # show/hide cancel button in changeform, default: False
+    # Configuración de campos
+    list_display = ('terapeuta', 'fecha', 'hora_entrada', 'hora_salida')
+    list_filter = ('fecha', 'terapeuta')
+    search_fields = ('terapeuta__nombres_completos',)
+    autocomplete_fields = ['terapeuta']
+    actions = [export_to_csv, export_to_excel]
 
     formfield_overrides = {
         models.TextField: {
@@ -251,15 +220,12 @@ class AsistenciaTerapeutaAdmin(admin.ModelAdmin):
             "widget": ArrayWidget,
         }
     }
-    verbose_name = "Registro Administrativo / Asistencia Terapeuta"
-    verbose_name_plural = "Registro Administrativo / Asistencia Terapeuta"
-    actions = [ export_to_csv, export_to_excel]
-    list_display = (
-        'terapeuta', 'fecha', 'hora_entrada', 'hora_salida'
-    )
-    list_filter = ('fecha', 'terapeuta')
-    search_fields = ('terapeuta__nombres_completos',)
-    autocomplete_fields = ['terapeuta']
+
+
+
+    
+
+    
 
 
 @admin.register(tareas)
@@ -544,6 +510,31 @@ class CitaAdmin(ModelAdmin):  # Usamos unfold.ModelAdmin
     }
 
     #list_sections = [CardSection]
+
+
+class CalendarAdmin(admin.ModelAdmin):
+    list_display = ('name', 'slug')
+    search_fields = ('name', 'slug')
+
+
+
+class RuleAdmin(admin.ModelAdmin):
+    list_display = ('name', 'frequency')
+    search_fields = ('name',)
+
+
+
+class EventAdmin(admin.ModelAdmin):
+    list_display = ('title', 'start', 'end', 'calendar', 'creator')
+    list_filter = ('calendar',)
+    search_fields = ('title', 'description')
+
+
+
+class OccurrenceAdmin(admin.ModelAdmin):
+    list_display = ('event', 'start', 'end', 'cancelled')
+    list_filter = ('cancelled',)
+    search_fields = ('event__title',)
 
 
 class PagosItemInline(admin.TabularInline):
