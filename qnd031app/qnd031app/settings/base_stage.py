@@ -123,11 +123,7 @@ UNFOLD = {
     "SITE_HEADER": "MEDDES",
     "SITE_SUBHEADER": "ERP Center Data",
     "SITE_DROPDOWN": [
-        {
-            "icon": "notes",
-            "title": _(" V.QND.0.3.1.0.1 Dev - Notes"), 
-            "link": "admin:shop_category_changelist",
-        },
+
 
         {
             "icon": "person",
@@ -139,7 +135,13 @@ UNFOLD = {
             "icon": "people",
             "title": _("Usuarios del sistema"),
             "link": reverse_lazy("admin:auth_user_changelist"),
-        }
+        },
+
+        {
+            "icon": "notes",
+            "title": _("Bitacora DEV-V.QND.0.3.1.0.1"), 
+            "link": "admin:shop_category_changelist",
+        },
     ],
 
     "SITE_URL": "/",
@@ -182,8 +184,8 @@ UNFOLD = {
     "BORDER_RADIUS": "6px",
     "COLORS": {
         "base": {
-            "50": "240 240 240",
-            "100": "236 236 236",
+            "50": "255 255 255",
+            "100": "123 204 121",
             "200": "211 213 205",
             "300": "209 213 219",
             "400": "41 168 80",
@@ -191,7 +193,7 @@ UNFOLD = {
             "600": "75 85 99",
             "700": "7 121 176",
             "800": "4 168 79",
-            "900": "38 134 4",
+            "900": "60 59 59",
             "950": "3 7 18",
         },
         "primary": {
@@ -201,7 +203,7 @@ UNFOLD = {
             "300": "216 180 254",
             "400": "192 132 252",
             "500": "229 234 231",
-            "600": "75 144 140",
+            "600": "61 61 56",
             "700": "126 34 206",
             "800": "107 33 168",
             "900": "24 85 2",
