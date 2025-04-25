@@ -25,6 +25,7 @@ from .sites import custom_admin_site
 # Change the parentheses to square brackets for a list
 urlpatterns = [
     path("admin2/", custom_admin_site.urls),
+    path("Citas_regulares/", include("citas_regulares.urls")),
     path("admin/", dashboard_view),
     path('calendario/', include('schedule.urls')),
   #  path('calendar/', include('calendarium.urls'))

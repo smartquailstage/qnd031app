@@ -4,7 +4,7 @@ import datetime
 import datetime
 from django.contrib import admin
 from django.http import HttpResponse
-from .models import Profile, Perfil_Terapeuta, Mensaje, Cita ,AsistenciaTerapeuta,prospecion_administrativa, tareas, pagos
+from .models import Profile, BitacoraDesarrollo, Perfil_Terapeuta, Mensaje, Cita ,AsistenciaTerapeuta,prospecion_administrativa, tareas, pagos
 from django.contrib.postgres.fields import ArrayField
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -200,7 +200,7 @@ class Perfil_TerapeutaAdmin(ModelAdmin):
     verbose_name_plural = "Registro Administrativo / Ingreso de Terapeuta"
 
 @admin.register(AsistenciaTerapeuta)
-class AsistenciaTerapeutaAdmin(admin.ModelAdmin):
+class AsistenciaTerapeutaAdmin(ModelAdmin):
     # Configuraciones de visualización y comportamiento
     change_list_template = "admin/dashboard_calendar.html"
     change_form_show_cancel_button = True
@@ -221,6 +221,79 @@ class AsistenciaTerapeutaAdmin(admin.ModelAdmin):
         }
     }
 
+
+@admin.register(BitacoraDesarrollo)
+class BitacoraDesarrolloAdmin(ModelAdmin):
+
+    def progreso_bar(self, obj):
+        color_class = (
+           "bg-green-500" if obj.progreso >= 80
+           else "bg-yellow-500" if obj.progreso >= 40
+           else "bg-red-500"
+        )
+        progreso = int(obj.progreso or 0)  # aseguramos un entero por si es None
+
+        return format_html(
+        '''
+        <div class="w-full bg-gray-200 rounded-full h-4 mb-1">
+            <div class="{} h-4 rounded-full" style="width: {}%;"></div>
+        </div>
+        <span class="text-xs text-gray-600">{}%</span>
+        ''',
+        color_class, progreso, progreso
+       )
+    progreso_bar.short_description = "Progreso"
+    progreso_bar.admin_order_field = 'progreso'
+
+    # Configuración Unfold avanzada
+    compressed_fields = True
+    warn_unsaved_form = True
+    readonly_preprocess_fields = {
+        "model_field_name": "html.unescape",
+        "other_field_name": lambda content: content.strip(),
+    }
+    list_filter_submit = False
+    list_fullwidth = False
+    list_filter_sheet = True
+    list_horizontal_scrollbar_top = False
+    list_disable_select_all = False
+
+    # List view
+    list_display = (
+        'autor',
+        'titulo',
+        'fecha',
+        'version_relacionada',
+        'tipo_tecnologia',
+        'fecha_entrega',
+        'progreso_bar',  # Ahora como string, no como método directo
+        'estado',
+    )
+
+    # Filtros
+    list_filter = (
+        'fecha',
+        'autor',
+        'tipo_cambio',
+        'version_relacionada',
+        'tipo_tecnologia'
+    )
+
+    # Acciones personalizadas
+    actions = [export_to_csv, export_to_excel]
+
+    # Campos readonly
+    readonly_fields = ('fecha', 'fecha_entrega', 'version_relacionada', 'progreso', 'estado')
+
+    # Overrides para campos especiales
+    formfield_overrides = {
+        models.TextField: {
+            "widget": WysiwygWidget,
+        },
+        ArrayField: {
+            "widget": ArrayWidget,
+        }
+    }
 
 
     

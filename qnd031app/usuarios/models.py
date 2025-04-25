@@ -545,11 +545,14 @@ class Cita(models.Model):
         ],
         default='pendiente'
     )
+    is_active = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
     notas = models.TextField(blank=True, null=True)
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE,null=True, blank=True)
     
 
     class Meta:
+        
         ordering = ['-fecha']
         verbose_name_plural = "Registros Administrativos / Ingreso de Citas"
         verbose_name = "Administrativos / Ingreso de Cita"
@@ -575,3 +578,94 @@ class Dashboard(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class BitacoraDesarrollo(models.Model):
+    TIPO_SISTEMA_CHOICES = [
+        ('RAPP', 'Registro administrativo/Perfil de Paciente'),
+        ('RAPT', 'Registro administrativo/Perfil de Terapistas'),
+        ('RAACC', 'Registro administrativo/Agenda de Citas Regulares'),
+        ('RAPA', 'Registro administrativo/Prospeción Administrativa'),
+        ('RAPS', 'Registro administrativo/Pago de Servicios'),
+        ('RTTA', 'Registro Terapeutico/Tareas & Actividades'),
+        ('RTAA', 'Registro Terapeutico/Asistencias'),
+        ('SBN ', 'Bandeja de Notificaciones'),
+        ('SERP', 'Visualización de ERP '),
+    ]
+
+    TIPO_TECHNOLOGIAS_CHOICES = [
+        ('UX', 'Experiencia de Usuario'),
+        ('UI', 'Interfase'),
+        ('I+D', 'Implementación'),
+        ('A', 'Automatización'),
+    ]
+
+    VERSION = [
+        ('QND0301', 'QND-0.3.0.1'),
+        ('QND0302', 'QND-0.3.0.2'),
+        ('QND0303', 'QND-0.3.0.3'),
+        ('QND0304', 'QND-0.3.0.4'),
+    ]
+
+    SQCREW = [
+        ('DeV', 'Desarollo - backend'),
+        ('DeV', 'Desarollo - frontend'),
+        ('DeV', 'Desarollo - fullstack'),
+        ('DeV', 'Desarollo - QA'),
+        ('DeV', 'Desarollo - UI/UX'),
+        ('DeV', 'Desarollo - I+D'),
+        ('ProD', 'Producción -backend'),
+        ('ProD', 'Producción - frontend'),
+        ('ProD', 'Producción - fullstack'),
+        ('ProD', 'Producción - QA'),
+        ('ProD', 'Producción - UI/UX'),
+        ('ProD', 'Producción - I+D'),
+        ('StG', 'Soporte - backend'),
+        ('StG', 'Soporte - frontend'),
+        ('StG', 'Soporte - fullstack'),
+        ('StG', 'Soporte - QA'),
+        ('StG', 'Soporte - UI/UX'),
+        ('StG', 'Soporte - I+D'),
+        ('StG', 'Soporte - Producción'),
+        ('DA', 'Data Analytics'),
+    ]
+
+    INCHARGE = [
+        ('DeV', 'Mauricio Silva'),
+        ('Prod', 'Andres Espinoza'),
+        ('Front', 'Virginia Lasta'),
+    ]
+
+    STATE = [
+        ('Revisión', 'Revisión'),
+        ('Desarollo', 'Desarollo'),
+        ('Pruebas', 'Pruebas'),
+        ('Producción', 'Producción'),
+        ('Aprobado', 'Aprobado'),
+    ]
+
+    version_relacionada = models.CharField(blank=True, null=True, max_length=200, choices=VERSION, verbose_name="Versión", default="QND-0.3.0.1")
+    fecha = models.DateTimeField(auto_now_add=True)
+    fecha_entrega = models.DateField(blank=True, null=True)  # nuevo campo automático
+    incarge = models.CharField(blank=True, null=True,max_length=200, choices=INCHARGE)
+    SmartQuail_Tech = models.CharField(max_length=200, choices=SQCREW,null=True, blank=True)
+    autor = models.ForeignKey(User, on_delete=models.CASCADE)
+    tipo_cambio = models.CharField(max_length=200, choices=TIPO_SISTEMA_CHOICES)
+    tipo_tecnologia = models.CharField(max_length=200, choices=TIPO_TECHNOLOGIAS_CHOICES)
+    titulo = models.CharField(max_length=200)
+    descripcion = models.TextField()
+    progreso = models.PositiveIntegerField(default=0) 
+    estado =  models.CharField(blank=True, null=True, max_length=200, choices=STATE, verbose_name="ESTADO",default="Revisión")
+
+    class Meta:
+        verbose_name = "Entrada de Bitácora"
+        verbose_name_plural = "Bitácora de Desarrollo QND.0.3.0.1"
+        ordering = ['-fecha']
+
+    def __str__(self):
+        return f"[{self.fecha.strftime('%Y-%m-%d')}] {self.titulo} - {self.autor.username}"
+
+    def save(self, *args, **kwargs):
+        if not self.fecha_entrega:
+            self.fecha_entrega = (timezone.now() + timedelta(days=5)).date()
+        super().save(*args, **kwargs)

@@ -53,6 +53,8 @@ INSTALLED_APPS = [
     'django_celery_results',
     'django_celery_beat',
     'usuarios',
+    'citas_regulares',
+    
     'schedule',
 
 
@@ -119,7 +121,7 @@ LOGIN_URL = 'login'
 LOGOUT_URL = 'logout'
 
 UNFOLD = {
-    "SITE_TITLE": "Plataforma de planificación de recursos médicos & terapéuticos de MEDDES.S.A.",
+    "SITE_TITLE": "Plataforma Administrativa MEDDES.S.A ER + (I+D) + Cloud Native Application",
     "SITE_HEADER": "MEDDES",
     "SITE_SUBHEADER": "ERP Center Data",
     "SITE_DROPDOWN": [
@@ -140,7 +142,7 @@ UNFOLD = {
         {
             "icon": "notes",
             "title": _("Bitacora DEV-V.QND.0.3.1.0.1"), 
-            "link": "admin:shop_category_changelist",
+            "link": reverse_lazy("admin:usuarios_bitacoradesarrollo_changelist"),
         },
     ],
 
@@ -172,7 +174,7 @@ UNFOLD = {
 
     "THEME": "light",
     "LOGIN": {
-        "image": lambda request: static("img/BA-BG/test.png"),
+        "image": lambda request: static("img/BA-BG/test.jpg"),
        # "redirect_after": lambda request: reverse_lazy("admin:usuarios_changelist"),
     },
     "STYLES": [
@@ -289,8 +291,8 @@ UNFOLD = {
                 "collapsible": True,
                 "items": [
                     {
-                        "title": _("Bandeja de Mensajes"),
-                        "icon": "inbox",
+                        "title": _("Notificaciones"),
+                        "icon": "notifications",
                         "link": reverse_lazy("admin:usuarios_mensaje_changelist"),
                     },
 
