@@ -121,21 +121,21 @@ LOGIN_URL = 'login'
 LOGOUT_URL = 'logout'
 
 UNFOLD = {
-    "SITE_TITLE": "Plataforma Administrativa MEDDES.S.A ER + (I+D) + Cloud Native Application",
+    "SITE_TITLE": "Plataforma Administrativa MEDDES.S.A ER + (I+D)+ A + Cloud Native Application",
     "SITE_HEADER": "MEDDES",
     "SITE_SUBHEADER": "ERP Center Data",
     "SITE_DROPDOWN": [
 
 
         {
-            "icon": "person",
-            "title": _("Grupo de Usuarios del sistema"),
-            "link": "admin:shop_category_changelist",
+            "icon": "people",
+            "title": _("Rol de Usuarios"),
+            "link": "admin:auth_group_changelis",
         },
 
         {
-            "icon": "people",
-            "title": _("Usuarios del sistema"),
+            "icon": "person",
+            "title": _("Usuario del sistema"),
             "link": reverse_lazy("admin:auth_user_changelist"),
         },
 
@@ -143,6 +143,11 @@ UNFOLD = {
             "icon": "notes",
             "title": _("Bitacora DEV-V.QND.0.3.1.0.1"), 
             "link": reverse_lazy("admin:usuarios_bitacoradesarrollo_changelist"),
+        },
+        {
+            "icon": "settings",
+            "title": _("Monitor Automatización"), 
+            "link": reverse_lazy("admin:django_celery_results_taskresult_changelist"),
         },
     ],
 
@@ -160,7 +165,7 @@ UNFOLD = {
     "SITE_FAVICONS": [
         {
             "rel": "icon",
-            "sizes": "32x32",
+            "sizes": "32x28",
             "type": "image/svg+xml",
             "href": lambda request: static("img/BA-LOGOS/loro.png"),
         },
