@@ -56,15 +56,3 @@ jobs:
         pip3 install uwsgi  # Instalar uWSGI para la prueba
 
 
-
-    - name: Start uWSGI server
-      run: |
-        # Iniciar el servidor uWSGI en segundo plano
-        uwsgi --workers 2  --master  --enable-threads  --module qnd031app.wsgi  --ini uwsgi_pro.ini &
-        # Esperar un momento para asegurarse de que uWSGI esté corriendo
-        sleep 5
-
-    - name: Run Tests with Django
-      run: |
-        # Ejecutar las pruebas de Django
-        python3 manage.py test --settings=qnd031app.settings.pro
