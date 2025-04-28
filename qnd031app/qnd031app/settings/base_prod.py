@@ -61,7 +61,7 @@ INSTALLED_APPS = [
     "unfold.contrib.import_export",  # optional, if django-import-export package is used
     "unfold.contrib.guardian",  # optional, if django-guardian package is used
     "unfold.contrib.simple_history",
-    'appointment',
+   # 'appointment',
     'django_q',
     'django_extensions',
    # 'django_q',  # Optional: for email reminders

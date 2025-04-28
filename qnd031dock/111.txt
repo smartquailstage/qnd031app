@@ -90,7 +90,7 @@ django-ckeditor
 django-qr-code
 
 
-django-appointment
+
 schedule
 
 # Django Braces
