@@ -89,6 +89,12 @@ django-ckeditor
 # Django QR Code
 django-qr-code
 
+
+django_celery_beat
+appointment
+django_celery_results
+schedule
+
 # Django Braces
 django-braces
 

@@ -9,9 +9,7 @@ IP = os.environ.get("IP")
 DOMAIN = os.environ.get("DOMAIN")
 HOST = os.environ.get("HOST")
 
-
-ALLOWED_HOSTS = ['127.0.0.1','localhost','meddes.smartquail.io', '164.90.247.153', '*']
-
+ALLOWED_HOSTS='127.0.0.1',"localhost","https://qnd03101.smartquail.io","qnd03101.smartquail.io","64.23.178.103"
 
 #import wagtail_ai
 
@@ -25,14 +23,13 @@ ALLOWED_HOSTS = ['127.0.0.1','localhost','meddes.smartquail.io', '164.90.247.153
 #]
 
 
-#CSRF_COOKIE_DOMAIN="meddes.smartquail.io"
-#CSRF_COOKIE_SECURE = True
-#CSRF_TRUSTED_ORIGINS = ['https://www.smartquail.io','https://146.190.164.22']
+CSRF_COOKIE_DOMAIN="http://qnd03101.smartquail.io"
+CSRF_COOKIE_SECURE = True
+CSRF_TRUSTED_ORIGINS = ['https://qnd03101.smartquail.io','https://meddes.smartquail.io/','https://146.190.164.22']
 CORS_ALLOWED_ORIGINS = [
-    'https://meddes.smartquail.io/analytics/','https://meddes.smartquail.io/MEDDES/ingresar'
+    'https://qnd03101.smartquail.io','https://qnd03101.smartquail.io/ingresar'
     # Otros orígenes permitidos si los hay
 ]
-
 
 
 
@@ -98,7 +95,7 @@ EMAIL_HOST          = os.environ.get('EMAIL_HOST')
 EMAIL_PORT          =  os.environ.get('EMAIL_PORT')
 EMAIL_HOST_USER     = os.environ.get('EMAIL_HOST_USER ')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL  = EMAIL_HOST_USER
+DEFAULT_FROM_EMAIL  = os.environ.get('DEFAULT_FROM_EMAIL')
 EMAIL_BACKEND       = 'django.core.mail.backends.smtp.EmailBackend'
 #EMAIL_USE_TLS       = False
 #EMAIL_USE_SSL       = False
@@ -109,10 +106,12 @@ REDIS_PORT=os.environ.get('REDIS_PORT')
 REDIS_DB =os.environ.get('REDIS_DB')  
 
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
-CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND')
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60 
 
 
 # social auth settings
@@ -129,12 +128,76 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get('SOCIAL_AUTH_GOOGLE_OAUTH2_SEC
 
 
 
-CACHES = {
+CKEDITOR_CONFIGS = {
     'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://redis:6379/1',
+        'toolbar': 'full',
+        'height': 300,
+        'width': '100%',
+    },
 }
+
+# settings.py
+
+DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# celery setup
+
+# celery setup
+
+
+Q_CLUSTER = {
+   'name': 'DjangORM',
+   'workers': 4,
+   'timeout': 90,
+   'retry': 120,
+   'queue_limit': 50,
+   'bulk': 10,
+   'orm': 'default',
 }
+USE_DJANGO_Q_FOR_EMAILS = True
+
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/0",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+
+
+
+
+# Configuración de serialización actualizada (según las advertencias)
+accept_content = ['json']  # Esto reemplaza 'CELERY_ACCEPT_CONTENT'
+task_serializer = 'json'   # Esto reemplaza 'CELERY_TASK_SERIALIZER'
+result_serializer = 'json'  # Esto reemplaza 'CELERY_RESULT_SERIALIZER'
+
+# Si deseas mantener el comportamiento de reconexión automática en el inicio del broker, usa:
+#broker_connection_retry_on_startup = True
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+EMAIL_HOST = 'smtp.gmail.com'  # Para Gmail
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'phys.mauricio.silva@gmail.com'  # Tu correo de Gmail
+EMAIL_HOST_PASSWORD = '1719183830'  # La contraseña de tu cuenta de Gmail
+DEFAULT_FROM_EMAIL = 'phys.mauricio.silva@gmail.com'
+
+
+
+
+TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
+TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
+TWILIO_WHATSAPP_FROM = os.getenv("TWILIO_WHATSAPP_FROM")
 
 
 

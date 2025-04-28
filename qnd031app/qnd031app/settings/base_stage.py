@@ -22,6 +22,27 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 if SECRET_KEY is None:
     raise ValueError("DJANGO_SECRET_KEY is not set in the environment variables.")
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.environ.get('DJANGO_LOG_FILE', os.path.join(BASE_DIR, 'logs', 'qnd031.log')),
+            'formatter': 'json',
+        },
+    },
+    'formatters': {
+        'json': {
+            'format': '{"time": "%(asctime)s", "level": "%(levelname)s", "name": "%(name)s", "message": "%(message)s"}'
+        },
+    },
+    'root': {
+        'handlers': ['file'],
+        'level': 'INFO',
+    },
+}
 
 
 
