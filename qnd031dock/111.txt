@@ -5,18 +5,14 @@ django>=4.2,<5.0
 #django-baton==2.6.2
 django-unfold
 
-# Wagtail
-wagtail
+
 
 psycopg
 
 # Django Social Share
 django-social-share
 
-# Wagtail Google Maps
-wagtailgmaps
-wagtail-modeltranslation
-wagtail_modeladmin
+
 
 # XlsxWriter
 XlsxWriter
@@ -93,6 +89,10 @@ django-ckeditor
 # Django QR Code
 django-qr-code
 
+
+django-appointment
+schedule
+
 # Django Braces
 django-braces
 
@@ -111,14 +111,11 @@ django-localflavor
 # Django Rosetta
 django-rosetta
 
-# Wagtail Localize
-wagtail-localize
 
 # Django Memcache Status
 django-memcache-status
 
-# Wagtail Media
-wagtailmedia
+
 
 # Django Forms Bootstrap
 django-forms-bootstrap
@@ -134,7 +131,7 @@ django-seed
 
 # Pymemcache
 pymemcache>=3.5.2
-
+django-money
 # Boto3
 boto3>=1.26.6
 
@@ -153,12 +150,10 @@ braintree>=4.29.0
 # Weasyprint
 weasyprint>=57.0
 
-# Wagtail Menus
-wagtailmenus>=1.5.1
-
 qrcode
 
 twilio 
 requests
-openai
-wagtail-ai
+
+django-celery-beat 
+django-celery-results
