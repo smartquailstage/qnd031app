@@ -93,6 +93,9 @@ django-qr-code
 
 django-scheduler
 
+#Gestor ElastickSearch
+elastic-apm
+
 # Django Braces
 django-braces
 

@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     "unfold.contrib.import_export",  # optional, if django-import-export package is used
     "unfold.contrib.guardian",  # optional, if django-guardian package is used
     "unfold.contrib.simple_history",
+    'elasticapm.contrib.django',
    # 'appointment',
     'django_q',
     'django_extensions',
@@ -353,11 +354,18 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.contrib.sites.middleware.CurrentSiteMiddleware',
+    'elasticapm.contrib.django.middleware.TracingMiddleware'
     #'wagtail.core.middleware.site.SiteMiddleware',
     #'wagtail.contrib.redirects.middleware.RedirectMiddleware',
 ]
 
-
+ELASTIC_APM = {
+    'SERVICE_NAME': 'qnd031app',
+    'SECRET_TOKEN': '',  # déjalo vacío si no usas auth
+    'SERVER_URL': 'http://apm-server:8200',
+    'ENVIRONMENT': 'production',
+    'DEBUG': True,
+}
 
 
 
@@ -427,6 +435,8 @@ AUTHENTICATION_BACKENDS = [
     #'social_core.backends.twitter.TwitterOAuth',
     #'social_core.backends.google.GoogleOAuth2',
 ]
+
+
 
 
 
