@@ -99,6 +99,8 @@ django-scheduler
 # Django Braces
 django-braces
 
+django-q
+
 # Django Environ
 django-environ>=0.10.0
 

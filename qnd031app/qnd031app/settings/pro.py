@@ -157,6 +157,7 @@ Q_CLUSTER = {
    'bulk': 10,
    'orm': 'default',
 }
+
 USE_DJANGO_Q_FOR_EMAILS = True
 
 
