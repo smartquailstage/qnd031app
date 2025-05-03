@@ -88,4 +88,4 @@ USER ${USER}
 
 # Comando para ejecutar el script uwsgi al iniciar el contenedor
 USER root
-CMD ["scripts/uwsgi.sh"]
+CMD ["uwsgi.sh"]
