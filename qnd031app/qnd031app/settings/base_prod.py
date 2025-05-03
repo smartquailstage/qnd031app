@@ -61,20 +61,24 @@ INSTALLED_APPS = [
     "unfold.contrib.import_export",  # optional, if django-import-export package is used
     "unfold.contrib.guardian",  # optional, if django-guardian package is used
     "unfold.contrib.simple_history",
-    'elasticapm.contrib.django',
    # 'appointment',
     'django_extensions',
-
-
     #'shop',
     #'orders',
     #'payment',
     #'coupons',
     'django_celery_results',
     'django_celery_beat',
+    'schedule',
     'usuarios',
     'citas_regulares',
-       
+    
+    
+
+
+    
+
+   
     'django.contrib.contenttypes',
     'django.contrib.admin',
     'django.contrib.auth',
