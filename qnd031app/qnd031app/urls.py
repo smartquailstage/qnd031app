@@ -30,7 +30,7 @@ urlpatterns = [
     path('calendario/', include('schedule.urls')),
   #  path('calendar/', include('calendarium.urls'))
     path('analytics/', admin.site.urls),
-    path('appointment/', include('appointment.urls')),
+ #   path('appointment/', include('appointment.urls')),
     path('social-auth/', include('social_django.urls', namespace='social')),
     path('rosetta/', include('rosetta.urls')),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
