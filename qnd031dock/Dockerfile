@@ -24,7 +24,7 @@ COPY ./qnode_ascii-art.txt /${NODE_VERSION}/${NODE_APP_NAME}/qnode_art.txt
 WORKDIR /${NODE_VERSION}/${NODE_APP_NAME}
 EXPOSE 9000
 
-# Crear el entorno virtual, instalar dependencias y preparar el contenedor
+# Crear entorno virtual, instalar dependencias, usuario, y configurar sistema
 RUN python3.11 -m venv /py && \
     /py/bin/pip install --upgrade pip && \
     apk add --update --no-cache postgresql-client && \
@@ -36,56 +36,48 @@ RUN python3.11 -m venv /py && \
     /py/bin/pip install -r /${VERSION}.txt && \
     apk del openssl-dev .tmp-deps && \
 
-    # Crear usuario con UID fijo para asegurar compatibilidad en Kubernetes
+    # Crear usuario con UID fijo
     adduser --uid 1000 --disabled-password --no-create-home ${USER} && \
 
-    # Crear directorios de static y media, con permisos correctos
+    # Directorios de la app
     mkdir -p /${NODE_VERSION}/${NODE_APP_NAME}/static && \
-    chmod -R 755 /${NODE_VERSION}/${NODE_APP_NAME}/static && \
-
     mkdir -p /${NODE_VERSION}/${NODE_APP_NAME}/media && \
-    chmod -R 755 /${NODE_VERSION}/${NODE_APP_NAME}/media && \
-    chown -R ${USER}:${USER} /${NODE_VERSION}/${NODE_APP_NAME}/media && \
-
     mkdir -p /${NODE_APP_NAME}/${NODE_APP_NAME}/staticfiles && \
-    chmod -R 755 /${NODE_APP_NAME}/${NODE_APP_NAME}/staticfiles && \
-    chown -R ${USER}:${USER} /${NODE_APP_NAME}/${NODE_APP_NAME}/staticfiles && \
+    chmod -R 755 /${NODE_VERSION}/${NODE_APP_NAME}/static /${NODE_VERSION}/${NODE_APP_NAME}/media /${NODE_APP_NAME}/${NODE_APP_NAME}/staticfiles && \
+    chown -R ${USER}:${USER} /${NODE_VERSION}/${NODE_APP_NAME}/media /${NODE_APP_NAME}/${NODE_APP_NAME}/staticfiles /${NODE_VERSION}/${NODE_APP_NAME}/static && \
 
-    chown -R ${USER}:${USER} /${NODE_VERSION}/${NODE_APP_NAME}/static && \
+    # Logs
+    mkdir -p /var/log/uwsgi/ /var/log/qnd031app/ && \
+    chown -R ${USER}:${USER} /var/log/uwsgi/ /var/log/qnd031app/ && \
 
-    # Directorio de logs de uwsgi
-    mkdir -p /var/log/uwsgi/ && \
-    chown -R ${USER}:${USER} /var/log/uwsgi/ && \
+    # Fontconfig cache dirs (para evitar errores de fuente)
+    mkdir -p /usr/local/share/fonts /etc/fonts /var/cache/fontconfig && \
+    chmod -R 755 /usr/local/share/fonts /etc/fonts /var/cache/fontconfig && \
+    chown -R ${USER}:${USER} /usr/local/share/fonts /etc/fonts /var/cache/fontconfig && \
 
-    # Directorio de logs de la app Django para Fluent Bit
-    mkdir -p /var/log/qnd031app/ && \
-    chown -R ${USER}:${USER} /var/log/qnd031app/ && \
-
+    # Permisos scripts
     chmod -R 755 /${NODE_VERSION}/${NODE_APP_NAME}/ && \
     chmod -R 755 /scripts && \
-    chown -R ${USER}:${USER} /${NODE_VERSION}/${NODE_APP_NAME}/ && \
+    chown -R ${USER}:${USER} /${NODE_VERSION}/${NODE_APP_NAME}/ /scripts && \
     chmod -R u+x /scripts/uwsgi.sh && \
     chmod -R +x /scripts
 
 # Configuración del entorno
 ENV PATH="/py/bin:/scripts:$PATH"
 
-# Configuración de la zona horaria
-RUN apk add --no-cache --update musl musl-utils musl-locales tzdata
-ENV TZ=America/Guayaquil
-RUN cp /usr/share/zoneinfo/America/Guayaquil /etc/localtime
+# Zona horaria
+RUN apk add --no-cache --update musl musl-utils musl-locales tzdata && \
+    cp /usr/share/zoneinfo/America/Guayaquil /etc/localtime
 
-# Establecer la localización en español
+# Localización
 RUN echo 'export LC_ALL=es_ES.UTF-8' >> /etc/profile.d/locale.sh && \
     sed -i 's|LANG=C.UTF-8|LANG=es_ES.UTF-8|' /etc/profile.d/locale.sh
 
 ENV LANG=es_ES.UTF-8 \
     LANGUAGE=es_ES.UTF-8
 
-# Usuario root y luego cambiar al usuario específico
-USER root
+# Usar el usuario sin privilegios
 USER ${USER}
 
-# Comando para ejecutar el script uwsgi al iniciar el contenedor
-USER root
-CMD ["uwsgi.sh"]
+# Ejecutar el script uwsgi al iniciar
+CMD ["sh", "-c", "uwsgi.sh"]
