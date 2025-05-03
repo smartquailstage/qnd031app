@@ -63,10 +63,7 @@ INSTALLED_APPS = [
     "unfold.contrib.guardian",  # optional, if django-guardian package is used
     "unfold.contrib.simple_history",
    # 'appointment',
-    'django_q',
     'django_extensions',
-   # 'django_q',  # Optional: for email reminders
-
     #'shop',
     #'orders',
     #'payment',

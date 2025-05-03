@@ -64,7 +64,7 @@ INSTALLED_APPS = [
     'elasticapm.contrib.django',
    # 'appointment',
     'django_extensions',
-    'django_q',  # Optional: for email reminders
+
 
     #'shop',
     #'orders',
@@ -86,7 +86,6 @@ INSTALLED_APPS = [
 
     #'parler',
     'core',
-    'django-q',
     'django.contrib.humanize',
 
 

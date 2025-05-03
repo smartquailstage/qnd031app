@@ -148,17 +148,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # celery setup
 
 
-Q_CLUSTER = {
-   'name': 'DjangORM',
-   'workers': 4,
-   'timeout': 90,
-   'retry': 120,
-   'queue_limit': 50,
-   'bulk': 10,
-   'orm': 'default',
-}
 
-USE_DJANGO_Q_FOR_EMAILS = True
 
 
 CACHES = {
