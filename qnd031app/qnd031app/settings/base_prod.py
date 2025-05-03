@@ -75,13 +75,7 @@ INSTALLED_APPS = [
     'django_celery_beat',
     'usuarios',
     'citas_regulares',
-    
-    'schedule',
-
-
-    
-
-   
+       
     'django.contrib.contenttypes',
     'django.contrib.admin',
     'django.contrib.auth',
