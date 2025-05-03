@@ -92,6 +92,7 @@ django-qr-code
 django-q
 
 django-scheduler
+django-extensions
 
 #Gestor ElastickSearch
 elastic-apm
