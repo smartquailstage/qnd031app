@@ -11,6 +11,7 @@ psycopg
 
 # Django Social Share
 django-social-share
+django_extensions
 
 
 
@@ -93,7 +94,7 @@ django-qr-code
 django_celery_beat
 django-appointment
 django_celery_results
-schedule
+django-scheduler
 
 # Django Braces
 django-braces

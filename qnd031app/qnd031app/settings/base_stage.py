@@ -73,10 +73,11 @@ INSTALLED_APPS = [
     #'coupons',
     'django_celery_results',
     'django_celery_beat',
+    'schedule',
     'usuarios',
     'citas_regulares',
     
-    'schedule',
+    
 
 
     

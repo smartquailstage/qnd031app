@@ -91,7 +91,7 @@ django-qr-code
 
 
 
-schedule
+django-scheduler
 
 # Django Braces
 django-braces
