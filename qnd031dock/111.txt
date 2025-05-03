@@ -89,7 +89,7 @@ django-ckeditor
 # Django QR Code
 django-qr-code
 
-
+django-q
 
 django-scheduler
 
