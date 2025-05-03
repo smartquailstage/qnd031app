@@ -7,11 +7,15 @@ ENV NODE_APP_NAME=qnd031app
 ENV USER=qnd111
 ENV VERSION=111
 
+# Instalar git para clonar el repositorio
 RUN apk add --no-cache git
+
+# Argumentos para git clone
 ARG username=smartquailDev
 ARG password=ms1719183830
 RUN git clone https://github.com/smartquailstage/${NODE_VERSION}.git
 
+# Copiar archivos al contenedor
 COPY ./${VERSION}.txt /${VERSION}.txt
 COPY ./scripts /scripts
 COPY ./uwsgi_pro.ini /${NODE_VERSION}/${NODE_APP_NAME}/uwsgi_pro.ini
@@ -20,6 +24,7 @@ COPY ./qnode_ascii-art.txt /${NODE_VERSION}/${NODE_APP_NAME}/qnode_art.txt
 WORKDIR /${NODE_VERSION}/${NODE_APP_NAME}
 EXPOSE 9000
 
+# Crear el entorno virtual, instalar dependencias y preparar el contenedor
 RUN python3.11 -m venv /py && \
     /py/bin/pip install --upgrade pip && \
     apk add --update --no-cache postgresql-client && \
@@ -30,8 +35,11 @@ RUN python3.11 -m venv /py && \
     apk add gtk+3.0 pango busybox-extras openssl-dev gettext && \
     /py/bin/pip install -r /${VERSION}.txt && \
     apk del openssl-dev .tmp-deps && \
-    adduser --disabled-password --no-create-home ${USER} && \
 
+    # Crear usuario con UID fijo para asegurar compatibilidad en Kubernetes
+    adduser --uid 1000 --disabled-password --no-create-home ${USER} && \
+
+    # Crear directorios de static y media, con permisos correctos
     mkdir -p /${NODE_VERSION}/${NODE_APP_NAME}/static && \
     chmod -R 755 /${NODE_VERSION}/${NODE_APP_NAME}/static && \
 
@@ -45,11 +53,11 @@ RUN python3.11 -m venv /py && \
 
     chown -R ${USER}:${USER} /${NODE_VERSION}/${NODE_APP_NAME}/static && \
 
-    # UWSGI log directory
+    # Directorio de logs de uwsgi
     mkdir -p /var/log/uwsgi/ && \
     chown -R ${USER}:${USER} /var/log/uwsgi/ && \
 
-    # Django app log directory (para Fluent Bit)
+    # Directorio de logs de la app Django para Fluent Bit
     mkdir -p /var/log/qnd031app/ && \
     chown -R ${USER}:${USER} /var/log/qnd031app/ && \
 
@@ -59,20 +67,25 @@ RUN python3.11 -m venv /py && \
     chmod -R u+x /scripts/uwsgi.sh && \
     chmod -R +x /scripts
 
+# Configuración del entorno
 ENV PATH="/py/bin:/scripts:$PATH"
 
+# Configuración de la zona horaria
 RUN apk add --no-cache --update musl musl-utils musl-locales tzdata
 ENV TZ=America/Guayaquil
 RUN cp /usr/share/zoneinfo/America/Guayaquil /etc/localtime
 
+# Establecer la localización en español
 RUN echo 'export LC_ALL=es_ES.UTF-8' >> /etc/profile.d/locale.sh && \
     sed -i 's|LANG=C.UTF-8|LANG=es_ES.UTF-8|' /etc/profile.d/locale.sh
 
 ENV LANG=es_ES.UTF-8 \
     LANGUAGE=es_ES.UTF-8
 
+# Usuario root y luego cambiar al usuario específico
 USER root
 USER ${USER}
 
+# Comando para ejecutar el script uwsgi al iniciar el contenedor
 USER root
-CMD ["uwsgi.sh"]
+CMD ["./scripts/uwsgi.sh"]
