@@ -87,6 +87,7 @@ INSTALLED_APPS = [
 
     #'parler',
     'core',
+    'django-q',
     'django.contrib.humanize',
 
 
