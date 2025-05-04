@@ -140,7 +140,7 @@ LOGIN_URL = 'login'
 LOGOUT_URL = 'logout'
 
 UNFOLD = {
-    "SITE_TITLE": "Plataforma Administrativa MEDDES.S.A ER + (I+D)+ A + Cloud Native Application",
+    "SITE_TITLE": "Plataforma Administrativa MEDDES.S.A Cloud Native App+(I+D)+A",
     "SITE_HEADER": "MEDDES",
     "SITE_SUBHEADER": "ERP Center Data",
     "SITE_DROPDOWN": [
@@ -298,12 +298,12 @@ UNFOLD = {
                 "collapsible": True,
                 "items": [
                     {
-                        "title": _("Tareas Terapéuticas "),
+                        "title": _("Tareas & Actividades"),
                         "icon": "task",
                         "link": reverse_lazy("admin:usuarios_tareas_changelist"),
                     },
                     {
-                        "title": _("Asistencia Terapeutica"), 
+                        "title": _("Asistencias"), 
                         "icon": "calendar_today",
                         "link": reverse_lazy("admin:usuarios_asistenciaterapeuta_changelist"),
                     },

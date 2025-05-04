@@ -291,12 +291,12 @@ UNFOLD = {
                 "collapsible": True,
                 "items": [
                     {
-                        "title": _("Tareas Terapéuticas "),
+                        "title": _("Tareas & Actividades "),
                         "icon": "task",
                         "link": reverse_lazy("admin:usuarios_tareas_changelist"),
                     },
                     {
-                        "title": _("Asistencia Terapeutica"), 
+                        "title": _("Asistencias Terapeuticas"), 
                         "icon": "calendar_today",
                         "link": reverse_lazy("admin:usuarios_asistenciaterapeuta_changelist"),
                     },
