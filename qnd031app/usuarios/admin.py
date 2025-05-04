@@ -202,7 +202,7 @@ class Perfil_TerapeutaAdmin(ModelAdmin):
 @admin.register(AsistenciaTerapeuta)
 class AsistenciaTerapeutaAdmin(ModelAdmin):
     # Configuraciones de visualización y comportamiento
-    change_list_template = "admin/dashboard_calendar.html"
+    #change_list_template = "admin/dashboard_calendar.html"
     change_form_show_cancel_button = True
 
     # Configuración de campos
