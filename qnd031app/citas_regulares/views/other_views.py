@@ -55,20 +55,7 @@ class CalendarView(LoginRequiredMixin, generic.ListView):
         return context
 
 
-class CalendarAdminView(LoginRequiredMixin, generic.ListView):
-    login_url = "accounts:signin"
-    model = Event
-    template_name = "calendar.html"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        d = get_date(self.request.GET.get("month", None))
-        cal = Calendar(d.year, d.month)
-        html_cal = cal.formatmonth(withyear=True)
-        context["calendar"] = mark_safe(html_cal)
-        context["prev_month"] = prev_month(d)
-        context["next_month"] = next_month(d)
-        return context
 
 @login_required(login_url="signup")
 def create_event(request):
