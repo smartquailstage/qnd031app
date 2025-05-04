@@ -142,7 +142,9 @@ LOGOUT_URL = 'logout'
 UNFOLD = {
     "SITE_TITLE": "Plataforma Administrativa MEDDES.S.A Cloud Native App+(I+D)+A",
     "SITE_HEADER": "MEDDES",
-    "SITE_SUBHEADER": "ERP Center Data",
+    "SITE_SUBHEADER": "Eterprises Research & Development",
+    "SITE_DESCRIPTION": "Plataforma Administrativa MEDDES.S.A Cloud Native App+(I+D)+A",
+    "SITE_COPYRIGHT": "Copyright © 2025 SmartQuail S.A.S Todos los derechos reservados.",
     "SITE_DROPDOWN": [
 
 
@@ -170,7 +172,7 @@ UNFOLD = {
         },
     ],
 
-    "SITE_URL": "/",
+    "SITE_URL": "https://www.meddes.com.ec/",
     # "SITE_ICON": lambda request: static("icon.svg"),  # both modes, optimise for 32px height
     "SITE_ICON": {
         "light": lambda request: static("img/BA-LOGOS/loro.png"),
@@ -191,7 +193,7 @@ UNFOLD = {
     ],
     "SHOW_HISTORY": True,
     "SHOW_VIEW_ON_SITE": True,
-    "SHOW_BACK_BUTTON": False,
+    "SHOW_BACK_BUTTON": True,
     "DASHBOARD_CALLBACK": "usuarios.views.dashboard_callback",
     
     "ENVIRONMENT": "qnd031app.utils.environment.environment_callback",

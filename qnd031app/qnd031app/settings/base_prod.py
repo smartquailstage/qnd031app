@@ -163,7 +163,7 @@ UNFOLD = {
         },
     ],
 
-    "SITE_URL": "/",
+    "SITE_URL": "https://www.meddes.com.ec/",
     # "SITE_ICON": lambda request: static("icon.svg"),  # both modes, optimise for 32px height
     "SITE_ICON": {
         "light": lambda request: static("img/BA-LOGOS/loro.png"),
