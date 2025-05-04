@@ -55,7 +55,7 @@ class prospecion_administrativa(models.Model):
     telefono_persona_cargo = models.CharField(max_length=50,null=True, blank=True)
     correo_persona_cargo = models.EmailField(blank=True, null=True, verbose_name="Correo Electrónico Persona a cargo")
 
-    terapeutas_asignados = models.ManyToManyField('auth.User', limit_choices_to={'groups__name': 'Terapeutas'},null=True, blank=True)
+    terapeutas_asignados = models.ManyToManyField('auth.User', limit_choices_to={'groups__name': 'Terapeutas'})
     ejecutivo_encargado = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True, blank=True, related_name='colegios_asignados')
 
     convenio_pdf = models.FileField(

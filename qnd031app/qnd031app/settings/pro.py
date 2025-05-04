@@ -23,9 +23,9 @@ ALLOWED_HOSTS='127.0.0.1',"localhost","https://qnd03101.smartquail.io","qnd03101
 #]
 
 
-CSRF_COOKIE_DOMAIN="http://qnd03101.smartquail.io"
-CSRF_COOKIE_SECURE = True
-CSRF_TRUSTED_ORIGINS = ['https://qnd03101.smartquail.io','https://meddes.smartquail.io/','https://146.190.164.22']
+#CSRF_COOKIE_DOMAIN="http://qnd03101.smartquail.io"
+#CSRF_COOKIE_SECURE = True
+#CSRF_TRUSTED_ORIGINS = ['https://qnd03101.smartquail.io','https://meddes.smartquail.io/','https://146.190.164.22']
 CORS_ALLOWED_ORIGINS = [
     'https://qnd03101.smartquail.io','https://qnd03101.smartquail.io/ingresar'
     # Otros orígenes permitidos si los hay
@@ -148,16 +148,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # celery setup
 
 
-Q_CLUSTER = {
-   'name': 'DjangORM',
-   'workers': 4,
-   'timeout': 90,
-   'retry': 120,
-   'queue_limit': 50,
-   'bulk': 10,
-   'orm': 'default',
-}
-USE_DJANGO_Q_FOR_EMAILS = True
+
 
 
 CACHES = {

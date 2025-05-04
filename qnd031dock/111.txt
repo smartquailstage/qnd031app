@@ -89,9 +89,13 @@ django-ckeditor
 # Django QR Code
 django-qr-code
 
+django-q
 
+django-scheduler
+django-extensions
 
-schedule
+#Gestor ElastickSearch
+elastic-apm
 
 # Django Braces
 django-braces
