@@ -133,7 +133,7 @@ INSTALLED_APPS = [
 
 
 UNFOLD = {
-    "SITE_TITLE": "Plataforma Administrativa MEDDES.S.A ER + (I+D)+ A + Cloud Native Application",
+    "SITE_TITLE": "Plataforma Administrativa MEDDES.S.A Cloud Native Application+(I+D)+A  ",
     "SITE_HEADER": "MEDDES",
     "SITE_SUBHEADER": "ERP Center Data",
     "SITE_DROPDOWN": [
