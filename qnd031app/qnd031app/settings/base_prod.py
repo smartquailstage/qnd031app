@@ -30,13 +30,15 @@ LOGGING = {
         'file': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': os.environ.get('DJANGO_LOG_FILE', os.path.join(BASE_DIR, 'logs', 'qnd031.log')),
+            'filename': os.environ.get('DJANGO_LOG_FILE', os.path.join(BASE_DIR, 'logs', 'qnd031app.log')),
             'formatter': 'json',
+            
         },
     },
     'formatters': {
         'json': {
-            'format': '{"time": "%(asctime)s", "level": "%(levelname)s", "name": "%(name)s", "message": "%(message)s"}'
+            'format': '{"time": "%(asctime)s", "level": "%(levelname)s", "name": "%(name)s", "message": "%(message)s"}',
+            'datefmt': '%Y-%m-%dT%H:%M:%S.%f'
         },
     },
     'root': {
