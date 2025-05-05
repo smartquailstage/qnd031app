@@ -38,7 +38,7 @@ LOGGING = {
     'formatters': {
         'json': {
             'format': '{"time": "%(asctime)s", "level": "%(levelname)s", "name": "%(name)s", "message": "%(message)s"}',
-            'datefmt': '%Y-%m-%dT%H:%M:%S.%f'
+            'datefmt': '%Y-%m-%dT%H:%M:%S.%L'
         },
     },
     'root': {
