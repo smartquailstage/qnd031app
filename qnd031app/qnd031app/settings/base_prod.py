@@ -6,6 +6,9 @@ from dotenv import load_dotenv
 from django.utils.translation import gettext_lazy as _
 from django.templatetags.static import static
 from django.urls import reverse_lazy
+import json
+import logging
+from datetime import datetime
 
 #prueba
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,22 +26,31 @@ if SECRET_KEY is None:
     raise ValueError("DJANGO_SECRET_KEY is not set in the environment variables.")
 
 
+class JSONLogFormatter(logging.Formatter):
+    def format(self, record):
+        timestamp = datetime.fromtimestamp(record.created).strftime('%Y-%m-%dT%H:%M:%S.%f')
+        log_record = {
+            "time": timestamp,
+            "level": record.levelname,
+            "name": record.name,
+            "message": record.getMessage(),
+        }
+        return json.dumps(log_record)
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'json': {
+            '()': JSONLogFormatter,
+        },
+    },
     'handlers': {
         'file': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
             'filename': os.environ.get('DJANGO_LOG_FILE', os.path.join(BASE_DIR, 'logs', 'qnd031app.log')),
             'formatter': 'json',
-            
-        },
-    },
-    'formatters': {
-        'json': {
-            'format': '{"time": "%(asctime)s", "level": "%(levelname)s", "name": "%(name)s", "message": "%(message)s"}',
-            'datefmt': '%Y-%m-%dT%H:%M:%S.%f'
         },
     },
     'root': {
