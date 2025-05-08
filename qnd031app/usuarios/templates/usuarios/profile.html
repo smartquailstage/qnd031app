@@ -14,88 +14,7 @@
    <div class="page-content">
     <div class="row">
 
-      <div class="row row-cols-1 row-cols-lg-2 row-cols-xxl-4">
-        <div class="col">
-          <div class="card radius-10">
-            <div class="card-body">
-              <div class="d-flex align-items-start gap-2">
-                <div>
-                  <p class="mb-0 fs-6">Total Revenue</p>
-                </div>
-                <div class="ms-auto widget-icon-small text-white bg-gradient-purple">
-                  <ion-icon name="wallet-outline"></ion-icon>
-                </div>
-              </div>
-              <div class="d-flex align-items-center mt-3">
-                <div>
-                  <h4 class="mb-0">$92,854</h4>
-                </div>
-                <div class="ms-auto">+6.32%</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="card radius-10">
-            <div class="card-body">
-              <div class="d-flex align-items-start gap-2">
-                <div>
-                  <p class="mb-0 fs-6">Total Customer</p>
-                </div>
-                <div class="ms-auto widget-icon-small text-white bg-gradient-info">
-                  <ion-icon name="people-outline"></ion-icon>
-                </div>
-              </div>
-              <div class="d-flex align-items-center mt-3">
-                <div>
-                  <h4 class="mb-0">48,789</h4>
-                </div>
-                <div class="ms-auto">+12.45%</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="card radius-10">
-            <div class="card-body">
-              <div class="d-flex align-items-start gap-2">
-                <div>
-                  <p class="mb-0 fs-6">Total Orders</p>
-                </div>
-                <div class="ms-auto widget-icon-small text-white bg-gradient-danger">
-                  <ion-icon name="bag-handle-outline"></ion-icon>
-                </div>
-              </div>
-              <div class="d-flex align-items-center mt-3">
-                <div>
-                  <h4 class="mb-0">88,234</h4>
-                </div>
-                <div class="ms-auto">+3.12%</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="card radius-10">
-            <div class="card-body">
-              <div class="d-flex align-items-start gap-2">
-                <div>
-                  <p class="mb-0 fs-6">Conversion Rate</p>
-                </div>
-                <div class="ms-auto widget-icon-small text-white bg-gradient-success">
-                  <ion-icon name="bar-chart-outline"></ion-icon>
-                </div>
-              </div>
-              <div class="d-flex align-items-center mt-3">
-                <div>
-                  <h4 class="mb-0">48.76%</h4>
-                </div>
-                <div class="ms-auto">+8.52%</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+
       
         <div class="col-12 col-lg-8 col-xl-9">
           <div class="card overflow-hidden radius-10">
@@ -121,33 +40,12 @@
             </div>
           </div>
 
-            <div class="card">
-            <div class="card-body">
-              <div class="mt-5 d-flex align-items-start justify-content-between">
-                <div class="">
-                  <p class="mb-1"><strong>Correo Electrónico</strong>{{ profile.email }}</p>
-                  <p class="mb-1"><strong>Telefono de contacto</strong>{{ profile.telefono  }}</p>
-                  <p class="mb-1"><strong>Dirección</strong>{{ profile.direccion  }}</p>
-                  <p class="mb-1"><strong>Nombre del paciente</strong>{{ profile.Paciente_nombre }}</p>
-                  <p  class="mb-1"><strong>Nacionalidad:</strong>  {{ profile.nacionalidad }} </p>
-                  <p class="mb-1"> <stronG>Genero:</stronG> {{ profile.sexo }} </p>                 
-                </div>
-              </div>
-            </div>
-          </div>
-         
-          <div class="card">
-            <div class="card-body">
-              <h4 class="mb-2"><ion-icon name="people"></ion-icon> Representante </h4>
-              <p class="mb-1"><strong>Nombre del representante:</strong> {{ profile.representante_legal_nombre  }} {{ profile.representante_legal_apellido   }}</p>
-              <p class="mb-1"><strong>Nombre del Factura:</strong> {{ profile.nombre_factura  }}</p>
-              <p class="mb-1"><strong>R.U.C del representante</strong>{{ profile.ruc }}</p>
-              <p class="mb-1"><strong>Nombre de Factura</strong>{{ profile.nombre_factura  }}</p>
-             
-            </div>
-          </div> 
+
         </div>
+ 
+
         <div class="col-12 col-lg-4 col-xl-3">
+
           <div class="card radius-10">
             <div class="card-body">
               <h5 class="mb-3">  <ion-icon name="people"></ion-icon>Información de Domicilio</h5>
@@ -168,11 +66,121 @@
                 <strong>Dirección: </strong> {{ contact.direccion }}, {{ contact.georeferenciacion }}
               </p>
             </div>
+
+
           </div>
-    
+
+          <div class="card radius-10">
+            <div class="card-body">
+              <h5 class="mb-3">  <ion-icon name="people"></ion-icon>Información de Domicilio</h5>
+              <p class="mb-0">
+               
+               <strong>País de residencia:</strong>  {{ contact.pais_residencia }}
+              </p>
+              <p class="mb-0">
+                
+                <strong>Ciudad en ecuador:</strong> {{ contact.provincia_cantones_ecuador  }}
+              </p>
+              <p class="mb-0">
+               
+                <strong>Parroquia en Quito:</strong>  {{ contact.parroquia_quito }}
+              </p>
+               <p class="mb-0">
+        
+                <strong>Dirección: </strong> {{ contact.direccion }}, {{ contact.georeferenciacion }}
+              </p>
+            </div>
+
+
+          </div>
+
+          <div class="card radius-10">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div class="">
+                  <p class="mb-1">Messages</p>
+                  <h4 class="mb-0 text-tiffany">169</h4>
+                </div>
+                <div class="ms-auto widget-icon bg-light-tiffany text-tiffany">
+                  <ion-icon name="chatbubbles-sharp" role="img" class="md hydrated" aria-label="chatbubbles sharp"></ion-icon>
+                </div>
+              </div>
+            </div>
+          </div>
+
 
  
       </div>
+
+      <div class="row row-cols-1 row-cols-lg-2 row-cols-xxl-4">
+        <div class="col">
+          <div class="card radius-10">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div class="">
+                  <p class="mb-1">Messages</p>
+                  <h4 class="mb-0 text-tiffany">169</h4>
+                </div>
+                <div class="ms-auto widget-icon bg-light-tiffany text-tiffany">
+                  <ion-icon name="chatbubbles-sharp" role="img" class="md hydrated" aria-label="chatbubbles sharp"></ion-icon>
+                </div>
+              </div>
+            </div>
+          </div>
+      </div>
+      <div class="col">
+        <div class="card radius-10">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="">
+                <p class="mb-1">Messages</p>
+                <h4 class="mb-0 text-tiffany">169</h4>
+              </div>
+              <div class="ms-auto widget-icon bg-light-tiffany text-tiffany">
+                <ion-icon name="chatbubbles-sharp" role="img" class="md hydrated" aria-label="chatbubbles sharp"></ion-icon>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+    <div class="col">
+      <div class="card radius-10">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="">
+              <p class="mb-1">Messages</p>
+              <h4 class="mb-0 text-tiffany">169</h4>
+            </div>
+            <div class="ms-auto widget-icon bg-light-tiffany text-tiffany">
+              <ion-icon name="chatbubbles-sharp" role="img" class="md hydrated" aria-label="chatbubbles sharp"></ion-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+
+ 
+          <div class="col">
+            <div class="card radius-10">
+              <div class="card-body">
+                <div class="d-flex align-items-center">
+                  <div class="">
+                    <p class="mb-1">Messages</p>
+                    <h4 class="mb-0 text-tiffany">169</h4>
+                  </div>
+                  <div class="ms-auto widget-icon bg-light-tiffany text-tiffany">
+                    <ion-icon name="chatbubbles-sharp" role="img" class="md hydrated" aria-label="chatbubbles sharp"></ion-icon>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+
+
+
+
+      
     </div>
 </div>
 
