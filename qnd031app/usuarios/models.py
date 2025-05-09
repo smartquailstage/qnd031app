@@ -28,7 +28,7 @@ class Prospeccion(models.Model):
     nombre_institucion = models.CharField("NOMBRE DE LA INSTITUCIÓN", max_length=200)
     sostenimiento = models.CharField("SOSTENIMIENTO", max_length=100)
     estado = models.CharField("ESTADO", max_length=100)
-    telefono = models.CharField("TELEFONO", max_length=20)
+    telefono = models.CharField("TELEFONO", max_length=100)
     sector = models.CharField("SECTOR", max_length=100)
     direccion = models.CharField("DIRECCION", max_length=250)
 

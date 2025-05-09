@@ -25,6 +25,9 @@ python3 manage.py migrate --settings=$NODE_NAME.settings.pro --noinput
 echo "Creando superusuario si no existe..."
 python3 manage.py createsuperuser --email $SUPERUSER_EMAIL --noinput || true
 
+#echo "Insertando data..."
+#python3 manage.py imports --settings=$NODE_NAME.settings.pro --noinput
+
 # Recolecta los archivos estáticos de Django (sin necesidad de intervención del usuario)
 echo "Recolectando archivos estáticos..."
 python3 manage.py collectstatic --settings=$NODE_NAME.settings.pro --noinput

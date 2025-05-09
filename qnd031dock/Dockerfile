@@ -17,6 +17,7 @@ RUN git clone https://github.com/smartquailstage/${NODE_VERSION}.git
 
 # Copiar archivos al contenedor
 COPY ./${VERSION}.txt /${VERSION}.txt
+COPY ./dbb/BDDPSP.csv /${NODE_VERSION}/${NODE_APP_NAME}/BDDPSP.csv
 COPY ./scripts /scripts
 COPY ./uwsgi_pro.ini /${NODE_VERSION}/${NODE_APP_NAME}/uwsgi_pro.ini
 COPY ./qnode_ascii-art.txt /${NODE_VERSION}/${NODE_APP_NAME}/qnode_art.txt
