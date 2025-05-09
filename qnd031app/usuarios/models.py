@@ -49,8 +49,15 @@ class Prospeccion(models.Model):
     vya_observaciones = models.TextField("VYA\nGENERAL OBSERVACIONES", blank=True)
     vya_fecha_proximo_contacto = models.DateField("VYA\nFECHA PROXIMO\n CONTACTO", blank=True, null=True)
 
+    class Meta:
+        ordering = ['tl_fecha_contacto']
+        verbose_name_plural = "Registros Administrativos / Prospección "
+        verbose_name = "Administrativo / Prospecciones"
+
     def __str__(self):
         return self.nombre_institucion
+
+
 
 class prospecion_administrativa(models.Model):
     ESTADOS = [
@@ -108,7 +115,7 @@ class prospecion_administrativa(models.Model):
     class Meta:
         ordering = ['nombre']
         verbose_name_plural = "Registros Administrativos / Ingreso perfil de colegio"
-        verbose_name = "Administrativo / prospeciónes"
+        verbose_name = "Administrativo / Colegios"
 
     def alerta_estado_inactivo(self):
         if self.estado != 'inactivo':

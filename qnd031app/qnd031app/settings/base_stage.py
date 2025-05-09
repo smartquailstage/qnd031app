@@ -264,13 +264,18 @@ UNFOLD = {
                 "separator": True,
                 "collapsible": True,
                 "items": [
+                    {
+                        "title": _("Prospección Administrativa"),
+                        "icon": "edit",    
+                        "link": reverse_lazy("admin:usuarios_prospeccion_changelist"),
+                    },
 
                     {
                         "title": _("Perfil de Colegios"),
                         "icon": "school",    
                         "link": reverse_lazy("admin:usuarios_prospecion_administrativa_changelist"),
                     },
-                  {
+                    {
                         "title": _("Perfil de Terapistas"),
                         "icon": "medical_services",
                         "link": reverse_lazy("admin:usuarios_perfil_terapeuta_changelist"),
