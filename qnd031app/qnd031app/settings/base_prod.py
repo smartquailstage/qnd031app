@@ -37,26 +37,211 @@ class JSONLogFormatter(logging.Formatter):
         }
         return json.dumps(log_record)
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'json': {
-            '()': JSONLogFormatter,
+UNFOLD = {
+    "SITE_TITLE": "Plataforma Administrativa MEDDES.S.A Cloud Native App+(I+D)+A",
+    "SITE_HEADER": "MEDDES",
+    "SITE_SUBHEADER": "Eterprises Research & Development",
+    "SITE_DESCRIPTION": "Plataforma Administrativa MEDDES.S.A Cloud Native App+(I+D)+A",
+    "SITE_COPYRIGHT": "Copyright © 2025 SmartQuail S.A.S Todos los derechos reservados.",
+    "SITE_DROPDOWN": [
+
+
+        {
+            "icon": "people",
+            "title": _("Rol de Usuarios"),
+            "link": "admin:auth_group_changelist",
+        },
+
+        {
+            "icon": "person",
+            "title": _("Usuario del sistema"),
+            "link": reverse_lazy("admin:auth_user_changelist"),
+        },
+
+        {
+            "icon": "settings",
+            "title": _("Monitor Automatización"), 
+            "link": reverse_lazy("admin:django_celery_results_taskresult_changelist"),
+        },
+        {
+            "icon": "notes",
+            "title": _("Bitacora DEV-V.QND.0.3.1.0.1"), 
+            "link": reverse_lazy("admin:usuarios_bitacoradesarrollo_changelist"),
+        },
+    ],
+
+    "SITE_URL": "https://www.meddes.com.ec/",
+    # "SITE_ICON": lambda request: static("icon.svg"),  # both modes, optimise for 32px height
+    "SITE_ICON": {
+        "light": lambda request: static("img/BA-LOGOS/loro.png"),
+        "dark": lambda request: static("img/BA-LOGOS/loro.png"),
+    },
+    "SITE_LOGO": {
+        "light": lambda request: static("img/BA-LOGOS/logo.png"),
+        "dark": lambda request: static("img/BA-LOGOS/logo.png"),
+    },
+    "SITE_SYMBOL": "speed",
+    "SITE_FAVICONS": [
+        {
+            "rel": "icon",
+            "sizes": "32x28",
+            "type": "image/svg+xml",
+            "href": lambda request: static("img/BA-LOGOS/loro.png"),
+        },
+    ],
+    "SHOW_HISTORY": True,
+    "SHOW_VIEW_ON_SITE": True,
+    "SHOW_BACK_BUTTON": True,
+    "DASHBOARD_CALLBACK": "usuarios.views.dashboard_callback",
+    
+    "ENVIRONMENT": "qnd031app.utils.environment.environment_callback",
+
+    "THEME": "light",
+    "LOGIN": {
+        "image": lambda request: static("img/BA-BG/test.jpg"),
+       # "redirect_after": lambda request: reverse_lazy("admin:usuarios_changelist"),
+    },
+    "STYLES": [
+        lambda request: static("css/style.css"),
+    ],
+    "SCRIPTS": [
+        lambda request: static("js/script.js"),
+    ],
+    "BORDER_RADIUS": "6px",
+    "COLORS": {
+        "base": {
+            "50": "255 255 255",
+            "100": "123 204 121",
+            "200": "211 213 205",
+            "300": "209 213 219",
+            "400": "41 168 80",
+            "500": "0, 180, 81",
+            "600": "75 85 99",
+            "700": "7 121 176",
+            "800": "4 168 79",
+            "900": "60 59 59",
+            "950": "3 7 18",
+        },
+        "primary": {
+            "50": "250 245 255",
+            "100": "243 232 255",
+            "200": "233 213 255",
+            "300": "216 180 254",
+            "400": "192 132 252",
+            "500": "229 234 231",
+            "600": "61 61 56",
+            "700": "126 34 206",
+            "800": "107 33 168",
+            "900": "24 85 2",
+            "950": "59 7 100",
+        },
+        "font": {
+            "subtle-light": "var(--color-base-500)",  # text-base-500
+            "subtle-dark": "var(--color-base-400)",  # text-base-400
+            "default-light": "var(--color-base-600)",  # text-base-600
+            "default-dark": "var(--color-base-300)",  # text-base-300
+            "important-light": "var(--color-base-900)",  # text-base-900
+            "important-dark": "var(--color-base-100)",  # text-base-100
         },
     },
-    'handlers': {
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': os.environ.get('DJANGO_LOG_FILE', os.path.join(BASE_DIR, 'logs', 'qnd031app.log')),
-            'formatter': 'json',
+    "EXTENSIONS": {
+        "modeltranslation": {
+            "flags": {
+                "en": "🇬🇧",
+                "fr": "🇫🇷",
+                "nl": "🇧🇪",
+            },
         },
     },
-    'root': {
-        'handlers': ['file'],
-        'level': 'INFO',
+ "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": True,
+        "navigation": [
+            {
+                "title": _("Registros Administrativos"),
+                "separator": True,
+                "collapsible": True,
+                "items": [
+
+                    {
+                        "title": _("Perfil de Colegios"),
+                        "icon": "school",    
+                        "link": reverse_lazy("admin:usuarios_prospecion_administrativa_changelist"),
+                    },
+                  {
+                        "title": _("Perfil de Terapistas"),
+                        "icon": "medical_services",
+                        "link": reverse_lazy("admin:usuarios_perfil_terapeuta_changelist"),
+                    },
+
+                    {
+                        "title": _("Perfil de Pacientes"),
+                        "icon": "person",
+                        "link": reverse_lazy("admin:usuarios_profile_changelist"),
+                    },
+
+                    {
+                        "title": _("Agenda de Citas"), 
+                        "icon": "calendar_today",
+                        "link": reverse_lazy("admin:usuarios_cita_changelist"),
+                    },
+
+                    {
+                        "title": _("Pagos de servicios"),
+                        "icon": "payment",
+                        "link": reverse_lazy("admin:usuarios_pagos_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": _("Registros Terapéuticos"),
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": _("Tareas & Actividades"),
+                        "icon": "task",
+                        "link": reverse_lazy("admin:usuarios_tareas_changelist"),
+                    },
+                    {
+                        "title": _("Asistencias"), 
+                        "icon": "calendar_today",
+                        "link": reverse_lazy("admin:usuarios_asistenciaterapeuta_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": _("Comunicaciones"),
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": _("Notificaciones"),
+                        "icon": "notifications",
+                        "link": reverse_lazy("admin:usuarios_mensaje_changelist"),
+                    },
+
+                ],
+            },
+        ],
     },
+
+ 
+    "MENU": [
+        {
+            "title": _("Dashboard"),
+            "icon": "dashboard",
+            "link": reverse_lazy("admin:index"),
+            "permission": lambda request: request.user.is_superuser,
+        },
+        {
+            "title": _("Users"),
+            "icon": "people",
+            "link": reverse_lazy("admin:auth_user_changelist"),
+        },
+    ],
+
+
 }
 
 # Application definition

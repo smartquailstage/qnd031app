@@ -21,6 +21,36 @@ from django.utils.timezone import make_aware
 
 
 
+class Prospeccion(models.Model):
+    distrito = models.CharField("DISTRITO", max_length=100)
+    provincia = models.CharField("PROVINCIA", max_length=100)
+    zona = models.CharField("ZONA", max_length=100)
+    nombre_institucion = models.CharField("NOMBRE DE LA INSTITUCIÓN", max_length=200)
+    sostenimiento = models.CharField("SOSTENIMIENTO", max_length=100)
+    estado = models.CharField("ESTADO", max_length=100)
+    telefono = models.CharField("TELEFONO", max_length=20)
+    sector = models.CharField("SECTOR", max_length=100)
+    direccion = models.CharField("DIRECCION", max_length=250)
+
+    tl_nombre_contacto = models.CharField("TERAPIA DE LENGUAJE \nNOMBRE DE CONTACTO", max_length=200)
+    tl_cargo_contacto = models.CharField("TERAPIA DE LENGUAJE \nCARGO CONTACTO", max_length=200)
+    tl_email = models.EmailField("TERAPIA DE LENGUAJE \nEMAIL", blank=True, null=True)
+    tl_proceso_realizado = models.TextField("TERAPIA DE LENGUAJE\nPROCESO REALIZADO", blank=True)
+    tl_responsable = models.CharField("TERAPIA DE LENGUAJE\nRESPONSABLE", max_length=200, blank=True)
+    tl_fecha_contacto = models.DateField("TERAPIA DE LENGUAJE\nFECHA DE CONTACTO", blank=True, null=True)
+    tl_observaciones = models.TextField("TL\nGENERAL OBSERVACIONES", blank=True)
+    tl_fecha_proximo_contacto = models.DateField("TL\nFECHA PROXIMO CONTACTO", blank=True, null=True)
+
+    psicologia_email = models.EmailField("PSICOLOGIA\nEMAIL", blank=True, null=True)
+    psicologia_observaciones = models.TextField("P\nGENERAL OBSERVACIONES", blank=True)
+    psicologia_fecha_proximo_contacto = models.DateField("P\nFECHA PROXIMO CONTACTO", blank=True, null=True)
+
+    vya_observacion = models.TextField("VYA\nOBSERVACIÓN", blank=True)
+    vya_observaciones = models.TextField("VYA\nGENERAL OBSERVACIONES", blank=True)
+    vya_fecha_proximo_contacto = models.DateField("VYA\nFECHA PROXIMO\n CONTACTO", blank=True, null=True)
+
+    def __str__(self):
+        return self.nombre_institucion
 
 class prospecion_administrativa(models.Model):
     ESTADOS = [

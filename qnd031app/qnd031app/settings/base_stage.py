@@ -151,7 +151,7 @@ UNFOLD = {
         {
             "icon": "people",
             "title": _("Rol de Usuarios"),
-            "link": "admin:auth_group_changelis",
+            "link": "admin:auth_group_changelist",
         },
 
         {
@@ -161,14 +161,14 @@ UNFOLD = {
         },
 
         {
-            "icon": "notes",
-            "title": _("Bitacora DEV-V.QND.0.3.1.0.1"), 
-            "link": reverse_lazy("admin:usuarios_bitacoradesarrollo_changelist"),
-        },
-        {
             "icon": "settings",
             "title": _("Monitor Automatización"), 
             "link": reverse_lazy("admin:django_celery_results_taskresult_changelist"),
+        },
+        {
+            "icon": "notes",
+            "title": _("Bitacora DEV-V.QND.0.3.1.0.1"), 
+            "link": reverse_lazy("admin:usuarios_bitacoradesarrollo_changelist"),
         },
     ],
 
@@ -264,15 +264,22 @@ UNFOLD = {
                 "separator": True,
                 "collapsible": True,
                 "items": [
+
+                    {
+                        "title": _("Perfil de Colegios"),
+                        "icon": "school",    
+                        "link": reverse_lazy("admin:usuarios_prospecion_administrativa_changelist"),
+                    },
+                  {
+                        "title": _("Perfil de Terapistas"),
+                        "icon": "medical_services",
+                        "link": reverse_lazy("admin:usuarios_perfil_terapeuta_changelist"),
+                    },
+
                     {
                         "title": _("Perfil de Pacientes"),
                         "icon": "person",
                         "link": reverse_lazy("admin:usuarios_profile_changelist"),
-                    },
-                    {
-                        "title": _("Perfil de Terapistas"),
-                        "icon": "medical_services",
-                        "link": reverse_lazy("admin:usuarios_perfil_terapeuta_changelist"),
                     },
 
                     {
@@ -281,12 +288,6 @@ UNFOLD = {
                         "link": reverse_lazy("admin:usuarios_cita_changelist"),
                     },
 
-
-                    {
-                        "title": _("Prospección Administrativa"),
-                        "icon": "edit",    
-                        "link": reverse_lazy("admin:usuarios_prospecion_administrativa_changelist"),
-                    },
                     {
                         "title": _("Pagos de servicios"),
                         "icon": "payment",
