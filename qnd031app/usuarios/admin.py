@@ -23,11 +23,45 @@ import json
 from django.utils.html import format_html
 from unfold.sections import TableSection, TemplateSection
 from .sites import custom_admin_site
+from django.contrib.auth.admin import UserAdmin
 from unfold.sites import UnfoldAdminSite
 from schedule.models import Calendar, Event, Rule, Occurrence
 from schedule.admin import CalendarAdmin 
 from django.utils.timezone import localtime
 from django.utils.timezone import make_aware
+from django import forms
+
+
+
+
+
+class CustomUserChangeForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Aquí puedes agregar lógica según el usuario actual
+        user = getattr(self, 'current_user', None)
+        if user and not user.is_superuser:
+            for field in ['is_active', 'is_staff', 'is_superuser']:
+                self.fields[field].disabled = True
+
+class CustomUserAdmin(UserAdmin):
+    form = CustomUserChangeForm
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        form.current_user = request.user  # Pasamos el usuario actual al form
+        return form
+
+# Re-registramos el modelo User con el nuevo admin
+admin.site.unregister(User)
+admin.site.register(User, CustomUserAdmin)
+
+
 
 class CustomAdminSite(UnfoldAdminSite):
     site_header = "Panel de Administración"
