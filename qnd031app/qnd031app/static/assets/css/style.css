@@ -121,12 +121,12 @@ ion-icon {
 }
 
 .sidebar-wrapper .sidebar-header .logo-icon {
-    width: 30px;
+    width: 48px;
 }
 
 .sidebar-wrapper .sidebar-header  .logo-text {
     font-size: 22px;
-    margin-left: 10px;
+    margin-left: -26px;
     margin-bottom: 0;
     letter-spacing: 1px;
     color: #923eb9;
@@ -737,7 +737,7 @@ ion-icon {
     bottom: 0;
     padding: 0.7rem;
     color: #484444;
-    background-color: #fff;
+    background-color: #b4dfc5;
     border-top: 1px solid #e9ecef;
     text-align: center;
     transition: .3s all;

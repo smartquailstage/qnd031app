@@ -39,6 +39,15 @@ class prospecion_administrativa(models.Model):
     nombre = models.CharField(max_length=255, verbose_name="Nombre del Colegio",null=True, blank=True)
     estado = models.CharField(max_length=30, choices=ESTADOS, default='por_contactar',null=True, blank=True)    
     fecha_estado_actualizado = models.DateField(auto_now=True)
+    sucursal = models.CharField(max_length=255,blank=True,null=True,
+        choices=[
+            ('Quito - Valles', 'Quito - Valles'),
+            ('Quito - Centro', 'Quito - Centro'),
+            ('Guayaquil', 'Guayaquil'),
+            ('Manta', 'Manta'),
+        ],
+        verbose_name="Sucursal"
+    )
 
     regional = models.CharField(max_length=100,null=True, blank=True)   
     ciudad = models.CharField(max_length=100, null=True, blank=True)
@@ -68,7 +77,7 @@ class prospecion_administrativa(models.Model):
 
     class Meta:
         ordering = ['nombre']
-        verbose_name_plural = "Registros Administrativos / Ingreso de Prospecto de Paciente"
+        verbose_name_plural = "Registros Administrativos / Ingreso perfil de colegio"
         verbose_name = "Administrativo / prospeciónes"
 
     def alerta_estado_inactivo(self):
@@ -97,6 +106,15 @@ class Perfil_Terapeuta(models.Model):
 
     #usuario = models.OneToOneField(User, on_delete=models.CASCADE, related_name='perfil_terapeuta')
     nombres_completos = models.CharField(max_length=200,null=True, blank=True)
+    sucursal = models.CharField(max_length=255,blank=True,null=True,
+        choices=[
+            ('Quito - Valles', 'Quito - Valles'),
+            ('Quito - Centro', 'Quito - Centro'),
+            ('Guayaquil', 'Guayaquil'),
+            ('Manta', 'Manta'),
+        ],
+        verbose_name="Sucursal"
+    )
     edad = models.PositiveIntegerField(null=True, blank=True)   
     sexo = models.CharField(max_length=1, choices=SEXO_OPCIONES, null=True, blank=True) 
     fecha_nacimiento = models.DateField(null=True, blank=True)  
@@ -132,6 +150,15 @@ class AsistenciaTerapeuta(models.Model):
     observaciones = models.TextField(blank=True)
     evento = models.OneToOneField(Event, null=True, blank=True, on_delete=models.SET_NULL)
     #cita_relacionada = models.ForeignKey('Cita', on_delete=models.SET_NULL, null=True, blank=True)
+    sucursal = models.CharField(max_length=255,blank=True,null=True,
+        choices=[
+            ('Quito - Valles', 'Quito - Valles'),
+            ('Quito - Centro', 'Quito - Centro'),
+            ('Guayaquil', 'Guayaquil'),
+            ('Manta', 'Manta')
+        ],
+        verbose_name="Sucursal"
+    )
 
     class Meta:
         unique_together = ('terapeuta', 'fecha', 'hora_entrada')
@@ -164,6 +191,15 @@ class AsistenciaTerapeuta(models.Model):
 class Profile(models.Model):
     #Informacion personal
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Nombre de Usuario")
+    sucursal = models.CharField(max_length=255,blank=True,null=True,
+        choices=[
+            ('Quito - Valles', 'Quito - Valles'),
+            ('Quito - Centro', 'Quito - Centro'),
+            ('Guayaquil', 'Guayaquil'),
+            ('Manta', 'Manta')
+        ],
+        verbose_name="Sucursal"
+    )
     photo = models.ImageField(upload_to='users/%Y/%m/%d/', blank=True, verbose_name="Foto Perfil")
     ruc = models.CharField(max_length=13, verbose_name="C.I Paciente", help_text="Ingrese C.I del Paciente",blank=True, null=True)
     nombre_paciente = models.CharField(max_length=255, blank=True, null=True, verbose_name="Nombres")
@@ -304,6 +340,15 @@ class Profile(models.Model):
 
 class pagos(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Nombre de Usuario")
+    sucursal = models.CharField(max_length=255,blank=True,null=True,
+        choices=[
+            ('Quito - Valles', 'Quito - Valles'),
+            ('Quito - Centro', 'Quito - Centro'),
+            ('Guayaquil', 'Guayaquil'),
+            ('Manta', 'Manta'),
+        ],
+        verbose_name="Sucursal"
+    )
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE,null=True, blank=True)
     cuenta = models.CharField(max_length=255, blank=True, null=True, verbose_name="Número de cuenta")
     colegio = models.CharField(max_length=255, blank=True, null=True, verbose_name="Nombre del colegio")
@@ -329,6 +374,7 @@ class pagos(models.Model):
             ('Quito - Valles', 'Quito - Valles'),
             ('Quito - Centro', 'Quito - Centro'),
             ('Guayaquil', 'Guayaquil'),
+            ('Manta', 'Manta'),
         ],
         verbose_name="Sucursal"
     )
@@ -453,6 +499,15 @@ class tareas(models.Model):
     material_adjunto =  models.FileField(upload_to='materiales/%Y/%m/%d/', blank=True, verbose_name="Material adjunto")
     media_terapia =  models.FileField(upload_to='Videos/%Y/%m/%d/', blank=True, verbose_name="Contenido Multimedia de Terapia")
     descripcion_tarea = models.TextField(blank=True, null=True,verbose_name="Descripción de la tarea")
+    sucursal = models.CharField(max_length=255,blank=True,null=True,
+        choices=[
+            ('Quito - Valles', 'Quito - Valles'),
+            ('Quito - Centro', 'Quito - Centro'),
+            ('Guayaquil', 'Guayaquil'),
+            ('Manta', 'Manta'),
+        ],
+        verbose_name="Sucursal"
+    )
 
 
 
@@ -485,6 +540,15 @@ class Mensaje(models.Model):
     cuerpo = RichTextField(blank=True, null=True)
     leido = models.BooleanField(default=False)
     fecha_envio = models.DateTimeField(auto_now_add=True)
+    sucursal = models.CharField(max_length=255,blank=True,null=True,
+        choices=[
+            ('Quito - Valles', 'Quito - Valles'),
+            ('Quito - Centro', 'Quito - Centro'),
+            ('Guayaquil', 'Guayaquil'),
+            ('Manta', 'Manta'),
+        ],
+        verbose_name="Sucursal"
+    )
 
     # ➕ Campo para vincular con Celery
     task_id = models.CharField(max_length=255, blank=True, null=True, help_text="ID de la tarea de Celery asociada")
@@ -549,6 +613,15 @@ class Cita(models.Model):
     is_deleted = models.BooleanField(default=False)
     notas = models.TextField(blank=True, null=True)
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE,null=True, blank=True)
+    sucursal = models.CharField(max_length=255,blank=True,null=True,
+        choices=[
+            ('Quito - Valles', 'Quito - Valles'),
+            ('Quito - Centro', 'Quito - Centro'),
+            ('Guayaquil', 'Guayaquil'),
+            ('Manta', 'Manta'),
+        ],
+        verbose_name="Sucursal"
+    )
     
 
     class Meta:
