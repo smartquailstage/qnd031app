@@ -332,16 +332,18 @@ INSTALLED_APPS = [
 
 
 UNFOLD = {
-    "SITE_TITLE": "Plataforma Administrativa MEDDES.S.A Cloud Native Application+(I+D)+A  ",
+    "SITE_TITLE": "Plataforma Administrativa MEDDES.S.A Cloud Native App+(I+D)+A",
     "SITE_HEADER": "MEDDES",
-    "SITE_SUBHEADER": "ERP Center Data",
+    "SITE_SUBHEADER": "Eterprises Research & Development",
+    "SITE_DESCRIPTION": "Plataforma Administrativa MEDDES.S.A Cloud Native App+(I+D)+A",
+    "SITE_COPYRIGHT": "Copyright © 2025 SmartQuail S.A.S Todos los derechos reservados.",
     "SITE_DROPDOWN": [
 
 
         {
             "icon": "people",
             "title": _("Rol de Usuarios"),
-            "link": "admin:auth_group_changelis",
+            "link": "admin:auth_group_changelist",
         },
 
         {
@@ -351,14 +353,14 @@ UNFOLD = {
         },
 
         {
-            "icon": "notes",
-            "title": _("Bitacora DEV-V.QND.0.3.1.0.1"), 
-            "link": reverse_lazy("admin:usuarios_bitacoradesarrollo_changelist"),
-        },
-        {
             "icon": "settings",
             "title": _("Monitor Automatización"), 
             "link": reverse_lazy("admin:django_celery_results_taskresult_changelist"),
+        },
+        {
+            "icon": "notes",
+            "title": _("Bitacora DEV-V.QND.0.3.1.0.1"), 
+            "link": reverse_lazy("admin:usuarios_bitacoradesarrollo_changelist"),
         },
     ],
 
@@ -383,7 +385,7 @@ UNFOLD = {
     ],
     "SHOW_HISTORY": True,
     "SHOW_VIEW_ON_SITE": True,
-    "SHOW_BACK_BUTTON": False,
+    "SHOW_BACK_BUTTON": True,
     "DASHBOARD_CALLBACK": "usuarios.views.dashboard_callback",
     
     "ENVIRONMENT": "qnd031app.utils.environment.environment_callback",
@@ -455,9 +457,15 @@ UNFOLD = {
                 "collapsible": True,
                 "items": [
                     {
-                        "title": _("Perfil de Pacientes"),
-                        "icon": "person",
-                        "link": reverse_lazy("admin:usuarios_profile_changelist"),
+                        "title": _("Prospección Administrativa"),
+                        "icon": "edit",    
+                        "link": reverse_lazy("admin:usuarios_prospeccion_changelist"),
+                    },
+
+                    {
+                        "title": _("Perfil de Colegios"),
+                        "icon": "school",    
+                        "link": reverse_lazy("admin:usuarios_prospecion_administrativa_changelist"),
                     },
                     {
                         "title": _("Perfil de Terapistas"),
@@ -466,17 +474,17 @@ UNFOLD = {
                     },
 
                     {
+                        "title": _("Perfil de Pacientes"),
+                        "icon": "person",
+                        "link": reverse_lazy("admin:usuarios_profile_changelist"),
+                    },
+
+                    {
                         "title": _("Agenda de Citas"), 
                         "icon": "calendar_today",
                         "link": reverse_lazy("admin:usuarios_cita_changelist"),
                     },
 
-
-                    {
-                        "title": _("Prospección Administrativa"),
-                        "icon": "edit",    
-                        "link": reverse_lazy("admin:usuarios_prospecion_administrativa_changelist"),
-                    },
                     {
                         "title": _("Pagos de servicios"),
                         "icon": "payment",
@@ -490,12 +498,12 @@ UNFOLD = {
                 "collapsible": True,
                 "items": [
                     {
-                        "title": _("Tareas & Actividades "),
+                        "title": _("Tareas & Actividades"),
                         "icon": "task",
                         "link": reverse_lazy("admin:usuarios_tareas_changelist"),
                     },
                     {
-                        "title": _("Asistencias Terapeuticas"), 
+                        "title": _("Asistencias"), 
                         "icon": "calendar_today",
                         "link": reverse_lazy("admin:usuarios_asistenciaterapeuta_changelist"),
                     },
