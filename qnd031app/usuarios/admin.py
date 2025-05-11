@@ -632,13 +632,19 @@ class CardSection(TemplateSection):
 #class CitaAdmin(ModelAdmin):  # Usamos unfold.ModelAdmin
 
 
+
+def ver_en_calendario(obj):
+    return mark_safe('<a href="{}"><span class="material-symbols-outlined">calendar_month</span>'.format(
+        reverse('usuarios:admin_cita_detail', args=[obj.id])))
+
+
 @admin.register(Cita)
 class CitaAdmin(ModelAdmin):  # Usamos unfold.ModelAdmin
-    list_display = ("creador", "destinatario", "fecha", "estado")
+    list_display = ("creador", "destinatario", "fecha", "estado",ver_en_calendario)
     search_fields = ("motivo", "notas", "creador__username", "destinatario__username")
     list_filter = ("estado", "fecha")
     actions = [ export_to_csv, export_to_excel]
-    change_list_template = "admin/dashboard_calendar.html"  # Cambia la plantilla de la lista de cambios
+  #  change_list_template = "admin/dashboard_calendar.html"  # Cambia la plantilla de la lista de cambios
 
 
         # Display fields in changeform in compressed mode

@@ -1,12 +1,21 @@
-{% extends 'unfold/base.html' %}
-{% load static %}
+{% extends 'admin/base.html' %}
 
-{% load unfold %}
+{% load i18n %}
 
-<div class="flex flex-col">
-    {% component "unfold/components/card.html" %}
-        {% component "unfold/components/title.html" %}
-            Card Title
-        {% endcomponent %}
-    {% endcomponent %}
-</div>
+{% block breadcrumbs %}{% endblock %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block branding %}
+    {% include "unfold/helpers/site_branding.html" %}
+{% endblock %}
+
+{% block content %}
+    <div class="flex flex-col lg:flex-row lg:gap-8">
+        <div class="grow">
+            {% include "unfold/helpers/app_list_default.html" %}
+        </div>
+
+        {% include "unfold/helpers/history.html" %}
+    </div>
+{% endblock %}

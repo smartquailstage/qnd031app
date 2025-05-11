@@ -5,7 +5,7 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import LoginForm,MensajeForm,CitaForm                   
-from .models import Profile
+from .models import Profile, Cita
 from django.shortcuts import get_object_or_404
 from django.conf import settings
 from django.template.loader import render_to_string
@@ -15,6 +15,8 @@ from django.conf import settings
 from pathlib import Path
 from django.core.cache import cache
 from .models import Dashboard, Mensaje
+from django.shortcuts import render
+from .models import Cita  # Asegúrate de usar la ruta correcta
 
 
 
@@ -59,6 +61,30 @@ def dashboard(request):
     })
 
 
+@login_required
+@staff_member_required
+def admin_cita_detail(request, cita_id):
+    cita = get_object_or_404(Cita, id=cita_id)
+    context = {
+        "title": f"Cita #{cita.id}",
+        "breadcrumbs": [
+            {"url": "/admin/", "label": "Admin"},
+            {"url": "", "label": f"Cita #{cita.id}"},
+        ],
+        "cards": [
+            {
+                "title": "Detalle de la cita",
+                "icon": "event",
+                "items": [
+                    {"title": "destinatario", "description": str(cita.destinatario)},
+                    {"title": "Fecha", "description": str(cita.fecha)},
+                    {"title": "Estado", "description": str(cita.estado or "No definido")}
+                ],
+            }
+        ],
+        "cita": cita,
+    }
+    return render(request, "admin/cita_detail_unfold.html", context)
 
 @login_required
 def profile_view(request):
@@ -117,9 +143,7 @@ def config_view(request):
     return render(request, 'usuarios/config.html', {'profile': profile})
 
 
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-from .models import Cita  # Asegúrate de usar la ruta correcta
+
 
 @login_required
 def gestionar_citas_view(request):

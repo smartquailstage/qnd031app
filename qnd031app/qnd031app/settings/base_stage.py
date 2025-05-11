@@ -49,19 +49,19 @@ LOGGING = {
 # Application definition
 
 INSTALLED_APPS = [
-   
     "unfold",  # before django.contrib.admin
 
     #'webapp',
 
-
-
+    
+    'citas_regulares',
     "unfold.contrib.filters",  # optional, if special filters are needed
     "unfold.contrib.forms",  # optional, if special form elements are needed
     "unfold.contrib.inlines",  # optional, if special inlines are needed
     "unfold.contrib.import_export",  # optional, if django-import-export package is used
     "unfold.contrib.guardian",  # optional, if django-guardian package is used
     "unfold.contrib.simple_history",
+
    # 'appointment',
     'django_extensions',
     #'shop',
@@ -72,7 +72,8 @@ INSTALLED_APPS = [
     'django_celery_beat',
     'schedule',
     'usuarios',
-    'citas_regulares',
+
+
     
     
 
@@ -438,7 +439,7 @@ AUTHENTICATION_BACKENDS = [
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        "DIRS": [BASE_DIR / "templates"], 
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

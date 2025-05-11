@@ -13,6 +13,7 @@ urlpatterns = [
     path('inbox/', views.inbox_view , name='inbox'),
     path('perfil_de_usuario/', views.profile_view , name='perfil'),
     path('Citas/', views.gestionar_citas_view, name='citas'),
+    path("admin/citas/<int:cita_id>/", views.admin_cita_detail, name="admin_cita_detail"),
     path('citas/<int:cita_id>/cancelar/', views.cancelar_cita_view, name='cancelar_cita'),
     path('citas/<int:cita_id>/editar/', views.editar_cita_view, name='editar_cita'),
     path('mensajes/ver/<int:pk>/', views.ver_mensaje, name='ver_mensaje'),

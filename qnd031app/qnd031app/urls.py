@@ -22,6 +22,7 @@ from django.contrib.auth import views as auth_views
 from usuarios.views import dashboard_view
 from .sites import custom_admin_site
 
+
 # Change the parentheses to square brackets for a list
 urlpatterns = [
     path("admin2/", custom_admin_site.urls),
@@ -37,6 +38,7 @@ urlpatterns = [
     path('MEDDES/', include('usuarios.urls', namespace='usuarios')),
     path('password_change/', auth_views.PasswordChangeView.as_view(), name='password_change'),
     path('password_change/done/', auth_views.PasswordChangeDoneView.as_view(), name='password_change_done'),
+    
     #path('calendario/', self.admin_site.admin_view(self.calendar_view), name='citas_calendar'),
     # reset password urls
     path('password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
