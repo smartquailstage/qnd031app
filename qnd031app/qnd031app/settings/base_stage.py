@@ -142,6 +142,7 @@ LOGOUT_URL = 'logout'
 UNFOLD = {
     "SITE_TITLE": "Plataforma Administrativa MEDDES.S.A Cloud Native App+(I+D)+A",
     "SITE_HEADER": "MEDDES",
+    "LANGUAGE_SWITCHER": True, 
     "SITE_SUBHEADER": "Eterprises Research & Development",
     "SITE_DESCRIPTION": "Plataforma Administrativa MEDDES.S.A Cloud Native App+(I+D)+A",
     "SITE_COPYRIGHT": "Copyright © 2025 SmartQuail S.A.S Todos los derechos reservados.",
@@ -393,8 +394,18 @@ MIDDLEWARE = [
 ]
 
 
+LANGUAGE_CODE = 'es'
+
+USE_I18N = True
+USE_L10N = True
 
 
+from django.utils.translation import gettext_lazy as _
+
+LANGUAGES = [
+    ('es', _('Español')),
+    ('en', _('Inglés')),
+]
 
 ROOT_URLCONF = os.environ.get('ROOT_URLCONF')
 #SITE_ID = 1

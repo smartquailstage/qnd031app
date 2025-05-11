@@ -638,6 +638,8 @@ class CitaAdmin(ModelAdmin):  # Usamos unfold.ModelAdmin
     search_fields = ("motivo", "notas", "creador__username", "destinatario__username")
     list_filter = ("estado", "fecha")
     actions = [ export_to_csv, export_to_excel]
+    change_list_template = "admin/dashboard_calendar.html"  # Cambia la plantilla de la lista de cambios
+
 
         # Display fields in changeform in compressed mode
     compressed_fields = True  # Default: False
