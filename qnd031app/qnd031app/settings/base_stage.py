@@ -49,9 +49,18 @@ LOGGING = {
 # Application definition
 
 INSTALLED_APPS = [
+
+
+    
     "unfold",  # before django.contrib.admin
 
     #'webapp',
+    'django.contrib.contenttypes',
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
 
     
     'citas_regulares',
@@ -70,8 +79,7 @@ INSTALLED_APPS = [
     #'coupons',
     'django_celery_results',
     'django_celery_beat',
-    'schedule',
-    'usuarios',
+
 
 
     
@@ -81,12 +89,11 @@ INSTALLED_APPS = [
     
 
    
-    'django.contrib.contenttypes',
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    
+
+    'agenda',
+    'schedule',
+    'usuarios',
 
 
 
@@ -292,7 +299,7 @@ UNFOLD = {
                     {
                         "title": _("Agenda de Citas"), 
                         "icon": "calendar_today",
-                        "link": reverse_lazy("admin:usuarios_cita_changelist"),
+                        "link": reverse_lazy("admin:agenda_cita_changelist"),
                     },
 
                     {
@@ -439,7 +446,7 @@ AUTHENTICATION_BACKENDS = [
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        "DIRS": [BASE_DIR / "templates"], 
+        "DIRS": [BASE_DIR /  "qnd031app","templates"], 
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

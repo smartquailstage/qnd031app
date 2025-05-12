@@ -126,7 +126,7 @@ class prospecion_administrativa(models.Model):
     alerta_estado_inactivo.short_description = "Alerta de inactividad (15 días)"
 
     def __str__(self):
-        return 'Registro de prospecto : {}'.format(self.user.username)
+        return '{}'.format(self.colegio)
 
 
 
@@ -460,7 +460,8 @@ class pagos(models.Model):
         blank=True,
         null=True,
         choices=[
-            ('Pagado', 'Pagado'),
+            
+            ('Al día', 'Al día'),
             ('Pendiente', 'Pendiente'),
             ('Vencido', 'Vencido'),
         ],

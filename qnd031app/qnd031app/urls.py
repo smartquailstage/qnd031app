@@ -20,12 +20,13 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from usuarios.views import dashboard_view
-from .sites import custom_admin_site
+from agenda.sites import custom_admin_site
 
 
 # Change the parentheses to square brackets for a list
 urlpatterns = [
-    path("admin2/", custom_admin_site.urls),
+   # path("admin2/", custom_admin_site.urls),
+    path("Agenda_Meddes/", include("agenda.urls")),
     path("Citas_regulares/", include("citas_regulares.urls")),
     path("admin/", dashboard_view),
     path('calendario/', include('schedule.urls')),

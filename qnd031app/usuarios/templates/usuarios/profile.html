@@ -30,125 +30,113 @@
             <div class="card-body">
               <div class="mt-5 d-flex align-items-start justify-content-between">
                 <div class="">
-                  <h3 class="mb-2">{{ user.get_full_name }}</h3>                
+                  <h3 class="mb-2">{{ profile.nombre_paciente }}</h3>  
+                  <p class="mb-2" style ="margin-top:-15px;">{{ profile.apellidos_paciente }}</p>              
                 </div>
               </div>
             </div>
 
-            <div class="card-body">
-              <div class="table-responsive">
-                <table class="table table-invoice">
-                   <thead>
-                      <tr>
-                         <th>Terapia</th>
-                         <th class="text-center" width="10%">RATE</th>
-                         <th class="text-center" width="10%">HOURS</th>
-                         <th class="text-right" width="20%">LINE TOTAL</th>
-                      </tr>
-                   </thead>
-                   <tbody>
-                      <tr>
-                         <td>
-                            <span class="text-inverse">Website design &amp; development</span><br>
-                            <small>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed id sagittis arcu.</small>
-                         </td>
-                         <td class="text-center">$50.00</td>
-                         <td class="text-center">50</td>
-                         <td class="text-right">$2,500.00</td>
-                      </tr>
-                   </tbody>
-                </table>
-             </div>
-
- 
-             <hr>
-
-            </div>
-
-          </div>
-
-
-        </div>
- 
-
-        <div class="col-12 col-lg-4 col-xl-3">
-
-          <div class="card radius-10">
-            <div class="card-body">
-              <h5 class="mb-3">  <ion-icon name="person-add"></ion-icon> Información de Paciente</h5>
+        <div class="card-body">
+              <h5 class="mb-3">  <ion-icon name="person-add"></ion-icon> Datos de Paciente</h5>
               <p class="mb-0">
                
                <strong>Nombre:</strong>  {{ user.get_full_name }}
               </p>
               <p class="mb-0">
                 
-                <strong>Edad:</strong> {{ profile.edad }}
+                <strong>Edad:</strong> {{ profile.edad }} años
               </p>
               <p class="mb-0">
                
-                <strong>Parroquia en Quito:</strong>  {{ contact.parroquia_quito }}
+                <strong>Nacionalidad:</strong>  {{ profile.nacionalidad }}
               </p>
                <p class="mb-0">
         
-                <strong>Dirección: </strong> {{ contact.direccion }}, {{ contact.georeferenciacion }}
+                <strong>Sexo: </strong> {{ profile.sexo }}
               </p>
-            </div>
+              <p class="mb-0">
+                <strong>Unidad Educativa: </strong> {{ profile.unidad_educativa }}
+              </p>
+        </div>
 
-
-          </div>
-
-          <div class="card radius-10">
             <div class="card-body">
-              <h5 class="mb-3">  <ion-icon name="people"></ion-icon>Información de Domicilio</h5>
-              <p class="mb-0">
-               
-               <strong>País de residencia:</strong>  {{ contact.pais_residencia }}
-              </p>
-              <p class="mb-0">
-                
-                <strong>Ciudad en ecuador:</strong> {{ contact.provincia_cantones_ecuador  }}
-              </p>
-              <p class="mb-0">
-               
-                <strong>Parroquia en Quito:</strong>  {{ contact.parroquia_quito }}
-              </p>
-               <p class="mb-0">
-        
-                <strong>Dirección: </strong> {{ contact.direccion }}, {{ contact.georeferenciacion }}
-              </p>
+              <p><ion-icon name="person-add"></ion-icon> Datos Personales del Paciente</p>  
+              <div class="table-responsive">
+
+            <table class="table mb-0">
+
+              <tbody>
+                <tr>
+                  <th scope="row">Edad: {{ profile.edad }}</th>
+                </tr>
+                <tr>
+                  <th scope="row">Nacionalidad:  {{ profile.nacionalidad }}</th>
+                </tr>
+                <tr>
+                  <th scope="row">Sexo: {{ profile.sexo }}</th>
+                </tr>
+                <tr>
+                  <th scope="row">Unidad Educativa: {{ profile.unidad_educativa }}</th>      
+              </tbody>
+            </table>
+             </div>
+             <hr>
+
+              <p><ion-icon name="person-add"></ion-icon> Datos del Representante</p>  
+              <div class="table-responsive">
+
+            <table class="table mb-0">
+
+              <tbody>
+                <tr>
+                  <th scope="row">Nombre del representante: {{ profile.nombre_representante }} {{ profile.apellidos_representante_legal }} </th>
+                </tr>
+                <tr>
+                  <th scope="row"><strong>Relación con el paciente:</strong> {{ profile.relacion_del_representante }}</th>
+                </tr>
+                <tr>
+                  <th scope="row"><strong>Correo Electónico:</strong>  {{ profile.email }}</th>
+                </tr>
+                <tr>
+                  <th scope="row"><strong>Telefono de Contacto: </strong> {{ profile.celular  }}</th>      
+              </tbody>
+            </table>
+             </div>
+
+             <p><ion-icon name="pulse-outline"></ion-icon> Servicio Médico Contratado</p>  
+              <div class="table-responsive">
+
+                <table class="table mb-0">
+
+              <tbody>
+                <tr>
+                  <th scope="row">Servicio: {{ profile.tipo_servicio }}</th>
+                </tr>
+                <tr>
+                  <th scope="row">Sucursal: {{ profile.sucursal }}</th>
+                </tr>
+                <tr>
+                  <th scope="row">Fecha de Inicio: {{ profile.fecha_inicio }}</th>
+                </tr>
+                <tr>
+                  <th scope="row">Fecha Alta: {{ profile.fecha_terminacion }}</th>      
+              </tbody>
+                 </table>
+             </div>
+
             </div>
 
-
           </div>
+        </div>
 
-          <div class="card radius-10">
-            <div class="card-body">
-              <div class="d-flex align-items-center">
-                <div class="">
-                  <p class="mb-1">Messages</p>
-                  <h4 class="mb-0 text-tiffany">169</h4>
-                </div>
-                <div class="ms-auto widget-icon bg-light-tiffany text-tiffany">
-                  <ion-icon name="chatbubbles-sharp" role="img" class="md hydrated" aria-label="chatbubbles sharp"></ion-icon>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div class="col-12 col-lg-4 col-xl-3">
 
-
- 
-      </div>
-
-      
-
-      <div class="row row-cols-1 row-cols-lg-2 row-cols-xxl-4">
-        <div class="col">
-          <div class="card radius-10 bg-primary">
+        <div class="card radius-10 bg-primary">
             <div class="card-body">
               <div class="d-flex align-items-center">
                 <div class="">
                   <p class="mb-1">Estado de Cuenta</p>
-                  <h4 class="mb-0 text-primary">278</h4>
+                  <h4 class="mb-0 text-primary">{{ estado_de_pago }}</h4>
                 </div>
                 <div class="ms-auto widget-icon bg-light-primary text-primary">
                   <ion-icon name="wallet" role="img" class="md hydrated" aria-label="notifications sharp"></ion-icon>
@@ -156,14 +144,14 @@
               </div>
             </div>
           </div>
-        </div>
-        <div class="col">
+
+     
           <div class="card radius-10 bg-yellow">
             <div class="card-body">
               <div class="d-flex align-items-center">
                 <div class="">
                   <p class="mb-1">Notificaciones</p>
-                  <h4 class="mb-0 text-primary">278</h4>
+                  <h4 class="mb-0 text-primary">{{ cantidad_mensajes_recibidos }}</h4>
                 </div>
                 <div class="ms-auto widget-icon bg-light-primary text-primary">
                   <ion-icon name="notifications-sharp" role="img" class="md hydrated" aria-label="notifications sharp"></ion-icon>
@@ -171,14 +159,14 @@
               </div>
             </div>
           </div>
-        </div>
-        <div class="col">
+    
+
           <div class="card radius-10 bg-info ">
             <div class="card-body">
               <div class="d-flex align-items-center">
                 <div class="">
-                  <p class="mb-1">Terapias Realizadas </p>
-                  <h4 class="mb-0 text-primary">278</h4>
+                  <p class="mb-1">Taréas Asiganadas</p>
+                  <h4 class="mb-0 text-primary">{{ cantidad_terapias_realizadas }}</h4>
                 </div>
                 <div class="ms-auto widget-icon bg-light-primary text-primary">
                   <div class="font-22">	<i class="bx bx-plus-medical"></i>
@@ -187,15 +175,13 @@
               </div>
             </div>
           </div>
-        </div>
-
-        <div class="col">
+        
           <div class="card radius-10 bg-orange">
             <div class="card-body">
               <div class="d-flex align-items-center">
                 <div class="">
                   <p class="mb-1">Citas Médicas</p>
-                  <h4 class="mb-0 text-primary">278</h4>
+                  <h4 class="mb-0 text-primary">{{ citas_realizadas }}</h4>
                 </div>
                 <div class="ms-auto widget-icon bg-light-primary text-primary">
                   <div class="font-22">	<i class="fadeIn animated bx bx-heart-circle"></i>
@@ -205,15 +191,16 @@
               </div>
             </div>
           </div>
-        </div>
- 
       </div>
 
+    
 
 
 
       
     </div>
+</div>
+
 </div>
 
 {% endblock %}

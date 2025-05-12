@@ -16,7 +16,7 @@ from pathlib import Path
 from django.core.cache import cache
 from .models import Dashboard, Mensaje
 from django.shortcuts import render
-from .models import Cita  # Asegúrate de usar la ruta correcta
+from .models import Cita,tareas, pagos  # Asegúrate de usar la ruta correcta
 
 
 
@@ -88,10 +88,31 @@ def admin_cita_detail(request, cita_id):
 
 @login_required
 def profile_view(request):
-    # Obtener el perfil del usuario actualmente autenticado
     profile = Profile.objects.get(user=request.user)
-    return render(request, 'usuarios/profile.html', {'profile': profile})
 
+    cantidad_mensajes_recibidos = Mensaje.objects.filter(receptor=request.user).count()
+    cantidad_mensajes_enviados = Mensaje.objects.filter(emisor=request.user).count()
+    cantidad_terapias_realizadas = tareas.objects.filter(user=request.user).count()
+    citas_realizadas = Cita.objects.filter(destinatario=request.user).count()
+
+    # Obtener estado de pago desde el modelo `pagos`
+    estado_de_pago = None
+    try:
+        pago = pagos.objects.get(user=request.user)
+        estado_de_pago = pago.estado_de_pago
+    except pagos.DoesNotExist:
+        estado_de_pago = "No registrado"
+
+    return render(request, 'usuarios/profile.html', {
+        'profile': profile,
+        'cantidad_mensajes_recibidos': cantidad_mensajes_recibidos,
+        'cantidad_mensajes_enviados': cantidad_mensajes_enviados,
+        'cantidad_terapias_realizadas': cantidad_terapias_realizadas,
+        'citas_realizadas': citas_realizadas,
+        'estado_de_pago': estado_de_pago,
+    })
+
+    
 def ver_mensaje(request, pk):
     mensaje = get_object_or_404(Mensaje, pk=pk)
 
