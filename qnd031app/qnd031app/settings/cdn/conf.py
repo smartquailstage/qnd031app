@@ -21,7 +21,7 @@ STATICFILES_STORAGE = os.environ.get("STATICFILES_STORAGE")
 
 # Almacenamiento de archivos de medios
 DEFAULT_FILE_STORAGE = os.environ.get("MEDIA_STORAGE")
-MEDIA_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.{AWS_S3_ENDPOINT_URL}/media/'
+MEDIA_URL = os.environ.get("MEDIA_STORAGE")
 
 # Si usas DigitalOcean, añade esta configuración
 AWS_S3_SIGNATURE_VERSION = 's3v4'

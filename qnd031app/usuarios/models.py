@@ -18,6 +18,7 @@ from datetime import timedelta
 from schedule.models import Event, Calendar
 from django.utils.datetime_safe import datetime
 from django.utils.timezone import make_aware
+from django.utils import timezone
 
 
 
@@ -577,6 +578,7 @@ class Mensaje(models.Model):
     asunto = models.CharField(max_length=50, choices=ASUNTOS_CHOICES, default='Consulta')  
     cuerpo = RichTextField(blank=True, null=True)
     leido = models.BooleanField(default=False)
+    creado = models.DateTimeField(default=timezone.now)
     fecha_envio = models.DateTimeField(auto_now_add=True)
     sucursal = models.CharField(max_length=255,blank=True,null=True,
         choices=[

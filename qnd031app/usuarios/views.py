@@ -112,6 +112,15 @@ def profile_view(request):
         'estado_de_pago': estado_de_pago,
     })
 
+@login_required
+def header(request):
+    # Ejemplo: contar pedidos creados en las últimas 24 horas
+    last_24_hours = timezone.now() - timedelta(hours=24)
+    new_notify_count = Mensaje.objects.filter(receptor=request.user, leido=False).count()
+
+    return render(request, 'usuarios/header.html', {
+        'new_notify_count': new_notify_count
+    })
     
 def ver_mensaje(request, pk):
     mensaje = get_object_or_404(Mensaje, pk=pk)

@@ -411,7 +411,7 @@ ion-icon {
 }
 
 .top-header .navbar .top-navbar-right .nav-item:hover {
-    background-color: #f5f5f5;
+    background-color: #45a243;
 }
 
 .top-header .navbar .top-navbar-right .nav-link {
@@ -456,19 +456,19 @@ ion-icon {
 }
 
 .top-header .navbar .nav-link .notify-badge {
-    position: absolute;
-    top: 0px;
-    right: -8px;
-    color: #fff;
-    font-size: 12px;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f50d0d;
-    z-index: 1;
+  position: absolute;
+  top: 0px;
+  right: -8px;
+  color: #011e09;
+  font-size: 12px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #eedf4b;
+  z-index: 1;
 }
 
 .dropdown-user-setting .dropdown-menu {
@@ -792,7 +792,7 @@ ion-icon {
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    background-color: #e9ecef;
+    background-color: #23462370;
     margin-bottom: 1rem;
     display: flex;
     flex-direction: row;

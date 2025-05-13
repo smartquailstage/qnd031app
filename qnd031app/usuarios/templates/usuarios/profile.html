@@ -9,6 +9,8 @@
 
 {% block content %}
 
+
+
 <div class="page-content-wrapper">
     <!-- start page content-->
    <div class="page-content">
@@ -31,103 +33,76 @@
               <div class="mt-5 d-flex align-items-start justify-content-between">
                 <div class="">
                   <h3 class="mb-2">{{ profile.nombre_paciente }}</h3>  
-                  <p class="mb-2" style ="margin-top:-15px;">{{ profile.apellidos_paciente }}</p>              
+                  <p class="mb-2" style ="margin-top:-15px;">{{ profile.apellidos_paciente }}</p>  
+                  <p class="mb-0"><strong>{{ profile.unidad_educativa }}</strong></p>            
                 </div>
               </div>
             </div>
 
-        <div class="card-body">
-              <h5 class="mb-3">  <ion-icon name="person-add"></ion-icon> Datos de Paciente</h5>
-              <p class="mb-0">
-               
-               <strong>Nombre:</strong>  {{ user.get_full_name }}
-              </p>
-              <p class="mb-0">
-                
-                <strong>Edad:</strong> {{ profile.edad }} años
-              </p>
-              <p class="mb-0">
-               
-                <strong>Nacionalidad:</strong>  {{ profile.nacionalidad }}
-              </p>
-               <p class="mb-0">
-        
-                <strong>Sexo: </strong> {{ profile.sexo }}
-              </p>
-              <p class="mb-0">
-                <strong>Unidad Educativa: </strong> {{ profile.unidad_educativa }}
-              </p>
-        </div>
 
-            <div class="card-body">
-              <p><ion-icon name="person-add"></ion-icon> Datos Personales del Paciente</p>  
-              <div class="table-responsive">
-
-            <table class="table mb-0">
-
-              <tbody>
-                <tr>
-                  <th scope="row">Edad: {{ profile.edad }}</th>
-                </tr>
-                <tr>
-                  <th scope="row">Nacionalidad:  {{ profile.nacionalidad }}</th>
-                </tr>
-                <tr>
-                  <th scope="row">Sexo: {{ profile.sexo }}</th>
-                </tr>
-                <tr>
-                  <th scope="row">Unidad Educativa: {{ profile.unidad_educativa }}</th>      
-              </tbody>
-            </table>
-             </div>
-             <hr>
-
-              <p><ion-icon name="person-add"></ion-icon> Datos del Representante</p>  
-              <div class="table-responsive">
-
-            <table class="table mb-0">
-
-              <tbody>
-                <tr>
-                  <th scope="row">Nombre del representante: {{ profile.nombre_representante }} {{ profile.apellidos_representante_legal }} </th>
-                </tr>
-                <tr>
-                  <th scope="row"><strong>Relación con el paciente:</strong> {{ profile.relacion_del_representante }}</th>
-                </tr>
-                <tr>
-                  <th scope="row"><strong>Correo Electónico:</strong>  {{ profile.email }}</th>
-                </tr>
-                <tr>
-                  <th scope="row"><strong>Telefono de Contacto: </strong> {{ profile.celular  }}</th>      
-              </tbody>
-            </table>
-             </div>
-
-             <p><ion-icon name="pulse-outline"></ion-icon> Servicio Médico Contratado</p>  
-              <div class="table-responsive">
-
-                <table class="table mb-0">
-
-              <tbody>
-                <tr>
-                  <th scope="row">Servicio: {{ profile.tipo_servicio }}</th>
-                </tr>
-                <tr>
-                  <th scope="row">Sucursal: {{ profile.sucursal }}</th>
-                </tr>
-                <tr>
-                  <th scope="row">Fecha de Inicio: {{ profile.fecha_inicio }}</th>
-                </tr>
-                <tr>
-                  <th scope="row">Fecha Alta: {{ profile.fecha_terminacion }}</th>      
-              </tbody>
-                 </table>
-             </div>
-
-            </div>
 
           </div>
+
+<div class="row row-cols-1 row-cols-lg-3">
+  <!-- Bloque Paciente -->
+  <div class="col">
+    <div class="card radius-10 bg-success">
+      <div class="card-body text-white">
+        <div class="d-flex align-items-center mb-2">
+          <div class="service-box bg-white text-white me-2">
+            <ion-icon name="person-add" role="img" class="md hydrated" aria-label="person add"></ion-icon>
+          </div>
+          <h5 class="mb-0">Paciente</h5>
         </div>
+        <p class="mb-0">Edad: {{ profile.edad }} años</p>
+        <p class="mb-0">Nacionalidad: {{ profile.nacionalidad }}</p>
+        <p class="mb-0">Sexo: {{ profile.sexo }}</p>
+        <p class="mb-0">Lugar de Registro: {{ profile.sucursal }}</p>
+      </div>  
+    </div>
+  </div>
+
+  <!-- Bloque Representante -->
+  <div class="col">
+    <div class="card radius-10 bg-success">
+      <div class="card-body text-white">
+        <div class="d-flex align-items-center mb-2">
+          <div class="service-box bg-white text-white me-2">
+            <ion-icon name="accessibility-outline" role="img" class="md hydrated" aria-label="accessibility outline"></ion-icon>
+          </div>
+          <h5 class="mb-0">Representante</h5>
+        </div>
+        <p class="mb-0">Nombre del representante: {{ profile.nombre_representante }} {{ profile.apellidos_representante_legal }}</p>
+        <p class="mb-0"><strong>Relación con el paciente:</strong> {{ profile.relacion_del_representante }}</p>
+        <p class="mb-0"><strong>Correo Electrónico:</strong> {{ profile.email }}</p>
+        <p class="mb-0"><strong>Teléfono de Contacto:</strong> {{ profile.celular }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bloque Tratamiento -->
+  <div class="col">
+    <div class="card radius-10 bg-success">
+      <div class="card-body text-white">
+        <div class="d-flex align-items-center mb-2">
+          <div class="service-box bg-white text-white me-2">
+            <ion-icon name="pulse-outline" role="img" class="md hydrated" aria-label="pulse outline"></ion-icon>
+          </div>
+          <h5 class="mb-0">Tratamiento</h5>
+        </div>
+        <p class="mb-0">Servicio: {{ profile.tipo_servicio }}</p>
+        <p class="mb-0">Valorización: {{ profile.valorizacion_terapeutica }}</p>
+        <p class="mb-0">Fecha de Inicio: {{ profile.fecha_inicio }}</p>
+        <p class="mb-0">Fecha Alta: {{ profile.fecha_terminacion }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+        </div>
+
+        
 
         <div class="col-12 col-lg-4 col-xl-3">
 
@@ -184,14 +159,34 @@
                   <h4 class="mb-0 text-primary">{{ citas_realizadas }}</h4>
                 </div>
                 <div class="ms-auto widget-icon bg-light-primary text-primary">
-                  <div class="font-22">	<i class="fadeIn animated bx bx-heart-circle"></i>
+                  <div class="font-22">	<ion-icon name="calendar-outline"></ion-icon>
                   </div>
                 </div>
             
               </div>
             </div>
           </div>
+
+           <div class="card radius-10 bg-orange">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div class="">
+                  <p class="mb-1">Estado de Terapia</p>
+                  <h4 class="mb-0 text-primary">{{ citas_realizadas }}</h4>
+                </div>
+                <div class="ms-auto widget-icon bg-light-primary text-primary">
+                  <div class="font-22">	 <ion-icon name="pulse-outline" role="img" class="md hydrated" aria-label="pulse outline"></ion-icon>
+                  </div>
+                </div>
+            
+              </div>
+            </div>
+          </div>
+
       </div>
+
+
+
 
     
 
