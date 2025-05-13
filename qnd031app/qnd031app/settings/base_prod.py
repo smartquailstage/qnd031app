@@ -247,19 +247,28 @@ UNFOLD = {
 # Application definition
 
 INSTALLED_APPS = [
-   
+
+
+    
     "unfold",  # before django.contrib.admin
 
     #'webapp',
+    'django.contrib.contenttypes',
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
 
-
-
+    
+    'citas_regulares',
     "unfold.contrib.filters",  # optional, if special filters are needed
     "unfold.contrib.forms",  # optional, if special form elements are needed
     "unfold.contrib.inlines",  # optional, if special inlines are needed
     "unfold.contrib.import_export",  # optional, if django-import-export package is used
     "unfold.contrib.guardian",  # optional, if django-guardian package is used
     "unfold.contrib.simple_history",
+
    # 'appointment',
     'django_extensions',
     #'shop',
@@ -268,9 +277,9 @@ INSTALLED_APPS = [
     #'coupons',
     'django_celery_results',
     'django_celery_beat',
-    'schedule',
-    'usuarios',
-    'citas_regulares',
+
+
+
     
     
 
@@ -278,12 +287,11 @@ INSTALLED_APPS = [
     
 
    
-    'django.contrib.contenttypes',
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    
+
+    'agenda',
+    'schedule',
+    'usuarios',
 
 
 
