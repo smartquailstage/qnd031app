@@ -289,7 +289,7 @@ INSTALLED_APPS = [
    
     
 
-    'agenda',
+    #'agenda',
     'schedule',
     'usuarios',
 
