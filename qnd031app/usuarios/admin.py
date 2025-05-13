@@ -236,7 +236,7 @@ class Perfil_TerapeutaAdmin(ModelAdmin):
 
     def get_full_name(self, obj):
         return obj.user.get_full_name()  # assumes a related 'user' field with a get_full_name() method
-    get_full_name.short_description = 'Full Name' 
+    get_full_name.short_description = 'Terapeuta Registrado' 
 
 @admin.register(AsistenciaTerapeuta)
 class AsistenciaTerapeutaAdmin(ModelAdmin):
