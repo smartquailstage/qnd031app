@@ -19,7 +19,7 @@ from schedule.models import Event, Calendar
 from django.utils.datetime_safe import datetime
 from django.utils.timezone import make_aware
 from django.utils import timezone
-
+from phonenumber_field.modelfields import PhoneNumberField
 
 
 class Prospeccion(models.Model):
@@ -133,18 +133,25 @@ class prospecion_administrativa(models.Model):
 
 
 
+
+
+
 class Perfil_Terapeuta(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Nombre de Usuario")
     especialidad = models.CharField(max_length=255, blank=True, null=True, verbose_name="Especialidad")
+
     SEXO_OPCIONES = [
         ('M', 'Masculino'),
         ('F', 'Femenino'),
         ('O', 'Otro'),
     ]
 
-    #usuario = models.OneToOneField(User, on_delete=models.CASCADE, related_name='perfil_terapeuta')
-    nombres_completos = models.CharField(max_length=200,null=True, blank=True)
-    sucursal = models.CharField(max_length=255,blank=True,null=True,
+    nombres_completos = models.CharField(max_length=200, null=True, blank=True)
+    
+    sucursal = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
         choices=[
             ('Quito - Valles', 'Quito - Valles'),
             ('Quito - Centro', 'Quito - Centro'),
@@ -153,23 +160,27 @@ class Perfil_Terapeuta(models.Model):
         ],
         verbose_name="Sucursal"
     )
-    edad = models.PositiveIntegerField(null=True, blank=True)   
-    sexo = models.CharField(max_length=1, choices=SEXO_OPCIONES, null=True, blank=True) 
-    fecha_nacimiento = models.DateField(null=True, blank=True)  
-    cedula = models.CharField(max_length=20,null=True, blank=True)  
-    fecha_ingreso = models.DateField(null=True, blank=True) 
+
+    edad = models.PositiveIntegerField(null=True, blank=True)
+    sexo = models.CharField(max_length=1, choices=SEXO_OPCIONES, null=True, blank=True)
+    fecha_nacimiento = models.DateField(null=True, blank=True)
+    cedula = models.CharField(max_length=20, null=True, blank=True)
+    fecha_ingreso = models.DateField(null=True, blank=True)
 
     titulo_universitario = models.FileField(upload_to='documentos/terapeutas/titulo/', blank=True, null=True)
     antecedentes_penales = models.FileField(upload_to='documentos/terapeutas/antecedentes/', blank=True, null=True)
     certificados = models.FileField(upload_to='documentos/terapeutas/certificados/', blank=True, null=True)
 
-    telefono = models.CharField(max_length=50, null =True, blank=True)  
-    datos_bancarios = models.TextField(help_text="Ej: Banco, número de cuenta, tipo", null=True, blank=True)    
-    pago_por_hora = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)  
+    phone_regex = RegexValidator(
+        regex=r'^\+?593?\d{9,15}$',
+        message="El número de teléfono debe estar en formato internacional. Ejemplo: +593XXXXXXXXX."
+    )
+    telefonos_contacto = PhoneNumberField(verbose_name="Teléfono de persona a cargo",validators=[phone_regex],default='+593')
+    datos_bancarios = models.TextField(help_text="Ej: Banco, número de cuenta,cedula, tipo", null=True, blank=True)
+    pago_por_hora = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
     tipo_servicio = models.CharField(max_length=100, null=True, blank=True)
     servicio_domicilio = models.BooleanField(default=False, null=True, blank=True)
     servicio_institucion = models.BooleanField(default=True, null=True, blank=True)
-
 
     class Meta:
         ordering = ['user']
@@ -177,7 +188,8 @@ class Perfil_Terapeuta(models.Model):
         verbose_name_plural = "Registro Administrativo / Ingreso de Terapista"
 
     def __str__(self):
-        return 'Terapista: {}'.format(self.user.username)
+        return f'{self.user.get_full_name()}'
+
 
 
 class AsistenciaTerapeuta(models.Model):
