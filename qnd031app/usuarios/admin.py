@@ -228,10 +228,15 @@ class Perfil_TerapeutaAdmin(ModelAdmin):
         }
     }
     search_fields = ('paciente__nombre', 'terapeuta__nombres_completos')  # Ajusta a tus campos
-    list_display = ['user', 'especialidad']
+    list_display = ['get_full_name', 'especialidad']
+    
     actions = [ export_to_csv, export_to_excel]
     verbose_name = "Registro Administrativo / Ingreso de Terapeuta"
     verbose_name_plural = "Registro Administrativo / Ingreso de Terapeuta"
+
+    def get_full_name(self, obj):
+        return obj.user.get_full_name()  # assumes a related 'user' field with a get_full_name() method
+    get_full_name.short_description = 'Full Name' 
 
 @admin.register(AsistenciaTerapeuta)
 class AsistenciaTerapeutaAdmin(ModelAdmin):
@@ -640,7 +645,7 @@ def ver_en_calendario(obj):
 
 @admin.register(Cita)
 class CitaAdmin(ModelAdmin):  # Usamos unfold.ModelAdmin
-    list_display = ("creador", "destinatario", "fecha", "estado",ver_en_calendario)
+    list_display = ("creador", "destinatario", "fecha", "estado")
     search_fields = ("motivo", "notas", "creador__username", "destinatario__username")
     list_filter = ("estado", "fecha")
     actions = [ export_to_csv, export_to_excel]
