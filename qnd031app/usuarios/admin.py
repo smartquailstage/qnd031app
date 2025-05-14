@@ -30,7 +30,7 @@ from schedule.admin import CalendarAdmin
 from django.utils.timezone import localtime
 from django.utils.timezone import make_aware
 from django import forms
-
+from django.utils import timezone
 
 
 
@@ -537,10 +537,23 @@ class prospecion_administrativaAdmin(ModelAdmin):
     verbose_name = "Perfil Colegios"
     verbose_name_plural = "Perfil Colegios"
 
+@admin.action(description="Duplicar mensajes seleccionados")
+def duplicar_mensajes(modeladmin, request, queryset):
+    for mensaje in queryset:
+        mensaje.pk = None  # Elimina la clave primaria para crear una nueva entrada
+        mensaje.fecha_envio = timezone.now()  # Nueva fecha de envío
+        mensaje.creado = timezone.now()       # Nueva fecha de creación
+        mensaje.task_id = None                # Limpia task_id para evitar referencias repetidas
+        mensaje.task_status = "No asignada"   # Reinicia el estado de la tarea
+        mensaje.save()
+
 @admin.register(Mensaje)
 class MensajeAdmin(ModelAdmin):
-    list_display = ['emisor', 'receptor', 'fecha_envio', 'asunto','leido','estado_tarea_coloreado']
-    list_filter_sheet = True
+    list_display = ['emisor', 'receptor', 'asunto', 'leido', 'fecha_envio']
+    list_filter = ['leido', 'asunto', 'sucursal']
+    search_fields = ['emisor__username', 'receptor__username', 'cuerpo']
+    actions = [duplicar_mensajes]
+
     list_filter_submit = True  # Submit button at the bottom of the filter
     list_filter = (
         ("fecha_envio", RangeDateTimeFilter),
