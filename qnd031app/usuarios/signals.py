@@ -11,6 +11,7 @@ def manejar_mensaje(sender, instance, created, **kwargs):
 
     receptor = instance.receptor
     telefono = str(receptor.profile.celular)  
+    telefono_meddes = str(receptor.profile.celular)  
     cuerpo = instance.cuerpo
     asunto = instance.asunto
 
@@ -19,7 +20,7 @@ def manejar_mensaje(sender, instance, created, **kwargs):
         enviar_whatsapp_async.delay(telefono, f"⚠️ Solicitud de pago pendiente:\n{cuerpo}")
 
     elif asunto == "Consulta":
-        enviar_whatsapp_async.delay(telefono, f"📢 Mensaje informativo:\n{cuerpo}")
+        enviar_whatsapp_async.delay(telefono_meddes, f"📢 Mensaje informativo:\n{cuerpo}")
     
     elif asunto == "Informativo":
         enviar_whatsapp_async.delay(telefono, f"📢 Mensaje informativo:\n{cuerpo}")
