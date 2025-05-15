@@ -395,7 +395,7 @@ class tareasAdmin(ModelAdmin):
         }
     }
 
-    list_display = ['profile', 'terapeuta', 'fecha_envio','fecha_entrega','media_terapia']
+    list_display = ['paciente', 'terapeuta', 'fecha_envio','fecha_entrega','media_terapia']
     actions = [ export_to_csv, export_to_excel]
     verbose_name = "Registro Administrativo / Tarea Terapéutica"
     verbose_name_plural = "Administrativo / Tareas Terapéuticas"
@@ -748,7 +748,7 @@ class OccurrenceAdmin(admin.ModelAdmin):
 
 class PagosItemInline(admin.TabularInline):
     model = pagos
-    raw_id_fields = ['user']
+    raw_id_fields = ['cliente']
     readonly_fields = ['cuenta', 'sucursal', 'colegio', 'plan', 'convenio', 'servicio', 'estado_de_pago']
     fields = ['cuenta', 'sucursal', 'colegio', 'estado_de_pago']  # Solo mostramos estos 4 campos
     can_delete = False
@@ -757,7 +757,7 @@ class PagosItemInline(admin.TabularInline):
 
 class TareaItemInline(admin.TabularInline):
     model = tareas
-    raw_id_fields = ['user']
+    raw_id_fields = ['paciente']
     readonly_fields = ['terapeuta', 'titulo', 'fecha_envio', 'descripcion_tarea']
     fields = ['terapeuta', 'titulo', 'fecha_envio', 'descripcion_tarea','media_terapia']  # Mostramos solo estos 4 campos
     can_delete = False

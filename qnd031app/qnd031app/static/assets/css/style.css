@@ -340,7 +340,7 @@ ion-icon {
     border-bottom: 1px solid rgba(233, 236, 239, 0);
     background-clip: border-box;
     /* Gradiente en escala de verde con tres colores */
-    background: linear-gradient(to right, #fff, #79d8c2, #2ea950);
+    background: linear-gradient(to right, #fffafa, #079738, #2ea950);
     z-index: 5;
     transition: 0.3s all;
     box-shadow: none;
@@ -406,12 +406,12 @@ ion-icon {
     width: 35px;
     height: 35px;
     border-radius: 50%;
-    background-color:#3cae6b;
+    background-color:#1d874b00;
     margin: 0 2px;
 }
 
 .top-header .navbar .top-navbar-right .nav-item:hover {
-    background-color: #f5f5f5;
+    background-color: #45a243;
 }
 
 .top-header .navbar .top-navbar-right .nav-link {
@@ -456,19 +456,19 @@ ion-icon {
 }
 
 .top-header .navbar .nav-link .notify-badge {
-    position: absolute;
-    top: 0px;
-    right: -8px;
-    color: #fff;
-    font-size: 12px;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f50d0d;
-    z-index: 1;
+  position: absolute;
+  top: 0px;
+  right: -8px;
+  color: #011e09;
+  font-size: 12px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #eedf4b;
+  z-index: 1;
 }
 
 .dropdown-user-setting .dropdown-menu {
@@ -509,7 +509,7 @@ ion-icon {
 .top-header .navbar .dropdown-item:hover,
 .top-header .navbar .dropdown-item:focus {
 	color: #1e2125;
-	background-color: #f5f5f5
+	background-color: #038191
 }
 
 
@@ -551,7 +551,7 @@ ion-icon {
 
 .dropdown-large .dropdown-menu {
 	width: 320px;
-	border: 1px solid #e9ecef;
+	border: 1px solid #eedf4b;
 	padding: 0 0;
 	border-radius: 10px;
 	box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15)
@@ -587,7 +587,7 @@ ion-icon {
 
 .dropdown-large .msg-header {
 	padding: .8rem 1rem;
-	border-bottom: 1px solid #ededed;
+	border-bottom: 1px solid #2ca851;
 	background-clip: border-box;
 	text-align: left;
 	display: flex;
@@ -596,7 +596,7 @@ ion-icon {
 
 .dropdown-large .msg-header .msg-header-title {
 	font-size: 15px;
-	color: #1c1b1b;
+	color: #eedf4b;
 	margin-bottom: 0;
 	font-weight: 500
 }
@@ -609,7 +609,7 @@ ion-icon {
 
 .dropdown-large .msg-footer {
 	padding: .8rem 1rem;
-	color: #1c1b1b;
+	color: #eedf4b;
 	border-top: 1px solid #ededed;
 	background-clip: border-box;
 	background: 0% 0;
@@ -641,7 +641,7 @@ ion-icon {
 .dropdown-large .msg-time {
 	font-size: 11px;
 	margin-bottom: 0;
-	color: #919191
+	color: #efe04b
 }
 
 .dropdown-large .user-online:after {
@@ -659,7 +659,7 @@ ion-icon {
 
 .dropdown-large .dropdown-menu .dropdown-item {
 	padding: .5rem 1.3rem;
-	border-bottom: 1px solid #ededed
+	border-bottom: 1px solid #f6efa5;
 }
 
 
@@ -699,8 +699,9 @@ ion-icon {
 
 .header-notifications-list {
 	position: relative;
-	height: 332px;
+	height: 103px;
 }
+
 
 
 .breadcrumb-title {
@@ -792,7 +793,7 @@ ion-icon {
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    background-color: #e9ecef;
+    background-color: #23462370;
     margin-bottom: 1rem;
     display: flex;
     flex-direction: row;

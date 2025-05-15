@@ -389,7 +389,7 @@ class Profile(models.Model):
 
 
 class pagos(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Nombre de Usuario")
+    cliente = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Nombre de Usuario")
     sucursal = models.CharField(max_length=255,blank=True,null=True,
         choices=[
             ('Quito - Valles', 'Quito - Valles'),
@@ -541,7 +541,7 @@ class pagos(models.Model):
         super().save(*args, **kwargs)
 
 class tareas(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Nombre de Usuario")
+    paciente = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Nombre de Usuario")
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
     terapeuta = models.OneToOneField(Perfil_Terapeuta, on_delete=models.CASCADE, verbose_name="Terapéuta Asignado")
     titulo = models.CharField(max_length=255, blank=True, null=True, verbose_name="Título de la tarea") 
@@ -550,6 +550,7 @@ class tareas(models.Model):
     material_adjunto =  models.FileField(upload_to='materiales/%Y/%m/%d/', blank=True, verbose_name="Material adjunto")
     media_terapia =  models.FileField(upload_to='Videos/%Y/%m/%d/', blank=True, verbose_name="Contenido Multimedia de Terapia")
     descripcion_tarea = models.TextField(blank=True, null=True,verbose_name="Descripción de la tarea")
+    realizada = models.BooleanField(default=False, verbose_name="Paciente realizó la tarea asiganda?")
     sucursal = models.CharField(max_length=255,blank=True,null=True,
         choices=[
             ('Quito - Valles', 'Quito - Valles'),
@@ -563,7 +564,7 @@ class tareas(models.Model):
 
 
     class Meta:
-        ordering = ['user']
+        ordering = ['paciente']
         verbose_name_plural = "Registros de Terapéuticos / Ingreso de Tareas Terapéuticas"
         verbose_name = "Paciente/ Tareas"
 

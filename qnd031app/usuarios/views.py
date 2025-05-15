@@ -20,6 +20,10 @@ from .models import Cita,tareas, pagos  # Asegúrate de usar la ruta correcta
 
 
 
+
+
+
+
 @staff_member_required
 def dashboard_view(request):
     return render(request, "admin/custom_dashboard.html")
@@ -92,13 +96,13 @@ def profile_view(request):
 
     cantidad_mensajes_recibidos = Mensaje.objects.filter(receptor=request.user).count()
     cantidad_mensajes_enviados = Mensaje.objects.filter(emisor=request.user).count()
-    cantidad_terapias_realizadas = tareas.objects.filter(user=request.user).count()
+    cantidad_terapias_realizadas = tareas.objects.filter(paciente=request.user).count()
     citas_realizadas = Cita.objects.filter(destinatario=request.user).count()
 
     # Obtener estado de pago desde el modelo `pagos`
     estado_de_pago = None
     try:
-        pago = pagos.objects.get(user=request.user)
+        pago = pagos.objects.get(cliente=request.user)
         estado_de_pago = pago.estado_de_pago
     except pagos.DoesNotExist:
         estado_de_pago = "No registrado"
@@ -166,6 +170,25 @@ def inbox_view(request):
         'total': total,
     })
 
+@login_required
+def inbox_record(request):
+    profile = Profile.objects.get(user=request.user)
+
+    # Todos los mensajes recibidos (leídos y no leídos)
+    mensajes = request.user.mensajes_recibidos.all()
+    mensajes_recibidos = Mensaje.objects.filter(receptor=request.user)
+
+    leidos = mensajes_recibidos.filter(leido=True).count()
+    no_leidos = mensajes_recibidos.filter(leido=False).count()
+    total = mensajes_recibidos.count()
+
+    return render(request, 'usuarios/inbox_total.html', {
+        'mensajes': mensajes,
+        'profile': profile,
+        'leidos': leidos,
+        'no_leidos': no_leidos,
+        'total': total,
+    })
 @login_required
 def config_view(request):
     # Obtener el perfil del usuario actualmente autenticado

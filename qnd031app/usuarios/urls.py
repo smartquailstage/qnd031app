@@ -11,6 +11,7 @@ urlpatterns = [
     path('ingresar/', views.user_login, name='login'),
     path('dashboard', views.dashboard, name='dashboard'),
     path('inbox/', views.inbox_view , name='inbox'),
+    path('inbox_total/', views.inbox_record , name='inbox_total'),
     path('perfil_de_usuario/', views.profile_view , name='perfil'),
     path('Citas/', views.gestionar_citas_view, name='citas'),
     path("admin/citas/<int:cita_id>/", views.admin_cita_detail, name="admin_cita_detail"),

@@ -456,6 +456,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',
                 'usuarios.context_processors.mensajes_nuevos_processor',
+                'usuarios.context_processors.datos_panel_usuario', 
                 
             ],
         },

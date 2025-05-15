@@ -80,7 +80,7 @@
 	--bs-body-line-height: 1.5;
 	--bs-body-color: #212529;
 	--bs-body-color-rgb: 33, 37, 41;
-	--bs-body-bg: #fff;
+	--bs-body-bg: #2f9157;
 	--bs-body-bg-rgb: 255, 255, 255;
 	--bs-emphasis-color: #000;
 	--bs-emphasis-color-rgb: 0, 0, 0;
@@ -3241,19 +3241,23 @@ textarea.form-control-lg {
 	opacity: 1
 }
 .dropdown-item {
-	display: block;
-	width: 100%;
-	padding: var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x);
-	clear: both;
-	font-weight: 400;
-	color: var(--bs-dropdown-link-color);
-	text-align: inherit;
-	text-decoration: none;
-	white-space: nowrap;
-	background-color: transparent;
-	border: 0;
-	border-radius: var(--bs-dropdown-item-border-radius, 0)
+  display: block;
+  width: 100%;
+  padding: var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x);
+  clear: both;
+  font-weight: 400;
+  color: #0457aa;
+  text-align: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+  background-color: #31b081;
+  border: 0;
+    border-bottom-width: 0px;
+    border-bottom-style: none;
+    border-bottom-color: currentcolor;
+  border-radius: var(--bs-dropdown-item-border-radius, 0);
 }
+
 .dropdown-item:focus, .dropdown-item:hover {
 	color: var(--bs-dropdown-link-hover-color);
 	background-color: var(--bs-dropdown-link-hover-bg)
