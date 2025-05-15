@@ -16,6 +16,25 @@ def mensajes_leidos_processor(request):
         'mensajes_recibidos': mensajes_leidos
     }
 
+
+def user_profile_data(request):
+    if request.user.is_authenticated:
+        try:
+            profile = request.user.profile  # o Profile.objects.get(user=request.user)
+            return {
+                'profile_photo': profile.photo.url if profile.photo else None,
+                'name': request.user.first_name,
+                'last_name': request.user.last_name,
+            }
+        except:
+            return {
+                'profile_photo': None,
+                'name': request.user.first_name,
+                'last_name': request.user.last_name,
+            }
+    return {}
+
+
 def mensajes_nuevos_processor(request):
     if request.user.is_authenticated:
         hoy = date.today()
