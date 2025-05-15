@@ -18,12 +18,13 @@ class LoginForm(forms.Form):
 class MensajeForm(forms.ModelForm):
     class Meta:
         model = Mensaje
-        cuerpo = forms.CharField(widget=CKEditorWidget())
-        fields = ['asunto', 'cuerpo']
+        fields = ['cuerpo']
         widgets = {
-            'asunto': forms.Select(attrs={'class': 'form-select'}),
-            #'receptor': forms.Select(attrs={'class': 'form-select'}),
-            'cuerpo': forms.Textarea(attrs={'class': 'form-control', 'rows': 6}),
+            'cuerpo': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 6,
+                'placeholder': 'Escribe tu mensaje aquí...'
+            }),
         }
 
 class LeidoForm(forms.ModelForm):

@@ -32,6 +32,10 @@
 
 /* Background Colors */
 
+.bg-logotype {
+	background-color:#d8ffee2b;
+}
+
 .bg-primary {
     background-color: #3eb991 !important;
 }

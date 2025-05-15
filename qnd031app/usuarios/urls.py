@@ -19,6 +19,7 @@ urlpatterns = [
     path('citas/<int:cita_id>/editar/', views.editar_cita_view, name='editar_cita'),
     path('mensajes/ver/<int:pk>/', views.ver_mensaje, name='ver_mensaje'),
     path('nuevo_mensaje/', views.enviar_mensaje, name='enviar_mensaje'),
+    path('Confirmacion/', views.msj_success, name='success'),
     path('configuracion_de_usuario/', views.config_view , name='configuraciones'),
    # path('actividades_espacio_publico/', views.user_activity_login, name='login_activity'),
    # path('Reserva_de_espacio_publico/', views.user_activity_login, name='login_activity'),

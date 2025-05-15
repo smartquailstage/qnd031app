@@ -12,68 +12,47 @@
 <div class="page-content-wrapper">
     <!-- start page content-->
    <div class="page-content">
+
+      <div class="row">
+
+
+
+         {% include 'usuarios/logo.html' %} 
+
+    </div> <!-- Fin row -->
+
     <div class="row">
         <div class="col-12 col-lg-8 col-xl-9">
-            <div class="card">
-                <div class="card-body">
-                  <div class="border p-3 rounded">
-                  <h6 class="mb-0 text-uppercase">Basic Form</h6>
-                  <hr>
-                  <form method="POST" action="" class="row g-3">
-                    {% csrf_token %}
-                    <div class="col-12 col-lg-12">
-                      <div class="position-relative border-bottom my-3">
-                      </div>
-                    </div>
-          
-                    {% for hidden_field in form.hidden_fields %}
-                    {{ hidden_field }}
-                    {% endfor %}
-          
-                    {% if form.non_field_errors %}
-                    <div class="col-12">
-                      <div class="alert alert-danger" role="alert">
-                        {% for error in form.non_field_errors %}
-                        {{ error }}
-                        {% endfor %}
-                      </div>
-                    </div>
-                    {% endif %}
-          
-                    {% for field in form.visible_fields %}
-                    <div class="col-12">
-                      <div class="form-group">
-                        {{ field.label_tag }}
-                        {% if form.is_bound %}
-                        {% if field.errors %}
-                        {% render_field field class="form-control is-invalid" %}
-                        {% for error in field.errors %}
-                        <div class="invalid-feedback">
-                          {{ error }}
-                        </div>
-                        {% endfor %}
-                        {% else %}
-                        {% render_field field class="form-control is-valid" %}
-                        {% endif %}
-                        {% else %}
-                        {% render_field field class="form-control" %}
-                        {% endif %}
-                        {% if field.help_text %}
-                        <small class="form-text text-muted" placeholder="Your Email">{{ field.help_text }}</small>
-                        {% endif %}
-                      </div>
-                    </div>
-                    {% endfor %}
-                     
-                    <div class="col-12 d-grid">
-                      <button type="submit" class="btn btn-primary">Enviar</button>
-                    </div>
-                  </form>
-                </div>
-                </div>
-              </div>
 
+     <div class="card radius-10">
+    <div class="card-body">
+        <form method="post" action=".">
+            {% csrf_token %}
+            <h5 class="mb-0 mt-4"><i class="lni lni-sthethoscope"></i> Realizar Consulta Médica</h5>
+            <hr>
+            <div class="row g-3">
+                <div class="col-12">
+    <label class="form-label">Consulta</label>
+    <textarea name="cuerpo" class="form-control" rows="4" cols="4" placeholder="{{ form.cuerpo.placeholder }}.">{{ form.cuerpo.value }}</textarea>
+    {% if form.cuerpo.errors %}
+        <div class="text-danger small">
+            {{ form.cuerpo.errors }}
+        </div>
+    {% endif %}
+</div>
+
+            </div>
+            <div class="text-start mt-3">
+                <button type="submit" class="btn btn-primary px-4">Enviar Consulta</button>
+            </div>
+        </form>
     </div>
 </div>
+
+
+    </div>
+
+     {% include 'usuarios/panel_usuario.html' %} 
+    </div>
 
 {% endblock %}

@@ -2,76 +2,58 @@
 {% load widget_tweaks %}
 {% load static %}
 
-
-
-
-
-
 {% block content %}
-
-<style>
-  .table-hover tbody tr:hover {
-    background-color: #18bb6b; /* Color de fondo al pasar el mouse */
-    cursor: pointer; /* Opcional: muestra el cursor como puntero */
-  }
-</style>
-
 <div class="page-content-wrapper">
-    <!-- start page content-->
-   <div class="page-content">
+    <!-- start page content -->
+    <div class="page-content">
+   
+  <div class="row">
 
 
-    <div class="card radius-10">
-        <div class="card-header py-3">
-             <div class="row align-items-center g-3">
-               <div class="col-12 col-lg-6">
-                 <h5 class="mb-0">                    <div>
+         {% include 'usuarios/logo.html' %} 
+
+    </div> <!-- Fin row -->
+    
+    <div class="row">
+            <!-- Sección de mensajes -->
+               <div class="col-12 col-md-6 col-lg-9">
+    <div class="card radius-10 bg-yellow">
+            <div class="card-body">
+
+                           
+                 <h5 class="mb-0">                 
                     {% if mensaje.asunto == 'consulta' or mensaje.asunto == 'Sugerencia' or mensaje.asunto == 'Informativo' %}
-                      <span class="badge bg-success">Informativo</span>
+                      Asunto: <span class="badge bg-success">Informativo</span>
                     {% elif mensaje.asunto == 'Terapéutico' %}  
-                      <span class="badge bg-warning">Terapéutico</span>
+                      Asunto: <span class="badge bg-warning">Terapéutico</span>
+                      <h6> Enviado: {{ mensaje.fecha_envio }}</h6> 
+                     
                     {% elif mensaje.asunto == 'Solicitud de pago vencido' or mensaje.asunto == 'Solicitud de Certificado Médico' or mensaje.asunto == 'Reclamo del servicio  Médico'  or mensaje.asunto == 'Cancelación del servicio Médico'  %}
-                      <span class="badge bg-danger">Urgente</span>
+                      Asunto: <span class="badge bg-danger">Urgente</span>
                     {% endif %}
-                  </div></h5>
-               </div>
-               <div class="col-12 col-lg-6 text-md-end">
-                 <a href="{% url 'usuarios:enviar_mensaje' %}" class="btn btn-primary me-2"><ion-icon name="notifications-outline"></ion-icon>Nueva Notificación</a>
-               </div>
-             </div>
-        </div>
-        <div class="card-header py-2">
-          <div class="row row-cols-1 row-cols-lg-3">
-            <div class="col">
-                <div class="">
-                <small><ion-icon name="notifications"></ion-icon> #{{ mensaje.id }}  </small>
-                <address class="m-t-5 m-b-5">
-                    <strong class="text-inverse"><ion-icon name="person-circle-outline"></ion-icon> {{ mensaje.receptor.first_name  }} {{ mensaje.receptor.last_name  }}</strong><br>
-                    <ion-icon name="calendar"></ion-icon>{{ mensaje.fecha_envio|date:"j/n/Y" }} {{ mensaje.fecha_envio|date:"H:i" }}<br>
-                     {% if mensaje.leido %} <ion-icon name="mail-open"></ion-icon>Leido {% else %} <ion-icon name="mail-unread"></ion-icon> Nuevo {% endif %}<br>
-                    <br>
-                Asunto: {{ mensaje.asunto }}<br>
-                </address>
-                </div>  
-
-
+                  </h5>
+                  <h6 class="mb-0">{{ mensaje.emisor.first_name }} {{ mensaje.emisor.last_name }}</h6>
+                  <p class="mb-0" >Grupo MEDDES®</p>
+                  {% if mensaje.leido == True %}  
+                      <h6>Leído <ion-icon name="eye-outline"></ion-icon></h6>
+                    {% else %}
+                      <h6>Nuevo <ion-icon name="eye-off-outline"></ion-icon></h6>
+                    {% endif %} 
             </div>
-
-           <div class="col">
-            <div class="flex-grow-1 ms-3">
-                <p class="mb-0">{{ mensaje.cuerpo }}</p>
-              </div>
-
-             </div>
-           </div>
-          </div>
-        </div>
-
-        </div>
     </div>
-</div>  
+        <div class="card radius-10 bg-yellow">
+            <div class="card-body">
+                <h5 class="mb-0"><ion-icon name="notifications-sharp"></ion-icon> Notificación</h5>
+                <p>{{ mensaje.cuerpo|safe }}</p>
+            </div>
+    </div>
+    </div>
 
+             {% include 'usuarios/panel_usuario.html' %} 
 
+    </div> <!-- Fin row -->
 
-
+        
+    </div> <!-- Fin page-content -->
+</div> <!-- Fin page-content-wrapper -->
 {% endblock %}

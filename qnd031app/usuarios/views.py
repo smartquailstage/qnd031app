@@ -125,6 +125,10 @@ def header(request):
     return render(request, 'usuarios/header.html', {
         'new_notify_count': new_notify_count
     })
+
+@login_required
+def msj_success(request):
+    return render(request, 'usuarios/success.html')
     
 def ver_mensaje(request, pk):
     mensaje = get_object_or_404(Mensaje, pk=pk)
@@ -147,7 +151,7 @@ def enviar_mensaje(request):
             mensaje.emisor = request.user
             mensaje.receptor = User.objects.get(id=1)  # <-- se asigna automáticamente
             mensaje.save()
-            return redirect('usuarios:inbox')  # o donde prefieras
+            return redirect('usuarios:success')  # o donde prefieras
     else:
         form = MensajeForm()
     
