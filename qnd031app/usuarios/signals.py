@@ -17,6 +17,9 @@ def manejar_mensaje(sender, instance, created, **kwargs):
     if asunto == "Solicitud de pago vencido":
         enviar_correo_async.delay(instance.emisor.username, receptor.email, asunto, cuerpo)
         enviar_whatsapp_async.delay(telefono, f"⚠️ Solicitud de pago pendiente:\n{cuerpo}")
+
+    elif asunto == "Consulta":
+        enviar_whatsapp_async.delay(telefono, f"📢 Mensaje informativo:\n{cuerpo}")
     
     elif asunto == "Informativo":
         enviar_whatsapp_async.delay(telefono, f"📢 Mensaje informativo:\n{cuerpo}")
