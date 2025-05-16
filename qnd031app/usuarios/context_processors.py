@@ -106,3 +106,20 @@ def datos_panel_usuario(request):
         'citas_realizadas': citas_realizadas,
         'estado_terapia': estado_terapia,
     }
+
+
+def citas_context(request):
+    if request.user.is_authenticated:
+        citas = Cita.objects.filter(is_active=True, is_deleted=False)
+
+        confirmadas = citas.filter(estado='confirmada').count()
+        pendientes = citas.filter(estado='pendiente').count()
+        canceladas = citas.filter(estado='cancelada').count()
+
+        return {
+            'citas_todas': citas,
+            'citas_confirmadas_count': confirmadas,
+            'citas_pendientes_count': pendientes,
+            'citas_canceladas_count': canceladas,
+        }
+    return {}

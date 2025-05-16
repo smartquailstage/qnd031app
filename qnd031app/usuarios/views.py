@@ -210,7 +210,7 @@ def gestionar_citas_view(request):
     citas_pendientes = citas.filter(estado='pendiente').count()
     citas_canceladas = citas.filter(estado='cancelada').count()
 
-    return render(request, 'usuarios/calendar.html', {
+    return render(request, 'usuarios/citas/calendar.html', {
         'citas': citas,
         'citas_confirmadas': citas_confirmadas,
         'citas_pendientes': citas_pendientes,
