@@ -299,7 +299,7 @@ UNFOLD = {
                     {
                         "title": _("Agenda de Citas"), 
                         "icon": "calendar_today",
-                        "link": reverse_lazy("admin:agenda_cita_changelist"),
+                        "link": reverse_lazy("admin:usuarios_cita_changelist"),
                     },
 
                     {

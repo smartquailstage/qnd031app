@@ -3,6 +3,7 @@ from django.contrib.auth import views as auth_views
 from . import views
 from .views import admin_cita_detail
 from .sites import custom_admin_site
+from usuarios.views import admin_cita_detail
 
 app_name = 'agenda'
 

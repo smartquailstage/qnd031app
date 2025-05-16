@@ -653,12 +653,12 @@ class CardSection(TemplateSection):
 
 def ver_en_calendario(obj):
     return mark_safe('<a href="{}"><span class="material-symbols-outlined">calendar_month</span>'.format(
-        reverse('usuarios:admin_cita_detail', args=[obj.id])))
+        reverse('custom_admin:admin_cita_detail', args=[obj.id])))
 
 
 @admin.register(Cita)
 class CitaAdmin(ModelAdmin):  # Usamos unfold.ModelAdmin
-    list_display = ("creador", "destinatario", "fecha", "estado")
+    list_display = ("creador", "destinatario", "fecha", "estado", "motivo", ver_en_calendario)
     search_fields = ("motivo", "notas", "creador__username", "destinatario__username")
     list_filter = ("estado", "fecha")
     actions = [ export_to_csv, export_to_excel]
@@ -717,6 +717,10 @@ class CitaAdmin(ModelAdmin):  # Usamos unfold.ModelAdmin
             "widget": ArrayWidget,
         }
     }
+    def ver_en_calendario(self, obj):
+        return ver_en_calendario(obj)
+    ver_en_calendario.short_description = "Calendario"
+    ver_en_calendario.allow_tags = True
 
     #list_sections = [CardSection]
 

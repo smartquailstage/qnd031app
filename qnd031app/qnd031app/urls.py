@@ -20,6 +20,8 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from usuarios.views import dashboard_view
+from usuarios.views import admin_cita_detail
+import usuarios.custom_admin_urls as custom_admin_urls
 #from agenda.sites import custom_admin_site
 
 
@@ -29,6 +31,8 @@ urlpatterns = [
    # path("Agenda_Meddes/", include("agenda.urls")),
     path("Citas_regulares/", include("citas_regulares.urls")),
     path("admin/", dashboard_view),
+    #path("admin/citas/<int:cita_id>/", admin_cita_detail, name="admin_cita_detail"),
+    path('admin/citas/', include((custom_admin_urls.urlpatterns,'custom_admin'))),
     path('calendario/', include('schedule.urls')),
   #  path('calendar/', include('calendarium.urls'))
     path('inicio/', admin.site.urls),
