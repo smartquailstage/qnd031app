@@ -22,6 +22,12 @@
 {% endif %}{% endblock %}
 
 {% block content %}
+
+
+{% component "unfold/components/chart/cohort.html" with component_class="MyCohortComponent" %}
+{% endcomponent %}
+
+
     {% tab_list "drivers" %}
 
     {% trans "Custom page" %}

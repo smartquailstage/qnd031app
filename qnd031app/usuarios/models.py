@@ -702,6 +702,17 @@ class Cita(models.Model):
 def __str__(self):
     return f"{self.creador} → {self.destinatario} ({self.fecha.strftime('%d/%m/%Y %H:%M')})"
 
+
+class ComentarioCita(models.Model):
+    cita = models.ForeignKey(Cita, on_delete=models.CASCADE, related_name='comentarios')
+    autor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    texto = models.TextField()
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Comentario de {self.autor.username} el {self.fecha_creacion}"
+        
+
 class Dashboard(models.Model):
     titulo = models.CharField(max_length=100)
     informacion_basica = RichTextField()

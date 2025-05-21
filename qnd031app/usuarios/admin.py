@@ -4,7 +4,7 @@ import datetime
 import datetime
 from django.contrib import admin
 from django.http import HttpResponse
-from .models import Profile, BitacoraDesarrollo, Perfil_Terapeuta, Mensaje, Cita, TareaComentario ,AsistenciaTerapeuta,prospecion_administrativa,Prospeccion, tareas, pagos
+from .models import Profile, BitacoraDesarrollo, Perfil_Terapeuta, Mensaje, Cita,ComentarioCita, TareaComentario ,AsistenciaTerapeuta,prospecion_administrativa,Prospeccion, tareas, pagos
 from django.contrib.postgres.fields import ArrayField
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -31,6 +31,12 @@ from django.utils.timezone import localtime
 from django.utils.timezone import make_aware
 from django import forms
 from django.utils import timezone
+from unfold.components import BaseComponent, register_component
+from unfold.sections import TableSection, TemplateSection
+from django.utils.timezone import now
+
+
+
 
 
 
@@ -650,8 +656,7 @@ class PagosAdmin(ModelAdmin):
     }
 
 
-class CardSection(TemplateSection):
-    template_name = "admin/citas_calendar.html"
+
 
 #@admin.register(Cita, site=custom_admin_site)
 #class CitaAdmin(ModelAdmin):  # Usamos unfold.ModelAdmin
@@ -663,12 +668,150 @@ def ver_en_calendario(obj):
         reverse('custom_admin:admin_cita_detail', args=[obj.id])))
 
 
+
+
+
+
+
+
+
+
+
+
+
+DATA = {
+    "headers": [
+        # Col 1 header
+        {
+            "title": "Title",
+            "subtitle": "something",  # Optional
+        },
+    ],
+    "rows": [
+        # First row
+        {
+            # Row heading
+            "header": {
+                "title": "Title",
+                "subtitle": "something",  # Optional
+            },
+            "cols": [
+                # Col 1 cell value
+                {
+                    "value": "1",
+                    "subtitle": "something",  # Optional
+                }
+            ]
+        },
+        # Second row
+        {
+            # Row heading
+            "header": {
+                "title": "Title",
+                "subtitle": "something",  # Optional
+            },
+            "cols": [
+                # Col 1 cell value
+                {
+                    "value": "1",
+                }
+            ]
+        },
+    ]
+}
+
+@register_component
+class MyCohortComponent(BaseComponent):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            "data": DATA
+        })
+        return context
+
+
+
+
+@register_component
+class CitasCohortComponent(BaseComponent):
+    template_name = "admin/citas_cohort.html"  # Asegúrate de tener este template
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Filtramos las citas pendientes
+        citas = Cita.objects.filter(fecha__gte=now(), estado='pendiente')
+
+        # Construcción de datos para la tabla
+        data = {
+            "headers": [
+                {"title": "Creador"},
+                {"title": "Destinatario"},
+                {"title": "Fecha"},
+                {"title": "Estado"},
+            ],
+            "rows": [],
+        }
+
+        # Llenar las filas con las citas obtenidas
+        for cita in citas:
+            row = {
+                "header": {
+                    "title": f"Cita #{cita.id}",
+                    "subtitle": cita.motivo,
+                },
+                "cols": [
+                    {"value": cita.creador.get_full_name() or cita.creador.username},
+                    {"value": cita.destinatario.get_full_name() or cita.destinatario.username},
+                    {"value": cita.fecha.strftime('%d/%m/%Y %H:%M')},
+                    {"value": cita.estado.capitalize()},
+                ]
+            }
+            data["rows"].append(row)
+
+        # Pasamos los datos al contexto
+        context["data"] = data
+        return context
+
+
+
+
+
+
+class CardSection(TemplateSection):
+    template_name = "admin/test2.html"
+
+class CitasComentariosInline(admin.TabularInline):
+    model = ComentarioCita
+    extra = 1
+    fields = ["autor", "texto", "fecha_creacion"]
+    readonly_fields = ('fecha_creacion',)
+    show_change_link = False
+
+
+class ComentariosCitaSection(TableSection):
+    verbose_name = "Comentarios de la cita"
+    height = 300
+    related_name = "comentarios"  # Esto viene del related_name del modelo
+    fields = ["autor", "texto", "fecha_creacion"]
+
+    # Custom field
+    def custom_field(self, instance):
+        return instance.pk
+
+
+
 @admin.register(Cita)
 class CitaAdmin(ModelAdmin):  # Usamos unfold.ModelAdmin
+    list_sections = [CardSection,ComentariosCitaSection]
+    list_per_page = 20
+
+
     list_display = ("creador", "destinatario", "fecha", "estado", "motivo", ver_en_calendario)
     search_fields = ("motivo", "notas", "creador__username", "destinatario__username")
     list_filter = ("estado", "fecha")
     actions = [ export_to_csv, export_to_excel]
+    
    # change_list_template = "admin/dashboard_calendar.html"  # Cambia la plantilla de la lista de cambios
 
 
@@ -688,13 +831,13 @@ class CitaAdmin(ModelAdmin):  # Usamos unfold.ModelAdmin
     list_filter_submit = False
 
     # Display changelist in fullwidth
-    list_fullwidth = False
+    list_fullwidth = True
 
     # Set to False, to enable filter as "sidebar"
     list_filter_sheet = True
 
     # Position horizontal scrollbar in changelist at the top
-    list_horizontal_scrollbar_top = False
+    list_horizontal_scrollbar_top = True
 
     # Dsable select all action in changelist
     list_disable_select_all = False
