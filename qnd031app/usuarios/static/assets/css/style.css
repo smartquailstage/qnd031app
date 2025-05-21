@@ -115,7 +115,7 @@ ion-icon {
     padding: 0 15px;
     z-index: 5;
     background-color: #ffffff;
-    border-right: 1px solid #e2e3e4;
+    border-right: 0px solid #e2e3e4;
     border-bottom: 0px solid #e4e4e4;
     transition: all .2s;
 }
@@ -551,7 +551,7 @@ ion-icon {
 
 .dropdown-large .dropdown-menu {
 	width: 320px;
-	border: 1px solid #eedf4b;
+	border: 0px solid #eedf4b;
 	padding: 0 0;
 	border-radius: 10px;
 	box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15)
@@ -596,7 +596,7 @@ ion-icon {
 
 .dropdown-large .msg-header .msg-header-title {
 	font-size: 15px;
-	color: #eedf4b;
+	color: #3d975c;
 	margin-bottom: 0;
 	font-weight: 500
 }
@@ -609,7 +609,7 @@ ion-icon {
 
 .dropdown-large .msg-footer {
 	padding: .8rem 1rem;
-	color: #eedf4b;
+	color: #464641;
 	border-top: 1px solid #ededed;
 	background-clip: border-box;
 	background: 0% 0;
@@ -738,8 +738,8 @@ ion-icon {
     bottom: 0;
     padding: 0.7rem;
     color: #484444;
-    background-color: #b4dfc5;
-    border-top: 1px solid #e9ecef;
+    background-color: #b5e0c5;
+    border-top: 0px solid #e9ecef;
     text-align: center;
     transition: .3s all;
 }

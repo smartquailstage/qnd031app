@@ -1,0 +1,103 @@
+{% extends "base_dash.html" %}
+{% load static %}
+{% block content %}
+
+<div class="page-content-wrapper">
+  <div class="page-content">
+    <div class="row">
+      {% include 'usuarios/pagos/barra_herramientas.html' %}
+      {% include 'usuarios/logo.html' %}
+    </div>
+
+    <div class="row">
+      <div class="col-12 col-lg-8 col-xl-9">
+        <h4>📄 Órdenes de Pago</h4>
+
+        <hr>
+
+        <!-- Pagos Pendientes -->
+        {% if pagos_pendientes %}
+        <h5 class="text-warning"><ion-icon name="alert-circle-outline"></ion-icon> Pagos Pendientes</h5>
+        <div class="row row-cols-1 row-cols-lg-2">
+          {% for pago in pagos_pendientes %}
+          <div class="col mb-3">
+            <div class="card border-warning">
+              <div class="card-body">
+                <h6 class="card-title">{{ pago.servicio }}</h6>
+                <p>Fecha de vencimiento: <strong>{{ pago.fecha_vencimiento|date:"d M Y" }}</strong></p>
+                <p>Monto: <strong>{{ pago.pago }}</strong></p>
+                <p>Estado: <span class="badge bg-warning text-dark">Pendiente</span></p>
+
+                {% if not pago.comprobante_pago %}
+                <a href="{% url 'usuarios:subir_comprobante_pago' pago.id %}" class="btn btn-sm btn-outline-primary">Subir comprobante</a>
+                {% else %}
+                <p>Comprobante cargado ✅</p>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Pagos Vencidos -->
+        {% if pagos_vencidos %}
+        <h5 class="text-danger mt-4"><ion-icon name="close-circle-outline"></ion-icon> Pagos Vencidos</h5>
+        <div class="row row-cols-1 row-cols-lg-2">
+          {% for pago in pagos_vencidos %}
+          <div class="col mb-3">
+            <div class="card border-danger">
+              <div class="card-body">
+                <h6 class="card-title">{{ pago.servicio }}</h6>
+                <p>Fecha de vencimiento: <strong>{{ pago.fecha_vencimiento|date:"d M Y" }}</strong></p>
+                <p>Monto: <strong>{{ pago.pago }}</strong></p>
+                <p>Estado: <span class="badge bg-danger">Vencido</span></p>
+
+                {% if not pago.comprobante_pago %}
+                <a href="{% url 'usuarios:subir_comprobante_pago' pago.id %}" class="btn btn-sm btn-outline-danger">Subir comprobante</a>
+                {% else %}
+                <p>Comprobante cargado ✅</p>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Pagos Realizados -->
+        {% if pagos_realizados %}
+        <h5 class="text-success mt-4"><ion-icon name="checkmark-done-outline"></ion-icon> Pagos Completados</h5>
+        <div class="row row-cols-1 row-cols-lg-2">
+          {% for pago in pagos_realizados %}
+          <div class="col mb-3">
+            <div class="card border-success">
+              <div class="card-body">
+                <h6 class="card-title">{{ pago.servicio }}</h6>
+                <p>Factura: {{ pago.numero_factura|default:"N/A" }}</p>
+                <p>Monto: <strong>{{ pago.pago }}</strong></p>
+                <p>Estado: <span class="badge bg-success">Pagado</span></p>
+                {% if pago.comprobante_pago %}
+                  <a href="{{ pago.comprobante_pago.url }}" class="btn btn-sm btn-outline-success" target="_blank">
+                    Ver comprobante
+                  </a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if not pagos_usuario %}
+        <div class="alert alert-info mt-4">No tienes órdenes de pago registradas.</div>
+        {% endif %}
+      </div>
+
+      <!-- Panel lateral -->
+      {% include 'usuarios/panel_usuario.html' %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -460,6 +460,7 @@ TEMPLATES = [
                 'usuarios.context_processors.user_profile_data',
                 'usuarios.context_processors.citas_context',
                 'usuarios.context_processors.tareas_context',
+                'usuarios.context_processors.pagos_context',  
                 
             ],
         },

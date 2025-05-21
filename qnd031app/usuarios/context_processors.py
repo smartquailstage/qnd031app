@@ -147,3 +147,16 @@ def tareas_context(request):
         }
 
     return {}
+
+
+def pagos_context(request):
+    if request.user.is_authenticated:
+        pagos_pendientes = pagos.objects.filter(cliente=request.user, estado_de_pago='Pendiente')
+        pagos_vencidos = pagos.objects.filter(cliente=request.user, estado_de_pago='Vencido')
+        total_pagos_nuevos = pagos_pendientes.count() + pagos_vencidos.count()
+        return {
+            'pagos_pendientes_notif': pagos_pendientes,
+            'pagos_vencidos_notif': pagos_vencidos,
+            'total_pagos_nuevos': total_pagos_nuevos,
+        }
+    return {}

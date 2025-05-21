@@ -36,6 +36,11 @@ urlpatterns = [
     path('tarea/<int:pk>/', views.ver_tarea, name='ver_tarea'),
     path('tarea/<int:pk>/interactiva/', views.ver_tarea_interactiva, name='ver_tarea_interactiva'),
 
+    path('pagos/', views.lista_pagos, name='lista_pagos'),
+    path('pagos/<int:pk>/', views.ver_pago, name='ver_pago'),
+    path('pagos/<int:pk>/subir-comprobante/', views.subir_comprobante_pago, name='subir_comprobante_pago'),
+
+
 
 
     path('inbox/', views.inbox_view , name='inbox'),

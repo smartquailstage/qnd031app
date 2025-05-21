@@ -445,3 +445,72 @@ def marcar_tarea_realizada(request, pk):
         return redirect('usuarios:tareas_realizadas')  # Redirige a la lista de tareas realizadas
 
     return redirect('usuarios:ver_tarea', pk=pk)
+
+
+
+@login_required
+def lista_pagos(request):
+    pagos_usuario = pagos.objects.filter(cliente=request.user).order_by('-fecha_vencimiento')
+
+    pagos_pendientes = pagos_usuario.filter(estado_de_pago='Pendiente')
+    pagos_vencidos = pagos_usuario.filter(estado_de_pago='Vencido')
+    pagos_realizados = pagos_usuario.exclude(estado_de_pago__in=['Pendiente', 'Vencido'])
+
+    return render(request, 'usuarios/pagos/lista_pagos.html', {
+        'pagos_usuario': pagos_usuario,
+        'pagos_pendientes': pagos_pendientes,
+        'pagos_vencidos': pagos_vencidos,
+        'pagos_realizados': pagos_realizados,
+    })
+
+@login_required
+def ver_pago(request, pk):
+    pago = get_object_or_404(pagos, pk=pk)
+
+    # Asegurar que el pago pertenezca al usuario autenticado
+    if request.user != pago.cliente:
+        return render(request, '403.html', status=403)
+
+    # Si el usuario envía el formulario
+    if request.method == 'POST' and not pago.comprobante_pago:
+        comprobante = request.FILES.get('comprobante_pago')
+        numero = request.POST.get('numero_de_comprobante')
+
+        if comprobante:
+            pago.comprobante_pago = comprobante
+            pago.numero_de_comprobante = numero
+            pago.save()
+            messages.success(request, "Comprobante subido correctamente.")
+            return redirect('usuarios:ver_pago', pk=pk)
+        else:
+            messages.error(request, "Por favor sube un archivo válido.")
+
+    return render(request, 'usuarios/pagos/ver_pago.html', {'pago': pago})
+
+
+@login_required
+def subir_comprobante_pago(request, pk):
+    pago = get_object_or_404(pagos, pk=pk)
+
+    # Asegurar que el usuario autenticado sea el dueño del pago
+    if pago.cliente != request.user:
+        messages.error(request, "No tienes permisos para modificar este pago.")
+        return redirect('usuarios:lista_pagos')
+
+    if request.method == 'POST':
+        comprobante = request.FILES.get('comprobante_pago')
+        numero = request.POST.get('numero_de_comprobante')
+
+        if not comprobante:
+            messages.error(request, "Debes adjuntar un comprobante.")
+        else:
+            if pago.comprobante_pago:
+                messages.warning(request, "Ya has subido un comprobante.")
+            else:
+                pago.comprobante_pago = comprobante
+                pago.numero_de_comprobante = numero
+                pago.save()
+                messages.success(request, "Comprobante subido exitosamente.")
+                return redirect('usuarios:ver_pago', pk=pago.pk)
+
+    return render(request, 'usuarios/pagos/subir_comprobante.html', {'pago': pago})

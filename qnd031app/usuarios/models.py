@@ -528,7 +528,7 @@ class pagos(models.Model):
         verbose_name = "Administrativo / Pagos servicios "
 
     def __str__(self):
-        return "Pagos de servicio Paciente: {}".format(self.user.username)
+        return "Pagos de servicio Paciente: {}".format(self.cliente.username)
 
     def save(self, *args, **kwargs):
         # Verificamos que ambas fechas estén presentes
