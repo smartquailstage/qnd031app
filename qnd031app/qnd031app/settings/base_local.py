@@ -213,10 +213,10 @@ UNFOLD = {
        # "redirect_after": lambda request: reverse_lazy("admin:usuarios_changelist"),
     },
     "STYLES": [
-        lambda request: static("css/style.css"),
+        lambda request: static("unfold/css/style.css"),
     ],
     "SCRIPTS": [
-        lambda request: static("js/script.js"),
+        lambda request: static("unfold/js/script.js"),
     ],
     "BORDER_RADIUS": "6px",
     "COLORS": {
@@ -459,6 +459,7 @@ TEMPLATES = [
                 'usuarios.context_processors.datos_panel_usuario', 
                 'usuarios.context_processors.user_profile_data',
                 'usuarios.context_processors.citas_context',
+                'usuarios.context_processors.tareas_context',
                 
             ],
         },

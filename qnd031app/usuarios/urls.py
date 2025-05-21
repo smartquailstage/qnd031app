@@ -8,14 +8,38 @@ app_name = 'usuarios'
 urlpatterns = [
     # previous login view
     
-    path('ingresar/', views.user_login, name='login'),
+    path('', views.user_login, name='login'),
     path('dashboard', views.dashboard, name='dashboard'),
-    path('inbox/', views.inbox_view , name='inbox'),
-    path('inbox_total/', views.inbox_record , name='inbox_total'),
+  
     path('perfil_de_usuario/', views.profile_view , name='perfil'),
+
     path('Citas/', views.gestionar_citas_view, name='citas'),
     path('citas/<int:cita_id>/cancelar/', views.cancelar_cita_view, name='cancelar_cita'),
     path('citas/<int:cita_id>/editar/', views.editar_cita_view, name='editar_cita'),
+
+    path('citas/nueva/', views.agendar_cita, name='agendar_cita'),
+    path('citas/success/', views.cita_success, name='cita_success'),  
+
+    path('calendario/', views.citas_agendadas_total , name='citas_total'),
+    path('calendario_total/', views.citas_record , name='citas_record'),
+    path('citas/ver/<int:pk>/', views.ver_cita, name='ver_cita'),
+    path('cita/<int:pk>/confirmar/', views.confirmar_cita, name='confirmar_cita'),
+    path('cita/<int:pk>/cancelar/', views.cancelar_cita, name='cancelar_cita'),
+
+
+    path('tareas/nuevas/', views.tareas_list, name='lista_tareas'),
+    path('tareas/asignadas/', views.tareas_asignadas, name='tareas_asignadas'),
+    path('tareas/realizadas/', views.tareas_realizadas, name='tareas_realizadas'),
+    path('tareas/<int:pk>/marcar_realizada/', views.marcar_tarea_realizada, name='marcar_tarea_realizada'),
+
+
+    path('tarea/<int:pk>/', views.ver_tarea, name='ver_tarea'),
+    path('tarea/<int:pk>/interactiva/', views.ver_tarea_interactiva, name='ver_tarea_interactiva'),
+
+
+
+    path('inbox/', views.inbox_view , name='inbox'),
+    path('inbox_total/', views.inbox_record , name='inbox_total'),
     path('mensajes/ver/<int:pk>/', views.ver_mensaje, name='ver_mensaje'),
     path('nuevo_mensaje/', views.enviar_mensaje, name='enviar_mensaje'),
     path('Confirmacion/', views.msj_success, name='success'),

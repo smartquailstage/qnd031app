@@ -4,16 +4,16 @@
 
         
         <div class="col-12 col-md-6 col-lg-3">
-           <a href="{% url 'usuarios:citas_record' %}">
+           <a href="{% url 'usuarios:tareas_asignadas' %}">
             <div class="card radius-10 bg-yellow mb-3">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div>                       
-                            <h4 class="mb-0 text-primary">Calendario</h4>
-                            <p class="mb-0" style="margin-top: 0px;">  <ion-icon name="medkit"></ion-icon> Pendientes {{ mensajes_nuevos }}  / Confirmadas {{ leidos }} </p>
+                            <h4 class="mb-0 text-primary">Tareas Asiganadas </h4>
+                            <p class="mb-0" style="margin-top: 0px;"> Nuevas {{ mensajes_nuevos }} <ion-icon name="mail-unread"></ion-icon> / En bandeja {{ leidos }} <ion-icon name="mail-open"></ion-icon>  </p>
                         </div>
                         <div class="ms-auto widget-icon bg-light-primary text-primary">
-                            <ion-icon name="calendar"></ion-icon>
+                            <ion-icon name="archive"></ion-icon>
                         </div>
                     </div>
                 </div>
@@ -23,18 +23,18 @@
       
         <!-- Card 2: No leídas -->
         <div class="col-12 col-md-6 col-lg-3">
-          <a href="{% url 'usuarios:citas_total' %}">
+          <a href="{% url 'usuarios:tareas_realizadas'  %}">
             <div class="card radius-10 bg-yellow mb-3">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div>
                            
 
-                            <h4 class="mb-0 text-primary">Confirmar cita </h4>
-                            <p class="mb-0" style="margin-top: 0px;">  <ion-icon name="medkit"></ion-icon>  por confirmar {{ mensajes_nuevos }} </p>
+                            <h4 class="mb-0 text-primary">Realizar Actividad</h4>
+                            <p class="mb-0" style="margin-top: 0px;"> Nuevas {{ mensajes_nuevos }} <ion-icon name="mail-unread"></ion-icon> </p>
                         </div>
                         <div class="ms-auto widget-icon bg-light-primary text-primary">
-                            <ion-icon name="medkit"></ion-icon>
+                            <ion-icon name="mail-unread"></ion-icon>
                         </div>
                     </div>
                 </div>
@@ -44,16 +44,16 @@
 
                 <!-- Card 2: No leídas -->
         <div class="col-12 col-md-6 col-lg-3">
-           <a href="{% url 'usuarios:agendar_cita' %}">
+           <a href="{% url 'usuarios:enviar_mensaje' %}">
             <div class="card radius-10 bg-yellow mb-3">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div>
-                            <h4 class="mb-0 text-primary">Agendar cita</h4>
+                            <h4 class="mb-0 text-primary"> Actividades Realizadas </h4>
                              <p class="mb-0" style="margin-top: 0px;"> Grupo MEDDES®</p>
                         </div>
                         <div class="ms-auto widget-icon bg-light-primary text-primary">
-                            <ion-icon name="bookmarks"></ion-icon>
+                            <ion-icon name="send"></ion-icon>
                         </div>
                     </div>
                 </div>

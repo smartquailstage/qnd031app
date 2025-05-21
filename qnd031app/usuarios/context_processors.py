@@ -110,7 +110,12 @@ def datos_panel_usuario(request):
 
 def citas_context(request):
     if request.user.is_authenticated:
-        citas = Cita.objects.filter(is_active=True, is_deleted=False)
+        # Filtrar solo citas visibles (activas y no eliminadas) para el usuario
+        citas = Cita.objects.filter(
+            destinatario=request.user,  # Asegúrate de filtrar por usuario
+            is_active=True,
+            is_deleted=False
+        )
 
         confirmadas = citas.filter(estado='confirmada').count()
         pendientes = citas.filter(estado='pendiente').count()
@@ -122,4 +127,23 @@ def citas_context(request):
             'citas_pendientes_count': pendientes,
             'citas_canceladas_count': canceladas,
         }
+
+    return {}
+
+
+def tareas_context(request):
+    if request.user.is_authenticated:
+        tareas_nuevas_qs = tareas.objects.filter(
+            paciente=request.user,
+            realizada=False
+        ).order_by('-fecha_envio')
+
+        tareas_count = tareas_nuevas_qs.count()
+        tareas_detalle = tareas_nuevas_qs[:5]  # Limita si es para dropdown, o todos si lo necesitas completo
+
+        return {
+            'tareas_nuevas_count': tareas_count,
+            'tareas_detalle': tareas_detalle
+        }
+
     return {}

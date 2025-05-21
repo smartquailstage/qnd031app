@@ -150,7 +150,7 @@ LOGOUT_URL = 'logout'
 UNFOLD = {
     "SITE_TITLE": "Plataforma Administrativa MEDDES.S.A Cloud Native App+(I+D)+A",
     "SITE_HEADER": "MEDDES",
-    "LANGUAGE_SWITCHER": True, 
+    "SHOW_LANGUAGES": True,
     "SITE_SUBHEADER": "Eterprises Research & Development",
     "SITE_DESCRIPTION": "Plataforma Administrativa MEDDES.S.A Cloud Native App+(I+D)+A",
     "SITE_COPYRIGHT": "Copyright © 2025 SmartQuail S.A.S Todos los derechos reservados.",
@@ -299,7 +299,7 @@ UNFOLD = {
                     {
                         "title": _("Agenda de Citas"), 
                         "icon": "calendar_today",
-                        "link": reverse_lazy("admin:agenda_cita_changelist"),
+                        "link": reverse_lazy("admin:usuarios_cita_changelist"),
                     },
 
                     {

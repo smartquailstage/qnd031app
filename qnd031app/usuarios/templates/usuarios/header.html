@@ -142,135 +142,46 @@
             </a>
           </div>
         </li>
-        <li class="nav-item dropdown dropdown-large">
-          <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" href="javascript:;" data-bs-toggle="dropdown">
-            <div class="position-relative">
-              <span class="notify-badge">8</span>
-              <i class="bx bx-plus-medical"></i>
-            </div>
-          </a>
-          <div class="dropdown-menu dropdown-menu-end">
-            <a href="javascript:;">
-              <div class="msg-header">
-                <p class="msg-header-title">Notifications</p>
-                <p class="msg-header-clear ms-auto">Marks all as read</p>
-              </div>
-            </a>
-            <div class="header-notifications-list">
-              <a class="dropdown-item" href="javascript:;">
-                <div class="d-flex align-items-center">
-                  <div class="notify text-primary">
-                    <ion-icon name="cart-outline"></ion-icon>
-                  </div>
-                  <div class="flex-grow-1">
-                    <h6 class="msg-name">New Orders <span class="msg-time float-end">2 min
-                        ago</span></h6>
-                    <p class="msg-info">You have recived new orders</p>
-                  </div>
-                </div>
-              </a>
-              <a class="dropdown-item" href="javascript:;">
-                <div class="d-flex align-items-center">
-                  <div class="notify text-danger">
-                    <ion-icon name="person-outline"></ion-icon>
-                  </div>
-                  <div class="flex-grow-1">
-                    <h6 class="msg-name">New Customers<span class="msg-time float-end">14 Sec
-                        ago</span></h6>
-                    <p class="msg-info">5 new user registered</p>
-                  </div>
-                </div>
-              </a>
-              <a class="dropdown-item" href="javascript:;">
-                <div class="d-flex align-items-center">
-                  <div class="notify text-success">
-                    <ion-icon name="document-outline"></ion-icon>
-                  </div>
-                  <div class="flex-grow-1">
-                    <h6 class="msg-name">24 PDF File<span class="msg-time float-end">19 min
-                        ago</span></h6>
-                    <p class="msg-info">The pdf files generated</p>
-                  </div>
-                </div>
-              </a>
+<li class="nav-item dropdown dropdown-large">
+  <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" href="#" data-bs-toggle="dropdown">
+    <div class="position-relative">
+      {% if tareas_nuevas_count > 0 %}
+        <span class="notify-badge">{{ tareas_nuevas_count }}</span>
+      {% endif %}
+      <ion-icon name="clipboard-outline"></ion-icon>
+    </div>
+  </a>
 
-              <a class="dropdown-item" href="javascript:;">
-                <div class="d-flex align-items-center">
-                  <div class="notify text-info">
-                    <ion-icon name="checkmark-done-outline"></ion-icon>
-                  </div>
-                  <div class="flex-grow-1">
-                    <h6 class="msg-name">New Product Approved <span class="msg-time float-end">2 hrs ago</span></h6>
-                    <p class="msg-info">Your new product has approved</p>
-                  </div>
-                </div>
-              </a>
-              <a class="dropdown-item" href="javascript:;">
-                <div class="d-flex align-items-center">
-                  <div class="notify text-warning">
-                    <ion-icon name="send-outline"></ion-icon>
-                  </div>
-                  <div class="flex-grow-1">
-                    <h6 class="msg-name">Time Response <span class="msg-time float-end">28 min
-                        ago</span></h6>
-                    <p class="msg-info">5.1 min avarage time response</p>
-                  </div>
-                </div>
-              </a>
-              <a class="dropdown-item" href="javascript:;">
-                <div class="d-flex align-items-center">
-                  <div class="notify text-danger">
-                    <ion-icon name="chatbox-ellipses-outline"></ion-icon>
-                  </div>
-                  <div class="flex-grow-1">
-                    <h6 class="msg-name">New Comments <span class="msg-time float-end">4 hrs
-                        ago</span></h6>
-                    <p class="msg-info">New customer comments recived</p>
-                  </div>
-                </div>
-              </a>
-              <a class="dropdown-item" href="javascript:;">
-                <div class="d-flex align-items-center">
-                  <div class="notify text-primary">
-                    <ion-icon name="albums-outline"></ion-icon>
-                  </div>
-                  <div class="flex-grow-1">
-                    <h6 class="msg-name">New 24 authors<span class="msg-time float-end">1 day
-                        ago</span></h6>
-                    <p class="msg-info">24 new authors joined last week</p>
-                  </div>
-                </div>
-              </a>
-              <a class="dropdown-item" href="javascript:;">
-                <div class="d-flex align-items-center">
-                  <div class="notify text-success">
-                    <ion-icon name="shield-outline"></ion-icon>
-                  </div>
-                  <div class="flex-grow-1">
-                    <h6 class="msg-name">Your item is shipped <span class="msg-time float-end">5 hrs
-                        ago</span></h6>
-                    <p class="msg-info">Successfully shipped your item</p>
-                  </div>
-                </div>
-              </a>
-              <a class="dropdown-item" href="javascript:;">
-                <div class="d-flex align-items-center">
-                  <div class="notify text-warning">
-                    <ion-icon name="cafe-outline"></ion-icon>
-                  </div>
-                  <div class="flex-grow-1">
-                    <h6 class="msg-name">Defense Alerts <span class="msg-time float-end">2 weeks
-                        ago</span></h6>
-                    <p class="msg-info">45% less alerts last 4 weeks</p>
-                  </div>
-                </div>
-              </a>
+  <div class="dropdown-menu dropdown-menu-end">
+    <div class="msg-header d-flex align-items-center">
+      <p class="msg-header-title mb-0"><ion-icon name="clipboard-outline"></ion-icon> Tareas Asignadas</p>
+      <p class="msg-header-clear ms-auto mb-0 text-primary">{{ tareas_nuevas_count }} nuevas</p>
+    </div>
+
+    <div class="header-notifications-list">
+      {% for tarea in tareas_detalle %}
+        <a class="dropdown-item" href="{% url 'usuarios:ver_tarea' tarea.id %}">
+          <div class="d-flex align-items-center">
+            <div class="notify text-warning"><ion-icon name="document-text-outline"></ion-icon></div>
+            <div class="flex-grow-1">
+              <h6 class="msg-name">{{ tarea.titulo|default:"Sin título" }}</h6>
+              <p class="msg-info">Entrega: {{ tarea.fecha_entrega|date:"d M Y" }}</p>
             </div>
-            <a href="javascript:;">
-              <div class="text-center msg-footer">View All Notifications</div>
-            </a>
           </div>
-        </li>
+        </a>
+      {% empty %}
+        <div class="dropdown-item text-center text-muted small">
+          No tienes tareas pendientes
+        </div>
+      {% endfor %}
+    </div>
+
+    <a href="{% url 'usuarios:lista_tareas' %}">
+      <div class="text-center msg-footer"><ion-icon name="list-circle-outline"></ion-icon> Ver todas las tareas</div>
+    </a>
+  </div>
+</li>
+
 <li class="nav-item dropdown dropdown-large">
   <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" href="javascript:;" data-bs-toggle="dropdown">
     <div class="position-relative">
@@ -292,8 +203,8 @@
     </div>
 
     <div class="header-notifications-list">
-      {% for cita in citas_todas|slice:":5" %}
-        <a class="dropdown-item" href="#">
+      {% for cita in citas_todas|slice:":2" %}
+        <a class="dropdown-item" href="{% url 'usuarios:ver_cita' cita.id %}"> 
           <div class="d-flex align-items-center">
             <div class="notify {% if cita.estado == 'pendiente' %}text-warning{% elif cita.estado == 'confirmada' %}text-success{% else %}text-danger{% endif %}">
               <ion-icon name="medkit-outline"></ion-icon>
@@ -316,7 +227,7 @@
       {% endfor %}
     </div>
 
-    <a href="{% url 'usuarios:citas' %}">
+    <a href="{% url 'usuarios:citas_total' %}">
       <div class="text-center msg-footer">
         <ion-icon name="list-circle-outline"></ion-icon> Ver todas las citas
       </div>

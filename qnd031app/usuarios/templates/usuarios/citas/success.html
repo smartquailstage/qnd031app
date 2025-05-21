@@ -10,8 +10,64 @@
   <div class="row">
 
         <!-- Card 1: Leídas -->
+        
+        <div class="col-12 col-md-6 col-lg-3">
+           <a href="{% url 'usuarios:inbox_total' %}">
+            <div class="card radius-10 bg-yellow mb-3">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div>                       
+                            <h4 class="mb-0 text-primary">Bandeja de entrada</h4>
+                            <p class="mb-0" style="margin-top: 0px;"> Nuevas {{ mensajes_nuevos }} <ion-icon name="mail-unread"></ion-icon> / En bandeja {{ leidos }} <ion-icon name="mail-open"></ion-icon>  </p>
+                        </div>
+                        <div class="ms-auto widget-icon bg-light-primary text-primary">
+                            <ion-icon name="archive"></ion-icon>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </a>
+        </div>
+      
+        <!-- Card 2: No leídas -->
+        <div class="col-12 col-md-6 col-lg-3">
+          <a href="{% url 'usuarios:inbox' %}">
+            <div class="card radius-10 bg-yellow mb-3">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div>
+                           
 
-        {% include 'usuarios/barra_herramientas.html' %} 
+                            <h4 class="mb-0 text-primary">Leer Notificaciones</h4>
+                            <p class="mb-0" style="margin-top: 0px;"> Nuevas {{ mensajes_nuevos }} <ion-icon name="mail-unread"></ion-icon> </p>
+                        </div>
+                        <div class="ms-auto widget-icon bg-light-primary text-primary">
+                            <ion-icon name="mail-unread"></ion-icon>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          </a>
+        </div>
+
+                <!-- Card 2: No leídas -->
+        <div class="col-12 col-md-6 col-lg-3">
+           <a href="{% url 'usuarios:enviar_mensaje' %}">
+            <div class="card radius-10 bg-yellow mb-3">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <h4 class="mb-0 text-primary">Realizar Consulta </h4>
+                             <p class="mb-0" style="margin-top: 0px;"> Grupo MEDDES®</p>
+                        </div>
+                        <div class="ms-auto widget-icon bg-light-primary text-primary">
+                            <ion-icon name="send"></ion-icon>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </a>
+        </div>
 
          {% include 'usuarios/logo.html' %} 
 
@@ -50,25 +106,19 @@
                     </div>
                 {% else %}
                     <div class="card-body">
-                        <div class="alert alert-dismissible fade show py-2 bg-primary">
+                        <div class="alert alert-dismissible fade show py-2 bg-success">
                             <div class="d-flex align-items-center">
                                 <div class="fs-3 text-white">
-                                    <ion-icon name="close-circle-sharp"></ion-icon>
+                                    <ion-icon name="checkmark-circle-sharp"></ion-icon>
                                 </div>
                                 <div class="ms-3">
-                                    {% if mensajes_nuevos > 0 %}
-                                        <div class="text-white">
-                                            Usted tiene <strong>{{ mensajes_nuevos }}</strong> notificaciones nuevas en su bandeja de entrada. 
-                                        </div>
-                                    {% elif mensajes_nuevos == 0 %}
-                                        <div class="text-white">
-                                            No existen nuevas notificaciones en su bandeja de entrada.
-                                        </div>
-                                    {% else %}
-                                        <div class="text-white">
-                                            Usted tiene <strong>{{ mensajes_nuevos }}</strong> notificación nueva en su bandeja de entrada. Al hacer clic en las notificaciones, automáticamente confirma su lectura a MEDDES®.
-                                        </div>
-                                    {% endif %}
+                              
+<div class="text-white">
+    Su consulta ha sido enviada exitosamente al equipo especializado de Grupo MEDDES®.
+    <p class="mb-0">En breve recibirá una respuesta en su bandeja de entrada. Agradecemos su confianza.</p>
+</div>
+
+                            
                                 </div>
                             </div>
                         </div>

@@ -4,7 +4,7 @@ import datetime
 import datetime
 from django.contrib import admin
 from django.http import HttpResponse
-from .models import Profile, BitacoraDesarrollo, Perfil_Terapeuta, Mensaje, Cita ,AsistenciaTerapeuta,prospecion_administrativa,Prospeccion, tareas, pagos
+from .models import Profile, BitacoraDesarrollo, Perfil_Terapeuta, Mensaje, Cita, TareaComentario ,AsistenciaTerapeuta,prospecion_administrativa,Prospeccion, tareas, pagos
 from django.contrib.postgres.fields import ArrayField
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -337,11 +337,18 @@ class BitacoraDesarrolloAdmin(ModelAdmin):
 
     
 
+class TareasComentariosInline(admin.TabularInline):
+    model = TareaComentario
+    extra = 1
+    fields = ('tarea', 'mensaje', 'archivo', 'fecha')
+    readonly_fields = ('fecha',)
+    show_change_link = False
     
 
 
 @admin.register(tareas)
 class tareasAdmin(ModelAdmin):
+    inlines = [TareasComentariosInline] 
         # Display fields in changeform in compressed mode
     compressed_fields = True  # Default: False
 

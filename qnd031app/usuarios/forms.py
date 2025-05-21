@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 #from django.contrib.admin.widgets import AdminDateWidget
 from django.forms.fields import DateField
 from django.forms import DateInput
-from .models import Mensaje, Cita   
+from .models import Mensaje, Cita ,TareaComentario 
 from ckeditor.widgets import CKEditorWidget
 
 class LoginForm(forms.Form):
@@ -41,6 +41,20 @@ class MarcarLeidoForm(forms.ModelForm):
         fields = []
 
 class CitaForm(forms.ModelForm):
+    fecha = forms.DateTimeField(
+        widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+        label="Fecha y hora de la cita"
+    )
+
     class Meta:
         model = Cita
-        fields = ['fecha', 'motivo']  # Ajusta los campos que se pueden editar
+        fields = ['motivo', 'fecha']
+
+class TareaComentarioForm(forms.ModelForm):
+    class Meta:
+        model = TareaComentario
+        fields = ['mensaje', 'archivo']
+        widgets = {
+            'mensaje': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+            'archivo': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        }

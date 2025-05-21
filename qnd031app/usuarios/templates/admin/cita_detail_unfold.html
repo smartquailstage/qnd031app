@@ -1,4 +1,4 @@
-{% extends 'unfold/layouts/skeleton.html' %}
+{% extends "unfold/base.html" %}
 {% load i18n admin_urls static admin_list unfold_list %}
 {% load unfold %}
 
@@ -73,6 +73,8 @@
                         {% tab_list "changeform" opts %}
                     {% endif %}
 {% block content %}
+
+
 
   <div class="bg-white border border-base-200 flex flex-col grow overflow-hidden p-6 relative rounded-default shadow-xs light:bg-base-900 light:border-base-800 ">
     

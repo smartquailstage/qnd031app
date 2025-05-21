@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import LoginForm,MensajeForm,CitaForm                   
+from .forms import LoginForm,MensajeForm,CitaForm,TareaComentarioForm                 
 from .models import Profile, Cita
 from django.shortcuts import get_object_or_404
 from django.conf import settings
@@ -88,7 +88,7 @@ def admin_cita_detail(request, cita_id):
         ],
         "cita": cita,
     }
-    return render(request, "admin/cita_detail_unfold.html", context)
+    return render(request, "admin/test.html", context)
 
 @login_required
 def profile_view(request):
@@ -193,6 +193,100 @@ def inbox_record(request):
         'no_leidos': no_leidos,
         'total': total,
     })
+
+
+
+@login_required
+def cita_success(request):
+    return render(request, 'usuarios/citas/success.html')
+    
+def ver_cita(request, pk):
+    cita = get_object_or_404(Cita, pk=pk)
+
+    # Si el mensaje no ha sido leído, lo marcamos como leído
+    if not cita.is_active:
+        cita.is_active = True
+        cita.save()
+
+    return render(request, 'usuarios/citas/cita.html', {'cita': cita })
+
+@login_required
+def citas_record(request):
+    profile = Profile.objects.get(user=request.user)
+
+    # Todos los mensajes recibidos (leídos y no leídos)
+    citas = Cita.objects.filter(destinatario=request.user, is_deleted=False)
+    citas_agendadas = Cita.objects.filter(destinatario=request.user)
+
+    confirmadas = citas_agendadas.filter(is_active=True).count()
+    no_confirmadas = citas_agendadas.filter(is_active=False).count()
+    total = citas_agendadas.count()
+
+    return render(request, 'usuarios/citas/calendar_total.html', {
+        'citas': citas,
+        'profile': profile,
+        'confirmadas': confirmadas,
+        'no_confirmadas': no_confirmadas,
+        'total': total,
+    })
+
+@login_required
+def citas_agendadas_total(request):
+    profile = Profile.objects.get(user=request.user)
+    citas = request.user.citas_creadas.all()
+    
+    confirmadas = citas.filter(is_active=True).count()
+    no_confirmadas = citas.filter(is_active=False).count()
+    total = citas.count()
+
+    return render(request, 'usuarios/citas/calendar_agendadas.html', {
+        'citas': citas,
+        'profile': profile,
+        'confirmadas': confirmadas,
+        'no_confirmadas': no_confirmadas,
+        'total': total,
+    })
+
+
+
+@login_required
+def agendar_cita(request):
+    destinatario = User.objects.get(id=1)  # ID del médico o administrador que recibe las citas
+
+    if request.method == 'POST':
+        form = CitaForm(request.POST)
+        if form.is_valid():
+            cita = form.save(commit=False)
+            cita.creador = request.user
+            cita.destinatario = destinatario
+            cita.estado = 'pendiente'
+            cita.save()
+            return redirect('usuarios:cita_success')
+    else:
+        form = CitaForm()
+    
+    return render(request, 'usuarios/citas/agendar_cita.html', {'form': form})
+
+
+@login_required
+def confirmar_cita(request, pk):
+    cita = get_object_or_404(Cita, pk=pk, destinatario=request.user)
+    if request.method == 'POST':
+        cita.estado = 'confirmada'
+        cita.is_active = True
+        cita.save()
+    return redirect('usuarios:ver_cita', pk=pk)
+
+@login_required
+def cancelar_cita(request, pk):
+    cita = get_object_or_404(Cita, pk=pk, destinatario=request.user)
+    if request.method == 'POST':
+        cita.estado = 'cancelada'
+        cita.is_active = False
+        cita.save()
+    return redirect('usuarios:ver_cita', pk=pk)
+
+
 @login_required
 def config_view(request):
     # Obtener el perfil del usuario actualmente autenticado
@@ -245,3 +339,109 @@ def editar_cita_view(request, cita_id):
         form = CitaForm(instance=cita)
 
     return render(request, 'usuarios/editar_cita.html', {'form': form, 'cita': cita})
+
+
+
+@login_required
+def tareas_asignadas(request):
+    # Filtra todas las tareas asignadas al usuario logueado
+    tareas_usuario = tareas.objects.filter(paciente=request.user)
+
+    # Separar por estado
+    tareas_realizadas = tareas_usuario.filter(realizada=True)
+    tareas_pendientes = tareas_usuario.filter(realizada=False)
+
+    context = {
+        'tareas_realizadas': tareas_realizadas,
+        'tareas_pendientes': tareas_pendientes,
+        'total': tareas_usuario.count(),
+        'total_realizadas': tareas_realizadas.count(),
+        'total_pendientes': tareas_pendientes.count(),
+    }
+
+    return render(request, 'usuarios/tareas/tareas_asignadas.html', context)
+
+
+@login_required
+def tareas_list(request):
+    tareas_nuevas = tareas.objects.filter(
+        paciente=request.user,
+        realizada=False
+    ).order_by('-fecha_envio')
+
+    return render(request, 'usuarios/tareas/tareas_list.html', {
+        'tareas_nuevas': tareas_nuevas
+    })
+
+@login_required
+def ver_tarea(request, pk):
+    tarea = get_object_or_404(tareas, pk=pk, paciente=request.user)
+
+    comentarios = tarea.comentarios.all()
+    form = TareaComentarioForm()
+
+    if request.method == 'POST':
+        form = TareaComentarioForm(request.POST, request.FILES)
+        if form.is_valid():
+            comentario = form.save(commit=False)
+            comentario.autor = request.user
+            comentario.tarea = tarea
+            comentario.save()
+
+            # Opcional: marcar como realizada si el comentario lo hace el paciente
+            if request.user == tarea.paciente:
+                tarea.realizada = True
+                tarea.save()
+
+    return render(request, 'usuarios/tareas/tarea.html', {'tarea': tarea,'comentarios': comentarios,
+        'form': form,})
+
+
+
+@login_required
+def ver_tarea_interactiva(request, pk):
+    tarea = get_object_or_404(tareas, pk=pk)
+
+    comentarios = tarea.comentarios.all()
+    form = TareaComentarioForm()
+
+    if request.method == 'POST':
+        form = TareaComentarioForm(request.POST, request.FILES)
+        if form.is_valid():
+            comentario = form.save(commit=False)
+            comentario.autor = request.user
+            comentario.tarea = tarea
+            comentario.save()
+
+            # Opcional: marcar como realizada si el comentario lo hace el paciente
+            if request.user == tarea.paciente:
+                tarea.realizada = True
+                tarea.save()
+
+            return redirect('usuarios:ver_tarea_interactiva', pk=tarea.pk)
+
+    return render(request, 'usuarios/tareas/tarea_interactiva.html', {
+        'tarea': tarea,
+        'comentarios': comentarios,
+        'form': form,
+    })
+
+
+@login_required
+def tareas_realizadas(request):
+    tareas_completadas = tareas.objects.filter(paciente=request.user, realizada=True)
+
+    return render(request, 'usuarios/tareas/tareas_realizadas.html', {
+        'tareas_completadas': tareas_completadas,
+    })
+
+@login_required
+def marcar_tarea_realizada(request, pk):
+    tarea = get_object_or_404(tareas, pk=pk, paciente=request.user)
+
+    if request.method == 'POST':
+        tarea.realizada = True
+        tarea.save()
+        return redirect('usuarios:tareas_realizadas')  # Redirige a la lista de tareas realizadas
+
+    return redirect('usuarios:ver_tarea', pk=pk)

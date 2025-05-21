@@ -569,8 +569,24 @@ class tareas(models.Model):
         verbose_name = "Paciente/ Tareas"
 
     def __str__(self):
-        return "Tareas terapéuticas {}".format(self.user.username)
+        return f"Tareas terapéuticas de {self.paciente.username}"
 
+
+
+class TareaComentario(models.Model):
+    tarea = models.ForeignKey('tareas', on_delete=models.CASCADE, related_name='comentarios')
+    autor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    mensaje = models.TextField(verbose_name="Comentario o actividad")
+    archivo = models.FileField(upload_to='tareas_respuestas/%Y/%m/%d/', blank=True, null=True, verbose_name="Archivo adjunto")
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['fecha']
+        verbose_name = "Comentario de tarea"
+        verbose_name_plural = "Comentarios de tareas"
+
+    def __str__(self):
+        return f"Comentario de {self.autor.username} - {self.tarea.titulo}"
     
 
 
