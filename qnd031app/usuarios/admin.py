@@ -4,7 +4,7 @@ import datetime
 import datetime
 from django.contrib import admin
 from django.http import HttpResponse
-from .models import Profile, BitacoraDesarrollo, Perfil_Terapeuta, Mensaje, Cita,ComentarioCita, TareaComentario ,AsistenciaTerapeuta,prospecion_administrativa,Prospeccion, tareas, pagos
+from .models import Profile, BitacoraDesarrollo, Perfil_Terapeuta, Mensaje,ServicioTerapeutico, Sucursal , ValoracionTerapia ,DocenteCapacitado, Cita,ComentarioCita, TareaComentario ,AsistenciaTerapeuta,prospecion_administrativa,Prospeccion, tareas, pagos
 from django.contrib.postgres.fields import ArrayField
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -34,11 +34,17 @@ from django.utils import timezone
 from unfold.components import BaseComponent, register_component
 from unfold.sections import TableSection, TemplateSection
 from django.utils.timezone import now
+from .forms import ServicioTerapeuticoForm, ProspecionAdministrativaForm
 
 
 
 
-
+@admin.register(ServicioTerapeutico)
+class ServicioTerapeuticoAdmin(ModelAdmin):
+    form = ServicioTerapeuticoForm
+    list_display = ['servicio', 'costo_por_sesion', 'activo']
+    list_filter = ['activo']
+    search_fields = ['servicio']
 
 
 class CustomUserChangeForm(forms.ModelForm):
@@ -179,10 +185,26 @@ admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
 
 
+@admin.register(ValoracionTerapia)
+class ValoracionTerapiaAdmin(ModelAdmin):
+    list_display = ['tipo_valoracion','perfil_terapeuta','nombre', 'fecha_valoracion']
+    readonly_fields = ['edad']
+    actions = [export_to_csv, export_to_excel]
+
+    formfield_overrides = {
+        models.TextField: {
+            "widget": WysiwygWidget,
+        },
+        ArrayField: {
+            "widget": ArrayWidget,
+        }
+    }
+
 @admin.register(Perfil_Terapeuta)
 class Perfil_TerapeutaAdmin(ModelAdmin):
         # Display fields in changeform in compressed mode
     compressed_fields = True  # Default: False
+
 
     # Warn before leaving unsaved changes in changeform
     warn_unsaved_form = True  # Default: False
@@ -234,7 +256,7 @@ class Perfil_TerapeutaAdmin(ModelAdmin):
         }
     }
     search_fields = ('paciente__nombre', 'terapeuta__nombres_completos')  # Ajusta a tus campos
-    list_display = ['get_full_name', 'especialidad']
+    list_display = ['get_full_name', 'especialidad','sucursal', 'especialidad']
     
     actions = [ export_to_csv, export_to_excel]
     verbose_name = "Registro Administrativo / Ingreso de Terapeuta"
@@ -489,66 +511,66 @@ class ProspeccionAdmin(ModelAdmin):
     # Opcional: si deseas personalizar el orden en que aparecen los objetos
     ordering = ['nombre_institucion']
 
+class DocenteCapacitadoInline(admin.TabularInline):
+    model = DocenteCapacitado
+    extra = 1
+    max_num = 100
+    fields = [
+        'fecha_capacitacion', 'area_capacitacion', 'tema',
+        'nombres', 'apellidos', 'correo', 'cedula', 'telefono'
+    ]
+
+
+
+class CustomTableSection(TableSection):
+    verbose_name = "Capacitacion docente"  # Displays custom table title
+    height = 300  # Force the table height. Ideal for large amount of records
+    related_name = "docentes_capacitados"  # Related model field name
+    fields = [
+        'fecha_capacitacion', 'area_capacitacion', 'tema',
+        'nombres', 'apellidos', 'correo', 'cedula', 'telefono'
+    ]
+
+    # Custom field
+    def custom_field(self, instance):
+        return instance.nombres
+
 
 @admin.register(prospecion_administrativa)
 class prospecion_administrativaAdmin(ModelAdmin):
-        # Display fields in changeform in compressed mode
-    compressed_fields = True  # Default: False
+    inlines = [DocenteCapacitadoInline]
+    list_sections = [CustomTableSection]  # Agregar la sección personalizada
 
-    # Warn before leaving unsaved changes in changeform
-    warn_unsaved_form = True  # Default: False
+    # Mostrar campos clave
+    list_display = [
+        'nombre', 'estado', 'fecha_estado_actualizado',
+        'ciudad', 'mail_institucion_general',
+        'responsable_institucional_1', 'telefono_responsable_1'
+    ]
 
-    # Preprocess content of readonly fields before render
-    readonly_preprocess_fields = {
-        "model_field_name": "html.unescape",
-        "other_field_name": lambda content: content.strip(),
-    }
+    list_filter = ['estado', 'sucursal', 'fecha_estado_actualizado']
+    search_fields = ['nombre', 'ciudad', 'responsable_institucional_1']
 
-    # Display submit button in filters
-    list_filter_submit = False
+    actions = [export_to_csv, export_to_excel]
 
-    # Display changelist in fullwidth
-    list_fullwidth = False
-
-    # Set to False, to enable filter as "sidebar"
-    list_filter_sheet = True
-
-    # Position horizontal scrollbar in changelist at the top
-    list_horizontal_scrollbar_top = False
-
-    # Dsable select all action in changelist
-    list_disable_select_all = False
-
-    # Custom actions
-    actions_list = []  # Displayed above the results list
-    actions_row = []  # Displayed in a table row in results list
-    actions_detail = []  # Displayed at the top of for in object detail
-    actions_submit_line = []  # Displayed near save in object detail
-
-    # Changeform templates (located inside the form)
-    #change_form_before_template = "some/template.html"
-    #change_form_after_template = "some/template.html"
-
-    # Located outside of the form
-    #change_form_outer_before_template = "some/template.html"
-    #change_form_outer_after_template = "some/template.html"
-
-    # Display cancel button in submit line in changeform
-    change_form_show_cancel_button = True # show/hide cancel button in changeform, default: False
+    # Mostrar botón cancelar en formularios
+    change_form_show_cancel_button = True
 
     formfield_overrides = {
-        models.TextField: {
-            "widget": WysiwygWidget,
-        },
-        ArrayField: {
-            "widget": ArrayWidget,
-        }
+        models.TextField: {"widget": WysiwygWidget},
+        # Si usas campos tipo ArrayField (de PostgreSQL)
+        # ArrayField: {"widget": ArrayWidget},
     }
 
-    list_display = ['nombre', 'estado', 'fecha_estado_actualizado','ciudad','regional','mails_colegio','nombre_persona_cargo']
-    actions = [ export_to_csv, export_to_excel]
-    verbose_name = "Perfil Colegios"
-    verbose_name_plural = "Perfil Colegios"
+    class Media:
+        css = {
+            'all': ('admin/css/custom_admin.css',)
+        }
+        js = ('admin/js/custom_admin.js',)
+
+    verbose_name = "Perfil Institución"
+    verbose_name_plural = "Perfiles de Instituciones"
+
 
 @admin.action(description="Duplicar mensajes seleccionados")
 def duplicar_mensajes(modeladmin, request, queryset):
@@ -774,7 +796,10 @@ class CitasCohortComponent(BaseComponent):
         return context
 
 
-
+@admin.register(Sucursal)
+class SucursalAdmin(ModelAdmin):
+    list_display = ('nombre', 'direccion', 'persona_encargada', 'correo')
+    search_fields = ('nombre', 'direccion', 'persona_encargada')
 
 
 

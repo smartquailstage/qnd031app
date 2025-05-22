@@ -45,6 +45,8 @@ LOGGING = {
 }
 
 
+SITE_DOMAIN = os.environ.get('SITE_DOMAIN', 'http://localhost:8000')  # Cambia esto según tu configuración
+
 
 # Application definition
 
@@ -147,10 +149,14 @@ LOGIN_REDIRECT_URL = 'usuarios:perfil'
 LOGIN_URL = 'login'
 LOGOUT_URL = 'logout'
 
+
+from usuarios.utils import permission_callback 
+
+
 UNFOLD = {
     "SITE_TITLE": "Plataforma Administrativa MEDDES.S.A Cloud Native App+(I+D)+A",
     "SITE_HEADER": "MEDDES",
-    "LANGUAGE_SWITCHER": True, 
+    "SHOW_LANGUAGES": True,
     "SITE_SUBHEADER": "Eterprises Research & Development",
     "SITE_DESCRIPTION": "Plataforma Administrativa MEDDES.S.A Cloud Native App+(I+D)+A",
     "SITE_COPYRIGHT": "Copyright © 2025 SmartQuail S.A.S Todos los derechos reservados.",
@@ -170,14 +176,29 @@ UNFOLD = {
         },
 
         {
-            "icon": "settings",
-            "title": _("Monitor Automatización"), 
-            "link": reverse_lazy("admin:django_celery_results_taskresult_changelist"),
+            "icon": "medical_services",
+            "title": _("Servicios Terapeuticos"),
+            "link": reverse_lazy("admin:usuarios_servicioterapeutico_changelist"), 
         },
+
+
+
         {
-            "icon": "notes",
+            "icon": "map",
+            "title": _("Sucursales"),
+            "link": reverse_lazy("admin:usuarios_sucursal_changelist"), 
+        },
+
+
+        {
+            "icon": "edit",
             "title": _("Bitacora DEV-V.QND.0.3.1.0.1"), 
             "link": reverse_lazy("admin:usuarios_bitacoradesarrollo_changelist"),
+        },
+        {
+            "icon": "circle",
+            "title": _("+ A (Automatización) "), 
+            "link": reverse_lazy("admin:django_celery_results_taskresult_changelist"),
         },
     ],
 
@@ -264,6 +285,28 @@ UNFOLD = {
             },
         },
     },
+
+    "TABS": [
+    {
+        "models": [
+            {
+                "name": "usuarios.prospecion_administrativa",
+                "detail": True,
+            },
+        ],
+        "items": [
+            {
+                "title": _("Perfil Institucional"),
+                "link": reverse_lazy("admin:usuarios_prospecion_administrativa_changelist"),
+                "permission": permission_callback,  # ✅ Ya no es string, ahora es la función real
+            },
+
+
+
+        ],
+    },
+],
+
  "SIDEBAR": {
         "show_search": True,
         "show_all_applications": True,
@@ -274,13 +317,13 @@ UNFOLD = {
                 "collapsible": True,
                 "items": [
                     {
-                        "title": _("Prospección Administrativa"),
+                        "title": _("Prospecciones"),
                         "icon": "edit",    
                         "link": reverse_lazy("admin:usuarios_prospeccion_changelist"),
                     },
 
                     {
-                        "title": _("Perfil de Colegios"),
+                        "title": _("Perfil de Institución"),
                         "icon": "school",    
                         "link": reverse_lazy("admin:usuarios_prospecion_administrativa_changelist"),
                     },
@@ -303,7 +346,7 @@ UNFOLD = {
                     },
 
                     {
-                        "title": _("Pagos de servicios"),
+                        "title": _("Ordenes de Pagos"),
                         "icon": "payment",
                         "link": reverse_lazy("admin:usuarios_pagos_changelist"),
                     },
@@ -314,6 +357,13 @@ UNFOLD = {
                 "separator": True,
                 "collapsible": True,
                 "items": [
+
+                    {
+                        "title": _("Valorizaciones"),
+                        "icon": "download",
+                        "link": reverse_lazy("admin:usuarios_valoracionterapia_changelist"),
+                    },
+
                     {
                         "title": _("Tareas & Actividades"),
                         "icon": "task",

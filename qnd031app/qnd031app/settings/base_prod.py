@@ -37,6 +37,8 @@ class JSONLogFormatter(logging.Formatter):
         }
         return json.dumps(log_record)
 
+SITE_DOMAIN = os.environ.get('SITE_DOMAIN', 'http://localhost:8000') 
+
 UNFOLD = {
     "SITE_TITLE": "Plataforma Administrativa MEDDES.S.A Cloud Native App+(I+D)+A",
     "SITE_HEADER": "MEDDES",

@@ -18,6 +18,7 @@ load_dotenv(dotenv_path=ENV_FILE_PATH)
 # Retrieve the Django secret key from environment variables.
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
+SITE_DOMAIN = os.environ.get('SITE_DOMAIN', 'http://localhost:8000') 
 # Optionally, you can add a default value or raise an exception if SECRET_KEY is not set
 if SECRET_KEY is None:
     raise ValueError("DJANGO_SECRET_KEY is not set in the environment variables.")

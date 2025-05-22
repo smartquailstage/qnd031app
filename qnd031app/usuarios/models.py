@@ -22,6 +22,79 @@ from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
 
 
+class Sucursal(models.Model):
+    nombre = models.CharField("Nombre de la Sucursal", max_length=100)
+    direccion = models.CharField("Dirección", max_length=255)
+    telefonos = models.CharField("Teléfonos de Contacto", max_length=100, help_text="Separar múltiples teléfonos con comas.")
+    persona_encargada = models.CharField("Persona Encargada", max_length=100)
+    correo = models.EmailField("Mail de la Sucursal")
+
+    def __str__(self):
+        return self.nombre
+
+
+class ServicioTerapeutico(models.Model):
+    SERVICIOS = [
+        ('Terapia de Lenguaje - valoración lenguaje', 'Terapia de Lenguaje - valoración lenguaje'),
+        ('Terapia de Lenguaje - Terapia de lenguaje', 'Terapia de Lenguaje - Terapia de lenguaje'),
+        ('Terapia de Lenguaje - paquete mensual(8 sesiones)', 'Terapia de Lenguaje - paquete mensual(8 sesiones)'),
+        ('Terapia de Lenguaje - paquete mensual(24 sesiones)', 'Terapia de Lenguaje - paquete mensual(24 sesiones)'),
+        ('Psicología - valoración Psicologica', 'Psicología - valoración Psicologica'),
+        ('Psicología - valoración Psicopedagogica', 'Psicología - valoración Psicopedagogica'),
+        ('Psicología - Terapia Psicologica', 'Psicología - Terapia Psicologica'),
+        ('Psicología - Terapia Psicologica de pareja', 'Psicología - Terapia Psicologica de pareja'),
+        ('Psicología - Paquete mensual de terapia (4 sesiones)', 'Psicología - Paquete mensual de terapia (4 sesiones)'),
+        ('Psicología - Paquete mensual de terapia (12 sesiones)', 'Psicología - Paquete mensual de terapia (12 sesiones)'),
+        ('Psicología - Paquete mensual de terapia de pareja', 'Psicología - Paquete mensual de terapia de pareja'),
+        ('Psicología - Paquete mensual de terapia de pareja (12 sesiones)', 'Psicología - Paquete mensual de terapia de pareja (12 sesiones)'),
+        ('Estimulación Cognitiva Adulto Mayor - Individual', 'Estimulación Cognitiva Adulto Mayor - Individual'),
+        ('Estimulación Cognitiva Adulto Mayor - grupal (3-5)', 'Estimulación Cognitiva Adulto Mayor - grupal (3-5)'),
+        ('Estimulación Cognitiva Adulto Mayor - Individual (8 sesiones)', 'Estimulación Cognitiva Adulto Mayor - Individual (8 sesiones)'),
+        ('Audiologia Ocupacional', 'Audiologia Ocupacional'),
+        ('Audiologia escolar', 'Audiologia escolar'),
+        ('Audiologia - Limpieza de Oido', 'Audiologia - Limpieza de Oido'),
+        ('Audiologia- lavado de oido', 'Audiologia- lavado de oido'),
+    ]
+
+    TIPO_SERVICIO = [
+        ('TERAPIA DE LENGUAJE', 'Terapia de Lenguaje'),
+        ('ESTIMULACIÓN COGNITIVA', 'Estimulación Cognitiva'),
+        ('PSICOLOGÍA', 'Psicología'),
+        ('ESTIMULACIÓN TEMPRANA', 'Estimulación Temprana'),
+    ]
+
+    servicio = models.CharField(
+        max_length=255,
+        choices=SERVICIOS,
+        unique=True,
+        verbose_name="Servicio terapéutico"
+    )
+
+    costo_por_sesion = models.DecimalField(
+        max_digits=8,
+        decimal_places=2,
+        verbose_name="Costo por sesión ($)"
+    )
+
+    tipos = models.JSONField(
+        default=list,
+        verbose_name="Tipo de servicio (múltiples opciones)",
+        help_text="Selecciona uno o más tipos"
+    )
+
+    descripcion = models.TextField(blank=True, null=True, verbose_name="Descripción del servicio")
+
+    activo = models.BooleanField(default=True, verbose_name="¿Servicio activo?")
+
+    class Meta:
+        verbose_name = "Servicio Terapéutico"
+        verbose_name_plural = "Servicios Terapéuticos"
+        ordering = ['servicio']
+
+    def __str__(self):
+        return f"{self.servicio} - ${self.costo_por_sesion:.2f}"
+
+
 class Prospeccion(models.Model):
     distrito = models.CharField("DISTRITO", max_length=100)
     provincia = models.CharField("PROVINCIA", max_length=100)
@@ -60,6 +133,9 @@ class Prospeccion(models.Model):
 
 
 
+
+
+
 class prospecion_administrativa(models.Model):
     ESTADOS = [
         ('por_contactar', 'Por Contactar'),
@@ -74,36 +150,164 @@ class prospecion_administrativa(models.Model):
         ('inactivo', 'Inactivo'),
     ]
 
-    nombre = models.CharField(max_length=255, verbose_name="Nombre del Colegio",null=True, blank=True)
-    estado = models.CharField(max_length=30, choices=ESTADOS, default='por_contactar',null=True, blank=True)    
+    nombre = models.ForeignKey(
+        Prospeccion,
+        on_delete=models.CASCADE,
+        related_name="instituciones",null=True, blank=True
+    )
+    estado = models.CharField(max_length=30, choices=ESTADOS, default='por_contactar', null=True, blank=True)
     fecha_estado_actualizado = models.DateField(auto_now=True)
-    sucursal = models.CharField(max_length=255,blank=True,null=True,
-        choices=[
-            ('Quito - Valles', 'Quito - Valles'),
-            ('Quito - Centro', 'Quito - Centro'),
-            ('Guayaquil', 'Guayaquil'),
-            ('Manta', 'Manta'),
-        ],
-        verbose_name="Sucursal"
+
+    sucursal = models.ForeignKey(
+        Sucursal,
+        on_delete=models.CASCADE,
+        related_name="sucursal9",null=True, blank=True
     )
 
-    regional = models.CharField(max_length=100,null=True, blank=True)   
-    ciudad = models.CharField(max_length=100, null=True, blank=True)
-    direccion = models.TextField(null=True, blank=True) 
+    CIUDADES_ECUADOR = [
+        ('Ambato', 'Ambato'),
+        ('Arenillas', 'Arenillas'),
+        ('Atacames', 'Atacames'),
+        ('Atuntaqui', 'Atuntaqui'),
+        ('Azogues', 'Azogues'),
+        ('Babahoyo', 'Babahoyo'),
+        ('Bahía de Caráquez', 'Bahía de Caráquez'),
+        ('Balzar', 'Balzar'),
+        ('Baños de Agua Santa', 'Baños de Agua Santa'),
+        ('Buena Fé', 'Buena Fé'),
+        ('Calceta', 'Calceta'),
+        ('Cañar', 'Cañar'),
+        ('Cariamanga', 'Cariamanga'),
+        ('Catamayo', 'Catamayo'),
+        ('Cayambe', 'Cayambe'),
+        ('Chone', 'Chone'),
+        ('Cuenca', 'Cuenca'),
+        ('Daule', 'Daule'),
+        ('Durán', 'Durán'),
+        ('El Carmen', 'El Carmen'),
+        ('El Guabo', 'El Guabo'),
+        ('El Triunfo', 'El Triunfo'),
+        ('Esmeraldas', 'Esmeraldas'),
+        ('Gualaceo', 'Gualaceo'),
+        ('Guaranda', 'Guaranda'),
+        ('Guayaquil', 'Guayaquil'),
+        ('Huaquillas', 'Huaquillas'),
+        ('Ibarra', 'Ibarra'),
+        ('Jaramijó', 'Jaramijó'),
+        ('Jipijapa', 'Jipijapa'),
+        ('La Concordia', 'La Concordia'),
+        ('La Libertad', 'La Libertad'),
+        ('La Maná', 'La Maná'),
+        ('Latacunga', 'Latacunga'),
+        ('La Troncal', 'La Troncal'),
+        ('Loja', 'Loja'),
+        ('Lomas de Sargentillo', 'Lomas de Sargentillo'),
+        ('Macará', 'Macará'),
+        ('Macas', 'Macas'),
+        ('Machachi', 'Machachi'),
+        ('Machala', 'Machala'),
+        ('Manta', 'Manta'),
+        ('Milagro', 'Milagro'),
+        ('Montalvo', 'Montalvo'),
+        ('Montecristi', 'Montecristi'),
+        ('Naranjal', 'Naranjal'),
+        ('Naranjito', 'Naranjito'),
+        ('Nueva Loja', 'Nueva Loja'),
+        ('Otavalo', 'Otavalo'),
+        ('Pasaje', 'Pasaje'),
+        ('Pedernales', 'Pedernales'),
+        ('Pedro Carbo', 'Pedro Carbo'),
+        ('Piñas', 'Piñas'),
+        ('Playas', 'Playas'),
+        ('Portoviejo', 'Portoviejo'),
+        ('Puerto Baquerizo Moreno', 'Puerto Baquerizo Moreno'),
+        ('Puerto Francisco de Orellana', 'Puerto Francisco de Orellana'),
+        ('Puyo', 'Puyo'),
+        ('Quevedo', 'Quevedo'),
+        ('Quito', 'Quito'),
+        ('Riobamba', 'Riobamba'),
+        ('Rosa Zárate', 'Rosa Zárate'),
+        ('Salcedo', 'Salcedo'),
+        ('Salinas', 'Salinas'),
+        ('Samborondón', 'Samborondón'),
+        ('San Gabriel', 'San Gabriel'),
+        ('Sangolquí', 'Sangolquí'),
+        ('San Lorenzo', 'San Lorenzo'),
+        ('Santa Elena', 'Santa Elena'),
+        ('Santa Rosa', 'Santa Rosa'),
+        ('Santo Domingo de los Colorados', 'Santo Domingo de los Colorados'),
+        ('Shushufindi', 'Shushufindi'),
+        ('Tena', 'Tena'),
+        ('Tulcán', 'Tulcán'),
+        ('Valencia', 'Valencia'),
+        ('Velasco Ibarra', 'Velasco Ibarra'),
+        ('Ventanas', 'Ventanas'),
+        ('Vinces', 'Vinces'),
+        ('Yaguachi', 'Yaguachi'),
+        ('Zamora', 'Zamora'),
+    ]
 
-    mails_colegio =models.EmailField(blank=True, null=True, verbose_name="Correo Electrónico de Colegio")
+    ciudad = models.CharField(
+        max_length=100,
+        choices=CIUDADES_ECUADOR,
+        null=True,
+        blank=True
+    )
+    direccion = models.TextField(null=True, blank=True)
+
+    mail_institucion_general = models.EmailField(blank=True, null=True, verbose_name="Mail General de la Institución")
+
     phone_regex = RegexValidator(
         regex=r'^\+?593?\d{9,15}$',
         message="El número de teléfono debe estar en formato internacional. Ejemplo: +593XXXXXXXXX."
     )
-    telefonos_colegio = PhoneNumberField(verbose_name="Teléfono de persona a cargo",validators=[phone_regex],default='+593')
 
-    nombre_persona_cargo = models.CharField(max_length=150,null=True, blank=True)
-    telefono_persona_cargo = models.CharField(max_length=50,null=True, blank=True)
-    correo_persona_cargo = models.EmailField(blank=True, null=True, verbose_name="Correo Electrónico Persona a cargo")
+    telefonos_colegio = PhoneNumberField(
+        verbose_name="Teléfono de la Institución",
+        validators=[phone_regex],
+        default='+593'
+    )
 
-    terapeutas_asignados = models.ManyToManyField('auth.User', limit_choices_to={'groups__name': 'Terapeutas'})
-    ejecutivo_encargado = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True, blank=True, related_name='colegios_asignados')
+    # Responsable Institucional 1
+    responsable_institucional_1 = models.CharField(max_length=150, null=True, blank=True, verbose_name="Responsable Institucional 1")
+    cargo_responsable_1 = models.CharField(max_length=150, null=True, blank=True)
+    telefono_responsable_1 = PhoneNumberField(
+        verbose_name="Teléfono responsable 1",
+        validators=[phone_regex],
+        default='+593'
+    )
+
+    mail_responsable_1 = models.EmailField(blank=True, null=True)
+
+    # Responsable Institucional 2
+    responsable_institucional_2 = models.CharField(max_length=150, null=True, blank=True, verbose_name="Responsable Institucional 2")
+    cargo_responsable_2 = models.CharField(max_length=150, null=True, blank=True)
+    telefono_responsable_2 = PhoneNumberField(
+        verbose_name="Teléfono responsable 2",
+        validators=[phone_regex],
+        default='+593'
+    )
+    mail_responsable_2 = models.EmailField(blank=True, null=True)
+
+    # Terapeutas
+    terapeutas_asignados = models.ManyToManyField(
+    'Perfil_Terapeuta',
+    related_name='instituciones_asignadas_terapeuta',
+    verbose_name="Terapeutas Asignados"
+    )
+
+    # Ejecutivo Meddes
+    ejecutivo_meddes = models.ForeignKey(
+        'auth.User',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='instituciones_asignadas',
+        verbose_name="Ejecutivo Meddes"
+    )
+    cargo_ejecutivo_meddes = models.CharField(max_length=150, null=True, blank=True)
+    telefono_ejecutivo_meddes = models.CharField(max_length=50, null=True, blank=True)
+    mail_ejecutivo_meddes = models.EmailField(blank=True, null=True)
 
     convenio_pdf = models.FileField(
         upload_to='convenios/',
@@ -115,19 +319,48 @@ class prospecion_administrativa(models.Model):
 
     class Meta:
         ordering = ['nombre']
-        verbose_name_plural = "Registros Administrativos / Ingreso perfil de colegio"
-        verbose_name = "Administrativo / Colegios"
+        verbose_name_plural = "Registros Administrativos / Ingreso perfil de institución"
+        verbose_name = "Administrativo / Institución"
 
     def alerta_estado_inactivo(self):
         if self.estado != 'inactivo':
             return False
         return timezone.now().date() - self.fecha_estado_actualizado > timedelta(days=15)
-    
+
     alerta_estado_inactivo.boolean = True
     alerta_estado_inactivo.short_description = "Alerta de inactividad (15 días)"
 
     def __str__(self):
-        return '{}'.format(self.colegio)
+        return self.nombre or "Institución sin nombre"
+
+
+class DocenteCapacitado(models.Model):
+    AREA_CAPACITACION = [
+        ('lenguaje', 'Lenguaje'),
+        ('psicologia', 'Psicología'),
+    ]
+
+    institucion = models.ForeignKey(
+        prospecion_administrativa,
+        on_delete=models.CASCADE,
+        related_name="docentes_capacitados"
+    )
+    fecha_capacitacion = models.DateField()
+    area_capacitacion = models.CharField(max_length=50, choices=AREA_CAPACITACION)
+    tema = models.CharField(max_length=255)
+    nombres = models.CharField(max_length=100)
+    apellidos = models.CharField(max_length=100)
+    correo = models.EmailField()
+    cedula = models.CharField(max_length=20)
+    telefono = models.CharField(max_length=20)
+
+    class Meta:
+        verbose_name = "Docente Capacitado"
+        verbose_name_plural = "Docentes Capacitados"
+
+    def __str__(self):
+        return f"{self.nombres} {self.apellidos} - {self.institucion.nombre}"
+
 
 
 
@@ -148,17 +381,10 @@ class Perfil_Terapeuta(models.Model):
 
     nombres_completos = models.CharField(max_length=200, null=True, blank=True)
     
-    sucursal = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        choices=[
-            ('Quito - Valles', 'Quito - Valles'),
-            ('Quito - Centro', 'Quito - Centro'),
-            ('Guayaquil', 'Guayaquil'),
-            ('Manta', 'Manta'),
-        ],
-        verbose_name="Sucursal"
+    sucursal = models.ForeignKey(
+        Sucursal,
+        on_delete=models.CASCADE,
+        related_name="sucursal10",null=True, blank=True
     )
 
     edad = models.PositiveIntegerField(null=True, blank=True)
@@ -192,6 +418,78 @@ class Perfil_Terapeuta(models.Model):
 
 
 
+class ValoracionTerapia(models.Model):
+    TIPO_VALORACION = [
+        ('particular', 'Particular'),
+        ('convenio', 'En Convenio'),
+    ]
+
+    perfil_terapeuta = models.ForeignKey(
+        'Perfil_Terapeuta',
+        on_delete=models.CASCADE,
+        related_name='valoraciones',
+        verbose_name="Terapeuta Asignado"
+    )
+
+    tipo_valoracion = models.CharField(
+        max_length=20,
+        choices=TIPO_VALORACION,
+        verbose_name="Tipo de Valoración"
+    )
+
+    fecha_valoracion = models.DateField(verbose_name="Fecha de Valoración")
+    nombre = models.CharField(max_length=255)
+    fecha_nacimiento = models.DateField()
+    
+    @property
+    def edad(self):
+        today = date.today()
+        if self.fecha_nacimiento:
+            return today.year - self.fecha_nacimiento.year - (
+                (today.month, today.day) < (self.fecha_nacimiento.month, self.fecha_nacimiento.day)
+            )
+        return None
+
+    institucion = models.ForeignKey(
+        prospecion_administrativa,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Institución"
+    )
+
+    grado = models.CharField(max_length=100, blank=True, null=True)
+    servicio = models.CharField(max_length=100, verbose_name="Servicio")
+    sucursal = models.ForeignKey(
+        Sucursal,
+        on_delete=models.CASCADE,
+        related_name="sucursal1",null=True, blank=True
+    )
+
+    proceso_terapia = models.BooleanField(default=False, verbose_name="Proceso de Terapia")
+    diagnostico = models.TextField(blank=True, null=True)
+
+    fecha_asesoria = models.DateField(null=True, blank=True)
+    recibe_asesoria = models.BooleanField(default=False)
+
+    observaciones = models.TextField(blank=True, null=True)
+
+    archivo_adjunto = models.FileField(
+        upload_to='valoraciones/adjuntos/',
+        blank=True,
+        null=True
+    )
+
+    class Meta:
+        verbose_name = "Valoración Terapéutica"
+        verbose_name_plural = "Valoraciones Terapéuticas"
+        ordering = ['-fecha_valoracion']
+
+    def __str__(self):
+        return f"{self.nombre} - {self.fecha_valoracion} ({self.get_tipo_valoracion_display()})"
+
+
+
 class AsistenciaTerapeuta(models.Model):
     terapeuta = models.ForeignKey(Perfil_Terapeuta, on_delete=models.CASCADE, related_name='asistencias')
     fecha = models.DateField()
@@ -200,14 +498,10 @@ class AsistenciaTerapeuta(models.Model):
     observaciones = models.TextField(blank=True)
     evento = models.OneToOneField(Event, null=True, blank=True, on_delete=models.SET_NULL)
     #cita_relacionada = models.ForeignKey('Cita', on_delete=models.SET_NULL, null=True, blank=True)
-    sucursal = models.CharField(max_length=255,blank=True,null=True,
-        choices=[
-            ('Quito - Valles', 'Quito - Valles'),
-            ('Quito - Centro', 'Quito - Centro'),
-            ('Guayaquil', 'Guayaquil'),
-            ('Manta', 'Manta')
-        ],
-        verbose_name="Sucursal"
+    sucursal = models.ForeignKey(
+        Sucursal,
+        on_delete=models.CASCADE,
+        related_name="sucursal2",null=True, blank=True
     )
 
     class Meta:
@@ -241,14 +535,10 @@ class AsistenciaTerapeuta(models.Model):
 class Profile(models.Model):
     #Informacion personal
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Nombre de Usuario")
-    sucursal = models.CharField(max_length=255,blank=True,null=True,
-        choices=[
-            ('Quito - Valles', 'Quito - Valles'),
-            ('Quito - Centro', 'Quito - Centro'),
-            ('Guayaquil', 'Guayaquil'),
-            ('Manta', 'Manta')
-        ],
-        verbose_name="Sucursal"
+    sucursal = models.ForeignKey(
+        Sucursal,
+        on_delete=models.CASCADE,
+        related_name="sucursal3",null=True, blank=True
     )
     photo = models.ImageField(upload_to='users/%Y/%m/%d/', blank=True, verbose_name="Foto Perfil")
     ruc = models.CharField(max_length=13, verbose_name="C.I Paciente", help_text="Ingrese C.I del Paciente",blank=True, null=True)
@@ -390,14 +680,10 @@ class Profile(models.Model):
 
 class pagos(models.Model):
     cliente = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Nombre de Usuario")
-    sucursal = models.CharField(max_length=255,blank=True,null=True,
-        choices=[
-            ('Quito - Valles', 'Quito - Valles'),
-            ('Quito - Centro', 'Quito - Centro'),
-            ('Guayaquil', 'Guayaquil'),
-            ('Manta', 'Manta'),
-        ],
-        verbose_name="Sucursal"
+    sucursal = models.ForeignKey(
+        Sucursal,
+        on_delete=models.CASCADE,
+        related_name="sucursal4",null=True, blank=True
     )
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE,null=True, blank=True)
     cuenta = models.CharField(max_length=255, blank=True, null=True, verbose_name="Número de cuenta")
@@ -419,14 +705,10 @@ class pagos(models.Model):
         verbose_name="Plan Económico"
     )
     convenio = models.BooleanField(default=False, verbose_name="Convenio")
-    sucursal = models.CharField(max_length=255,blank=True,null=True,
-        choices=[
-            ('Quito - Valles', 'Quito - Valles'),
-            ('Quito - Centro', 'Quito - Centro'),
-            ('Guayaquil', 'Guayaquil'),
-            ('Manta', 'Manta'),
-        ],
-        verbose_name="Sucursal"
+    sucursal = models.ForeignKey(
+        Sucursal,
+        on_delete=models.CASCADE,
+        related_name="sucursal5",null=True, blank=True
     )
     servicio = models.CharField(
         max_length=255,
@@ -551,14 +833,10 @@ class tareas(models.Model):
     media_terapia =  models.FileField(upload_to='Videos/%Y/%m/%d/', blank=True, verbose_name="Contenido Multimedia de Terapia")
     descripcion_tarea = models.TextField(blank=True, null=True,verbose_name="Descripción de la tarea")
     realizada = models.BooleanField(default=False, verbose_name="Paciente realizó la tarea asiganda?")
-    sucursal = models.CharField(max_length=255,blank=True,null=True,
-        choices=[
-            ('Quito - Valles', 'Quito - Valles'),
-            ('Quito - Centro', 'Quito - Centro'),
-            ('Guayaquil', 'Guayaquil'),
-            ('Manta', 'Manta'),
-        ],
-        verbose_name="Sucursal"
+    sucursal = models.ForeignKey(
+        Sucursal,
+        on_delete=models.CASCADE,
+        related_name="sucursal6",null=True, blank=True
     )
 
 
@@ -609,14 +887,10 @@ class Mensaje(models.Model):
     leido = models.BooleanField(default=False)
     creado = models.DateTimeField(default=timezone.now)
     fecha_envio = models.DateTimeField(auto_now_add=True)
-    sucursal = models.CharField(max_length=255,blank=True,null=True,
-        choices=[
-            ('Quito - Valles', 'Quito - Valles'),
-            ('Quito - Centro', 'Quito - Centro'),
-            ('Guayaquil', 'Guayaquil'),
-            ('Manta', 'Manta'),
-        ],
-        verbose_name="Sucursal"
+    sucursal = models.ForeignKey(
+        Sucursal,
+        on_delete=models.CASCADE,
+        related_name="sucursal7",null=True, blank=True
     )
 
     # ➕ Campo para vincular con Celery
@@ -682,14 +956,10 @@ class Cita(models.Model):
     is_deleted = models.BooleanField(default=False)
     notas = models.TextField(blank=True, null=True)
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE,null=True, blank=True)
-    sucursal = models.CharField(max_length=255,blank=True,null=True,
-        choices=[
-            ('Quito - Valles', 'Quito - Valles'),
-            ('Quito - Centro', 'Quito - Centro'),
-            ('Guayaquil', 'Guayaquil'),
-            ('Manta', 'Manta'),
-        ],
-        verbose_name="Sucursal"
+    sucursal = models.ForeignKey(
+        Sucursal,
+        on_delete=models.CASCADE,
+        related_name="sucursal8",null=True, blank=True
     )
     
 
@@ -711,7 +981,7 @@ class ComentarioCita(models.Model):
 
     def __str__(self):
         return f"Comentario de {self.autor.username} el {self.fecha_creacion}"
-        
+
 
 class Dashboard(models.Model):
     titulo = models.CharField(max_length=100)

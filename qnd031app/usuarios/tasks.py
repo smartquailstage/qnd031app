@@ -61,3 +61,12 @@ def enviar_whatsapp_async(self, telefono, mensaje):
         logger.error(f"❌ Error enviando WhatsApp a {telefono}: {e}")
         raise self.retry(exc=e)
 
+@shared_task
+def enviar_correo_valoracion_async(asunto, cuerpo, destinatario):
+    send_mail(
+        subject=asunto,
+        message=cuerpo,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[destinatario],
+        fail_silently=False,
+    )
