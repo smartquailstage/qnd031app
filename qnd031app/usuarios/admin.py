@@ -320,7 +320,7 @@ class BitacoraDesarrolloAdmin(ModelAdmin):
         "other_field_name": lambda content: content.strip(),
     }
     list_filter_submit = False
-    list_fullwidth = False
+    list_fullwidth = True
     list_filter_sheet = True
     list_horizontal_scrollbar_top = False
     list_disable_select_all = False
@@ -350,7 +350,7 @@ class BitacoraDesarrolloAdmin(ModelAdmin):
     actions = [export_to_csv, export_to_excel]
 
     # Campos readonly
-    readonly_fields = ('fecha', 'fecha_entrega', 'version_relacionada', 'progreso', 'estado')
+    readonly_fields = ('fecha', 'fecha_entrega')
 
     # Overrides para campos especiales
     formfield_overrides = {
