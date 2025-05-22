@@ -404,7 +404,12 @@ class Perfil_Terapeuta(models.Model):
     telefonos_contacto = PhoneNumberField(verbose_name="Teléfono de persona a cargo",validators=[phone_regex],default='+593')
     datos_bancarios = models.TextField(help_text="Ej: Banco, número de cuenta,cedula, tipo", null=True, blank=True)
     pago_por_hora = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
-    tipo_servicio = models.CharField(max_length=100, null=True, blank=True)
+    tipo_servicio = models.ForeignKey(
+        'ServicioTerapeutico',
+        on_delete=models.CASCADE,
+        related_name='servicios_terapeuticos1',
+        verbose_name="Servicio terapéutico",null=True, blank=True
+    )
     servicio_domicilio = models.BooleanField(default=False, null=True, blank=True)
     servicio_institucion = models.BooleanField(default=True, null=True, blank=True)
 
@@ -459,7 +464,13 @@ class ValoracionTerapia(models.Model):
     )
 
     grado = models.CharField(max_length=100, blank=True, null=True)
-    servicio = models.CharField(max_length=100, verbose_name="Servicio")
+    servicio =  models.ForeignKey(
+        'ServicioTerapeutico',
+        on_delete=models.CASCADE,
+        related_name='servicios_terapeuticos2',
+        verbose_name="Servicio terapéutico",null=True, blank=True
+    )
+
     sucursal = models.ForeignKey(
         Sucursal,
         on_delete=models.CASCADE,
@@ -535,11 +546,7 @@ class AsistenciaTerapeuta(models.Model):
 class Profile(models.Model):
     #Informacion personal
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Nombre de Usuario")
-    sucursal = models.ForeignKey(
-        Sucursal,
-        on_delete=models.CASCADE,
-        related_name="sucursal3",null=True, blank=True
-    )
+    sucursales = models.ForeignKey(Sucursal,on_delete=models.CASCADE,related_name="sucursal33",null=True, blank=True)
     photo = models.ImageField(upload_to='users/%Y/%m/%d/', blank=True, verbose_name="Foto Perfil")
     ruc = models.CharField(max_length=13, verbose_name="C.I Paciente", help_text="Ingrese C.I del Paciente",blank=True, null=True)
     nombre_paciente = models.CharField(max_length=255, blank=True, null=True, verbose_name="Nombres")
@@ -548,7 +555,11 @@ class Profile(models.Model):
     sexo = models.CharField(blank=True, null=True, max_length=120, choices=[("MASCULINO", "Masculino"), ("FEMENINO", "Femenino")], verbose_name="Sexo del Paciente")
     fecha_nacimiento = models.DateField(blank=True, null=True, verbose_name="Fecha de Nacimiento")
     edad =  models.CharField(max_length=255, blank=True, null=True, verbose_name="Edad")
-    unidad_educativa =  models.CharField(max_length=255, blank=True, null=True, verbose_name="Unidad educativa")
+    unidad_educativa =  models.ForeignKey(
+        Prospeccion,
+        on_delete=models.CASCADE,
+        related_name="instituciones2",null=True, blank=True
+    )
     #Informacion de representante y contacto
     nombres_representante_legal = models.CharField(max_length=255, blank=True, null=True, verbose_name="Nombres")
     apellidos_representante_legal = models.CharField(max_length=255, blank=True, null=True, verbose_name="Apellidos")
@@ -615,33 +626,17 @@ class Profile(models.Model):
     
     #Informacion de Terapeutica
     user_terapeuta = models.OneToOneField(Perfil_Terapeuta, on_delete=models.CASCADE, verbose_name="Terapéuta Asignado")
-    valorizacion_terapeutica = models.TextField(blank=True, null=True, verbose_name="Valoración Terapéutica")
-    tipo_servicio = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        choices=[
-            ('Terapia de Lenguaje - valoración lenguaje', 'Terapia de Lenguaje - valoración lenguaje'),
-            ('Terapia de Lenguaje - Terapia de lenguaje', 'Terapia de Lenguaje - Terapia de lenguaje'),
-            ('Terapia de Lenguaje - paquete mensual(8 sesiones)', 'Terapia de Lenguaje - paquete mensual(8 sesiones)'),
-            ('Terapia de Lenguaje - paquete mensual(24 sesiones)', 'Terapia de Lenguaje - paquete mensual(24 sesiones)'),
-            ('Psicología - valoración Psicologica', 'Psicología - valoración Psicologica'),
-            ('Psicología - valoración Psicopedagogica', 'Psicología - valoración Psicopedagogica'),
-            ('Psicología - Terapia Psicologica', 'Psicología - Terapia Psicologica'),
-            ('Psicología - Terapia Psicologica de pareja', 'Psicología - Terapia Psicologica de pareja'),
-            ('Psicología - Paquete mensual de terapia (4 sesiones)', 'Psicología - Paquete mensual de terapia (4 sesiones)'),
-            ('Psicología - Paquete mensual de terapia (12 sesiones)', 'Psicología - Paquete mensual de terapia (12 sesiones)'),
-            ('Psicología - Paquete mensual de terapia de pareja', 'Psicología - Paquete mensual de terapia de pareja'),
-            ('Psicología - Paquete mensual de terapia de pareja (12 sesiones)', 'Psicología - Paquete mensual de terapia de pareja (12 sesiones)'),
-            ('Estimulación Cognitiva Adulto Mayor - Individual', 'Estimulación Cognitiva Adulto Mayor - Individual'),
-            ('Estimulación Cognitiva Adulto Mayor - grupal (3-5)', 'Estimulación Cognitiva Adulto Mayor - grupal (3-5)'),
-            ('Estimulación Cognitiva Adulto Mayor - Individual (8 sesiones)', 'Estimulación Cognitiva Adulto Mayor - Individual (8 sesiones)'),
-            ('Audiologia Ocupacional', 'Audiologia Ocupacional'),
-            ('Audiologia escolar', 'Audiologia escolar'),
-            ('Audiologia - Limpieza de Oido', 'Audiologia - Limpieza de Oido'),
-            ('Audiologia- lavado de oido', 'Audiologia- lavado de oido'),
-        ],
-        verbose_name="Servicio terapéutico"
+    valorizacion_terapeutica = models.ForeignKey(
+        ValoracionTerapia,
+        on_delete=models.CASCADE,
+        related_name="valoraciones_terapeuticas",
+        verbose_name="Valoración Terapéutica", blank=True, null=True,
+    )
+    tipo_servicio = models.ForeignKey(
+        'ServicioTerapeutico',
+        on_delete=models.CASCADE,
+        related_name='servicios_terapeuticos3',
+        verbose_name="Servicio terapéutico",null=True, blank=True
     )
     fecha_inicio = models.DateField(blank=True, null=True, verbose_name="Fecha de inicio de tratamiento")
     fecha_terminacion = models.DateField(blank=True, null=True, verbose_name="Fecha de terminación de tratamiento")
@@ -710,34 +705,13 @@ class pagos(models.Model):
         on_delete=models.CASCADE,
         related_name="sucursal5",null=True, blank=True
     )
-    servicio = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        choices=[
-            ('Terapia de Lenguaje - valoración lenguaje', 'Terapia de Lenguaje - valoración lenguaje'),
-            ('Terapia de Lenguaje - Terapia de lenguaje', 'Terapia de Lenguaje - Terapia de lenguaje'),
-            ('Terapia de Lenguaje - paquete mensual(8 sesiones)', 'Terapia de Lenguaje - paquete mensual(8 sesiones)'),
-            ('Terapia de Lenguaje - paquete mensual(24 sesiones)', 'Terapia de Lenguaje - paquete mensual(24 sesiones)'),
-            ('Psicología - valoración Psicologica', 'Psicología - valoración Psicologica'),
-            ('Psicología - valoración Psicopedagogica', 'Psicología - valoración Psicopedagogica'),
-            ('Psicología - Terapia Psicologica', 'Psicología - Terapia Psicologica'),
-            ('Psicología - Terapia Psicologica de pareja', 'Psicología - Terapia Psicologica de pareja'),
-            ('Psicología - Paquete mensual de terapia (4 sesiones)', 'Psicología - Paquete mensual de terapia (4 sesiones)'),
-            ('Psicología - Paquete mensual de terapia (12 sesiones)', 'Psicología - Paquete mensual de terapia (12 sesiones)'),
-            ('Psicología - Paquete mensual de terapia de pareja', 'Psicología - Paquete mensual de terapia de pareja'),
-            ('Psicología - Paquete mensual de terapia de pareja (12 sesiones)', 'Psicología - Paquete mensual de terapia de pareja (12 sesiones)'),
-            ('Estimulación Cognitiva Adulto Mayor - Individual', 'Estimulación Cognitiva Adulto Mayor - Individual'),
-            ('Estimulación Cognitiva Adulto Mayor - grupal (3-5)', 'Estimulación Cognitiva Adulto Mayor - grupal (3-5)'),
-            ('Estimulación Cognitiva Adulto Mayor - Individual (8 sesiones)', 'Estimulación Cognitiva Adulto Mayor - Individual (8 sesiones)'),
-            ('Audiologia Ocupacional', 'Audiologia Ocupacional'),
-            ('Audiologia escolar', 'Audiologia escolar'),
-            ('Audiologia - Limpieza de Oido', 'Audiologia - Limpieza de Oido'),
-            ('Audiologia- lavado de oido', 'Audiologia- lavado de oido'),
-        ],
-        verbose_name="Servicio terapéutico"
+    servicio =  models.ForeignKey(
+        'ServicioTerapeutico',
+        on_delete=models.CASCADE,
+        related_name='servicios_terapeuticos4',
+        verbose_name="Servicio terapéutico",null=True, blank=True
     )
-
+    ruc = models.CharField(max_length=13, verbose_name="R.U.C de facturación", help_text="Ingrese RUC de facturación",blank=True, null=True)
     fecha_emision_factura = models.DateField(blank=True, null=True, verbose_name="Fecha de emisión de factura")
     numero_factura = models.CharField(max_length=255, blank=True, null=True, verbose_name="Número de Factura")
     pago = MoneyField(
