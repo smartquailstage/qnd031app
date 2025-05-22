@@ -629,6 +629,21 @@ class Profile(models.Model):
     
     #Informacion de Terapeutica
     user_terapeuta = models.OneToOneField(Perfil_Terapeuta, on_delete=models.CASCADE, verbose_name="Terapéuta Asignado")
+    ESTADOS = [
+        ('en_terapia', 'En Terapia'),
+        ('retirado', 'Retirado'),
+        ('alta', 'Alta'),
+        ('pausa', 'Pausa'),
+    ]
+
+    MOTIVOS_RETIRO = [
+        ('economico', 'Económico'),
+        ('insatisfecho', 'Insatisfecho'),
+        ('otro', 'Otro'),
+    ]
+
+    estado_terapeutico = models.CharField(max_length=20, choices=ESTADOS, default='en_terapia')
+
     valorizacion_terapeutica = models.ForeignKey(
         ValoracionTerapia,
         on_delete=models.CASCADE,
@@ -641,8 +656,19 @@ class Profile(models.Model):
         related_name='servicios_terapeuticos3',
         verbose_name="Servicio terapéutico",null=True, blank=True
     )
+
+
+    # Campos opcionales según estado
+    fecha_retiro = models.DateField(null=True, blank=True)
+    motivo_retiro = models.CharField(max_length=50, choices=MOTIVOS_RETIRO, null=True, blank=True)
+    motivo_otro = models.CharField(max_length=255, null=True, blank=True, help_text="Especifique otro motivo (si aplica)")
+
     fecha_inicio = models.DateField(blank=True, null=True, verbose_name="Fecha de inicio de tratamiento")
-    fecha_terminacion = models.DateField(blank=True, null=True, verbose_name="Fecha de terminación de tratamiento")
+
+    fecha_alta = models.DateField(null=True, blank=True,verbose_name="Fecha de terminación de tratamiento")
+    fecha_pausa = models.DateField(null=True, blank=True)
+
+
     #Informacion de la cuenta
 
 

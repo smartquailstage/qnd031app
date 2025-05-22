@@ -1009,8 +1009,8 @@ class ProfileAdmin(ModelAdmin):
         }
     }
 
-    list_display = ['nombre_paciente', 'apellidos_paciente','edad','institucion','celular','tipo_servicio','fecha_inicio','fecha_terminacion']
-    list_filter= ['nombre_paciente','sucursales','tipo_servicio','fecha_inicio','fecha_terminacion']
+    list_display = ['nombre_paciente', 'apellidos_paciente','edad','institucion','celular','tipo_servicio','fecha_inicio','fecha_alta']
+    list_filter= ['nombre_paciente','sucursales','tipo_servicio','fecha_inicio','fecha_alta']
     actions = [ export_to_csv, export_to_excel]
     verbose_name = "Registro Administrativo / Ingreso de Paciente"
     verbose_name_plural = "Registro Administrativo / Ingreso de Paciente"    
@@ -1026,7 +1026,7 @@ class ProfileAdmin(ModelAdmin):
             'classes': ('collapse',),  # Esto hace que se vea plegable
         }),
         ('Ingresar Información Terapéutica', {
-            'fields': ('user_terapeuta', 'valorizacion_terapeutica', 'tipo_servicio', 'fecha_inicio','fecha_terminacion'),
+            'fields': ('user_terapeuta', 'valorizacion_terapeutica','estado_terapeutico', 'tipo_servicio','fecha_pausa','fecha_inicio','fecha_alta'),
             'classes': ('collapse',),  # Esto hace que se vea plegable
         }),
 
