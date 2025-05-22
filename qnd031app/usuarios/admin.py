@@ -1018,7 +1018,7 @@ class ProfileAdmin(ModelAdmin):
 
     fieldsets = (
         ('Ingresar Información Personal del Paciente', {
-            'fields': ('user','sucursales', 'photo', 'ruc','nombre_paciente','apellidos_paciente','nacionalidad','sexo','fecha_nacimiento','edad','unidad_educativa'),
+            'fields': ('user','contrasena','sucursales', 'photo', 'ruc','nombre_paciente','apellidos_paciente','nacionalidad','sexo','fecha_nacimiento','edad','institucion'),
             'classes': ('collapse',), 
         }),
         ('Ingresar Información del Representante Legal', {

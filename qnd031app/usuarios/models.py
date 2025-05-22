@@ -546,6 +546,7 @@ class AsistenciaTerapeuta(models.Model):
 class Profile(models.Model):
     #Informacion personal
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Nombre de Usuario")
+    contrasena = models.CharField(max_length=255, blank=True, null=True, verbose_name="Actual contraseña de usuario")
     sucursales = models.ForeignKey(Sucursal,on_delete=models.CASCADE,related_name="sucursal33",null=True, blank=True)
     photo = models.ImageField(upload_to='users/%Y/%m/%d/', blank=True, verbose_name="Foto Perfil")
     ruc = models.CharField(max_length=13, verbose_name="C.I Paciente", help_text="Ingrese C.I del Paciente",blank=True, null=True)
