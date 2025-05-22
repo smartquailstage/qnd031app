@@ -335,6 +335,7 @@ class BitacoraDesarrolloAdmin(ModelAdmin):
         'fecha_entrega',
         'progreso_bar',  # Ahora como string, no como método directo
         'estado',
+        'minutos_restantes',
     )
 
     # Filtros

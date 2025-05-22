@@ -1007,9 +1007,12 @@ class BitacoraDesarrollo(models.Model):
     progreso = models.PositiveIntegerField(default=0) 
     estado =  models.CharField(blank=True, null=True, max_length=200, choices=STATE, verbose_name="ESTADO",default="Revisión")
 
+    minutos_empleados = models.PositiveIntegerField(default=0, verbose_name="Minutos Empleados")
+    minutos_restantes = models.PositiveIntegerField(default=4320, editable=False, verbose_name="Minutos Restantes")
+
     class Meta:
         verbose_name = "Entrada de Bitácora"
-        verbose_name_plural = "Bitácora de Desarrollo QND.0.3.0.1"
+        verbose_name_plural = "Bitácora de Desarrollo QND.0.3.0.2"
         ordering = ['-fecha']
 
     def __str__(self):
@@ -1018,4 +1021,9 @@ class BitacoraDesarrollo(models.Model):
     def save(self, *args, **kwargs):
         if not self.fecha_entrega:
             self.fecha_entrega = (timezone.now() + timedelta(days=5)).date()
+
+        # Calcula los minutos restantes antes de guardar
+        TOTAL_MINUTOS = 4320
+        self.minutos_restantes = max(TOTAL_MINUTOS - self.minutos_empleados, 0)
+
         super().save(*args, **kwargs)
