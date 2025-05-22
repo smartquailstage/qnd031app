@@ -328,11 +328,10 @@ class Perfil_Terapeuta(models.Model):
     telefonos_contacto = PhoneNumberField(verbose_name="Teléfono de persona a cargo",validators=[phone_regex],default='+593')
     datos_bancarios = models.TextField(help_text="Ej: Banco, número de cuenta,cedula, tipo", null=True, blank=True)
     pago_por_hora = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
-    tipo_servicio = models.ForeignKey(
-        'ServicioTerapeutico',
-        on_delete=models.CASCADE,
-        related_name='servicios_terapeuticos1',
-        verbose_name="Servicio terapéutico",null=True, blank=True
+    tipo_servicio = models.ManyToManyField('ServicioTerapeutico',
+    related_name='servicios_terapeuticos1',
+    verbose_name="Servicio terapéutico",
+    blank=True
     )
     servicio_domicilio = models.BooleanField(default=False, null=True, blank=True)
     servicio_institucion = models.BooleanField(default=True, null=True, blank=True)
