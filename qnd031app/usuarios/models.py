@@ -151,108 +151,41 @@ class prospecion_administrativa(models.Model):
     ]
 
     nombre = models.ForeignKey(
-        Prospeccion,
+        'Prospeccion',
         on_delete=models.CASCADE,
-        related_name="instituciones",null=True, blank=True
+        related_name="instituciones",
+        null=True,
+        blank=True
     )
+
     estado = models.CharField(max_length=30, choices=ESTADOS, default='por_contactar', null=True, blank=True)
     fecha_estado_actualizado = models.DateField(auto_now=True)
 
     sucursal = models.ForeignKey(
-        Sucursal,
+        'Sucursal',
         on_delete=models.CASCADE,
-        related_name="sucursal9",null=True, blank=True
-    )
-
-    CIUDADES_ECUADOR = [
-        ('Ambato', 'Ambato'),
-        ('Arenillas', 'Arenillas'),
-        ('Atacames', 'Atacames'),
-        ('Atuntaqui', 'Atuntaqui'),
-        ('Azogues', 'Azogues'),
-        ('Babahoyo', 'Babahoyo'),
-        ('Bahía de Caráquez', 'Bahía de Caráquez'),
-        ('Balzar', 'Balzar'),
-        ('Baños de Agua Santa', 'Baños de Agua Santa'),
-        ('Buena Fé', 'Buena Fé'),
-        ('Calceta', 'Calceta'),
-        ('Cañar', 'Cañar'),
-        ('Cariamanga', 'Cariamanga'),
-        ('Catamayo', 'Catamayo'),
-        ('Cayambe', 'Cayambe'),
-        ('Chone', 'Chone'),
-        ('Cuenca', 'Cuenca'),
-        ('Daule', 'Daule'),
-        ('Durán', 'Durán'),
-        ('El Carmen', 'El Carmen'),
-        ('El Guabo', 'El Guabo'),
-        ('El Triunfo', 'El Triunfo'),
-        ('Esmeraldas', 'Esmeraldas'),
-        ('Gualaceo', 'Gualaceo'),
-        ('Guaranda', 'Guaranda'),
-        ('Guayaquil', 'Guayaquil'),
-        ('Huaquillas', 'Huaquillas'),
-        ('Ibarra', 'Ibarra'),
-        ('Jaramijó', 'Jaramijó'),
-        ('Jipijapa', 'Jipijapa'),
-        ('La Concordia', 'La Concordia'),
-        ('La Libertad', 'La Libertad'),
-        ('La Maná', 'La Maná'),
-        ('Latacunga', 'Latacunga'),
-        ('La Troncal', 'La Troncal'),
-        ('Loja', 'Loja'),
-        ('Lomas de Sargentillo', 'Lomas de Sargentillo'),
-        ('Macará', 'Macará'),
-        ('Macas', 'Macas'),
-        ('Machachi', 'Machachi'),
-        ('Machala', 'Machala'),
-        ('Manta', 'Manta'),
-        ('Milagro', 'Milagro'),
-        ('Montalvo', 'Montalvo'),
-        ('Montecristi', 'Montecristi'),
-        ('Naranjal', 'Naranjal'),
-        ('Naranjito', 'Naranjito'),
-        ('Nueva Loja', 'Nueva Loja'),
-        ('Otavalo', 'Otavalo'),
-        ('Pasaje', 'Pasaje'),
-        ('Pedernales', 'Pedernales'),
-        ('Pedro Carbo', 'Pedro Carbo'),
-        ('Piñas', 'Piñas'),
-        ('Playas', 'Playas'),
-        ('Portoviejo', 'Portoviejo'),
-        ('Puerto Baquerizo Moreno', 'Puerto Baquerizo Moreno'),
-        ('Puerto Francisco de Orellana', 'Puerto Francisco de Orellana'),
-        ('Puyo', 'Puyo'),
-        ('Quevedo', 'Quevedo'),
-        ('Quito', 'Quito'),
-        ('Riobamba', 'Riobamba'),
-        ('Rosa Zárate', 'Rosa Zárate'),
-        ('Salcedo', 'Salcedo'),
-        ('Salinas', 'Salinas'),
-        ('Samborondón', 'Samborondón'),
-        ('San Gabriel', 'San Gabriel'),
-        ('Sangolquí', 'Sangolquí'),
-        ('San Lorenzo', 'San Lorenzo'),
-        ('Santa Elena', 'Santa Elena'),
-        ('Santa Rosa', 'Santa Rosa'),
-        ('Santo Domingo de los Colorados', 'Santo Domingo de los Colorados'),
-        ('Shushufindi', 'Shushufindi'),
-        ('Tena', 'Tena'),
-        ('Tulcán', 'Tulcán'),
-        ('Valencia', 'Valencia'),
-        ('Velasco Ibarra', 'Velasco Ibarra'),
-        ('Ventanas', 'Ventanas'),
-        ('Vinces', 'Vinces'),
-        ('Yaguachi', 'Yaguachi'),
-        ('Zamora', 'Zamora'),
-    ]
-
-    ciudad = models.CharField(
-        max_length=100,
-        choices=CIUDADES_ECUADOR,
+        related_name="sucursal9",
         null=True,
         blank=True
     )
+
+    CIUDADES_ECUADOR = [(city, city) for city in [
+        'Ambato', 'Arenillas', 'Atacames', 'Atuntaqui', 'Azogues', 'Babahoyo',
+        'Bahía de Caráquez', 'Balzar', 'Baños de Agua Santa', 'Buena Fé', 'Calceta', 'Cañar',
+        'Cariamanga', 'Catamayo', 'Cayambe', 'Chone', 'Cuenca', 'Daule', 'Durán', 'El Carmen',
+        'El Guabo', 'El Triunfo', 'Esmeraldas', 'Gualaceo', 'Guaranda', 'Guayaquil',
+        'Huaquillas', 'Ibarra', 'Jaramijó', 'Jipijapa', 'La Concordia', 'La Libertad',
+        'La Maná', 'Latacunga', 'La Troncal', 'Loja', 'Lomas de Sargentillo', 'Macará',
+        'Macas', 'Machachi', 'Machala', 'Manta', 'Milagro', 'Montalvo', 'Montecristi',
+        'Naranjal', 'Naranjito', 'Nueva Loja', 'Otavalo', 'Pasaje', 'Pedernales', 'Pedro Carbo',
+        'Piñas', 'Playas', 'Portoviejo', 'Puerto Baquerizo Moreno', 'Puerto Francisco de Orellana',
+        'Puyo', 'Quevedo', 'Quito', 'Riobamba', 'Rosa Zárate', 'Salcedo', 'Salinas',
+        'Samborondón', 'San Gabriel', 'Sangolquí', 'San Lorenzo', 'Santa Elena', 'Santa Rosa',
+        'Santo Domingo de los Colorados', 'Shushufindi', 'Tena', 'Tulcán', 'Valencia',
+        'Velasco Ibarra', 'Ventanas', 'Vinces', 'Yaguachi', 'Zamora'
+    ]]
+
+    ciudad = models.CharField(max_length=100, choices=CIUDADES_ECUADOR, null=True, blank=True)
     direccion = models.TextField(null=True, blank=True)
 
     mail_institucion_general = models.EmailField(blank=True, null=True, verbose_name="Mail General de la Institución")
@@ -271,29 +204,20 @@ class prospecion_administrativa(models.Model):
     # Responsable Institucional 1
     responsable_institucional_1 = models.CharField(max_length=150, null=True, blank=True, verbose_name="Responsable Institucional 1")
     cargo_responsable_1 = models.CharField(max_length=150, null=True, blank=True)
-    telefono_responsable_1 = PhoneNumberField(
-        verbose_name="Teléfono responsable 1",
-        validators=[phone_regex],
-        default='+593'
-    )
-
+    telefono_responsable_1 = PhoneNumberField(verbose_name="Teléfono responsable 1", validators=[phone_regex], default='+593')
     mail_responsable_1 = models.EmailField(blank=True, null=True)
 
     # Responsable Institucional 2
     responsable_institucional_2 = models.CharField(max_length=150, null=True, blank=True, verbose_name="Responsable Institucional 2")
     cargo_responsable_2 = models.CharField(max_length=150, null=True, blank=True)
-    telefono_responsable_2 = PhoneNumberField(
-        verbose_name="Teléfono responsable 2",
-        validators=[phone_regex],
-        default='+593'
-    )
+    telefono_responsable_2 = PhoneNumberField(verbose_name="Teléfono responsable 2", validators=[phone_regex], default='+593')
     mail_responsable_2 = models.EmailField(blank=True, null=True)
 
     # Terapeutas
     terapeutas_asignados = models.ManyToManyField(
-    'Perfil_Terapeuta',
-    related_name='instituciones_asignadas_terapeuta',
-    verbose_name="Terapeutas Asignados"
+        'Perfil_Terapeuta',
+        related_name='instituciones_asignadas_terapeuta',
+        verbose_name="Terapeutas Asignados"
     )
 
     # Ejecutivo Meddes
@@ -331,7 +255,7 @@ class prospecion_administrativa(models.Model):
     alerta_estado_inactivo.short_description = "Alerta de inactividad (15 días)"
 
     def __str__(self):
-        return self.nombre or "Institución sin nombre"
+        return str(self.nombre) if self.nombre else "Institución sin nombre"
 
 
 class DocenteCapacitado(models.Model):
