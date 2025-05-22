@@ -876,8 +876,8 @@ class Cita(models.Model):
 
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE,null=True, blank=True, verbose_name="Asignar perfil de paciente",related_name='Asignar_perfil_de_paciente')
     profile_terapeuta = models.ForeignKey(Perfil_Terapeuta, on_delete=models.CASCADE,null=True, blank=True, verbose_name="Asignar perfil de terapeuta",related_name='Asignar_perfil_de_terapeuta')
-    is_active = models.BooleanField(default=False, verbose_name="Confirmada")
-    is_deleted = models.BooleanField(default=False, verbose_name="Cancelada")
+    is_active = models.BooleanField(default=False, verbose_name="Confirmada por el paciente")
+    is_deleted = models.BooleanField(default=False, verbose_name="Cancelada por el paciente")
 
     
 
