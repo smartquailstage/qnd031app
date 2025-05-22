@@ -424,47 +424,6 @@ class ValoracionTerapia(models.Model):
 
 
 
-class AsistenciaTerapeuta(models.Model):
-    terapeuta = models.ForeignKey(Perfil_Terapeuta, on_delete=models.CASCADE, related_name='asistencias')
-    fecha = models.DateField()
-    hora_entrada = models.TimeField()
-    hora_salida = models.TimeField(null=True, blank=True)
-    observaciones = models.TextField(blank=True)
-    evento = models.OneToOneField(Event, null=True, blank=True, on_delete=models.SET_NULL)
-    #cita_relacionada = models.ForeignKey('Cita', on_delete=models.SET_NULL, null=True, blank=True)
-    sucursal = models.ForeignKey(
-        Sucursal,
-        on_delete=models.CASCADE,
-        related_name="sucursal2",null=True, blank=True
-    )
-
-    class Meta:
-        unique_together = ('terapeuta', 'fecha', 'hora_entrada')
-        ordering = ['-fecha', 'hora_entrada']
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-
-        if not self.evento:
-            calendario, _ = Calendar.objects.get_or_create(name='terapeutas', slug='terapeutas')
-            
-            start = make_aware(datetime.combine(self.fecha, self.hora_entrada))
-            end = make_aware(datetime.combine(self.fecha, self.hora_salida or self.hora_entrada))
-
-            evento = Event.objects.create(
-                title=f"Asistencia de {self.terapeuta.nombres_completos}",
-                start=start,
-                end=end,
-                calendar=calendario,
-                description=self.observaciones
-            )
-            self.evento = evento
-            super().save(update_fields=['evento'])
-
-    def __str__(self):
-        return f"Asistencia {self.terapeuta.nombres_completos} - {self.fecha}"
-
-
 
 class Profile(models.Model):
     #Informacion personal
@@ -580,6 +539,20 @@ class Profile(models.Model):
         verbose_name="Servicio terapéutico",null=True, blank=True
     )
 
+    certificado_inicio = models.FileField(
+        upload_to='certificados/inicio/',
+        blank=True,
+        null=True,
+        verbose_name="Certificado de inicio terapeutico"
+    )
+
+    certificado_final = models.FileField(
+        upload_to='certificados/final/',
+        blank=True,
+        null=True,
+        verbose_name="Certificado de alta terapeutica"
+    )
+
 
     # Campos opcionales según estado
     fecha_retiro = models.DateField(null=True, blank=True)
@@ -590,6 +563,7 @@ class Profile(models.Model):
 
     fecha_alta = models.DateField(null=True, blank=True,verbose_name="Fecha de terminación de tratamiento")
     fecha_pausa = models.DateField(null=True, blank=True)
+    fecha_re_inicio = models.DateField(blank=True, null=True, verbose_name="Fecha de re inicio de tratamiento")
 
 
     #Informacion de la cuenta
@@ -866,8 +840,27 @@ class Cita(models.Model):
         related_name='citas_recibidas',
         on_delete=models.CASCADE
     )
+    sucursal = models.ForeignKey(
+        Sucursal,
+        on_delete=models.CASCADE,
+        related_name="sucursal8",null=True, blank=True
+    )
     fecha = models.DateTimeField()
     fecha_final = models.DateTimeField(null=True, blank=True)
+    TIPO_CITA_CHOICES = [
+        ('administrativa', 'Administrativa'),
+        ('terapeutica', 'Terapéutica'),
+        ('particular', 'Particular'),
+        ('urgente', 'Urgente'),
+    ]
+
+    tipo_cita = models.CharField(
+        max_length=20,
+        choices=TIPO_CITA_CHOICES,
+        default='terapeutica',
+        verbose_name="Categoria de Cita"
+    )
+
     motivo = models.CharField(max_length=255)
     estado = models.CharField(
         max_length=20,
@@ -878,15 +871,14 @@ class Cita(models.Model):
         ],
         default='pendiente'
     )
-    is_active = models.BooleanField(default=True)
-    is_deleted = models.BooleanField(default=False)
+
     notas = models.TextField(blank=True, null=True)
-    profile = models.ForeignKey(Profile, on_delete=models.CASCADE,null=True, blank=True)
-    sucursal = models.ForeignKey(
-        Sucursal,
-        on_delete=models.CASCADE,
-        related_name="sucursal8",null=True, blank=True
-    )
+
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE,null=True, blank=True, verbose_name="Asignar perfil de paciente",related_name='Asignar_perfil_de_paciente')
+    profile_terapeuta = models.ForeignKey(Perfil_Terapeuta, on_delete=models.CASCADE,null=True, blank=True, verbose_name="Asignar perfil de terapeuta",related_name='Asignar_perfil_de_terapeuta')
+    is_active = models.BooleanField(default=False, verbose_name="Confirmada")
+    is_deleted = models.BooleanField(default=False, verbose_name="Cancelada")
+
     
 
     class Meta:
@@ -897,6 +889,51 @@ class Cita(models.Model):
 
 def __str__(self):
     return f"{self.creador} → {self.destinatario} ({self.fecha.strftime('%d/%m/%Y %H:%M')})"
+
+
+
+
+class AsistenciaTerapeuta(models.Model):
+    terapeuta = models.ForeignKey(Perfil_Terapeuta, on_delete=models.CASCADE, related_name='asistencias')
+    fecha = models.DateField()
+    hora_entrada = models.TimeField()
+    hora_salida = models.TimeField(null=True, blank=True)
+    observaciones = models.TextField(blank=True)
+    evento = models.OneToOneField(Cita, null=True, blank=True, on_delete=models.SET_NULL, verbose_name="Cita Agendada")
+    #cita_relacionada = models.ForeignKey('Cita', on_delete=models.SET_NULL, null=True, blank=True)
+    sucursal = models.ForeignKey(
+        Sucursal,
+        on_delete=models.CASCADE,
+        related_name="sucursal2",null=True, blank=True
+    )
+
+    class Meta:
+        unique_together = ('terapeuta', 'fecha', 'hora_entrada')
+        ordering = ['-fecha', 'hora_entrada']
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        if not self.evento:
+            calendario, _ = Calendar.objects.get_or_create(name='terapeutas', slug='terapeutas')
+            
+            start = make_aware(datetime.combine(self.fecha, self.hora_entrada))
+            end = make_aware(datetime.combine(self.fecha, self.hora_salida or self.hora_entrada))
+
+            evento = Event.objects.create(
+                title=f"Asistencia de {self.terapeuta.nombres_completos}",
+                start=start,
+                end=end,
+                calendar=calendario,
+                description=self.observaciones
+            )
+            self.evento = evento
+            super().save(update_fields=['evento'])
+
+    def __str__(self):
+        return f"Asistencia {self.terapeuta.nombres_completos} - {self.fecha}"
+
+
 
 
 class ComentarioCita(models.Model):

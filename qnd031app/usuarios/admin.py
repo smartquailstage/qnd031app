@@ -1027,7 +1027,7 @@ class ProfileAdmin(ModelAdmin):
             'classes': ('collapse',),  # Esto hace que se vea plegable
         }),
         ('Ingresar Información Terapéutica', {
-            'fields': ('user_terapeuta', 'valorizacion_terapeutica','estado_terapeutico', 'tipo_servicio','fecha_pausa','fecha_inicio','fecha_alta'),
+            'fields': ('user_terapeuta', 'valorizacion_terapeutica','estado_terapeutico', 'tipo_servicio','fecha_pausa', 'fecha_re_inicio','fecha_inicio','fecha_alta','certificado_inicio','certificado_final'),
             'classes': ('collapse',),  # Esto hace que se vea plegable
         }),
 
