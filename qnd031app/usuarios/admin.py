@@ -255,7 +255,7 @@ class Perfil_TerapeutaAdmin(ModelAdmin):
             "widget": ArrayWidget,
         }
     }
-    search_fields = ('paciente__nombre', 'terapeuta__nombres_completos')  # Ajusta a tus campos
+    search_fields = ('paciente__nombre','sucursal', 'terapeuta__nombres_completos')  # Ajusta a tus campos
     list_display = ['get_full_name', 'especialidad','sucursal', 'especialidad']
     
     actions = [ export_to_csv, export_to_excel]
