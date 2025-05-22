@@ -769,18 +769,19 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                #'wagtailmenus.context_processors.wagtailmenus',
-                #'wagtail.contrib.settings.context_processors.settings',
+                # 'wagtailmenus.context_processors.wagtailmenus',
+                # 'wagtail.contrib.settings.context_processors.settings',
                 'django.template.context_processors.i18n',
                 'usuarios.context_processors.mensajes_nuevos_processor',
                 'usuarios.context_processors.datos_panel_usuario', 
                 'usuarios.context_processors.user_profile_data',
                 'usuarios.context_processors.citas_context',
                 'usuarios.context_processors.tareas_context',
-                'usuarios.context_processors.pagos_context', 
+            ],
         },
     },
 ]
+
 
 WSGI_APPLICATION = os.environ.get('WSGI_APPLICATION')
 
