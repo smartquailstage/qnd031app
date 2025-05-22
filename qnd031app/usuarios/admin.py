@@ -833,7 +833,7 @@ class CitaAdmin(ModelAdmin):  # Usamos unfold.ModelAdmin
     list_per_page = 20
 
 
-    list_display = ("creador", "destinatario", "fecha", "estado", "motivo", ver_en_calendario)
+    list_display = ("creador", "destinatario", "fecha", "estado", "motivo")
     search_fields = ("motivo", "notas", "creador__username", "destinatario__username")
     list_filter = ("estado", "fecha")
     actions = [ export_to_csv, export_to_excel]
