@@ -555,7 +555,7 @@ class Profile(models.Model):
     sexo = models.CharField(blank=True, null=True, max_length=120, choices=[("MASCULINO", "Masculino"), ("FEMENINO", "Femenino")], verbose_name="Sexo del Paciente")
     fecha_nacimiento = models.DateField(blank=True, null=True, verbose_name="Fecha de Nacimiento")
     edad =  models.CharField(max_length=255, blank=True, null=True, verbose_name="Edad")
-    unidad_educativa =  models.ForeignKey(
+    institucion =  models.ForeignKey(
         Prospeccion,
         on_delete=models.CASCADE,
         related_name="instituciones2",null=True, blank=True
@@ -579,6 +579,8 @@ class Profile(models.Model):
         ],
         verbose_name="Relación del representante con el paciente"
     )
+
+    adjunto_autorizacion = models.FileField(upload_to='documentos/pacientes/autorizacion/', blank=True, null=True)
     nacionalidad_representante = models.CharField(blank=True, null=True, max_length=100, verbose_name="Nacionalidad")
     ruc_representante = models.CharField(max_length=13, verbose_name="RUC / C.I", help_text="R.U.C o C.I del Representante",blank=True, null=True)
     email = models.EmailField(blank=True, null=True, verbose_name="Correo Electrónico")

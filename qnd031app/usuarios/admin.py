@@ -954,6 +954,7 @@ class CitaItemInline(admin.TabularInline):
 
 @admin.register(Profile)
 class ProfileAdmin(ModelAdmin):
+    readonly_fields = ['edad']  
             # Display fields in changeform in compressed mode
     compressed_fields = True  # Default: False
     inlines = [TareaItemInline,CitaItemInline,PagosItemInline]
@@ -1008,7 +1009,8 @@ class ProfileAdmin(ModelAdmin):
         }
     }
 
-    list_display = ['nombre_paciente', 'apellidos_paciente','edad','unidad_educativa','celular','tipo_servicio','fecha_inicio','fecha_terminacion']
+    list_display = ['nombre_paciente', 'apellidos_paciente','edad','institucion','celular','tipo_servicio','fecha_inicio','fecha_terminacion']
+    list_filter= ['nombre_paciente','sucursales','tipo_servicio','fecha_inicio','fecha_terminacion']
     actions = [ export_to_csv, export_to_excel]
     verbose_name = "Registro Administrativo / Ingreso de Paciente"
     verbose_name_plural = "Registro Administrativo / Ingreso de Paciente"    
