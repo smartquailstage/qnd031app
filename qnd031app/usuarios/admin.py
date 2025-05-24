@@ -802,6 +802,8 @@ class CardSection(TemplateSection):
 class CitaAdmin(ModelAdmin):  # Usamos unfold.ModelAdmin
     list_sections = [CitasCohortComponent, ComentariosCitaSection]
     list_per_page = 20
+    list_sections_layout = "horizontal"  # Ejemplo, depende si unfold lo soporta
+
 
 
     list_display = ("creador", "destinatario", "fecha", "estado", "motivo")
