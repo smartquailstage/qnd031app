@@ -1,0 +1,47 @@
+{% load i18n %}
+
+
+
+<div class="grow relative">
+    <input type="text" name="{{ widget.name }}" id="{{ widget.attrs.id }}"
+           class="border border-base-200 bg-white font-medium min-w-20 placeholder-base-400 rounded-default shadow-xs text-font-default-light text-sm focus:outline-2 focus:-outline-offset-2 focus:outline-primary-600 group-[.errors]:border-red-600 focus:group-[.errors]:outline-red-600 dark:bg-base-900 dark:border-base-700 dark:text-font-default-dark dark:group-[.errors]:border-red-500 dark:focus:group-[.errors]:outline-red-500 dark:scheme-dark group-[.primary]:border-transparent px-3 py-2 w-full max-w-2xl"
+           {% include "django/forms/widgets/attrs.html" %} />
+
+    <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+        <button type="button" id="datepicker-toggle-{{ widget.attrs.id }}" aria-label="Abrir calendario"
+                class="text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-600 rounded">
+            <i class="fas fa-calendar-alt"></i>
+        </button>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const inputSelector = "input[name='{{ widget.name }}']";
+        const $input = $(inputSelector);
+        const $button = $("#datepicker-toggle-{{ widget.attrs.id }}");
+
+        if ($input.length && $input.datepicker) {
+            $input.datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'es-ES',
+                autoclose: true,
+                todayBtn: 'linked',
+                todayHighlight: true,
+                templates: {
+                    leftArrow: '<i class="fas fa-chevron-left"></i>',
+                    rightArrow: '<i class="fas fa-chevron-right"></i>'
+                },
+                beforeShow: function (input, inst) {
+                    $(inst.dpDiv).addClass('rounded-md shadow-lg bg-white');
+                }
+            });
+
+            $button.on("click", function () {
+                $input.datepicker("show");
+            });
+        } else {
+            console.warn("El campo de fecha no se pudo inicializar o datepicker no está disponible.");
+        }
+    });
+</script>

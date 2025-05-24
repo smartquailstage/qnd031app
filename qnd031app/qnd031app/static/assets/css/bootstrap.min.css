@@ -1834,21 +1834,21 @@ progress {
 	color: var(--bs-secondary-color)
 }
 .form-control {
-	display: block;
-	width: 100%;
-	padding: .375rem .75rem;
-	font-size: 1rem;
-	font-weight: 400;
-	line-height: 1.5;
-	color: var(--bs-body-color);
-	background-color: var(--bs-body-bg);
-	background-clip: padding-box;
-	border: var(--bs-border-width) solid var(--bs-border-color);
-	-webkit-appearance: none;
-	-moz-appearance: none;
-	appearance: none;
-	border-radius: var(--bs-border-radius);
-	transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out
+  display: block;
+  width: 100%;
+  padding: .375rem .75rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #fff;
+  background-color: #078a78;
+  background-clip: padding-box;
+  border: var(--bs-border-width) solid var(--bs-border-color);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border-radius: var(--bs-border-radius);
+  transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
 }
 @media (prefers-reduced-motion:reduce) {
 	.form-control {
@@ -3027,7 +3027,7 @@ textarea.form-control-lg {
 	--bs-dropdown-spacer: 0.125rem;
 	--bs-dropdown-font-size: 1rem;
 	--bs-dropdown-color: var(--bs-body-color);
-	--bs-dropdown-bg: var(--bs-body-bg);
+	--bs-dropdown-bg: #fff;
 	--bs-dropdown-border-color: var(--bs-border-color-translucent);
 	--bs-dropdown-border-radius: var(--bs-border-radius);
 	--bs-dropdown-border-width: var(--bs-border-width);
@@ -7775,7 +7775,7 @@ textarea.form-control-lg {
 }
 .bg-light {
 	--bs-bg-opacity: 1;
-	background-color: rgba(var(--bs-light-rgb), var(--bs-bg-opacity))!important
+	background-color: rgb(39, 121, 202) 
 }
 .bg-dark {
 	--bs-bg-opacity: 1;

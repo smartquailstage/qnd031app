@@ -9,7 +9,10 @@ from django.forms import DateInput
 from .models import Mensaje, Cita ,TareaComentario,ServicioTerapeutico 
 from ckeditor.widgets import CKEditorWidget
 from django.forms.models import inlineformset_factory
-from .models import prospecion_administrativa, DocenteCapacitado
+from .models import prospecion_administrativa, DocenteCapacitado, Perfil_Terapeuta
+from bootstrap_datepicker_plus.widgets import DatePickerInput
+from django import forms
+from .widgets import CustomDatePickerWidget
 
 
 class LoginForm(forms.Form):
@@ -118,3 +121,14 @@ class ProspecionAdministrativaForm(forms.ModelForm):
         self.docentes_formset.instance = instance
         self.docentes_formset.save()
         return instance
+
+
+
+class PerfilTerapeutaForm(forms.ModelForm):
+    class Meta:
+        model = Perfil_Terapeuta
+        fields = '__all__'
+        widgets = {
+            'fecha_nacimiento': CustomDatePickerWidget(),
+        }
+

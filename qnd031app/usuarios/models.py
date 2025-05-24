@@ -833,7 +833,7 @@ class Cita(models.Model):
     creador = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name='citas_creadas',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,null=True, blank=True
     )
     destinatario = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -878,6 +878,8 @@ class Cita(models.Model):
     profile_terapeuta = models.ForeignKey(Perfil_Terapeuta, on_delete=models.CASCADE,null=True, blank=True, verbose_name="Asignar perfil de terapeuta",related_name='Asignar_perfil_de_terapeuta')
     is_active = models.BooleanField(default=False, verbose_name="Confirmada por el paciente")
     is_deleted = models.BooleanField(default=False, verbose_name="Cancelada por el paciente")
+
+
 
     
 

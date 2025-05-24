@@ -34,7 +34,38 @@ from django.utils import timezone
 from unfold.components import BaseComponent, register_component
 from unfold.sections import TableSection, TemplateSection
 from django.utils.timezone import now
-from .forms import ServicioTerapeuticoForm, ProspecionAdministrativaForm
+from .forms import ServicioTerapeuticoForm, ProspecionAdministrativaForm,PerfilTerapeutaForm
+from django.template.loader import render_to_string
+
+
+
+
+
+@admin.register(Sucursal)
+class SucursalAdmin(ModelAdmin):
+    list_display = ('nombre', 'direccion', 'persona_encargada', 'correo')
+    search_fields = ('nombre', 'direccion', 'persona_encargada')
+
+
+
+
+class CitasComentariosInline(admin.TabularInline):
+    model = ComentarioCita
+    extra = 1
+    fields = ["autor", "texto", "fecha_creacion"]
+    readonly_fields = ('fecha_creacion',)
+    show_change_link = False
+
+
+class ComentariosCitaSection(TableSection):
+    verbose_name = "Comentarios de la cita"
+    height = 300
+    related_name = "comentarios"  # Esto viene del related_name del modelo
+    fields = ["autor", "texto", "fecha_creacion"]
+
+    # Custom field
+    def custom_field(self, instance):
+        return instance.pk
 
 
 
@@ -188,6 +219,7 @@ admin.site.register(User, CustomUserAdmin)
 @admin.register(ValoracionTerapia)
 class ValoracionTerapiaAdmin(ModelAdmin):
     list_display = ['tipo_valoracion','perfil_terapeuta','nombre', 'fecha_valoracion']
+    
     readonly_fields = ['edad']
     actions = [export_to_csv, export_to_excel]
 
@@ -204,6 +236,7 @@ class ValoracionTerapiaAdmin(ModelAdmin):
 class Perfil_TerapeutaAdmin(ModelAdmin):
         # Display fields in changeform in compressed mode
     compressed_fields = True  # Default: False
+    form = PerfilTerapeutaForm 
 
 
     # Warn before leaving unsaved changes in changeform
@@ -697,139 +730,77 @@ def ver_en_calendario(obj):
 
 
 
-
-
-
-
-
-DATA = {
-    "headers": [
-        # Col 1 header
-        {
-            "title": "Title",
-            "subtitle": "something",  # Optional
-        },
-    ],
-    "rows": [
-        # First row
-        {
-            # Row heading
-            "header": {
-                "title": "Title",
-                "subtitle": "something",  # Optional
-            },
-            "cols": [
-                # Col 1 cell value
-                {
-                    "value": "1",
-                    "subtitle": "something",  # Optional
-                }
-            ]
-        },
-        # Second row
-        {
-            # Row heading
-            "header": {
-                "title": "Title",
-                "subtitle": "something",  # Optional
-            },
-            "cols": [
-                # Col 1 cell value
-                {
-                    "value": "1",
-                }
-            ]
-        },
-    ]
-}
-
-@register_component
-class MyCohortComponent(BaseComponent):
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            "data": DATA
-        })
-        return context
-
-
-
-
 @register_component
 class CitasCohortComponent(BaseComponent):
-    template_name = "admin/citas_cohort.html"  # Asegúrate de tener este template
+    template_name = "admin/test.html"
+
+    def __init__(self, request, instance=None):
+        super().__init__(request)
+        self.request = request
+        self.instance = instance
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Filtramos las citas pendientes
-        citas = Cita.objects.filter(fecha__gte=now(), estado='pendiente')
+        # Traemos todas las citas sin filtrar
+        citas = Cita.objects.all().select_related('creador', 'destinatario')
 
-        # Construcción de datos para la tabla
         data = {
             "headers": [
                 {"title": "Creador"},
                 {"title": "Destinatario"},
-                {"title": "Fecha"},
+                {"title": "Fecha de cita"},
                 {"title": "Estado"},
             ],
             "rows": [],
         }
 
-        # Llenar las filas con las citas obtenidas
         for cita in citas:
+            creador = cita.creador
+            destinatario = cita.destinatario
+
+            creador_nombre = "(Sin creador)"
+            if creador:
+                creador_nombre = creador.get_full_name() or creador.username or "(Sin nombre)"
+
+            destinatario_nombre = "(Sin destinatario)"
+            if destinatario:
+                destinatario_nombre = destinatario.get_full_name() or destinatario.username or "(Sin nombre)"
+
+            fecha_str = cita.fecha.strftime('%d/%m/%Y %H:%M') if cita.fecha else "(Sin fecha)"
+            estado_str = cita.estado.capitalize() if cita.estado else "(Sin estado)"
+
             row = {
                 "header": {
                     "title": f"Cita #{cita.id}",
-                    "subtitle": cita.motivo,
+                    "subtitle": cita.motivo or "",
                 },
                 "cols": [
-                    {"value": cita.creador.get_full_name() or cita.creador.username},
-                    {"value": cita.destinatario.get_full_name() or cita.destinatario.username},
-                    {"value": cita.fecha.strftime('%d/%m/%Y %H:%M')},
-                    {"value": cita.estado.capitalize()},
+                    {"value": creador_nombre},
+                    {"value": destinatario_nombre},
+                    {"value": fecha_str},
+                    {"value": estado_str},
                 ]
             }
             data["rows"].append(row)
 
-        # Pasamos los datos al contexto
         context["data"] = data
         return context
 
-
-@admin.register(Sucursal)
-class SucursalAdmin(ModelAdmin):
-    list_display = ('nombre', 'direccion', 'persona_encargada', 'correo')
-    search_fields = ('nombre', 'direccion', 'persona_encargada')
+    def render(self):
+        context = self.get_context_data()
+        return render_to_string(self.template_name, context, request=self.request)
 
 
 
 class CardSection(TemplateSection):
     template_name = "admin/test2.html"
 
-class CitasComentariosInline(admin.TabularInline):
-    model = ComentarioCita
-    extra = 1
-    fields = ["autor", "texto", "fecha_creacion"]
-    readonly_fields = ('fecha_creacion',)
-    show_change_link = False
-
-
-class ComentariosCitaSection(TableSection):
-    verbose_name = "Comentarios de la cita"
-    height = 300
-    related_name = "comentarios"  # Esto viene del related_name del modelo
-    fields = ["autor", "texto", "fecha_creacion"]
-
-    # Custom field
-    def custom_field(self, instance):
-        return instance.pk
-
 
 
 @admin.register(Cita)
 class CitaAdmin(ModelAdmin):  # Usamos unfold.ModelAdmin
-    list_sections = [CardSection,ComentariosCitaSection]
+    list_sections = [CitasCohortComponent, ComentariosCitaSection]
     list_per_page = 20
 
 
@@ -837,6 +808,11 @@ class CitaAdmin(ModelAdmin):  # Usamos unfold.ModelAdmin
     search_fields = ("motivo", "notas", "creador__username", "destinatario__username")
     list_filter = ("estado", "fecha")
     actions = [ export_to_csv, export_to_excel]
+
+    def save_model(self, request, obj, form, change):
+        if not obj.pk:
+            obj.creador = request.user
+        super().save_model(request, obj, form, change)
     
    # change_list_template = "admin/dashboard_calendar.html"  # Cambia la plantilla de la lista de cambios
 
@@ -873,6 +849,8 @@ class CitaAdmin(ModelAdmin):  # Usamos unfold.ModelAdmin
     actions_row = []  # Displayed in a table row in results list
     actions_detail = []  # Displayed at the top of for in object detail
     actions_submit_line = []  # Displayed near save in object detail
+    exclude = ('creador',)
+
 
     # Changeform templates (located inside the form)
     #change_form_before_template = "some/template.html"
@@ -898,6 +876,7 @@ class CitaAdmin(ModelAdmin):  # Usamos unfold.ModelAdmin
     ver_en_calendario.short_description = "Calendario"
     ver_en_calendario.allow_tags = True
 
+    
     #list_sections = [CardSection]
 
 

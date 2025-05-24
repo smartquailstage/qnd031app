@@ -54,6 +54,7 @@ INSTALLED_APPS = [
 
     
     "unfold",  # before django.contrib.admin
+   
 
     #'webapp',
     'django.contrib.contenttypes',
