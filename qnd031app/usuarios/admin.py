@@ -616,6 +616,17 @@ def duplicar_mensajes(modeladmin, request, queryset):
         mensaje.task_status = "No asignada"   # Reinicia el estado de la tarea
         mensaje.save()
 
+@admin.action(description="Duplicar citas seleccionadas")
+def duplicar_citas(modeladmin, request, queryset):
+    for cita in queryset:
+        cita.pk = None  # Elimina la clave primaria
+        cita.fecha = timezone.now()  # O puedes hacer cita.fecha + timedelta
+        cita.fecha_final = None  # Opcionalmente limpiar
+        cita.estado = 'pendiente'  # Estado reiniciado
+        cita.is_active = False  # Estado paciente
+        cita.is_deleted = False  # No cancelada
+        cita.save()
+
 @admin.register(Mensaje)
 class MensajeAdmin(ModelAdmin):
     list_display = ['emisor', 'receptor', 'asunto', 'leido', 'fecha_envio']
@@ -730,6 +741,31 @@ def ver_en_calendario(obj):
 
 
 
+from collections import defaultdict
+from django.template.loader import render_to_string
+from django.utils import timezone
+from collections import defaultdict
+from django.utils.timezone import localtime, is_naive, make_aware
+
+
+from datetime import time, datetime, timedelta
+
+def generar_intervalos_horas(inicio='08:00', fin='18:00', paso_minutos=60):
+    hora_inicio = datetime.strptime(inicio, '%H:%M')
+    hora_fin = datetime.strptime(fin, '%H:%M')
+    horas = []
+
+    while hora_inicio <= hora_fin:
+        horas.append(hora_inicio.strftime('%H:00'))
+        hora_inicio += timedelta(minutes=paso_minutos)
+
+    return horas
+
+from collections import defaultdict
+from datetime import datetime, timedelta
+from django.utils.timezone import make_aware, localtime
+from .models import Cita
+
 @register_component
 class CitasCohortComponent(BaseComponent):
     template_name = "admin/test.html"
@@ -742,54 +778,77 @@ class CitasCohortComponent(BaseComponent):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Traemos todas las citas sin filtrar
-        citas = Cita.objects.all().select_related('creador', 'destinatario')
+        # Obtener las 7 citas más recientes
+        citas = Cita.objects.all().select_related("creador", "destinatario").order_by('-fecha')[:7]
 
-        data = {
-            "headers": [
-                {"title": "Creador"},
-                {"title": "Destinatario"},
-                {"title": "Fecha de cita"},
-                {"title": "Estado"},
-            ],
-            "rows": [],
-        }
+        agenda = defaultdict(lambda: defaultdict(list))
+        fechas_unicas = set()
+        horas_unicas = set()
 
         for cita in citas:
+            if not cita.fecha:
+                continue
+
+            fecha = cita.fecha
+            if is_naive(fecha):
+                fecha = make_aware(fecha)
+
+            fecha_local = localtime(fecha)
+            dia_str = fecha_local.strftime("%Y-%m-%d")
+            hora = fecha_local.strftime("%H:00")
+
+            # Filtrar solo días de la semana (lunes a domingo)
+            if fecha_local.weekday() >= 5:  # 5 es sábado, 6 es domingo
+                continue
+
+            # Filtrar solo horas entre 9:00 y 22:00
+            if not (9 <= fecha_local.hour <= 22):
+                continue
+
             creador = cita.creador
             destinatario = cita.destinatario
 
-            creador_nombre = "(Sin creador)"
-            if creador:
-                creador_nombre = creador.get_full_name() or creador.username or "(Sin nombre)"
+            creador_nombre = (
+                creador.get_full_name() if creador and hasattr(creador, 'get_full_name')
+                else creador.username if creador
+                else "Sin creador"
+            )
 
-            destinatario_nombre = "(Sin destinatario)"
-            if destinatario:
-                destinatario_nombre = destinatario.get_full_name() or destinatario.username or "(Sin nombre)"
+            destinatario_nombre = (
+                destinatario.get_full_name() if destinatario and hasattr(destinatario, 'get_full_name')
+                else destinatario.username if destinatario
+                else "Sin destinatario"
+            )
 
-            fecha_str = cita.fecha.strftime('%d/%m/%Y %H:%M') if cita.fecha else "(Sin fecha)"
-            estado_str = cita.estado.capitalize() if cita.estado else "(Sin estado)"
+            agenda[dia_str][hora].append({
+                "id": cita.id,
+                "motivo": cita.motivo or "Sin motivo",
+                "creador": creador_nombre,
+                "destinatario": destinatario_nombre,
+                "estado": cita.estado.capitalize() if cita.estado else "Sin estado",
+                "tipo_cita": cita.tipo_cita.capitalize() if cita.tipo_cita else "Sin tipo"
+            })
 
-            row = {
-                "header": {
-                    "title": f"Cita #{cita.id}",
-                    "subtitle": cita.motivo or "",
-                },
-                "cols": [
-                    {"value": creador_nombre},
-                    {"value": destinatario_nombre},
-                    {"value": fecha_str},
-                    {"value": estado_str},
-                ]
-            }
-            data["rows"].append(row)
+            fechas_unicas.add(dia_str)
+            horas_unicas.add(hora)
 
-        context["data"] = data
+        dias_date = [datetime.strptime(d, "%Y-%m-%d").date() for d in fechas_unicas]
+
+        context["agenda"] = agenda
+        context["dias"] = sorted(dias_date)
+        context["horas"] = sorted(horas_unicas)
+        context["dias_str_map"] = {
+            datetime.strptime(d, "%Y-%m-%d").date(): d for d in fechas_unicas
+        }
+
         return context
 
     def render(self):
         context = self.get_context_data()
         return render_to_string(self.template_name, context, request=self.request)
+
+
+
 
 
 
@@ -809,7 +868,7 @@ class CitaAdmin(ModelAdmin):  # Usamos unfold.ModelAdmin
     list_display = ("creador", "destinatario", "fecha", "estado", "motivo")
     search_fields = ("motivo", "notas", "creador__username", "destinatario__username")
     list_filter = ("estado", "fecha")
-    actions = [ export_to_csv, export_to_excel]
+    actions = [ export_to_csv, export_to_excel,duplicar_citas]
 
     def save_model(self, request, obj, form, change):
         if not obj.pk:
