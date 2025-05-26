@@ -22,6 +22,7 @@ from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
 
 
+
 class Sucursal(models.Model):
     nombre = models.CharField("Nombre de la Sucursal", max_length=100)
     direccion = models.CharField("Dirección", max_length=255)
@@ -706,8 +707,8 @@ class pagos(models.Model):
 
     class Meta:
         ordering = ['fecha_emision_factura']
-        verbose_name_plural = "Registros Administrativos /Ingreso de Pagos por servicios Terapéuticos"
-        verbose_name = "Administrativo / Pagos servicios "
+        verbose_name_plural = "Ordenes de Pago"
+        verbose_name = "Orden de Pago "
 
     def __str__(self):
         return "Pagos de servicio Paciente: {}".format(self.cliente.username)
@@ -743,7 +744,7 @@ class tareas(models.Model):
 
     class Meta:
         ordering = ['paciente']
-        verbose_name_plural = "Registros de Terapéuticos / Ingreso de Tareas Terapéuticas"
+        verbose_name_plural = "Tareas Asignadas"
         verbose_name = "Paciente/ Tareas"
 
     def __str__(self):
@@ -760,11 +761,11 @@ class TareaComentario(models.Model):
 
     class Meta:
         ordering = ['fecha']
-        verbose_name = "Comentario de tarea"
-        verbose_name_plural = "Comentarios de tareas"
+        verbose_name = "Revisar Tarea Terapeutica"
+        verbose_name_plural = "Revisar Tareas Terapeuticas"
 
     def __str__(self):
-        return f"Comentario de {self.autor.username} - {self.tarea.titulo}"
+        return f"Corregir Tarea  {self.autor.username} - {self.tarea.titulo}"
     
 
 
@@ -886,8 +887,8 @@ class Cita(models.Model):
     class Meta:
         
         ordering = ['-fecha']
-        verbose_name_plural = "Registros Administrativos / Ingreso de Citas"
-        verbose_name = "Administrativos / Ingreso de Cita"
+        verbose_name_plural = "Citas Agendadas"
+        verbose_name = "Cita Agendada"
 
 def __str__(self):
     return f"{self.creador} → {self.destinatario} ({self.fecha.strftime('%d/%m/%Y %H:%M')})"

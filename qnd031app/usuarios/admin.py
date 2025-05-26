@@ -36,6 +36,18 @@ from unfold.sections import TableSection, TemplateSection
 from django.utils.timezone import now
 from .forms import ServicioTerapeuticoForm, ProspecionAdministrativaForm,PerfilTerapeutaForm
 from django.template.loader import render_to_string
+from unfold.decorators import action
+from django.http import HttpRequest
+
+from django.shortcuts import redirect
+from django.urls import reverse_lazy
+from django.utils.html import format_html
+from unfold.admin import StackedInline, TabularInline
+
+from unfold.contrib.filters.admin import (
+    AutocompleteSelectFilter,
+    AutocompleteSelectMultipleFilter
+)
 
 
 
@@ -399,12 +411,13 @@ class BitacoraDesarrolloAdmin(ModelAdmin):
 
     
 
-class TareasComentariosInline(admin.TabularInline):
+class TareasComentariosInline(TabularInline):
     model = TareaComentario
     extra = 1
     fields = ('tarea', 'mensaje', 'archivo', 'fecha')
     readonly_fields = ('fecha',)
     show_change_link = False
+    tab = True
     
 
 
@@ -538,14 +551,12 @@ class ProspeccionAdmin(ModelAdmin):
     verbose_name = "Prospección Administrativa"
     verbose_name_plural = "Prospecciones Administrativas"
 
-    # Agregar filtros y búsqueda si lo deseas
-    list_filter = ['distrito', 'estado', 'sector']
     search_fields = ['nombre_institucion', 'distrito', 'telefono', 'sector']
 
     # Opcional: si deseas personalizar el orden en que aparecen los objetos
     ordering = ['nombre_institucion']
 
-class DocenteCapacitadoInline(admin.TabularInline):
+class DocenteCapacitadoInline(TabularInline):
     model = DocenteCapacitado
     extra = 1
     max_num = 100
@@ -582,7 +593,14 @@ class prospecion_administrativaAdmin(ModelAdmin):
         'responsable_institucional_1', 'telefono_responsable_1'
     ]
 
-    list_filter = ['estado', 'sucursal', 'fecha_estado_actualizado']
+    list_filter = (
+        # Autocomplete filter
+        ["nombre", AutocompleteSelectFilter],
+        ["sucursal", AutocompleteSelectFilter],
+
+  
+    )
+
     search_fields = ['nombre', 'ciudad', 'responsable_institucional_1']
 
     actions = [export_to_csv, export_to_excel]
@@ -857,88 +875,61 @@ class CardSection(TemplateSection):
 
 
 
+
+# Asegúrate de importar: export_to_csv, export_to_excel, duplicar_citas, WysiwygWidget, ArrayWidget
 @admin.register(Cita)
-class CitaAdmin(ModelAdmin):  # Usamos unfold.ModelAdmin
+class CitaAdmin(ModelAdmin):
     list_sections = [CitasCohortComponent, ComentariosCitaSection]
+    list_sections_layout = "horizontal"
     list_per_page = 20
-    list_sections_layout = "horizontal"  # Ejemplo, depende si unfold lo soporta
-
-
-
+    compressed_fields = True
+    list_horizontal_scrollbar_top = True
     list_display = ("creador", "destinatario", "fecha", "estado", "motivo")
     search_fields = ("motivo", "notas", "creador__username", "destinatario__username")
     list_filter = ("estado", "fecha")
-    actions = [ export_to_csv, export_to_excel,duplicar_citas]
+    list_filter_submit = False
+    list_filter_sheet = True
+    list_fullwidth = True
+    change_form_show_cancel_button = True
+    exclude = ('creador',)
+
+    actions = [export_to_csv, export_to_excel, duplicar_citas]
+    actions_list = []
+    actions_row = []
+    actions_submit_line = []
+
+    formfield_overrides = {
+        models.TextField: {"widget": WysiwygWidget},
+        ArrayField: {"widget": ArrayWidget},
+    }
+
+    def get_admin_changelist_url(self):
+        # Construye el nombre de la url changelist del admin dinámicamente
+        app_label = self.model._meta.app_label
+        model_name = self.model._meta.model_name
+        return reverse_lazy(f"admin:{app_label}_{model_name}_changelist")
+
+    @action
+    def changelist_action(self, request: HttpRequest, object_id=None):
+        url = self.get_admin_changelist_url()
+        return redirect(url)
+        
+    changelist_action.short_description = "Volver a Registros"
+    actions_detail = ["changelist_action"]  # Importante: usar string con el nombre del método
+
+    def has_changelist_action_permission(self, request, object_id=None):
+        return True
 
     def save_model(self, request, obj, form, change):
         if not obj.pk:
             obj.creador = request.user
         super().save_model(request, obj, form, change)
-    
-   # change_list_template = "admin/dashboard_calendar.html"  # Cambia la plantilla de la lista de cambios
 
-
-        # Display fields in changeform in compressed mode
-    compressed_fields = True  # Default: False
-
-    # Warn before leaving unsaved changes in changeform
-    warn_unsaved_form = True  # Default: False
-
-    # Preprocess content of readonly fields before render
-    readonly_preprocess_fields = {
-        "model_field_name": "html.unescape",
-        "other_field_name": lambda content: content.strip(),
-    }
-
-    # Display submit button in filters
-    list_filter_submit = False
-
-    # Display changelist in fullwidth
-    list_fullwidth = True
-
-    # Set to False, to enable filter as "sidebar"
-    list_filter_sheet = True
-
-    # Position horizontal scrollbar in changelist at the top
-    list_horizontal_scrollbar_top = True
-
-    # Dsable select all action in changelist
-    list_disable_select_all = False
-
-    # Custom actions
-    actions_list = []  # Displayed above the results list
-    actions_row = []  # Displayed in a table row in results list
-    actions_detail = []  # Displayed at the top of for in object detail
-    actions_submit_line = []  # Displayed near save in object detail
-    exclude = ('creador',)
-
-
-    # Changeform templates (located inside the form)
-    #change_form_before_template = "some/template.html"
-    #change_form_after_template = "some/template.html"
-
-    # Located outside of the form
-   # change_form_outer_before_template = "some/template.html"
-   # change_form_outer_after_template = "some/template.html"
-
-    # Display cancel button in submit line in changeform
-    change_form_show_cancel_button = True # show/hide cancel button in changeform, default: False
-
-    formfield_overrides = {
-        models.TextField: {
-            "widget": WysiwygWidget,
-        },
-        ArrayField: {
-            "widget": ArrayWidget,
-        }
-    }
+    @admin.display(description="Calendario")
     def ver_en_calendario(self, obj):
-        return ver_en_calendario(obj)
-    ver_en_calendario.short_description = "Calendario"
-    ver_en_calendario.allow_tags = True
+        return format_html('<a href="{}">Ver</a>', obj.get_calendar_url())
 
-    
-    #list_sections = [CardSection]
+
 
 
 class CalendarAdmin(admin.ModelAdmin):
@@ -966,7 +957,7 @@ class OccurrenceAdmin(admin.ModelAdmin):
     search_fields = ('event__title',)
 
 
-class PagosItemInline(admin.TabularInline):
+class PagosItemInline(TabularInline):
     model = pagos
     raw_id_fields = ['cliente']
     readonly_fields = ['cuenta', 'sucursal', 'colegio', 'plan', 'convenio', 'servicio', 'estado_de_pago']
@@ -974,17 +965,19 @@ class PagosItemInline(admin.TabularInline):
     can_delete = False
     extra = 0
     max_num = 0  # Evita que se agreguen nuevos elementos
+    tab = True
 
-class TareaItemInline(admin.TabularInline):
+class TareaItemInline(TabularInline):
     model = tareas
     raw_id_fields = ['paciente']
-    readonly_fields = ['terapeuta', 'titulo', 'fecha_envio', 'descripcion_tarea']
-    fields = ['terapeuta', 'titulo', 'fecha_envio', 'descripcion_tarea','media_terapia']  # Mostramos solo estos 4 campos
-    can_delete = False
+    readonly_fields = [ 'titulo', 'terapeuta', 'fecha_envio', 'descripcion_tarea']
+    fields = ['titulo', 'terapeuta', 'fecha_envio', 'descripcion_tarea','media_terapia']  # Mostramos solo estos 4 campos
+    can_delete = True
     extra = 0
     max_num = 0
+    tab = True
 
-class CitaItemInline(admin.TabularInline):
+class CitaItemInline(TabularInline):
     model = Cita
     raw_id_fields = ['creador']
     readonly_fields = ['creador', 'destinatario', 'motivo', 'fecha', 'estado']
@@ -992,6 +985,7 @@ class CitaItemInline(admin.TabularInline):
     can_delete = False
     extra = 0
     max_num = 0
+    tab = True
 
 @admin.register(Profile)
 class ProfileAdmin(ModelAdmin):
