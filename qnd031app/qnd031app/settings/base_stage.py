@@ -151,7 +151,17 @@ LOGOUT_URL = 'logout'
 
 
 from usuarios.utils import permission_callback 
+from usuarios.models import Perfil_Terapeuta
 
+
+def badge_callback(request):
+    try:
+        return Perfil_Terapeuta.objects.count()
+    except:
+        return 0
+
+def permission_callback(request):
+    return request.user.has_perm("usuarios.change_perfil_terapeuta") 
 
 UNFOLD = {
     "SITE_TITLE": "Plataforma Administrativa MEDDES.S.A Cloud Native App+(I+D)+A",
@@ -331,6 +341,7 @@ UNFOLD = {
                         "title": _("Perfil de Terapistas"),
                         "icon": "medical_services",
                         "link": reverse_lazy("admin:usuarios_perfil_terapeuta_changelist"),
+                        "permission": permission_callback,
                     },
 
                     {

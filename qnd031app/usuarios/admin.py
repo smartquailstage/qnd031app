@@ -244,11 +244,30 @@ class ValoracionTerapiaAdmin(ModelAdmin):
         }
     }
 
+
+
+from django.contrib.admin.filters import ChoicesFieldListFilter
+
+class HorizontalChoicesFieldListFilter(ChoicesFieldListFilter):
+    horizontal = True # Enable horizontal layout
+
+
+
+def badge_callback(request):
+    return Perfil_Terapeuta.objects.count()
+
 @admin.register(Perfil_Terapeuta)
 class Perfil_TerapeutaAdmin(ModelAdmin):
+    unfold = {
+        "badge_callback": badge_callback,
+    }
+
         # Display fields in changeform in compressed mode
     compressed_fields = True  # Default: False
     form = PerfilTerapeutaForm 
+    list_filter = (
+        ["especialidad", HorizontalChoicesFieldListFilter],
+    )
 
 
     # Warn before leaving unsaved changes in changeform

@@ -151,7 +151,20 @@ LOGIN_URL = 'login'
 LOGOUT_URL = 'logout'
 
 
+
+
 from usuarios.utils import permission_callback 
+
+
+
+def badge_callback(request):
+    try:
+        return Perfil_Terapeuta.objects.count()
+    except:
+        return 0
+
+def permission_callback(request):
+    return request.user.has_perm("usuarios.change_perfil_terapeuta") 
 
 
 UNFOLD = {
@@ -307,6 +320,8 @@ UNFOLD = {
         ],
     },
 ],
+"DASHBOARD_CALLBACK": "usuarios.unfold_config.dashboard_callback",
+"ENVIRONMENT": "usuarios.unfold_config.environment_callback",
 
  "SIDEBAR": {
         "show_search": False,
@@ -328,11 +343,13 @@ UNFOLD = {
                         "icon": "school",    
                         "link": reverse_lazy("admin:usuarios_prospecion_administrativa_changelist"),
                     },
-                    {
-                        "title": _("Perfil de Terapistas"),
-                        "icon": "medical_services",
-                        "link": reverse_lazy("admin:usuarios_perfil_terapeuta_changelist"),
-                    },
+            {
+                "title": _("Terapistas"),
+                "icon": "medical_services",
+                "link": reverse_lazy("admin:usuarios_perfil_terapeuta_changelist"),
+                "badge": "usuarios.unfold_config.badge_callback",
+                "permission": "usuarios.unfold_config.permission_callback",
+            },
 
                     {
                         "title": _("Perfil de Pacientes"),
