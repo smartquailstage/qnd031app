@@ -230,7 +230,7 @@ admin.site.register(User, CustomUserAdmin)
 
 @admin.register(ValoracionTerapia)
 class ValoracionTerapiaAdmin(ModelAdmin):
-    list_display = ['tipo_valoracion','perfil_terapeuta','nombre', 'fecha_valoracion']
+    list_display = ['perfil_terapeuta','nombre', 'fecha_valoracion']
     
     readonly_fields = ['edad']
     actions = [export_to_csv, export_to_excel]
@@ -607,7 +607,7 @@ class prospecion_administrativaAdmin(ModelAdmin):
 
     # Mostrar campos clave
     list_display = [
-        'nombre', 'estado', 'fecha_estado_actualizado',
+        'nombre', 'fecha_estado_actualizado',
         'ciudad', 'mail_institucion_general',
         'responsable_institucional_1', 'telefono_responsable_1'
     ]
@@ -659,7 +659,7 @@ def duplicar_citas(modeladmin, request, queryset):
         cita.pk = None  # Elimina la clave primaria
         cita.fecha = timezone.now()  # O puedes hacer cita.fecha + timedelta
         cita.fecha_final = None  # Opcionalmente limpiar
-        cita.estado = 'pendiente'  # Estado reiniciado
+       # cita.estado = 'pendiente'  # Estado reiniciado
         cita.is_active = False  # Estado paciente
         cita.is_deleted = False  # No cancelada
         cita.save()
@@ -903,9 +903,9 @@ class CitaAdmin(ModelAdmin):
     list_per_page = 20
     compressed_fields = True
     list_horizontal_scrollbar_top = True
-    list_display = ("creador", "destinatario", "fecha", "estado", "motivo")
+    list_display = ("creador", "destinatario", "fecha", "motivo")
     search_fields = ("motivo", "notas", "creador__username", "destinatario__username")
-    list_filter = ("estado", "fecha")
+    list_filter = ("fecha",)
     list_filter_submit = False
     list_filter_sheet = True
     list_fullwidth = True
@@ -999,8 +999,8 @@ class TareaItemInline(TabularInline):
 class CitaItemInline(TabularInline):
     model = Cita
     raw_id_fields = ['creador']
-    readonly_fields = ['creador', 'destinatario', 'motivo', 'fecha', 'estado']
-    fields = ['creador', 'fecha', 'motivo', 'estado']  # Mostramos solo estos 4 campos
+    readonly_fields = ['creador', 'destinatario', 'motivo', 'fecha']
+    fields = ['creador', 'fecha', 'motivo', ]  # Mostramos solo estos 4 campos
     can_delete = False
     extra = 0
     max_num = 0
@@ -1071,20 +1071,60 @@ class ProfileAdmin(ModelAdmin):
    #inlines = [MensajesEnviadosInline, MensajesRecibidosInline]
 
     fieldsets = (
-        ('Ingresar Información Personal del Paciente', {
-            'fields': ('user','contrasena','sucursales', 'photo', 'ruc','nombre_paciente','apellidos_paciente','nacionalidad','sexo','fecha_nacimiento','edad','institucion'),
-            'classes': ('collapse',), 
-        }),
-        ('Ingresar Información del Representante Legal', {
-            'fields': ('nombres_representante_legal', 'apellidos_representante_legal', 'relacion_del_representante','nacionalidad_representante','ruc_representante', 'actividad_economica','email','telefono','celular','provincia','direccion'),
-            'classes': ('collapse',),  # Esto hace que se vea plegable
-        }),
-        ('Ingresar Información Terapéutica', {
-            'fields': ('user_terapeuta', 'valorizacion_terapeutica','estado_terapeutico', 'tipo_servicio','fecha_pausa', 'fecha_re_inicio','fecha_inicio','fecha_alta','certificado_inicio','certificado_final'),
-            'classes': ('collapse',),  # Esto hace que se vea plegable
-        }),
+    ('Ingresar Información Personal del Paciente', {
+        'fields': (
+            'user',
+            'contrasena',
+            'sucursales',
+            'photo',
+            'ruc',
+            'nombre_paciente',
+            'apellidos_paciente',
+            'nacionalidad',
+            'sexo',
+            'fecha_nacimiento',
+            'edad',
+            'institucion',
+        ),
+        'classes': ('collapse',),
+    }),
+    ('Ingresar Información del Representante Legal', {
+        'fields': (
+            'nombres_representante_legal',
+            'apellidos_representante_legal',
+            'relacion_del_representante',
+            'nacionalidad_representante',
+            'ruc_representante',
+            'actividad_economica',
+            'email',
+            'telefono',
+            'celular',
+            'provincia',
+            'direccion',
+        ),
+        'classes': ('collapse',),
+    }),
+    ('Ingresar Información Terapéutica', {
+        'fields': (
+            'user_terapeuta',
+            'valorizacion_terapeutica',
+            'tipo_servicio',
+            'fecha_pausa',
+            'fecha_re_inicio',
+            'fecha_inicio',
+            'fecha_alta',
+            'certificado_inicio',
+            'certificado_final',
 
-    )
+            # Campos booleanos de estados terapéuticos
+            'es_en_terapia',
+            'es_retirado',
+            'es_alta',
+            'es_pausa',
+        ),
+        'classes': ('collapse',),
+    }),
+)
 
     
 

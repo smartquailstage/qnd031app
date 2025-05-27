@@ -153,19 +153,19 @@ LOGOUT_URL = 'logout'
 
 
 
-from usuarios.utils import permission_callback 
+
+from usuarios.utils import permission_callback,permission_callback_prospecion
 
 
+def badge_color_callback(request):
+    count = 1  # Cambia este valor para probar diferentes colores
 
-def badge_callback(request):
-    try:
-        return Perfil_Terapeuta.objects.count()
-    except:
-        return 0
-
-def permission_callback(request):
-    return request.user.has_perm("usuarios.change_perfil_terapeuta") 
-
+    if count == 0:
+        return "info"
+    elif count < 2:
+        return "info"  # si tienes una clase para warning
+    else:
+        return "info"
 
 UNFOLD = {
     "SITE_TITLE": "Plataforma Administrativa MEDDES.S.A Cloud Native App+(I+D)+A",
@@ -175,57 +175,16 @@ UNFOLD = {
     "SITE_DESCRIPTION": "Plataforma Administrativa MEDDES.S.A Cloud Native App+(I+D)+A",
     "SITE_COPYRIGHT": "Copyright © 2025 SmartQuail S.A.S Todos los derechos reservados.",
     "SITE_DROPDOWN": [
-
-
-        {
-            "icon": "people",
-            "title": _("Rol de Usuarios"),
-            "link": "admin:auth_group_changelist",
-        },
-
-        {
-            "icon": "person",
-            "title": _("Usuario del sistema"),
-            "link": reverse_lazy("admin:auth_user_changelist"),
-        },
-
-        {
-            "icon": "medical_services",
-            "title": _("Servicios Terapeuticos"),
-            "link": reverse_lazy("admin:usuarios_servicioterapeutico_changelist"), 
-        },
-
-
-
-        {
-            "icon": "map",
-            "title": _("Sucursales"),
-            "link": reverse_lazy("admin:usuarios_sucursal_changelist"), 
-        },
-
-
-        {
-            "icon": "edit",
-            "title": _("Bitacora DEV-V.QND.0.3.1.0.1"), 
-            "link": reverse_lazy("admin:usuarios_bitacoradesarrollo_changelist"),
-        },
-        {
-            "icon": "circle",
-            "title": _("+ A (Automatización) "), 
-            "link": reverse_lazy("admin:django_celery_results_taskresult_changelist"),
-        },
+        {"icon": "people", "title": _("Rol de Usuarios"), "link": "admin:auth_group_changelist"},
+        {"icon": "person", "title": _("Usuario del sistema"), "link": reverse_lazy("admin:auth_user_changelist")},
+        {"icon": "medical_services", "title": _("Servicios Terapeuticos"), "link": reverse_lazy("admin:usuarios_servicioterapeutico_changelist")},
+        {"icon": "map", "title": _("Sucursales"), "link": reverse_lazy("admin:usuarios_sucursal_changelist")},
+        {"icon": "edit", "title": _("Bitacora DEV-V.QND.0.3.1.0.1"), "link": reverse_lazy("admin:usuarios_bitacoradesarrollo_changelist")},
+        {"icon": "circle", "title": _("+ A (Automatización)"), "link": reverse_lazy("admin:django_celery_results_taskresult_changelist")},
     ],
-
     "SITE_URL": "https://www.meddes.com.ec/",
-    # "SITE_ICON": lambda request: static("icon.svg"),  # both modes, optimise for 32px height
-    "SITE_ICON": {
-        "light": lambda request: static("img/BA-LOGOS/loro.png"),
-        "dark": lambda request: static("img/BA-LOGOS/loro.png"),
-    },
-    "SITE_LOGO": {
-        "light": lambda request: static("img/BA-LOGOS/logo.png"),
-        "dark": lambda request: static("img/BA-LOGOS/logo.png"),
-    },
+    "SITE_ICON": {"light": lambda request: static("img/BA-LOGOS/loro.png"), "dark": lambda request: static("img/BA-LOGOS/loro.png")},
+    "SITE_LOGO": {"light": lambda request: static("img/BA-LOGOS/logo.png"), "dark": lambda request: static("img/BA-LOGOS/logo.png")},
     "SITE_SYMBOL": "speed",
     "SITE_FAVICONS": [
         {
@@ -239,29 +198,24 @@ UNFOLD = {
     "SHOW_VIEW_ON_SITE": True,
     "SHOW_BACK_BUTTON": True,
     "DASHBOARD_CALLBACK": "usuarios.views.dashboard_callback",
-    
     "ENVIRONMENT": "qnd031app.utils.environment.environment_callback",
-
     "THEME": "light",
-    "LOGIN": {
-        "image": lambda request: static("img/BA-BG/test.jpg"),
-       # "redirect_after": lambda request: reverse_lazy("admin:usuarios_changelist"),
-    },
-    "STYLES": [
-        lambda request: static("unfold/css/style.css"),
-    ],
-    "SCRIPTS": [
-        lambda request: static("unfold/js/script.js"),
-    ],
+    "LOGIN": {"image": lambda request: static("img/BA-BG/test.jpg")},
+    "STYLES": [lambda request: static("unfold/css/style.css")],
+    "SCRIPTS": [lambda request: static("unfold/js/script.js")],
     "BORDER_RADIUS": "6px",
     "COLORS": {
+        "custom": {
+            "green-success": "69 162 67",
+            "red-alert": "69 162 67",
+        },
         "base": {
             "50": "255 255 255",
             "100": "123 204 121",
             "200": "211 213 205",
             "300": "209 213 219",
             "400": "41 168 80",
-            "500": "0, 180, 81",
+            "500": "0 180 81",
             "600": "75 85 99",
             "700": "7 121 176",
             "800": "4 168 79",
@@ -282,12 +236,12 @@ UNFOLD = {
             "950": "59 7 100",
         },
         "font": {
-            "subtle-light": "var(--color-base-500)",  # text-base-500
-            "subtle-dark": "var(--color-base-400)",  # text-base-400
-            "default-light": "var(--color-base-600)",  # text-base-600
-            "default-dark": "var(--color-base-300)",  # text-base-300
-            "important-light": "var(--color-base-900)",  # text-base-900
-            "important-dark": "var(--color-base-100)",  # text-base-100
+            "subtle-light": "var(--color-base-500)",
+            "subtle-dark": "var(--color-base-400)",
+            "default-light": "var(--color-base-600)",
+            "default-dark": "var(--color-base-300)",
+            "important-light": "var(--color-base-900)",
+            "important-dark": "var(--color-base-100)",
         },
     },
     "EXTENSIONS": {
@@ -299,32 +253,20 @@ UNFOLD = {
             },
         },
     },
-
     "TABS": [
-    {
-        "models": [
-            {
-                "name": "usuarios.prospecion_administrativa",
-                "detail": True,
-            },
-        ],
-        "items": [
-            {
-                "title": _("Perfil Institucional"),
-                "link": reverse_lazy("admin:usuarios_prospecion_administrativa_changelist"),
-                "permission": permission_callback,  # ✅ Ya no es string, ahora es la función real
-            },
-
-
-
-        ],
-    },
-],
-"DASHBOARD_CALLBACK": "usuarios.unfold_config.dashboard_callback",
-"ENVIRONMENT": "usuarios.unfold_config.environment_callback",
-
- "SIDEBAR": {
-        "show_search": False,
+        {
+            "models": [{"name": "usuarios.prospecion_administrativa", "detail": True}],
+            "items": [
+                {
+                    "title": _("Perfil Institucional"),
+                    "link": reverse_lazy("admin:usuarios_prospecion_administrativa_changelist"),
+                   # "permission": permission_callback,
+                },
+            ],
+        },
+    ],
+    "SIDEBAR": {
+        "show_search": True,
         "show_all_applications": True,
         "navigation": [
             {
@@ -334,39 +276,50 @@ UNFOLD = {
                 "items": [
                     {
                         "title": _("Prospecciones"),
-                        "icon": "edit",    
+                        "icon": "edit",
                         "link": reverse_lazy("admin:usuarios_prospeccion_changelist"),
+                        "badge": "usuarios.unfold_config.badge_callback_meddes",  # ✅ función real
+                        "badge_color": "info",
+                        "permission": permission_callback_prospecion,
+                        
                     },
-
                     {
-                        "title": _("Perfil de Institución"),
-                        "icon": "school",    
+                        "title": _("Instituciones"),
+                        "icon": "school",
                         "link": reverse_lazy("admin:usuarios_prospecion_administrativa_changelist"),
+                        "badge": "usuarios.unfold_config.badge_callback_prospeccion",
+                        "badge_color": "custom-green-success",
                     },
-            {
-                "title": _("Terapistas"),
-                "icon": "medical_services",
-                "link": reverse_lazy("admin:usuarios_perfil_terapeuta_changelist"),
-                "badge": "usuarios.unfold_config.badge_callback",
-                "permission": "usuarios.unfold_config.permission_callback",
-            },
-
                     {
-                        "title": _("Perfil de Pacientes"),
+                        "title": _("Terapistas"),
+                        "icon": "medical_services",
+                        "link": reverse_lazy("admin:usuarios_perfil_terapeuta_changelist"),
+                        "badge": "usuarios.unfold_config.badge_callback",
+                        "badge_color": badge_color_callback,
+                      #  "permission": "usuarios.unfold_config.permission_callback",
+                    },
+                    {
+                        "title": _("Pacientes"),
                         "icon": "person",
                         "link": reverse_lazy("admin:usuarios_profile_changelist"),
+                        "badge": "usuarios.unfold_config.badge_callback_terapeutico",
+                        "badge_color": "success",
                     },
-
                     {
-                        "title": _("Agenda de Citas"), 
+                        "title": _("Agenda"),
                         "icon": "calendar_today",
                         "link": reverse_lazy("admin:usuarios_cita_changelist"),
+                        "badge": "usuarios.unfold_config.badge_callback_citas",
+                        "badge_color": "custom-red-alert",
+                       # "permission": "usuarios.unfold_config.permission_callback",
                     },
-
                     {
-                        "title": _("Ordenes de Pagos"),
-                        "icon": "payment",
+                        "title": _("Pagos"), 
+                        "icon": "payment", 
                         "link": reverse_lazy("admin:usuarios_pagos_changelist"),
+                        "badge": "usuarios.unfold_config.badge_callback_pagos",
+                        "badge_color": "custom-red-alert",
+                        #"permission": "usuarios.unfold_config.permission_callback",
                     },
                 ],
             },
@@ -375,22 +328,30 @@ UNFOLD = {
                 "separator": True,
                 "collapsible": True,
                 "items": [
-
                     {
-                        "title": _("Valorizaciones"),
-                        "icon": "download",
+                        "title": _("Valorizaciones"), 
+                        "icon": "download", 
                         "link": reverse_lazy("admin:usuarios_valoracionterapia_changelist"),
+                        "badge": "usuarios.unfold_config.badge_callback_valoracion",
+                        "badge_color": "custom-red-alert",
+                       # "permission": "usuarios.unfold_config.permission_callback",
                     },
 
                     {
-                        "title": _("Tareas & Actividades"),
-                        "icon": "task",
-                        "link": reverse_lazy("admin:usuarios_tareas_changelist"),
+                        "title": _("Actividades"), 
+                        "icon": "task", "link": reverse_lazy("admin:usuarios_tareas_changelist"),
+                        "badge": "usuarios.unfold_config.badge_callback_tareas",
+                        "badge_color": "custom-red-alert",
+                      #  "permission": "usuarios.unfold_config.permission_callback",
+                        
                     },
                     {
                         "title": _("Asistencias"), 
-                        "icon": "calendar_today",
+                        "icon": "calendar_today", 
                         "link": reverse_lazy("admin:usuarios_asistenciaterapeuta_changelist"),
+                        "badge": "usuarios.unfold_config.badge_callback_asistencias",
+                        "badge_color": "custom-red-alert",
+                       # "permission": "usuarios.unfold_config.permission_callback",
                     },
                 ],
             },
@@ -400,32 +361,20 @@ UNFOLD = {
                 "collapsible": True,
                 "items": [
                     {
-                        "title": _("Notificaciones"),
-                        "icon": "notifications",
-                        "link": reverse_lazy("admin:usuarios_mensaje_changelist"),
+                        "title": _("Notificaciones"), 
+                        "icon": "notifications", "link": reverse_lazy("admin:usuarios_mensaje_changelist"),
+                        "badge": "usuarios.unfold_config.badge_callback_notificaciones",
+                        "badge_color": "custom-red-alert",
+                        #"permission": "usuarios.unfold_config.permission_callback",
                     },
-
                 ],
             },
         ],
     },
-
- 
     "MENU": [
-        {
-            "title": _("Dashboard"),
-            "icon": "dashboard",
-            "link": reverse_lazy("admin:index"),
-            "permission": lambda request: request.user.is_superuser,
-        },
-        {
-            "title": _("Users"),
-            "icon": "people",
-            "link": reverse_lazy("admin:auth_user_changelist"),
-        },
+        {"title": _("Dashboard"), "icon": "dashboard", "link": reverse_lazy("admin:index"), "permission": lambda request: request.user.is_superuser},
+        {"title": _("Users"), "icon": "people", "link": reverse_lazy("admin:auth_user_changelist")},
     ],
-
-
 }
 
 
@@ -434,8 +383,6 @@ UNFOLD = {
 
 
 
-def badge_callback(request):
-    return 3
 
 
 

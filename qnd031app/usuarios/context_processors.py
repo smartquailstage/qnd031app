@@ -92,9 +92,8 @@ def datos_panel_usuario(request):
     # Tareas realizadas
     cantidad_terapias_realizadas = tareas.objects.filter(paciente=user, realizada=True).count()
 
-    # Citas confirmadas
-    citas_realizadas = Cita.objects.filter(destinatario=user, estado='confirmada', is_active=True, is_deleted=False).count()
-
+    # Citas confirmadas (ya no hay estado ni is_active/is_deleted)
+    citas_realizadas = Cita.objects.filter(destinatario=user, confirmada=True).count()
 
     # Estado de terapia
     estado_terapia = "Activa" if cantidad_terapias_realizadas > 0 else "Pendiente"
@@ -110,16 +109,12 @@ def datos_panel_usuario(request):
 
 def citas_context(request):
     if request.user.is_authenticated:
-        # Filtrar solo citas visibles (activas y no eliminadas) para el usuario
-        citas = Cita.objects.filter(
-            destinatario=request.user,  # Asegúrate de filtrar por usuario
-            is_active=True,
-            is_deleted=False
-        )
+        # Filtrar todas las citas del destinatario
+        citas = Cita.objects.filter(destinatario=request.user)
 
-        confirmadas = citas.filter(estado='confirmada').count()
-        pendientes = citas.filter(estado='pendiente').count()
-        canceladas = citas.filter(estado='cancelada').count()
+        confirmadas = citas.filter(confirmada=True).count()
+        pendientes = citas.filter(pendiente=True).count()
+        canceladas = citas.filter(cancelada=True).count()
 
         return {
             'citas_todas': citas,

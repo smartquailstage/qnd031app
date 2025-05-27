@@ -20,6 +20,7 @@ from django.utils.datetime_safe import datetime
 from django.utils.timezone import make_aware
 from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
+from django.core.exceptions import ValidationError
 
 
 
@@ -159,7 +160,16 @@ class prospecion_administrativa(models.Model):
         blank=True
     )
 
-    estado = models.CharField(max_length=30, choices=ESTADOS, default='por_contactar', null=True, blank=True)
+    es_por_contactar = models.BooleanField(default=False, verbose_name="¿Se intentó contactar?")
+    es_contactado = models.BooleanField(default=False, verbose_name="¿Ya fue contactado?")
+    es_en_cita = models.BooleanField(default=False, verbose_name="¿Ya tuvo cita?")
+    es_convenio_firmado = models.BooleanField(default=False, verbose_name="¿Firmó convenio?")
+    es_capacitacion = models.BooleanField(default=False, verbose_name="¿Recibió capacitación?")
+    es_valoracion = models.BooleanField(default=False, verbose_name="¿Tuvo valoración?")
+    es_en_terapia = models.BooleanField(default=False, verbose_name="¿Recibe terapia?")
+    es_rechazado = models.BooleanField(default=False, verbose_name="¿Fue rechazado?")
+    es_finalizado = models.BooleanField(default=False, verbose_name="¿Finalizó el proceso?")
+    es_inactivo = models.BooleanField(default=False, verbose_name="¿Está inactivo?")
     fecha_estado_actualizado = models.DateField(auto_now=True)
 
     sucursal = models.ForeignKey(
@@ -336,7 +346,7 @@ class Perfil_Terapeuta(models.Model):
     )
     servicio_domicilio = models.BooleanField(default=False, null=True, blank=True)
     servicio_institucion = models.BooleanField(default=True, null=True, blank=True)
-
+    activo = models.BooleanField(default=True, verbose_name="¿Terapeuta activo?")
     class Meta:
         ordering = ['user']
         verbose_name = "Registro Administrativo / Ingreso de Terapista"
@@ -348,11 +358,6 @@ class Perfil_Terapeuta(models.Model):
 
 
 class ValoracionTerapia(models.Model):
-    TIPO_VALORACION = [
-        ('particular', 'Particular'),
-        ('convenio', 'En Convenio'),
-    ]
-
     perfil_terapeuta = models.ForeignKey(
         'Perfil_Terapeuta',
         on_delete=models.CASCADE,
@@ -360,16 +365,14 @@ class ValoracionTerapia(models.Model):
         verbose_name="Terapeuta Asignado"
     )
 
-    tipo_valoracion = models.CharField(
-        max_length=20,
-        choices=TIPO_VALORACION,
-        verbose_name="Tipo de Valoración"
-    )
+    # Reemplazamos el campo tipo_valoracion por booleanos
+    es_particular = models.BooleanField(default=False, verbose_name="Valoración Particular")
+    es_convenio = models.BooleanField(default=False, verbose_name="Valoración por Convenio")
 
     fecha_valoracion = models.DateField(verbose_name="Fecha de Valoración")
     nombre = models.CharField(max_length=255)
     fecha_nacimiento = models.DateField()
-    
+
     @property
     def edad(self):
         today = date.today()
@@ -388,17 +391,17 @@ class ValoracionTerapia(models.Model):
     )
 
     grado = models.CharField(max_length=100, blank=True, null=True)
-    servicio =  models.ForeignKey(
+    servicio = models.ForeignKey(
         'ServicioTerapeutico',
         on_delete=models.CASCADE,
         related_name='servicios_terapeuticos2',
-        verbose_name="Servicio terapéutico",null=True, blank=True
+        verbose_name="Servicio terapéutico", null=True, blank=True
     )
 
     sucursal = models.ForeignKey(
         Sucursal,
         on_delete=models.CASCADE,
-        related_name="sucursal1",null=True, blank=True
+        related_name="sucursal1", null=True, blank=True
     )
 
     proceso_terapia = models.BooleanField(default=False, verbose_name="Proceso de Terapia")
@@ -420,8 +423,14 @@ class ValoracionTerapia(models.Model):
         verbose_name_plural = "Valoraciones Terapéuticas"
         ordering = ['-fecha_valoracion']
 
+    def save(self, *args, **kwargs):
+        if self.es_particular and self.es_convenio:
+            raise ValueError("Solo una opción puede estar activa: 'particular' o 'convenio'")
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return f"{self.nombre} - {self.fecha_valoracion} ({self.get_tipo_valoracion_display()})"
+        tipo = "Particular" if self.es_particular else "Convenio" if self.es_convenio else "Sin especificar"
+        return f"{self.nombre} - {self.fecha_valoracion} ({tipo})"
 
 
 
@@ -512,20 +521,16 @@ class Profile(models.Model):
     
     #Informacion de Terapeutica
     user_terapeuta = models.OneToOneField(Perfil_Terapeuta, on_delete=models.CASCADE, verbose_name="Terapéuta Asignado")
-    ESTADOS = [
-        ('en_terapia', 'En Terapia'),
-        ('retirado', 'Retirado'),
-        ('alta', 'Alta'),
-        ('pausa', 'Pausa'),
-    ]
-
     MOTIVOS_RETIRO = [
         ('economico', 'Económico'),
         ('insatisfecho', 'Insatisfecho'),
         ('otro', 'Otro'),
     ]
 
-    estado_terapeutico = models.CharField(max_length=20, choices=ESTADOS, default='en_terapia')
+    es_en_terapia = models.BooleanField(default=False, verbose_name="¿Ha estado en terapia?")
+    es_retirado = models.BooleanField(default=False, verbose_name="¿Ha sido retirado?")
+    es_alta = models.BooleanField(default=False, verbose_name="¿Tiene alta terapéutica?")
+    es_pausa = models.BooleanField(default=False, verbose_name="¿Ha estado en pausa?")
 
     valorizacion_terapeutica = models.ForeignKey(
         ValoracionTerapia,
@@ -607,6 +612,13 @@ class pagos(models.Model):
         on_delete=models.CASCADE,
         related_name="sucursal4",null=True, blank=True
     )
+
+
+    # NUEVOS CAMPOS BOOLEANOS DE ESTADO DE PAGO
+    al_dia = models.BooleanField(default=False, verbose_name="Pago al día")
+    pendiente = models.BooleanField(default=False, verbose_name="Pago pendiente")
+    vencido = models.BooleanField(default=False, verbose_name="Pago vencido")
+
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE,null=True, blank=True)
     cuenta = models.CharField(max_length=255, blank=True, null=True, verbose_name="Número de cuenta")
     colegio = models.CharField(max_length=255, blank=True, null=True, verbose_name="Nombre del colegio")
@@ -711,16 +723,24 @@ class pagos(models.Model):
         verbose_name = "Orden de Pago "
 
     def __str__(self):
-        return "Pagos de servicio Paciente: {}".format(self.cliente.username)
+        return f"Pagos de servicio Paciente: {self.cliente.first_name}"
 
     def save(self, *args, **kwargs):
-        # Verificamos que ambas fechas estén presentes
+        # Limpiar todos los estados primero
+        self.al_dia = False
+        self.pendiente = False
+        self.vencido = False
+
+        # Determinar cuál activar
         if self.fecha_emision_factura and self.fecha_vencimiento:
             diferencia = (self.fecha_vencimiento - self.fecha_emision_factura).days
-            if diferencia < 30:
-                self.estado_de_pago = 'Pendiente'
+            if self.fecha_pago:
+                self.al_dia = True
+            elif diferencia < 30:
+                self.pendiente = True
             else:
-                self.estado_de_pago = 'Vencido'
+                self.vencido = True
+
         super().save(*args, **kwargs)
 
 class tareas(models.Model):
@@ -733,7 +753,8 @@ class tareas(models.Model):
     material_adjunto =  models.FileField(upload_to='materiales/%Y/%m/%d/', blank=True, verbose_name="Material adjunto")
     media_terapia =  models.FileField(upload_to='Videos/%Y/%m/%d/', blank=True, verbose_name="Contenido Multimedia de Terapia")
     descripcion_tarea = models.TextField(blank=True, null=True,verbose_name="Descripción de la tarea")
-    realizada = models.BooleanField(default=False, verbose_name="Paciente realizó la tarea asiganda?")
+    realizada = models.BooleanField(default=False, verbose_name="¿Paciente realizó la tarea?")
+    tarea_no_realizada = models.BooleanField(default=False, verbose_name="¿Paciente no la ha realizado?")
     sucursal = models.ForeignKey(
         Sucursal,
         on_delete=models.CASCADE,
@@ -834,7 +855,9 @@ class Cita(models.Model):
     creador = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name='citas_creadas',
-        on_delete=models.CASCADE,null=True, blank=True
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
     )
     destinatario = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -842,43 +865,70 @@ class Cita(models.Model):
         on_delete=models.CASCADE
     )
     sucursal = models.ForeignKey(
-        Sucursal,
+        'Sucursal',
         on_delete=models.CASCADE,
-        related_name="sucursal8",null=True, blank=True
+        related_name="sucursal8",
+        null=True,
+        blank=True
     )
     fecha = models.DateTimeField()
     fecha_final = models.DateTimeField(null=True, blank=True)
+
     TIPO_CITA_CHOICES = [
         ('administrativa', 'Administrativa'),
         ('terapeutica', 'Terapéutica'),
         ('particular', 'Particular'),
         ('urgente', 'Urgente'),
     ]
-
     tipo_cita = models.CharField(
         max_length=20,
         choices=TIPO_CITA_CHOICES,
         default='terapeutica',
-        verbose_name="Categoria de Cita"
+        verbose_name="Categoría de Cita"
     )
 
     motivo = models.CharField(max_length=255)
-    estado = models.CharField(
-        max_length=20,
-        choices=[
-            ('pendiente', 'Pendiente'),
-            ('confirmada', 'Confirmada'),
-            ('cancelada', 'Cancelada'),
-        ],
-        default='pendiente'
-    )
-
     notas = models.TextField(blank=True, null=True)
 
-    profile = models.ForeignKey(Profile, on_delete=models.CASCADE,null=True, blank=True, verbose_name="Asignar perfil de paciente",related_name='Asignar_perfil_de_paciente')
-    profile_terapeuta = models.ForeignKey(Perfil_Terapeuta, on_delete=models.CASCADE,null=True, blank=True, verbose_name="Asignar perfil de terapeuta",related_name='Asignar_perfil_de_terapeuta')
-    is_active = models.BooleanField(default=False, verbose_name="Confirmada por el paciente")
-    is_deleted = models.BooleanField(default=False, verbose_name="Cancelada por el paciente")
+    profile = models.ForeignKey(
+        'Profile',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name="Asignar perfil de paciente",
+        related_name='Asignar_perfil_de_paciente'
+    )
+
+    profile_terapeuta = models.ForeignKey(
+        'Perfil_Terapeuta',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name="Asignar perfil de terapeuta",
+        related_name='Asignar_perfil_de_terapeuta'
+    )
+
+    # Representación del estado con booleanos
+    pendiente = models.BooleanField(default=True, verbose_name="¿Pendiente?")
+    confirmada = models.BooleanField(default=False, verbose_name="¿Confirmada?")
+    cancelada = models.BooleanField(default=False, verbose_name="¿Cancelada?")
+
+    class Meta:
+        ordering = ['-fecha']
+        verbose_name = "Administrativos / Ingreso de Cita"
+        verbose_name_plural = "Registros Administrativos / Ingreso de Citas"
+
+    def __str__(self):
+        return f"{self.creador} → {self.destinatario} ({self.fecha.strftime('%d/%m/%Y %H:%M')})"
+
+    def clean(self):
+        # Esta validación se refleja en el formulario del admin
+        estados = ['pendiente', 'confirmada', 'cancelada']
+        seleccionados = [estado for estado in estados if getattr(self, estado)]
+
+        if len(seleccionados) > 1:
+            raise ValidationError("Solo un estado puede estar activo a la vez: pendiente, confirmada o cancelada.")
+
 
 
 
@@ -902,19 +952,28 @@ class AsistenciaTerapeuta(models.Model):
     hora_entrada = models.TimeField()
     hora_salida = models.TimeField(null=True, blank=True)
     observaciones = models.TextField(blank=True)
+
     evento = models.OneToOneField(Cita, null=True, blank=True, on_delete=models.SET_NULL, verbose_name="Cita Agendada")
-    #cita_relacionada = models.ForeignKey('Cita', on_delete=models.SET_NULL, null=True, blank=True)
+    
     sucursal = models.ForeignKey(
         Sucursal,
         on_delete=models.CASCADE,
-        related_name="sucursal2",null=True, blank=True
+        related_name="sucursal2", null=True, blank=True
     )
+
+    # Nuevos campos booleanos de asistencia
+    asistire = models.BooleanField(default=False, verbose_name="¿Confirmo que asistiré?")
+    no_asistire = models.BooleanField(default=False, verbose_name="¿Confirmo que no asistiré?")
 
     class Meta:
         unique_together = ('terapeuta', 'fecha', 'hora_entrada')
         ordering = ['-fecha', 'hora_entrada']
 
     def save(self, *args, **kwargs):
+        # Validación para evitar ambos en True
+        if self.asistire and self.no_asistire:
+            raise ValueError("Solo uno de los campos puede estar activo: 'asistire' o 'no_asistire'.")
+
         super().save(*args, **kwargs)
 
         if not self.evento:
@@ -935,6 +994,7 @@ class AsistenciaTerapeuta(models.Model):
 
     def __str__(self):
         return f"Asistencia {self.terapeuta.nombres_completos} - {self.fecha}"
+
 
 
 
