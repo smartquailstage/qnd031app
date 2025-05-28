@@ -1,91 +1,72 @@
 {% load filters %}
-
 <div class="bg-white border border-base-200 flex flex-col grow overflow-hidden p-6 relative rounded-default shadow-xs light:bg-base-900 light:border-base-800">
   <div class="grow relative">
-    <div class="overflow-auto w-full" data-simplebar="init">
-      <div class="simplebar-wrapper" style="margin: 0px;">
-        <div class="simplebar-height-auto-observer-wrapper">
-          <div class="simplebar-height-auto-observer"></div>
-        </div>
-        <div class="simplebar-mask">
-          <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
-            <div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content" style="height: auto; overflow: hidden;">
-              <div class="simplebar-content" style="padding: 0px;">
-                <table class="border-separate w-full">
-                  <thead>
-                    <tr>
-                      <th></th>
-                      {% for hora in horas %}
-                        <th class="font-normal px-3 pb-2.5 text-left">
-                          <div class="font-semibold text-font-important-light truncate dark:text-font-important-dark">
-                            {{ hora }}
-                          </div>
-                          <div class="mt-0.5 text-xs truncate">–</div>
-                        </th>
-                      {% endfor %}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for dia in dias %}
-                      <tr class="h-full">
-                        <td>
-                          <div class="pr-3 py-2.5">
-                            <div class="font-semibold text-font-important-light truncate dark:text-font-important-dark">
-                              {{ dia|date:"M d, Y" }}
-                            </div>
-                            <div class="mt-0.5 text-xs">Día</div>
-                          </div>
-                        </td>
+    <!-- Scroll horizontal y vertical aquí -->
+    <div class="max-h-[600px] overflow-auto">
+      <table class="border-separate w-full min-w-[900px]">
+        <thead class="sticky top-0 bg-white z-10">
+          <tr>
+            <th class="bg-white"></th>
+            {% for hora in horas %}
+              <th class="font-normal px-3 pb-2.5 text-left bg-white">
+                <div class="font-semibold text-font-important-light truncate dark:text-font-important-dark">
+                  {{ hora }}
+                </div>
+                <div class="mt-0.5 text-xs truncate">–</div>
+              </th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for dia in dias %}
+            <tr class="h-full">
+              <td class="bg-white sticky left-0 z-10">
+                <div class="pr-3 py-2.5 bg-white">
+                  <div class="font-semibold text-font-important-light truncate dark:text-font-important-dark">
+                    {{ dia|date:"M d, Y" }}
+                  </div>
+                  <div class="mt-0.5 text-xs">Día</div>
+                </div>
+              </td>
 
-                        {% with dia_str=dias_str_map|get_item:dia %}
-                          {% with dia_agenda=agenda|get_item:dia_str %}
-                            {% for hora in horas %}
-                              <td class="h-full align-top">
-                                {% with citas=dia_agenda|get_item:hora %}
-                                  {% if citas %}
-                                    {% for cita in citas %}
-                                      <div class="flex flex-col h-auto justify-center px-3 py-2.5 mb-2 rounded-default
-                                        {% if cita.estado == 'Pendiente' %}
-                                          bg-yellow-500
-                                        {% elif cita.estado == 'Confirmada' %}
-                                          bg-green-600
-                                        {% elif cita.estado == 'Cancelada' %}
-                                          bg-red-600
-                                        {% else %}
-                                          bg-gray-500
-                                        {% endif %}
-                                        text-white dark:text-base-600">
-                                        <span><strong>Cita #{{ cita.id }}</strong></span>
-                                        <span class="mt-0.5">{{ cita.creador }}</span>
-                                        <span class="mt-0.5">{{ cita.destinatario }}</span>
-                                        <span class="mt-0.5">{{ cita.motivo }}</span>
-                                        <span class="mt-0.5 text-xs">{{ cita.estado }}</span>
-                                      </div>
-                                    {% endfor %}
-                                  {% else %}
-                                    <div class="text-gray-400 text-xs px-3 py-2.5">–</div>
-                                  {% endif %}
-                                {% endwith %}
-                              </td>
-                            {% endfor %}
-                          {% endwith %}
-                        {% endwith %}
-                      </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="simplebar-placeholder" style="width: 1200px; height: 596px;"></div>
-      </div>
-      <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
-        <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
-      </div>
-      <div class="simplebar-track simplebar-vertical" style="visibility: hidden;">
-        <div class="simplebar-scrollbar" style="height: 0px; display: none;"></div>
-      </div>
+              {% with dia_str=dias_str_map|get_item:dia %}
+                {% with dia_agenda=agenda|get_item:dia_str %}
+                  {% for hora in horas %}
+                    <td class="h-full align-top">
+                      {% with citas=dia_agenda|get_item:hora %}
+                        {% if citas %}
+                          {% for cita in citas %}
+                            <div class="flex flex-col h-auto justify-center px-3 py-2.5 mb-2 rounded-default
+                              {% if cita.estado == 'Pendiente' %}
+                                bg-blue-600
+                              {% elif cita.estado == 'Confirmada' %}
+                                bg-green-600
+                              {% elif cita.estado == 'Cancelada' %}
+                                bg-red-600
+                              {% else %}
+                                bg-gray-500
+                              {% endif %}
+                              text-white dark:text-base-600">
+                              <span><strong>Cita #{{ cita.id }}</strong></span>
+                              <span class="mt-0.5 truncate"><strong>De:</strong> {{ cita.creador }}</span>
+                              <span class="mt-0.5 truncate"><strong>Para:</strong> {{ cita.destinatario }}</span>
+                              <span class="mt-0.5 truncate"><strong>Motivo:</strong> {{ cita.motivo }}</span>
+                              <span class="mt-0.5 text-xs italic truncate">{{ cita.tipo_cita }}</span>
+                              <span class="mt-0.5 text-xs italic">{{ cita.estado }}</span>
+                            </div>
+                          {% endfor %}
+                        {% else %}
+                          <div class="text-gray-400 text-xs px-3 py-2.5">–</div>
+                        {% endif %}
+                      {% endwith %}
+                    </td>
+                  {% endfor %}
+                {% endwith %}
+              {% endwith %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
   </div>
 </div>

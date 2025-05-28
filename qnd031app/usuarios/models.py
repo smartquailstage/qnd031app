@@ -918,6 +918,16 @@ class Cita(models.Model):
         verbose_name = "Administrativos / Ingreso de Cita"
         verbose_name_plural = "Registros Administrativos / Ingreso de Citas"
 
+    @property
+    def estado(self):
+        if self.confirmada:
+            return "Confirmada"
+        if self.pendiente:
+            return "Pendiente"
+        if self.cancelada:
+            return "Cancelada"
+        return "Sin estado"
+
     def __str__(self):
         return f"{self.creador} → {self.destinatario} ({self.fecha.strftime('%d/%m/%Y %H:%M')})"
 

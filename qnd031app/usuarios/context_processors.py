@@ -1,7 +1,80 @@
 from datetime import timedelta, date
+from django.utils import timezone
 from django.db.models import Count
 from .models import pagos, tareas, Cita, Mensaje, Profile
 from django.db.models import Q
+from collections import defaultdict
+from datetime import datetime
+from django.utils.timezone import localtime, is_naive, make_aware
+
+def citas_context(request):
+    if request.user.is_authenticated:
+        citas = Cita.objects.filter(destinatario=request.user).select_related('creador', 'destinatario').order_by('-fecha')[:20]
+
+        agenda = defaultdict(lambda: defaultdict(list))
+        fechas_unicas = set()
+        horas_unicas = set()
+
+        for cita in citas:
+            if not cita.fecha:
+                continue
+
+            fecha = cita.fecha
+            if is_naive(fecha):
+                fecha = make_aware(fecha)
+
+            fecha_local = localtime(fecha)
+            dia_str = fecha_local.strftime("%Y-%m-%d")
+            hora = fecha_local.strftime("%H:00")
+
+            # Filtrar solo días laborables (lunes a viernes)
+            if fecha_local.weekday() >= 5:
+                continue
+
+            # Filtrar solo horas entre 9:00 y 22:00
+            if not (9 <= fecha_local.hour <= 22):
+                continue
+
+            creador = cita.creador
+            destinatario = cita.destinatario
+
+            creador_nombre = (
+                creador.get_full_name() if creador and hasattr(creador, 'get_full_name')
+                else creador.username if creador
+                else "Sin creador"
+            )
+
+            destinatario_nombre = (
+                destinatario.get_full_name() if destinatario and hasattr(destinatario, 'get_full_name')
+                else destinatario.username if destinatario
+                else "Sin destinatario"
+            )
+
+            agenda[dia_str][hora].append({
+                "id": cita.id,
+                "motivo": cita.motivo or "Sin motivo",
+                "creador": creador_nombre,
+                "destinatario": destinatario_nombre,
+                "estado": getattr(cita, 'estado', 'Sin estado'),
+                "tipo_cita": cita.get_tipo_cita_display() if cita.tipo_cita else "Sin tipo"
+            })
+
+
+            fechas_unicas.add(dia_str)
+            horas_unicas.add(hora)
+
+        dias_date = [datetime.strptime(d, "%Y-%m-%d").date() for d in fechas_unicas]
+
+        return {
+            'agenda': agenda,
+            'dias': sorted(dias_date),
+            'horas': sorted(horas_unicas),
+            'dias_str_map': {datetime.strptime(d, "%Y-%m-%d").date(): d for d in fechas_unicas}
+        }
+
+    return {}
+
+
 
 def mensajes_leidos_processor(request):
     if request.user.is_authenticated:
@@ -109,18 +182,15 @@ def datos_panel_usuario(request):
 
 def citas_context(request):
     if request.user.is_authenticated:
-        # Filtrar todas las citas del destinatario
+        # Citas donde el usuario es destinatario
         citas = Cita.objects.filter(destinatario=request.user)
-
-        confirmadas = citas.filter(confirmada=True).count()
-        pendientes = citas.filter(pendiente=True).count()
-        canceladas = citas.filter(cancelada=True).count()
 
         return {
             'citas_todas': citas,
-            'citas_confirmadas_count': confirmadas,
-            'citas_pendientes_count': pendientes,
-            'citas_canceladas_count': canceladas,
+            'citas_confirmadas_count': citas.filter(confirmada=True).count(),
+            'citas_pendientes_count': citas.filter(pendiente=True, confirmada=False, cancelada=False).count(),
+            'citas_canceladas_count': citas.filter(cancelada=True).count(),
+            'proximas_citas': citas.filter(fecha__gte=timezone.now()).order_by('fecha')[:5]
         }
 
     return {}

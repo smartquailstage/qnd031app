@@ -834,8 +834,8 @@ class CitasCohortComponent(BaseComponent):
             dia_str = fecha_local.strftime("%Y-%m-%d")
             hora = fecha_local.strftime("%H:00")
 
-            # Filtrar solo días de la semana (lunes a domingo)
-            if fecha_local.weekday() >= 5:  # 5 es sábado, 6 es domingo
+            # Filtrar solo días de la semana (lunes a viernes)
+            if fecha_local.weekday() >= 5:
                 continue
 
             # Filtrar solo horas entre 9:00 y 22:00
@@ -857,13 +857,14 @@ class CitasCohortComponent(BaseComponent):
                 else "Sin destinatario"
             )
 
+            # Nota: Asumí que tienes una propiedad llamada 'estado' en el modelo que devuelve el estado como string
             agenda[dia_str][hora].append({
                 "id": cita.id,
                 "motivo": cita.motivo or "Sin motivo",
                 "creador": creador_nombre,
                 "destinatario": destinatario_nombre,
-                "estado": cita.estado.capitalize() if cita.estado else "Sin estado",
-                "tipo_cita": cita.tipo_cita.capitalize() if cita.tipo_cita else "Sin tipo"
+                "estado": cita.estado if hasattr(cita, 'estado') else "Sin estado",
+                "tipo_cita": cita.get_tipo_cita_display() if cita.tipo_cita else "Sin tipo"
             })
 
             fechas_unicas.add(dia_str)
@@ -889,6 +890,7 @@ class CitasCohortComponent(BaseComponent):
 
 
 
+
 class CardSection(TemplateSection):
     template_name = "admin/test2.html"
 
@@ -898,12 +900,13 @@ class CardSection(TemplateSection):
 # Asegúrate de importar: export_to_csv, export_to_excel, duplicar_citas, WysiwygWidget, ArrayWidget
 @admin.register(Cita)
 class CitaAdmin(ModelAdmin):
-    list_sections = [CitasCohortComponent, ComentariosCitaSection]
+    list_sections = [CitasCohortComponent]
     list_sections_layout = "horizontal"
     list_per_page = 20
     compressed_fields = True
     list_horizontal_scrollbar_top = True
-    list_display = ("creador", "destinatario", "fecha", "motivo")
+    list_display = ("tipo_cita", "get_destinatario_full_name", "fecha", "motivo",'pendiente','confirmada','cancelada')
+    list_editable = ('pendiente','confirmada','cancelada',)
     search_fields = ("motivo", "notas", "creador__username", "destinatario__username")
     list_filter = ("fecha",)
     list_filter_submit = False
@@ -921,6 +924,11 @@ class CitaAdmin(ModelAdmin):
         models.TextField: {"widget": WysiwygWidget},
         ArrayField: {"widget": ArrayWidget},
     }
+
+    def get_destinatario_full_name(self, obj):
+        return obj.destinatario.get_full_name() if obj.destinatario else "—"
+    get_destinatario_full_name.short_description = "Destinatario"
+    get_destinatario_full_name.admin_order_field = 'destinatario__first_name'
 
     def get_admin_changelist_url(self):
         # Construye el nombre de la url changelist del admin dinámicamente
