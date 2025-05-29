@@ -53,6 +53,8 @@ from unfold.contrib.filters.admin import (
 
 
 
+
+
 @admin.register(Sucursal)
 class SucursalAdmin(ModelAdmin):
     list_display = ('nombre', 'direccion', 'persona_encargada', 'correo')
@@ -62,24 +64,23 @@ class SucursalAdmin(ModelAdmin):
 
 
 class CitasComentariosInline(admin.TabularInline):
-    model = ComentarioCita
+    model = Cita
     extra = 1
-    fields = ["autor", "texto", "fecha_creacion"]
-    readonly_fields = ('fecha_creacion',)
+    fields = ["notas",]
+    readonly_fields = ('fecha',)
     show_change_link = False
 
 
 class ComentariosCitaSection(TableSection):
     verbose_name = "Comentarios de la cita"
     height = 300
-    related_name = "comentarios"  # Esto viene del related_name del modelo
-    fields = ["autor", "texto", "fecha_creacion"]
-
+    fields = ["notas"] 
+    
     # Custom field
     def custom_field(self, instance):
         return instance.pk
-
-
+    def render(self):
+        return render_to_string("admin/test2.html", {"instance": self.instance})
 
 
 @admin.register(ServicioTerapeutico)
@@ -806,6 +807,7 @@ from .models import Cita
 @register_component
 class CitasCohortComponent(BaseComponent):
     template_name = "admin/test.html"
+    
 
     def __init__(self, request, instance=None):
         super().__init__(request)
@@ -900,7 +902,7 @@ class CardSection(TemplateSection):
 # Asegúrate de importar: export_to_csv, export_to_excel, duplicar_citas, WysiwygWidget, ArrayWidget
 @admin.register(Cita)
 class CitaAdmin(ModelAdmin):
-    list_sections = [CitasCohortComponent]
+    list_sections = [ComentariosCitaSection, CitasCohortComponent]  # Agregar secciones personalizadas
     list_sections_layout = "horizontal"
     list_per_page = 20
     compressed_fields = True
@@ -1014,12 +1016,178 @@ class CitaItemInline(TabularInline):
     max_num = 0
     tab = True
 
+
+
+
+
+class DatosTerapiaSection(TableSection):
+    verbose_name = "🧠 Datos Terapéuticos"
+    height = 400
+    fields = [
+        "es_en_terapia",
+        "es_pausa",
+        "es_retirado",
+        "es_alta",
+        "tipo_servicio",
+        "valorizacion_terapeutica",
+        "certificado_inicio",
+        "certificado_final",
+        "fecha_inicio",
+        "fecha_alta",
+        "fecha_retiro",
+        "motivo_retiro",
+        "motivo_otro",
+        "fecha_pausa",
+        "fecha_re_inicio",
+    ]
+
+
+@register_component
+class ProfileComponent(BaseComponent):
+    template_name = "admin/profile_card.html"
+    name = "Perfil de Paciente"
+
+    def __init__(self, request, instance=None):
+        self.request = request
+        self.instance = instance
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        p = self.instance  # Solo la instancia actual
+
+        headers = [
+            "Foto", "Nombre Completo","edad", "Sexo", "Institución",
+            "Teléfono",
+        ]
+
+        row = [
+            format_html('<img src="{}" style="width:80px; border-radius:50%;" />', p.photo.url) if p.photo else "Sin foto",
+            p.user.first_name + " " + p.user.last_name,
+            p.edad,
+            p.sexo,
+            p.institucion.nombre if p.institucion else "",
+            p.telefono,
+
+        ]
+
+        context.update({
+            "title": f"Perfil de {p.nombre_paciente} {p.apellidos_paciente}",
+            "table": {
+                "headers": headers,
+                "rows": [row],  # Solo una fila con la instancia actual
+            }
+        })
+        return context
+
+    def render(self):
+        return render_to_string(self.template_name, self.get_context_data())
+
+
+@register_component
+class ProfileComponentRepresentante(BaseComponent):
+    template_name = "admin/profile_card.html"
+    name = "Perfil de Representante Legal"
+
+    def __init__(self, request, instance=None):
+        self.request = request
+        self.instance = instance
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        p = self.instance  # Solo la instancia actual
+
+        headers = [
+            "Representante","Correo Electrónico",
+            "Teléfono", "Celular", "Dirección", "Relación",
+        ]
+
+        row = [
+            f"{p.nombres_representante_legal} {p.apellidos_representante_legal}",
+            p.email,
+            p.telefono,
+            p.celular,
+            p.direccion,
+            p.relacion_del_representante,    
+        ]
+
+        context.update({
+            "title": f"Perfil de {p.nombre_paciente} {p.apellidos_paciente}",
+            "table": {
+                "headers": headers,
+                "rows": [row],  # Solo una fila con la instancia actual
+            }
+        })
+        return context
+
+    def render(self):
+        return render_to_string(self.template_name, self.get_context_data())
+
+
+@register_component
+class ProfileComponentTerapeutico(BaseComponent):
+    template_name = "admin/profile_card.html"
+    name = "Perfil de Representante Legal"
+
+    def __init__(self, request, instance=None):
+        self.request = request
+        self.instance = instance
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        p = self.instance  # Solo la instancia actual
+
+        headers = [
+            "Terapeuta Asignado","Valorización Terapéutica",
+            "Tipo de Servicio", "Certificado de Inicio",
+            "Fecha de Retiro", "Fecha de Pausa",
+        ]
+
+        row = [
+            p.user_terapeuta,
+            p.valorizacion_terapeutica,
+            p.tipo_servicio,
+            format_html('<a href="{}" target="_blank">Ver certificado</a>', p.certificado_inicio.url) if p.certificado_inicio else "Sin aprobación",
+            p.fecha_retiro,
+            p.fecha_pausa,
+        ]
+
+        context.update({
+            "title": f"Perfil de {p.nombre_paciente} {p.apellidos_paciente}",
+            "table": {
+                "headers": headers,
+                "rows": [row],  # Solo una fila con la instancia actual
+            }
+        })
+        return context
+
+    def render(self):
+        return render_to_string(self.template_name, self.get_context_data())
+
+
+
+class ProfileCardSection(TemplateSection):
+    model = Profile
+    template_name = "admin/profile_card.html"
+    verbose_name = "Perfil"
+
+
+
+
+
 @admin.register(Profile)
 class ProfileAdmin(ModelAdmin):
     readonly_fields = ['edad']  
             # Display fields in changeform in compressed mode
     compressed_fields = True  # Default: False
     inlines = [TareaItemInline,CitaItemInline,PagosItemInline]
+    search_fields = ['user__username', 'user__first_name', 'user__last_name']
+    list_sections = [ProfileComponent,ProfileComponentRepresentante,ProfileComponentTerapeutico]  # Agregar sección personalizada
+    
+
+    
 
     # Warn before leaving unsaved changes in changeform
     warn_unsaved_form = True  # Default: False
@@ -1071,7 +1239,14 @@ class ProfileAdmin(ModelAdmin):
         }
     }
 
-    list_display = ['nombre_paciente', 'apellidos_paciente','edad','institucion','celular','tipo_servicio','fecha_inicio','fecha_alta']
+    list_display = ['get_full_name','edad','fecha_alta','es_en_terapia', 'es_retirado', 'es_alta']
+
+    @admin.display(description='Nombre completo')
+    def get_full_name(self, obj):
+        return obj.user.get_full_name()
+
+
+    list_editable  = ['es_en_terapia', 'es_retirado', 'es_alta']
     list_filter= ['nombre_paciente','sucursales','tipo_servicio','fecha_inicio','fecha_alta']
     actions = [ export_to_csv, export_to_excel]
     verbose_name = "Registro Administrativo / Ingreso de Paciente"

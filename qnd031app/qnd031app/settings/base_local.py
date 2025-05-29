@@ -279,7 +279,7 @@ UNFOLD = {
                         "icon": "edit",
                         "link": reverse_lazy("admin:usuarios_prospeccion_changelist"),
                         "badge": "usuarios.unfold_config.badge_callback_meddes",  # ✅ función real
-                        "badge_color": "info",
+                        "badge_color": "colors-primary-500",
                         "permission": permission_callback_prospecion,
                         
                     },
