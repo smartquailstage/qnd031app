@@ -974,8 +974,8 @@ class Mensaje(models.Model):
 
     class Meta:
         ordering = ['-fecha_envio']
-        verbose_name_plural = "Bandeja de entrada MEDDES"
-        verbose_name = "Mensajes MEDDES"
+        verbose_name_plural = "Bandeja de entrada MEDDES®"
+        verbose_name = "Notificaciones de  MEDDES®"
 
     def __str__(self):
         fecha = self.fecha_envio.strftime("%d/%m/%Y %H:%M") if self.fecha_envio else "Sin fecha"
