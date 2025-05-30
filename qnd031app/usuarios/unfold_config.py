@@ -22,7 +22,13 @@ def badge_callback_notificaciones(request):
         hoy = timezone.now().date()
         mensajes_hoy = Mensaje.objects.filter(creado__date=hoy).count()
 
-        return f"{mensajes_hoy}"
+        asistencias = {
+            "No leídas (Mensajes)": Mensaje.objects.filter(leido=False).count(),
+            "Leídas (Asistencias)": Mensaje.objects.filter(leido=True).count(),
+        }
+
+        resumen = " | ".join(f"{value}" for key, value in asistencias.items())
+        return f"{mensajes_hoy} | {resumen}"
 
     except Exception:
         return "0"
@@ -31,8 +37,9 @@ def badge_callback_notificaciones(request):
 def badge_callback_asistencias(request):
     try:
         asistencias = {
-            "Confirmaron asistencia": AsistenciaTerapeuta.objects.filter(asistire=True).count(),
             "No asistirán": AsistenciaTerapeuta.objects.filter(no_asistire=True).count(),
+            "Confirmaron asistencia": AsistenciaTerapeuta.objects.filter(asistire=True).count(),
+            
         }
 
         return " | ".join(f"{value}" for key, value in asistencias.items())
@@ -43,22 +50,23 @@ def badge_callback_asistencias(request):
 
 def badge_callback_tareas(request):
     try:
-        tareas = {
+        conteos = {
             "Realizadas": tareas.objects.filter(realizada=True).count(),
             "Pendientes": tareas.objects.filter(tarea_no_realizada=True).count(),
         }
 
-        return " | ".join(f"{key}: {value}" for key, value in tareas.items())
+        return " | ".join(f"{value}" for key, value in conteos.items())
 
-    except Exception:
+    except Exception as e:
         return "0"
 
 
 def badge_callback_valoracion(request):
     try:
         valoraciones = {
-            "Particular": ValoracionTerapia.objects.filter(es_particular=True).count(),
-            "Convenio": ValoracionTerapia.objects.filter(es_convenio=True).count(),
+            "Convenio": ValoracionTerapia.objects.filter(recibe_asesoria=True).count(),
+            "Particular": ValoracionTerapia.objects.filter(proceso_terapia=True).count(),
+           
         }
 
         return " | ".join(f"{value}" for key, value in valoraciones.items())
@@ -71,9 +79,10 @@ def badge_callback_valoracion(request):
 def badge_callback_pagos(request):
     try:
         pagos_estado = {
+            "vencidos": pagos.objects.filter(vencido=True).count(),
             "pendientes": pagos.objects.filter(pendiente=True).count(),
             "al_dia": pagos.objects.filter(al_dia=True).count(),
-            "vencidos": pagos.objects.filter(vencido=True).count(),
+            
         }
 
         return " | ".join(str(value) for value in pagos_estado.values())
@@ -100,10 +109,11 @@ def badge_callback_citas(request):
 def badge_callback_terapeutico(request):
         try:
             estados = {
+                "Retirado": Profile.objects.filter(es_retirado=True).count(),
                 "En Terapia": Profile.objects.filter(es_en_terapia=True).count(),
             # "Retirado": Profile.objects.filter(es_retirado=True).count(),
                 "Alta": Profile.objects.filter(es_alta=True).count(),
-                "Pausa": Profile.objects.filter(es_pausa=True).count(),
+                
             }
 
             return " | ".join(f"{value}" for key, value in estados.items())
@@ -116,11 +126,11 @@ def badge_callback_prospeccion(request):
     try:
         estados = {
            # "PC": prospecion_administrativa.objects.filter(es_por_contactar=True).count(),
-            "CT": prospecion_administrativa.objects.filter(es_contactado=True).count(),
-           # "CIT": prospecion_administrativa.objects.filter(es_en_cita=True).count(),
+           # "CT": prospecion_administrativa.objects.filter(es_contactado=True).count(),
+            "CIT": prospecion_administrativa.objects.filter(es_en_cita=True).count(),
           #  "CNV": prospecion_administrativa.objects.filter(es_convenio_firmado=True).count(),
           #  "CAP": prospecion_administrativa.objects.filter(es_capacitacion=True).count(),
-           # "VAL": prospecion_administrativa.objects.filter(es_valoracion=True).count(),
+            "VAL": prospecion_administrativa.objects.filter(es_valoracion=True).count(),
            # "TER": prospecion_administrativa.objects.filter(es_en_terapia=True).count(),
           #  "REJ": prospecion_administrativa.objects.filter(es_rechazado=True).count(),
             "FIN": prospecion_administrativa.objects.filter(es_finalizado=True).count(),
@@ -150,8 +160,9 @@ def badge_color_callback(request):
 
 def badge_callback(request):
     activos = Perfil_Terapeuta.objects.filter(activo=True).count()
-    inactivos = Perfil_Terapeuta.objects.filter(activo=False).count()
-    return f"{activos} | {inactivos}"
+    servicio_domicilio = Perfil_Terapeuta.objects.filter(servicio_domicilio=True).count()
+    servicio_institucion = Perfil_Terapeuta.objects.filter(servicio_institucion=True).count()
+    return f"{activos} | {servicio_domicilio} | {servicio_institucion}"
 
 
 

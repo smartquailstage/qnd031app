@@ -305,7 +305,7 @@ class DocenteCapacitado(models.Model):
 
 
 class Perfil_Terapeuta(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Nombre de Usuario")
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Elegir nombre de usuario en el sistema")
     especialidad = models.CharField(max_length=255, blank=True, null=True, verbose_name="Especialidad")
 
     SEXO_OPCIONES = [
@@ -321,6 +321,7 @@ class Perfil_Terapeuta(models.Model):
         on_delete=models.CASCADE,
         related_name="sucursal10",null=True, blank=True
     )
+    correo = models.EmailField(verbose_name="Correo Electrónico", null=True, blank=True)
 
     edad = models.PositiveIntegerField(null=True, blank=True)
     sexo = models.CharField(max_length=1, choices=SEXO_OPCIONES, null=True, blank=True)
@@ -337,7 +338,39 @@ class Perfil_Terapeuta(models.Model):
         message="El número de teléfono debe estar en formato internacional. Ejemplo: +593XXXXXXXXX."
     )
     telefonos_contacto = PhoneNumberField(verbose_name="Teléfono de persona a cargo",validators=[phone_regex],default='+593')
-    datos_bancarios = models.TextField(help_text="Ej: Banco, número de cuenta,cedula, tipo", null=True, blank=True)
+    TIPO_CUENTA_CHOICES = [
+        ('ahorros', 'Ahorros'),
+        ('corriente', 'Corriente'),
+    ]
+
+    BANCOS_ECUADOR_CHOICES = [
+        ('pichincha', 'Banco Pichincha'),
+        ('guayaquil', 'Banco Guayaquil'),
+        ('pacifico', 'Banco del Pacífico'),
+        ('produbanco', 'Produbanco'),
+        ('internacional', 'Banco Internacional'),
+        ('austro', 'Banco del Austro'),
+        ('machala', 'Banco de Machala'),
+        ('bolivariano', 'Banco Bolivariano'),
+        ('promerica', 'Banco Promerica'),
+        ('coopjep', 'Cooperativa JEP'),
+        ('cooperco', 'Cooperco'),
+        ('mutualista_pichincha', 'Mutualista Pichincha'),
+        ('', 'Otro'),  # Opción para otros bancos
+        # Agrega más si es necesario
+    ]
+
+    banco = models.CharField(
+        "Banco", max_length=50, choices=BANCOS_ECUADOR_CHOICES,
+        blank=True, null=True, help_text="Selecciona el banco"
+    )
+    tipo_cuenta = models.CharField(
+        "Tipo de cuenta", max_length=20, choices=TIPO_CUENTA_CHOICES,
+        blank=True, null=True
+    )
+    numero_cuenta = models.CharField("Número de cuenta", max_length=30, blank=True, null=True)
+   # cedula_titular = models.CharField("Cédula del Terapeuta", max_length=20, blank=True, null=True)
+    #nombre_titular = models.CharField("Nombre del titular", max_length=100, blank=True, null=True)
     pago_por_hora = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
     tipo_servicio = models.ManyToManyField('ServicioTerapeutico',
     related_name='servicios_terapeuticos1',
@@ -358,11 +391,13 @@ class Perfil_Terapeuta(models.Model):
 
 
 class ValoracionTerapia(models.Model):
-    perfil_terapeuta = models.ForeignKey(
-        'Perfil_Terapeuta',
+    perfil_terapeuta =  models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name='perfil_terapeuta_asignado',
         on_delete=models.CASCADE,
-        related_name='valoraciones',
-        verbose_name="Terapeuta Asignado"
+        verbose_name="Terapeuta Responsable",
+        null=True,
+        blank=True
     )
 
     # Reemplazamos el campo tipo_valoracion por booleanos
@@ -370,7 +405,7 @@ class ValoracionTerapia(models.Model):
     es_convenio = models.BooleanField(default=False, verbose_name="Valoración por Convenio")
 
     fecha_valoracion = models.DateField(verbose_name="Fecha de Valoración")
-    nombre = models.CharField(max_length=255)
+    nombre = models.CharField(max_length=255, verbose_name="Nombre del Paciente Valorado")
     fecha_nacimiento = models.DateField()
 
     @property
@@ -606,7 +641,7 @@ class Profile(models.Model):
 
 
 class pagos(models.Model):
-    cliente = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Nombre de Usuario")
+    cliente = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Nombre de Usuario")
     sucursal = models.ForeignKey(
         Sucursal,
         on_delete=models.CASCADE,
@@ -619,7 +654,7 @@ class pagos(models.Model):
     pendiente = models.BooleanField(default=False, verbose_name="Pago pendiente")
     vencido = models.BooleanField(default=False, verbose_name="Pago vencido")
 
-    profile = models.ForeignKey(Profile, on_delete=models.CASCADE,null=True, blank=True)
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE,null=True, blank=True, verbose_name="Paciente")
     cuenta = models.CharField(max_length=255, blank=True, null=True, verbose_name="Número de cuenta")
     colegio = models.CharField(max_length=255, blank=True, null=True, verbose_name="Nombre del colegio")
     plan = models.CharField(
@@ -725,130 +760,23 @@ class pagos(models.Model):
     def __str__(self):
         return f"Pagos de servicio Paciente: {self.cliente.first_name}"
 
-    def save(self, *args, **kwargs):
+    #def save(self, *args, **kwargs):
         # Limpiar todos los estados primero
-        self.al_dia = False
-        self.pendiente = False
-        self.vencido = False
+        #self.al_dia = False
+        #self.pendiente = False
+        #self.vencido = False
 
         # Determinar cuál activar
-        if self.fecha_emision_factura and self.fecha_vencimiento:
-            diferencia = (self.fecha_vencimiento - self.fecha_emision_factura).days
-            if self.fecha_pago:
-                self.al_dia = True
-            elif diferencia < 30:
-                self.pendiente = True
-            else:
-                self.vencido = True
+       # if self.fecha_emision_factura and self.fecha_vencimiento:
+         #   diferencia = (self.fecha_vencimiento - self.fecha_emision_factura).days
+         #   if self.fecha_pago:
+         #       self.al_dia = True
+        #    elif diferencia < 30:
+       #         self.pendiente = True
+      #      else:
+     #           self.vencido = True
 
-        super().save(*args, **kwargs)
-
-class tareas(models.Model):
-    paciente = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Nombre de Usuario")
-    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
-    terapeuta = models.OneToOneField(Perfil_Terapeuta, on_delete=models.CASCADE, verbose_name="Terapéuta Asignado")
-    titulo = models.CharField(max_length=255, blank=True, null=True, verbose_name="Título de la tarea") 
-    fecha_envio = models.DateField(blank=True, null=True, verbose_name="Fecha de envio de tarea")
-    fecha_entrega = models.DateField(blank=True, null=True, verbose_name="Fecha de entrega de tarea")
-    material_adjunto =  models.FileField(upload_to='materiales/%Y/%m/%d/', blank=True, verbose_name="Material adjunto")
-    media_terapia =  models.FileField(upload_to='Videos/%Y/%m/%d/', blank=True, verbose_name="Contenido Multimedia de Terapia")
-    descripcion_tarea = models.TextField(blank=True, null=True,verbose_name="Descripción de la tarea")
-    realizada = models.BooleanField(default=False, verbose_name="¿Paciente realizó la tarea?")
-    tarea_no_realizada = models.BooleanField(default=False, verbose_name="¿Paciente no la ha realizado?")
-    sucursal = models.ForeignKey(
-        Sucursal,
-        on_delete=models.CASCADE,
-        related_name="sucursal6",null=True, blank=True
-    )
-
-
-
-    class Meta:
-        ordering = ['paciente']
-        verbose_name_plural = "Tareas Asignadas"
-        verbose_name = "Paciente/ Tareas"
-
-    def __str__(self):
-        return f"Tareas terapéuticas de {self.paciente.username}"
-
-
-
-class TareaComentario(models.Model):
-    tarea = models.ForeignKey('tareas', on_delete=models.CASCADE, related_name='comentarios')
-    autor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    mensaje = models.TextField(verbose_name="Comentario o actividad")
-    archivo = models.FileField(upload_to='tareas_respuestas/%Y/%m/%d/', blank=True, null=True, verbose_name="Archivo adjunto")
-    fecha = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ['fecha']
-        verbose_name = "Revisar Tarea Terapeutica"
-        verbose_name_plural = "Revisar Tareas Terapeuticas"
-
-    def __str__(self):
-        return f"Corregir Tarea  {self.autor.username} - {self.tarea.titulo}"
-    
-
-
-class Mensaje(models.Model):
-    ASUNTOS_CHOICES = [
-        ('Consulta', 'Consulta'),
-        ('Sugerencia', 'Sugerencia'),   
-        ('Informativo', 'Informativo'),
-        ('Terapéutico', 'Terapeutico'),
-        ('Solicitud de pago vencido', 'Solicitud de pago vencido'),
-        ('Solicitud de Certificado Médico', 'Solicitud de Certificado Medico'),
-        ('Reclamo del servicio  Médico', 'Reclamo del servicio  Médico'),
-        ('Cancelación del servicio Médico', 'Cancelación del servicio Médico'),
-    ]
-    
-    emisor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='mensajes_enviados', on_delete=models.CASCADE)
-    receptor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='mensajes_recibidos', on_delete=models.CASCADE)
-    asunto = models.CharField(max_length=50, choices=ASUNTOS_CHOICES, default='Consulta')  
-    cuerpo = RichTextField(blank=True, null=True)
-    leido = models.BooleanField(default=False)
-    creado = models.DateTimeField(default=timezone.now)
-    fecha_envio = models.DateTimeField(auto_now_add=True)
-    sucursal = models.ForeignKey(
-        Sucursal,
-        on_delete=models.CASCADE,
-        related_name="sucursal7",null=True, blank=True
-    )
-
-    # ➕ Campo para vincular con Celery
-    task_id = models.CharField(max_length=255, blank=True, null=True, help_text="ID de la tarea de Celery asociada")
-    task_status = models.CharField(max_length=50, blank=True, null=True, help_text="Estado de la tarea de Celery asociada")
-
-    class Meta:
-        ordering = ['-fecha_envio']
-        verbose_name_plural = "Bandeja de entrada MEDDES"
-        verbose_name = "Mensajes MEDDES"
-
-    def __str__(self):
-        fecha = self.fecha_envio.strftime("%d/%m/%Y %H:%M") if self.fecha_envio else "Sin fecha"
-        return f"{self.emisor} - {fecha}"
-
-    @property
-    def estado_tarea(self):
-        """Devuelve el estado de la tarea de Celery asociada, si existe"""
-        if self.task_id:
-            task_result = TaskResult.objects.filter(task_id=self.task_id).order_by('-date_done').first()
-            if task_result:
-                return task_result.task_state  # o .status si prefieres
-            return "Desconocido"
-        return "No asignada"
-
-    def save(self, *args, **kwargs):
-        """Sobrescribe el método save para actualizar el estado de la tarea"""
-        if self.task_id:
-            task_result = TaskResult.objects.filter(task_id=self.task_id).order_by('-date_done').first()
-            if task_result:
-                self.task_status = task_result.task_state  # Actualiza el estado de la tarea
-            else:
-                self.task_status = "Desconocido"
-        else:
-            self.task_status = "No asignada"
-        super().save(*args, **kwargs)
+    #    super().save(*args, **kwargs)
 
 
 class Cita(models.Model):
@@ -954,10 +882,142 @@ def __str__(self):
     return f"{self.creador} → {self.destinatario} ({self.fecha.strftime('%d/%m/%Y %H:%M')})"
 
 
+class tareas(models.Model):
+    paciente = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name='paciente_asigna_tarea',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
+    cita_terapeutica_asignada = models.OneToOneField(Cita, on_delete=models.CASCADE, verbose_name="Elija la cita correspondiente a esta sesion de terapia", null=True, blank=True)
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    terapeuta = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name='terapeuta_asiga_tarea',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
+    titulo = models.CharField(max_length=255, blank=True, null=True, verbose_name="Título de la tarea") 
+    fecha_envio = models.DateField(blank=True, null=True, verbose_name="Fecha de envio de tarea")
+    fecha_entrega = models.DateField(blank=True, null=True, verbose_name="Fecha de entrega de tarea")
+    material_adjunto =  models.FileField(upload_to='materiales/%Y/%m/%d/', blank=True, verbose_name="Material adjunto")
+    media_terapia =  models.FileField(upload_to='Videos/%Y/%m/%d/', blank=True, verbose_name="Contenido Multimedia de Terapia")
+    descripcion_tarea = models.TextField(blank=True, null=True,verbose_name="Descripción de la tarea")
+    realizada = models.BooleanField(default=False, verbose_name="¿Paciente realizó la tarea?")
+    tarea_no_realizada = models.BooleanField(default=False, verbose_name="¿Paciente Culminó la Terapia ?")
+    sucursal = models.ForeignKey(
+        Sucursal,
+        on_delete=models.CASCADE,
+        related_name="sucursal6",null=True, blank=True
+    )
+
+
+
+
+    class Meta:
+        ordering = ['paciente']
+        verbose_name_plural = "Tareas Asignadas"
+        verbose_name = "Paciente/ Tareas"
+
+    def __str__(self):
+        return f"Tareas terapéuticas de {self.paciente.username}"
+
+
+
+class TareaComentario(models.Model):
+    tarea = models.ForeignKey('tareas', on_delete=models.CASCADE, related_name='comentarios')
+    autor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    mensaje = models.TextField(verbose_name="Comentario o actividad")
+    archivo = models.FileField(upload_to='tareas_respuestas/%Y/%m/%d/', blank=True, null=True, verbose_name="Archivo adjunto")
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['fecha']
+        verbose_name = "Revisar Tarea Terapeutica"
+        verbose_name_plural = "Revisar Tareas Terapeuticas"
+
+    def __str__(self):
+        return f"Corregir Tarea  {self.autor.username} - {self.tarea.titulo}"
+    
+
+
+class Mensaje(models.Model):
+    ASUNTOS_CHOICES = [
+        ('Consulta', 'Consulta'),
+        ('Sugerencia', 'Sugerencia'),   
+        ('Informativo', 'Informativo'),
+        ('Terapéutico', 'Terapeutico'),
+        ('Solicitud de pago vencido', 'Solicitud de pago vencido'),
+        ('Solicitud de Certificado Médico', 'Solicitud de Certificado Medico'),
+        ('Reclamo del servicio  Médico', 'Reclamo del servicio  Médico'),
+        ('Cancelación del servicio Médico', 'Cancelación del servicio Médico'),
+    ]
+    
+    emisor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='mensajes_enviados', on_delete=models.CASCADE)
+    receptor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='mensajes_recibidos', on_delete=models.CASCADE, verbose_name="Destinatario")
+    asunto = models.CharField(max_length=50, choices=ASUNTOS_CHOICES, default='Consulta')  
+    cuerpo = RichTextField(blank=True, null=True)
+    leido = models.BooleanField(default=False)
+    creado = models.DateTimeField(default=timezone.now)
+    fecha_envio = models.DateTimeField(auto_now_add=True)
+    sucursal = models.ForeignKey(
+        Sucursal,
+        on_delete=models.CASCADE,
+        related_name="sucursal7",null=True, blank=True
+    )
+
+    # ➕ Campo para vincular con Celery
+    task_id = models.CharField(max_length=255, blank=True, null=True, help_text="ID de la tarea de Celery asociada")
+    task_status = models.CharField(max_length=50, blank=True, null=True, help_text="Estado de la tarea de Celery asociada")
+
+    class Meta:
+        ordering = ['-fecha_envio']
+        verbose_name_plural = "Bandeja de entrada MEDDES"
+        verbose_name = "Mensajes MEDDES"
+
+    def __str__(self):
+        fecha = self.fecha_envio.strftime("%d/%m/%Y %H:%M") if self.fecha_envio else "Sin fecha"
+        return f"{self.emisor} - {fecha}"
+
+    @property
+    def estado_tarea(self):
+        """Devuelve el estado de la tarea de Celery asociada, si existe"""
+        if self.task_id:
+            task_result = TaskResult.objects.filter(task_id=self.task_id).order_by('-date_done').first()
+            if task_result:
+                return task_result.task_state  # o .status si prefieres
+            return "Desconocido"
+        return "No asignada"
+
+    def save(self, *args, **kwargs):
+        """Sobrescribe el método save para actualizar el estado de la tarea"""
+        if self.task_id:
+            task_result = TaskResult.objects.filter(task_id=self.task_id).order_by('-date_done').first()
+            if task_result:
+                self.task_status = task_result.task_state  # Actualiza el estado de la tarea
+            else:
+                self.task_status = "Desconocido"
+        else:
+            self.task_status = "No asignada"
+        super().save(*args, **kwargs)
+
+
+
+
 
 
 class AsistenciaTerapeuta(models.Model):
-    terapeuta = models.ForeignKey(Perfil_Terapeuta, on_delete=models.CASCADE, related_name='asistencias')
+    terapeuta = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name='asistencia_terapeutica',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
+   
+
     fecha = models.DateField()
     hora_entrada = models.TimeField()
     hora_salida = models.TimeField(null=True, blank=True)
@@ -980,30 +1040,12 @@ class AsistenciaTerapeuta(models.Model):
         ordering = ['-fecha', 'hora_entrada']
 
     def save(self, *args, **kwargs):
-        # Validación para evitar ambos en True
         if self.asistire and self.no_asistire:
             raise ValueError("Solo uno de los campos puede estar activo: 'asistire' o 'no_asistire'.")
 
         super().save(*args, **kwargs)
 
-        if not self.evento:
-            calendario, _ = Calendar.objects.get_or_create(name='terapeutas', slug='terapeutas')
-            
-            start = make_aware(datetime.combine(self.fecha, self.hora_entrada))
-            end = make_aware(datetime.combine(self.fecha, self.hora_salida or self.hora_entrada))
 
-            evento = Event.objects.create(
-                title=f"Asistencia de {self.terapeuta.nombres_completos}",
-                start=start,
-                end=end,
-                calendar=calendario,
-                description=self.observaciones
-            )
-            self.evento = evento
-            super().save(update_fields=['evento'])
-
-    def __str__(self):
-        return f"Asistencia {self.terapeuta.nombres_completos} - {self.fecha}"
 
 
 

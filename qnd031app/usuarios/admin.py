@@ -48,9 +48,33 @@ from unfold.contrib.filters.admin import (
     AutocompleteSelectFilter,
     AutocompleteSelectMultipleFilter
 )
+from django.contrib.auth.models import User, Group
+from django.contrib.auth.admin import UserAdmin, GroupAdmin
 
 
 
+# 1. Anular el registro por defecto
+admin.site.unregister(User)
+admin.site.unregister(Group)
+
+
+# Registrar el modelo User con UserAdmin (de Django) + ModelAdmin (de Unfold)
+@admin.register(User)
+class CustomUserAdmin(ModelAdmin):
+    list_display = ("username", "email", "first_name", "last_name", "is_staff", "is_active")
+    list_filter = ("is_staff", "is_superuser", "is_active", "groups")
+    search_fields = ("username", "email", "first_name", "last_name")
+    ordering = ("username",)
+    fieldsets = UserAdmin.fieldsets  # Heredar la estructura de campos de UserAdmin
+    add_fieldsets = UserAdmin.add_fieldsets  # Para vista de "añadir usuario"
+    filter_horizontal = ("groups", "user_permissions")
+
+
+# Registrar el modelo Group con estilo Unfold también
+@admin.register(Group)
+class CustomGroupAdmin(GroupAdmin, ModelAdmin):
+    search_fields = ("name",)
+    ordering = ("name",)
 
 
 
@@ -231,9 +255,14 @@ admin.site.register(User, CustomUserAdmin)
 
 @admin.register(ValoracionTerapia)
 class ValoracionTerapiaAdmin(ModelAdmin):
-    list_display = ['perfil_terapeuta','nombre', 'fecha_valoracion']
-    
+    list_display = ['get_perfil_terapeuta_full_name','nombre', 'fecha_valoracion','recibe_asesoria', 'proceso_terapia' ]
+    exclude = ('perfil_terapeuta',)
+    search_fields = ['nombre', 'perfil_terapeuta__first_name', 'perfil_terapeuta__last_name']
+    list_editable = ['proceso_terapia', 'recibe_asesoria']
     readonly_fields = ['edad']
+    #exclude = ('edad',)
+    list_filter = ("fecha_valoracion",)
+    order_by = ('-fecha_valoracion',)
     actions = [export_to_csv, export_to_excel]
 
     formfield_overrides = {
@@ -243,7 +272,19 @@ class ValoracionTerapiaAdmin(ModelAdmin):
         ArrayField: {
             "widget": ArrayWidget,
         }
+
     }
+
+    def get_perfil_terapeuta_full_name(self, obj):
+        return obj.perfil_terapeuta.get_full_name() if obj.perfil_terapeuta else "—"
+    get_perfil_terapeuta_full_name.short_description = "Terapeuta a Cargo"
+    get_perfil_terapeuta_full_name.admin_order_field = 'perfil_terapeuta__first_name'
+
+    def save_model(self, request, obj, form, change):
+        if not obj.pk:
+            obj.perfil_terapeuta = request.user
+        super().save_model(request, obj, form, change)
+    
 
 
 
@@ -257,19 +298,142 @@ class HorizontalChoicesFieldListFilter(ChoicesFieldListFilter):
 def badge_callback(request):
     return Perfil_Terapeuta.objects.count()
 
+
+@register_component
+class TerapeutaComponent(BaseComponent):
+    template_name = "admin/profile_card.html"
+    name = "Perfil de Terapeuta"
+
+    def __init__(self, request, instance=None):
+        self.request = request
+        self.instance = instance
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        p = self.instance  # Solo la instancia actual
+
+        headers = [
+            "Nombres Completos","Especialidad","edad", "Sexo", 
+        ]
+
+        row = [
+            p.user.first_name + " " + p.user.last_name,
+            p.especialidad, 
+            p.edad,
+            p.sexo,
+            
+            
+        ]
+
+        context.update({
+            "title": f"Perfil de {p.nombres_completos}",
+            "table": {
+                "headers": headers,
+                "rows": [row],  # Solo una fila con la instancia actual
+            }
+        })
+        return context
+    
+
+
+    def render(self):
+        return render_to_string(self.template_name, self.get_context_data())
+
+
+
+@register_component
+class TerapeutaContactoComponent(BaseComponent):
+    template_name = "admin/profile_card.html"
+    name = "Información de Contacto"
+
+    def __init__(self, request, instance=None):
+        self.request = request
+        self.instance = instance
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        p = self.instance  # Solo la instancia actual
+
+        headers = [
+            "Sucursal-MEDDES®","Correo Electrónico","Telefono de Contacto" 
+        ]
+
+        row = [
+            p.sucursal,
+            p.correo,
+            p.telefonos_contacto,
+            
+        ]
+
+        context.update({
+            "title": f"Perfil de {p.nombres_completos}",
+            "table": {
+                "headers": headers,
+                "rows": [row],  # Solo una fila con la instancia actual
+            }
+        })
+        return context
+    
+
+
+    def render(self):
+        return render_to_string(self.template_name, self.get_context_data())
+
+
+
+@register_component
+class TerapeutaBancariaComponent(BaseComponent):
+    template_name = "admin/profile_card.html"
+    name = "Información Bancaria"
+
+    def __init__(self, request, instance=None):
+        self.request = request
+        self.instance = instance
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        p = self.instance  # Solo la instancia actual
+
+        headers = [
+         "Banco", "Cédula", "Tipo de Cuenta", "Número de Cuenta", "($) Costo Serivio "
+        ]
+
+        row = [
+            p.banco,
+            p.cedula,
+            p.tipo_cuenta,
+            p.numero_cuenta,
+            p.pago_por_hora
+          
+        ]
+
+        context.update({
+            "title": f"Perfil de {p.nombres_completos}",
+            "table": {
+                "headers": headers,
+                "rows": [row],  # Solo una fila con la instancia actual
+            }
+        })
+        return context
+    
+
+
+    def render(self):
+        return render_to_string(self.template_name, self.get_context_data())
+
 @admin.register(Perfil_Terapeuta)
 class Perfil_TerapeutaAdmin(ModelAdmin):
-    unfold = {
-        "badge_callback": badge_callback,
-    }
-
         # Display fields in changeform in compressed mode
     compressed_fields = True  # Default: False
     form = PerfilTerapeutaForm 
     list_filter = (
         ["especialidad", HorizontalChoicesFieldListFilter],
     )
-
+    
+    list_sections = [TerapeutaComponent,TerapeutaContactoComponent,TerapeutaBancariaComponent]
 
     # Warn before leaving unsaved changes in changeform
     warn_unsaved_form = True  # Default: False
@@ -314,14 +478,15 @@ class Perfil_TerapeutaAdmin(ModelAdmin):
 
     formfield_overrides = {
         models.TextField: {
-            "widget": WysiwygWidget,
+            'widget': forms.Textarea(attrs={'rows': 4, 'cols': 60}),
         },
-        ArrayField: {
-            "widget": ArrayWidget,
-        }
     }
+
     search_fields = ('paciente__nombre','sucursal', 'terapeuta__nombres_completos')  # Ajusta a tus campos
-    list_display = ['get_full_name', 'especialidad','sucursal', 'especialidad']
+    list_display = ['get_full_name','sucursal','activo', 'servicio_domicilio','servicio_institucion' ]
+    list_editable = ['activo','servicio_domicilio','servicio_institucion']
+
+   
     
     actions = [ export_to_csv, export_to_excel]
     verbose_name = "Registro Administrativo / Ingreso de Terapeuta"
@@ -331,6 +496,8 @@ class Perfil_TerapeutaAdmin(ModelAdmin):
         return obj.user.get_full_name()  # assumes a related 'user' field with a get_full_name() method
     get_full_name.short_description = 'Terapeuta Registrado' 
 
+
+
 @admin.register(AsistenciaTerapeuta)
 class AsistenciaTerapeutaAdmin(ModelAdmin):
     # Configuraciones de visualización y comportamiento
@@ -338,11 +505,23 @@ class AsistenciaTerapeutaAdmin(ModelAdmin):
     change_form_show_cancel_button = True
 
     # Configuración de campos
-    list_display = ('terapeuta', 'fecha', 'hora_entrada', 'hora_salida')
+    list_display = ('get_terapeuta_full_name', 'fecha', 'hora_entrada', 'hora_salida', 'no_asistire','asistire')
     list_filter = ('fecha', 'terapeuta')
-    search_fields = ('terapeuta__nombres_completos',)
+    list_editable = ('no_asistire','asistire')
+    search_fields = ('terapeuta',)
     autocomplete_fields = ['terapeuta']
     actions = [export_to_csv, export_to_excel]
+    exclude = ('terapeuta',)
+
+    def get_terapeuta_full_name(self, obj):
+        return obj.terapeuta.get_full_name() if obj.terapeuta else "—"
+    get_terapeuta_full_name.short_description = "Terapeuta a Cargo"
+    get_terapeuta_full_name.admin_order_field = 'terapeuta__first_name'
+
+    def save_model(self, request, obj, form, change):
+        if not obj.pk:
+            obj.terapeuta = request.user
+        super().save_model(request, obj, form, change)
 
     formfield_overrides = {
         models.TextField: {
@@ -497,10 +676,28 @@ class tareasAdmin(ModelAdmin):
         }
     }
 
-    list_display = ['paciente', 'terapeuta', 'fecha_envio','fecha_entrega','media_terapia']
+    search_fields = ['paciente__nombre', 'terapeuta__nombres_completos', 'tarea']
+    list_filter = (
+        'fecha_envio',
+        'fecha_entrega',)
+    list_editable = ['realizada', 'tarea_no_realizada']
+
+    list_display = ['get_terapeuta_full_name', 'fecha_envio','fecha_entrega','realizada', 'tarea_no_realizada']
+    exclude = ('terapeuta',)
     actions = [ export_to_csv, export_to_excel]
     verbose_name = "Registro Administrativo / Tarea Terapéutica"
     verbose_name_plural = "Administrativo / Tareas Terapéuticas"
+
+    def get_terapeuta_full_name(self, obj):
+        return obj.terapeuta.get_full_name() if obj.terapeuta else "—"
+    get_terapeuta_full_name.short_description = "Terapeuta a Cargo"
+    get_terapeuta_full_name.admin_order_field = 'terapeuta__first_name'
+
+    def save_model(self, request, obj, form, change):
+        if not obj.pk:
+            obj.terapeuta = request.user
+        super().save_model(request, obj, form, change)
+
 
 
 @admin.register(Prospeccion)
@@ -608,11 +805,9 @@ class prospecion_administrativaAdmin(ModelAdmin):
 
     # Mostrar campos clave
     list_display = [
-        'nombre', 'fecha_estado_actualizado',
-        'ciudad', 'mail_institucion_general',
-        'responsable_institucional_1', 'telefono_responsable_1'
+        'nombre','responsable_institucional_1','mail_responsable_1','telefono_responsable_1', 'es_en_cita', 'es_valoracion', 'es_finalizado'
     ]
-
+    #list_editable = ('pendiente','confirmada','cancelada',)
     list_filter = (
         # Autocomplete filter
         ["nombre", AutocompleteSelectFilter],
@@ -620,6 +815,7 @@ class prospecion_administrativaAdmin(ModelAdmin):
 
   
     )
+    list_editable = ['es_en_cita', 'es_valoracion', 'es_finalizado']
 
     search_fields = ['nombre', 'ciudad', 'responsable_institucional_1']
 
@@ -667,8 +863,10 @@ def duplicar_citas(modeladmin, request, queryset):
 
 @admin.register(Mensaje)
 class MensajeAdmin(ModelAdmin):
-    list_display = ['emisor', 'receptor', 'asunto', 'leido', 'fecha_envio']
+    list_display = ['get_emisor_full_name', 'get_receptor_full_name', 'asunto', 'fecha_envio', 'leido']
     list_filter = ['leido', 'asunto', 'sucursal']
+    exclude= ('emisor',)
+    list_editable = ['leido']
     search_fields = ['emisor__username', 'receptor__username', 'cuerpo']
     actions = [duplicar_mensajes]
 
@@ -676,6 +874,22 @@ class MensajeAdmin(ModelAdmin):
     list_filter = (
         ("fecha_envio", RangeDateTimeFilter),
     )
+
+    def get_emisor_full_name(self, obj):
+        return obj.emisor.get_full_name() if obj.emisor else "—"
+    get_emisor_full_name.short_description = "Desde"
+    get_emisor_full_name.admin_order_field = 'emisor__first_name'
+
+    def get_receptor_full_name(self, obj):
+        return obj.receptor.get_full_name() if obj.receptor else "—"
+    get_receptor_full_name.short_description = "Para"
+    get_emisor_full_name.admin_order_field = 'receptor__first_name'           
+
+    def save_model(self, request, obj, form, change):
+        if not obj.pk:
+            obj.emisor = request.user
+        super().save_model(request, obj, form, change)
+    
 
     def estado_tarea_coloreado(self, obj):
         estado = obj.estado_tarea
@@ -700,9 +914,54 @@ class MensajeAdmin(ModelAdmin):
     estado_tarea_coloreado.admin_order_field = 'task_id'
 
 
+@register_component
+class PagosComponent(BaseComponent):
+    template_name = "admin/profile_card.html"
+    name = "Información de Cuenta"
+
+    def __init__(self, request, instance=None):
+        self.request = request
+        self.instance = instance
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        p = self.instance  # Solo la instancia actual
+
+        headers = [
+        "Nombre de Paciente","Institución","sucursal-MEDDES®","servicio","plan", 
+        ]
+
+        row = [
+            p.cliente.first_name + " " + p.cliente.last_name,
+            p.colegio,
+            p.sucursal,
+            p.servicio,
+            p.plan,
+            
+        ]
+
+        context.update({
+            "title": f"Perfil de {p.cliente.first_name }",
+            "table": {
+                "headers": headers,
+                "rows": [row],  # Solo una fila con la instancia actual
+            }
+        })
+        return context
+    
+
+
+    def render(self):
+        return render_to_string(self.template_name, self.get_context_data())
+
 @admin.register(pagos)
 class PagosAdmin(ModelAdmin):
-    list_display = ['profile', 'cuenta', 'colegio', 'plan','servicio','estado_de_pago','convenio','pago']
+    list_display = ['numero_factura','vencido','pendiente','al_dia','pago']
+    list_editable = ['vencido','pendiente','al_dia',]
+    list_sections = [PagosComponent]
+    list_filter = ("vencido",)
+    search_fields = ('numero_factura',)
     list_filter_sheet = True
     list_filter_submit = True  # Submit button at the bottom of the filter
     actions = [ export_to_csv, export_to_excel]
@@ -916,6 +1175,7 @@ class CitaAdmin(ModelAdmin):
     list_fullwidth = True
     change_form_show_cancel_button = True
     exclude = ('creador',)
+    ordering = ['fecha']
 
     actions = [export_to_csv, export_to_excel, duplicar_citas]
     actions_list = []
@@ -1180,6 +1440,7 @@ class ProfileCardSection(TemplateSection):
 @admin.register(Profile)
 class ProfileAdmin(ModelAdmin):
     readonly_fields = ['edad']  
+    autocomplete_fields = ['user','user_terapeuta',]
             # Display fields in changeform in compressed mode
     compressed_fields = True  # Default: False
     inlines = [TareaItemInline,CitaItemInline,PagosItemInline]
@@ -1239,14 +1500,14 @@ class ProfileAdmin(ModelAdmin):
         }
     }
 
-    list_display = ['get_full_name','edad','fecha_alta','es_en_terapia', 'es_retirado', 'es_alta']
+    list_display = ['get_full_name','edad','fecha_alta','es_retirado','es_en_terapia', 'es_alta']
 
     @admin.display(description='Nombre completo')
     def get_full_name(self, obj):
         return obj.user.get_full_name()
 
 
-    list_editable  = ['es_en_terapia', 'es_retirado', 'es_alta']
+    list_editable  = ['es_retirado','es_en_terapia', 'es_alta']
     list_filter= ['nombre_paciente','sucursales','tipo_servicio','fecha_inicio','fecha_alta']
     actions = [ export_to_csv, export_to_excel]
     verbose_name = "Registro Administrativo / Ingreso de Paciente"

@@ -55,24 +55,25 @@ INSTALLED_APPS = [
 
     
     "unfold",  # before django.contrib.admin
+    "django.contrib.admin",
+    "django.contrib.auth",
 
     "unfold.contrib.forms",
+    "unfold.contrib.filters",  # optional, if special filters are needed
+    "unfold.contrib.inlines",  # optional, if special inlines are needed
+    "unfold.contrib.import_export",  # optional, if django-import-export package is used
+    "unfold.contrib.guardian",  # optional, if django-guardian package is used
+    "unfold.contrib.simple_history",
 
     #'webapp',
     'django.contrib.contenttypes',
-    'django.contrib.admin',
-    'django.contrib.auth',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
     
     'citas_regulares',
-    "unfold.contrib.filters",  # optional, if special filters are needed
-    "unfold.contrib.inlines",  # optional, if special inlines are needed
-    "unfold.contrib.import_export",  # optional, if django-import-export package is used
-    "unfold.contrib.guardian",  # optional, if django-guardian package is used
-    "unfold.contrib.simple_history",
+
 
    # 'appointment',
     'django_extensions',
@@ -339,7 +340,8 @@ UNFOLD = {
 
                     {
                         "title": _("Actividades"), 
-                        "icon": "task", "link": reverse_lazy("admin:usuarios_tareas_changelist"),
+                        "icon": "task", 
+                        "link": reverse_lazy("admin:usuarios_tareas_changelist"),
                         "badge": "usuarios.unfold_config.badge_callback_tareas",
                         "badge_color": "custom-red-alert",
                       #  "permission": "usuarios.unfold_config.permission_callback",

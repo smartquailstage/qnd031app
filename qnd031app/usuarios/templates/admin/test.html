@@ -1,42 +1,37 @@
 {% load filters %}
 <div class="bg-white border border-base-200 flex flex-col grow overflow-hidden p-6 relative rounded-default shadow-xs light:bg-base-900 light:border-base-800">
   <div class="grow relative">
-    <!-- Scroll horizontal y vertical aquí -->
     <div class="max-h-[600px] overflow-auto">
-      <table class="border-separate w-full min-w-[900px]">
-        <thead class="sticky top-0 bg-white z-10">
-          <tr>
-            <th class="bg-white"></th>
+      <table class="border-collapse w-full min-w-[900px]">
+        <thead class="sticky top-0 z-10">
+          <tr class="bg-base-50 dark:bg-base-800">
+            <th class="border border-dashed border-base-200 bg-white dark:bg-base-900 sticky left-0 z-20"></th>
             {% for hora in horas %}
-              <th class="font-normal px-3 pb-2.5 text-left bg-white">
-                <div class="font-semibold text-font-important-light truncate dark:text-font-important-dark">
-                  {{ hora }}
-                </div>
-                <div class="mt-0.5 text-xs truncate">–</div>
+              <th class="border border-dashed border-base-200 font-normal px-3 py-2 text-left bg-white dark:bg-base-900 text-font-important-light dark:text-font-important-dark">
+                <div class="font-semibold truncate">{{ hora }}</div>
+                <div class="mt-0.5 text-xs truncate">{{ hora|date:"H:i" }}</div>
               </th>
             {% endfor %}
           </tr>
         </thead>
         <tbody>
           {% for dia in dias %}
-            <tr class="h-full">
-              <td class="bg-white sticky left-0 z-10">
-                <div class="pr-3 py-2.5 bg-white">
-                  <div class="font-semibold text-font-important-light truncate dark:text-font-important-dark">
-                    {{ dia|date:"M d, Y" }}
-                  </div>
-                  <div class="mt-0.5 text-xs">Día</div>
+            <tr>
+              <td class="border border-dashed border-base-200 sticky left-0 z-10 bg-white dark:bg-base-900 px-3 py-2">
+                <div class="font-semibold text-font-important-light truncate dark:text-font-important-dark">
+                {{ dia|date:"j \\d\\e F " }}
                 </div>
+                <div class="mt-0.5 text-xs">{{ dia|date:"l" }}</div>
               </td>
 
               {% with dia_str=dias_str_map|get_item:dia %}
                 {% with dia_agenda=agenda|get_item:dia_str %}
                   {% for hora in horas %}
-                    <td class="h-full align-top">
+                    <td class="border border-dashed border-base-200 align-top px-3 py-2 bg-white dark:bg-base-900">
                       {% with citas=dia_agenda|get_item:hora %}
                         {% if citas %}
                           {% for cita in citas %}
-                            <div class="flex flex-col h-auto justify-center px-3 py-2.5 mb-2 rounded-default
+                            <div class="flex flex-col justify-center px-2 py-2 mb-2 rounded-default
                               {% if cita.estado == 'Pendiente' %}
                                 bg-blue-600
                               {% elif cita.estado == 'Confirmada' %}
@@ -56,7 +51,7 @@
                             </div>
                           {% endfor %}
                         {% else %}
-                          <div class="text-gray-400 text-xs px-3 py-2.5">–</div>
+                          <div class="text-gray-400 text-xs">–</div>
                         {% endif %}
                       {% endwith %}
                     </td>
