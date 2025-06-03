@@ -551,30 +551,77 @@ class Perfil_TerapeutaAdmin(ModelAdmin):
 
 
 
+
+
+@register_component
+class AsistenciaComponent(BaseComponent):
+    template_name = "admin/profile_card.html"
+    name = "Información Asistencia terapeuta"
+
+    def __init__(self, request, instance=None):
+        self.request = request
+        self.instance = instance  # instancia de AsistenciaTerapeuta
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        if hasattr(self.instance, 'terapeuta'):
+            terapeuta = self.instance.terapeuta
+        else:
+            terapeuta = self.instance  # fallback (por si se pasa directamente un User)
+
+        if not isinstance(terapeuta, User):
+            context.update({"error": "Instancia no válida para el componente."})
+            return context
+
+        asistencias = AsistenciaTerapeuta.objects.filter(terapeuta=terapeuta)
+
+        headers = [
+            "Evento", "Sucursal", "Hora de salida", "¿Asistirá?", "¿No asistirá?", "Observaciones"
+        ]
+
+        rows = []
+        for asistencia in asistencias:
+            rows.append([
+                str(asistencia.evento) if asistencia.evento else "Sin evento",
+                str(asistencia.sucursal) if asistencia.sucursal else "Sin sucursal",
+                asistencia.hora_salida.strftime("%H:%M") if asistencia.hora_salida else "Sin hora",
+                "✅" if asistencia.asistire else "❌",
+                "✅" if asistencia.no_asistire else "❌",
+                asistencia.observaciones or "Sin observaciones"
+            ])
+
+        context.update({
+            "title": f"Asistencia de {terapeuta.get_full_name() if terapeuta else '—'}",
+            "table": {
+                "headers": headers,
+                "rows": rows,
+            }
+        })
+        return context
+
+    def render(self):
+        return render_to_string(self.template_name, self.get_context_data())
+
+
+
+
+
+
+
+
 @admin.register(AsistenciaTerapeuta)
 class AsistenciaTerapeutaAdmin(ModelAdmin):
-    # Configuraciones de visualización y comportamiento
-    #change_list_template = "admin/dashboard_calendar.html"
     change_form_show_cancel_button = True
 
-    # Configuración de campos
-    list_display = ('get_terapeuta_full_name', 'fecha', 'hora_entrada', 'hora_salida', 'no_asistire','asistire')
-    list_filter = ('fecha', 'terapeuta')
-    list_editable = ('no_asistire','asistire')
-    search_fields = ('terapeuta',)
+    list_display = ('get_terapeuta_full_name', 'evento', 'hora_salida', 'no_asistire', 'asistire')
+    list_filter = ('terapeuta', 'no_asistire', 'asistire', 'evento')
+    list_sections = [AsistenciaComponent]
+    list_editable = ('no_asistire', 'asistire')
+    search_fields = ('terapeuta__first_name', 'terapeuta__last_name')
     autocomplete_fields = ['terapeuta']
     actions = [export_to_csv, export_to_excel]
     exclude = ('terapeuta',)
-
-    def get_terapeuta_full_name(self, obj):
-        return obj.terapeuta.get_full_name() if obj.terapeuta else "—"
-    get_terapeuta_full_name.short_description = "Terapeuta a Cargo"
-    get_terapeuta_full_name.admin_order_field = 'terapeuta__first_name'
-
-    def save_model(self, request, obj, form, change):
-        if not obj.pk:
-            obj.terapeuta = request.user
-        super().save_model(request, obj, form, change)
 
     formfield_overrides = {
         models.TextField: {
@@ -584,6 +631,28 @@ class AsistenciaTerapeutaAdmin(ModelAdmin):
             "widget": ArrayWidget,
         }
     }
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        
+        # Filtrar asistencias donde el evento tiene como profile_terapeuta al usuario actual
+        return qs.filter(evento__profile_terapeuta__user=request.user)
+
+    def get_terapeuta_full_name(self, obj):
+        if obj.terapeuta:
+            return f"{obj.terapeuta.first_name} {obj.terapeuta.last_name}".strip()
+        return "—"
+    get_terapeuta_full_name.short_description = "Terapeuta a Cargo"
+    get_terapeuta_full_name.admin_order_field = 'terapeuta__first_name'
+
+    def save_model(self, request, obj, form, change):
+        if not obj.pk:
+            obj.terapeuta = request.user
+        super().save_model(request, obj, form, change)
+
+
 
 
 @admin.register(BitacoraDesarrollo)

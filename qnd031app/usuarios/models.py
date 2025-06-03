@@ -1014,28 +1014,21 @@ class AsistenciaTerapeuta(models.Model):
         null=True,
         blank=True
     )
-   
-
-    fecha = models.DateField()
-    hora_entrada = models.TimeField()
-    hora_salida = models.TimeField(null=True, blank=True)
-    observaciones = models.TextField(blank=True)
-
-    evento = models.OneToOneField(Cita, null=True, blank=True, on_delete=models.SET_NULL, verbose_name="Cita Agendada")
-    
     sucursal = models.ForeignKey(
         Sucursal,
         on_delete=models.CASCADE,
         related_name="sucursal2", null=True, blank=True
     )
-
-    # Nuevos campos booleanos de asistencia
+    evento = models.OneToOneField(Cita, null=True, blank=True, on_delete=models.SET_NULL, verbose_name="Cita Agendada")
+    hora_salida = models.TimeField(null=True, blank=True)
     asistire = models.BooleanField(default=False, verbose_name="¿Confirmo que asistiré?")
     no_asistire = models.BooleanField(default=False, verbose_name="¿Confirmo que no asistiré?")
+    observaciones = models.TextField(blank=True)
+
 
     class Meta:
-        unique_together = ('terapeuta', 'fecha', 'hora_entrada')
-        ordering = ['-fecha', 'hora_entrada']
+        unique_together = ('terapeuta', 'hora_salida')
+        ordering = ['-evento']
 
     def save(self, *args, **kwargs):
         if self.asistire and self.no_asistire:
