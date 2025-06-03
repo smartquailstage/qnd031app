@@ -21,6 +21,7 @@ from django.utils.timezone import make_aware
 from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
 from django.core.exceptions import ValidationError
+from tinymce.models import HTMLField
 
 
 
@@ -902,7 +903,7 @@ class tareas(models.Model):
     fecha_entrega = models.DateField(blank=True, null=True, verbose_name="Fecha de entrega de tarea")
     material_adjunto =  models.FileField(upload_to='materiales/%Y/%m/%d/', blank=True, verbose_name="Material adjunto")
     media_terapia =  models.FileField(upload_to='Videos/%Y/%m/%d/', blank=True, verbose_name="Contenido Multimedia de Terapia")
-    descripcion_tarea = models.TextField(blank=True, null=True,verbose_name="Descripción de la tarea")
+    descripcion_tarea =  HTMLField(null=True, blank=True, verbose_name="Comentario o actividad a realizar")
     realizada = models.BooleanField(default=False, verbose_name="¿Paciente realizó la tarea?")
     tarea_no_realizada = models.BooleanField(default=False, verbose_name="¿Paciente Culminó la Terapia ?")
     sucursal = models.ForeignKey(
@@ -927,7 +928,7 @@ class tareas(models.Model):
 class TareaComentario(models.Model):
     tarea = models.ForeignKey('tareas', on_delete=models.CASCADE, related_name='comentarios')
     autor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    mensaje = models.TextField(verbose_name="Comentario o actividad")
+    mensaje = HTMLField(null=True, blank=True, verbose_name="Comentario o actividad a realizar")
     archivo = models.FileField(upload_to='tareas_respuestas/%Y/%m/%d/', blank=True, null=True, verbose_name="Archivo adjunto")
     fecha = models.DateTimeField(auto_now_add=True)
 
@@ -956,7 +957,7 @@ class Mensaje(models.Model):
     emisor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='mensajes_enviados', on_delete=models.CASCADE)
     receptor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='mensajes_recibidos', on_delete=models.CASCADE, verbose_name="Destinatario")
     asunto = models.CharField(max_length=50, choices=ASUNTOS_CHOICES, default='Consulta')  
-    cuerpo = RichTextField(blank=True, null=True)
+    cuerpo = HTMLField(null=True, blank=True, verbose_name="Cuerpo del mensaje")
     leido = models.BooleanField(default=False)
     creado = models.DateTimeField(default=timezone.now)
     fecha_envio = models.DateTimeField(auto_now_add=True)
@@ -1023,7 +1024,7 @@ class AsistenciaTerapeuta(models.Model):
     hora_salida = models.TimeField(null=True, blank=True)
     asistire = models.BooleanField(default=False, verbose_name="¿Confirmo que asistiré?")
     no_asistire = models.BooleanField(default=False, verbose_name="¿Confirmo que no asistiré?")
-    observaciones = models.TextField(blank=True)
+    observaciones =  HTMLField(null=True, blank=True, verbose_name="En caso de no asistir, explique el motivo")
 
 
     class Meta:

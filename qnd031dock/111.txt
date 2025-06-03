@@ -80,6 +80,9 @@ django-bootstrap4
 # Django JQuery
 django-jquery
 
+
+django-tinymce==4.1.0
+
 # Django Embed Video
 django-embed-video
 

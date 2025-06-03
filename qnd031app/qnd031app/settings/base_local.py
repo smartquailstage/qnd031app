@@ -134,6 +134,7 @@ INSTALLED_APPS = [
 
     'bootstrap_datepicker_plus',
     'djmoney',
+    'tinymce',
    
 
     #WEBAPP

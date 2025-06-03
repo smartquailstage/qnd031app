@@ -30,6 +30,7 @@ from django.conf.urls.i18n import i18n_patterns
 
 # Change the parentheses to square brackets for a list
 urlpatterns = [
+    path('tinymce/', include('tinymce.urls')),
    # path("admin2/", custom_admin_site.urls),
    # path("Agenda_Meddes/", include("agenda.urls")),
     path("Citas_regulares/", include("citas_regulares.urls")),

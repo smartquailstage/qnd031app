@@ -13,7 +13,7 @@ psycopg
 django-social-share
 django_extensions
 
-
+django-tinymce==4.1.0
 
 # XlsxWriter
 XlsxWriter
