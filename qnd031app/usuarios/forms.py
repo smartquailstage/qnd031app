@@ -9,7 +9,7 @@ from django.forms import DateInput
 from .models import Mensaje, Cita ,TareaComentario,ServicioTerapeutico 
 from ckeditor.widgets import CKEditorWidget
 from django.forms.models import inlineformset_factory
-from .models import prospecion_administrativa, DocenteCapacitado, Perfil_Terapeuta
+from .models import prospecion_administrativa, DocenteCapacitado, Perfil_Terapeuta, ValoracionTerapia
 from bootstrap_datepicker_plus.widgets import DatePickerInput
 from django import forms
 from .widgets import CustomDatePickerWidget
@@ -132,3 +132,20 @@ class PerfilTerapeutaForm(forms.ModelForm):
             'fecha_nacimiento': CustomDatePickerWidget(),
         }
 
+class PerfilPacientesForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = '__all__'
+        widgets = {
+            'fecha_nacimiento': CustomDatePickerWidget(),
+        }
+
+class ValoracionForm(forms.ModelForm):
+    class Meta:
+        model = ValoracionTerapia
+        fields = '__all__'
+        widgets = {
+            'fecha_nacimiento': CustomDatePickerWidget(),
+            'fecha_valoracion': CustomDatePickerWidget(),   
+            'observaciones': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+        }

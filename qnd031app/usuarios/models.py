@@ -323,7 +323,7 @@ class Perfil_Terapeuta(models.Model):
     )
     correo = models.EmailField(verbose_name="Correo Electrónico", null=True, blank=True)
 
-    edad = models.PositiveIntegerField(null=True, blank=True)
+    #edad = models.PositiveIntegerField(null=True, blank=True)
     sexo = models.CharField(max_length=1, choices=SEXO_OPCIONES, null=True, blank=True)
     fecha_nacimiento = models.DateField(null=True, blank=True)
     cedula = models.CharField(max_length=20, null=True, blank=True)
@@ -384,6 +384,15 @@ class Perfil_Terapeuta(models.Model):
         ordering = ['user']
         verbose_name = "Registro Administrativo / Ingreso de Terapista"
         verbose_name_plural = "Registro Administrativo / Ingreso de Terapista"
+
+    @property
+    def edad(self):
+        today = date.today()
+        if self.fecha_nacimiento:
+            return today.year - self.fecha_nacimiento.year - (
+                (today.month, today.day) < (self.fecha_nacimiento.month, self.fecha_nacimiento.day)
+            )
+        return None
 
     def __str__(self):
         return f'{self.user.get_full_name()}'
@@ -481,8 +490,8 @@ class Profile(models.Model):
     apellidos_paciente = models.CharField(max_length=255, blank=True, null=True, verbose_name="Apellidos")
     nacionalidad = models.CharField(blank=True, null=True, max_length=100, verbose_name="Nacionalidad")
     sexo = models.CharField(blank=True, null=True, max_length=120, choices=[("MASCULINO", "Masculino"), ("FEMENINO", "Femenino")], verbose_name="Sexo del Paciente")
-    fecha_nacimiento = models.DateField(blank=True, null=True, verbose_name="Fecha de Nacimiento")
-    edad =  models.CharField(max_length=255, blank=True, null=True, verbose_name="Edad")
+    fecha_nacimiento = models.DateField(null=True, blank=True)
+   # edad =  models.CharField(max_length=255, blank=True, null=True, verbose_name="Edad")
     institucion =  models.ForeignKey(
         Prospeccion,
         on_delete=models.CASCADE,
@@ -562,10 +571,10 @@ class Profile(models.Model):
         ('otro', 'Otro'),
     ]
 
-    es_en_terapia = models.BooleanField(default=False, verbose_name="¿Ha estado en terapia?")
-    es_retirado = models.BooleanField(default=False, verbose_name="¿Ha sido retirado?")
-    es_alta = models.BooleanField(default=False, verbose_name="¿Tiene alta terapéutica?")
-    es_pausa = models.BooleanField(default=False, verbose_name="¿Ha estado en pausa?")
+    es_en_terapia = models.BooleanField(default=False, verbose_name="En terapia")
+    es_retirado = models.BooleanField(default=False, verbose_name="Retirado")
+    es_alta = models.BooleanField(default=False, verbose_name="En Alta")
+    es_pausa = models.BooleanField(default=False, verbose_name="En Pausa")
 
     valorizacion_terapeutica = models.ForeignKey(
         ValoracionTerapia,
@@ -600,9 +609,9 @@ class Profile(models.Model):
     motivo_retiro = models.CharField(max_length=50, choices=MOTIVOS_RETIRO, null=True, blank=True)
     motivo_otro = models.CharField(max_length=255, null=True, blank=True, help_text="Especifique otro motivo (si aplica)")
 
-    fecha_inicio = models.DateField(blank=True, null=True, verbose_name="Fecha de inicio de tratamiento")
+    fecha_inicio = models.DateField(blank=True, null=True, verbose_name="Fecha de inicio")
 
-    fecha_alta = models.DateField(null=True, blank=True,verbose_name="Fecha de terminación de tratamiento")
+    fecha_alta = models.DateField(null=True, blank=True,verbose_name="Fecha de Alta")
     fecha_pausa = models.DateField(null=True, blank=True)
     fecha_re_inicio = models.DateField(blank=True, null=True, verbose_name="Fecha de re inicio de tratamiento")
 
@@ -616,21 +625,15 @@ class Profile(models.Model):
         verbose_name_plural = "Registro Administrativo / Ingreso de Paciente"   
 
     @property
-    def edad_paciente(self):
+    def edad(self):
+        today = date.today()
         if self.fecha_nacimiento:
-            today = date.today()
-            nacimiento = self.fecha_nacimiento
-            edad = today.year - nacimiento.year - ((today.month, today.day) < (nacimiento.month, nacimiento.day))
-            return edad
+            return today.year - self.fecha_nacimiento.year - (
+                (today.month, today.day) < (self.fecha_nacimiento.month, self.fecha_nacimiento.day)
+            )
         return None
 
-    def save(self, *args, **kwargs):
-        edad_calculada = self.edad_paciente
-        if edad_calculada is not None:
-            self.edad = str(edad_calculada)  # Lo guardamos como string ya que el campo es CharField
-        else:
-            self.edad = None
-        super().save(*args, **kwargs)
+
 
     @property
     def nombre_completo(self):
@@ -790,7 +793,8 @@ class Cita(models.Model):
     destinatario = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name='citas_recibidas',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name="Cita con:",
     )
     sucursal = models.ForeignKey(
         'Sucursal',
@@ -837,9 +841,9 @@ class Cita(models.Model):
     )
 
     # Representación del estado con booleanos
-    pendiente = models.BooleanField(default=True, verbose_name="¿Pendiente?")
-    confirmada = models.BooleanField(default=False, verbose_name="¿Confirmada?")
-    cancelada = models.BooleanField(default=False, verbose_name="¿Cancelada?")
+    pendiente = models.BooleanField(default=True, verbose_name="Pendiente")
+    confirmada = models.BooleanField(default=False, verbose_name="Confirmada")
+    cancelada = models.BooleanField(default=False, verbose_name="Cancelada")
 
     class Meta:
         ordering = ['-fecha']
@@ -883,15 +887,9 @@ def __str__(self):
 
 
 class tareas(models.Model):
-    paciente = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        related_name='paciente_asigna_tarea',
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True
-    )
+
     cita_terapeutica_asignada = models.OneToOneField(Cita, on_delete=models.CASCADE, verbose_name="Elija la cita correspondiente a esta sesion de terapia", null=True, blank=True)
-    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, verbose_name="Asignar perfil de paciente", related_name='Asignar_perfil_de_paciente2')
     terapeuta = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name='terapeuta_asiga_tarea',
@@ -917,12 +915,12 @@ class tareas(models.Model):
 
 
     class Meta:
-        ordering = ['paciente']
+        ordering = ['profile__user__first_name']
         verbose_name_plural = "Tareas Asignadas"
         verbose_name = "Paciente/ Tareas"
 
     def __str__(self):
-        return f"Tareas terapéuticas de {self.paciente.username}"
+        return f"Tareas terapéuticas de {self.profile.nombre_paciente} {self.profile.apellidos_paciente} - {self.titulo}"
 
 
 

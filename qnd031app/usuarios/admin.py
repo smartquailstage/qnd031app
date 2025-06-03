@@ -1,7 +1,7 @@
 import csv
 import xlsxwriter
 import datetime
-import datetime
+from datetime import datetime
 from django.contrib import admin
 from django.http import HttpResponse
 from .models import Profile, BitacoraDesarrollo, Perfil_Terapeuta, Mensaje,ServicioTerapeutico, Sucursal , ValoracionTerapia ,DocenteCapacitado, Cita,ComentarioCita, TareaComentario ,AsistenciaTerapeuta,prospecion_administrativa,Prospeccion, tareas, pagos
@@ -34,7 +34,7 @@ from django.utils import timezone
 from unfold.components import BaseComponent, register_component
 from unfold.sections import TableSection, TemplateSection
 from django.utils.timezone import now
-from .forms import ServicioTerapeuticoForm, ProspecionAdministrativaForm,PerfilTerapeutaForm
+from .forms import ServicioTerapeuticoForm,ValoracionForm, ProspecionAdministrativaForm,PerfilTerapeutaForm,PerfilPacientesForm
 from django.template.loader import render_to_string
 from unfold.decorators import action
 from django.http import HttpRequest
@@ -46,11 +46,12 @@ from unfold.admin import StackedInline, TabularInline
 
 from unfold.contrib.filters.admin import (
     AutocompleteSelectFilter,
-    AutocompleteSelectMultipleFilter
+    AutocompleteSelectMultipleFilter,
+     RangeDateFilter, RangeDateTimeFilter
 )
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
-
+from .widgets import CustomDatePickerWidget
 
 
 # 1. Anular el registro por defecto
@@ -180,7 +181,7 @@ def export_to_csv(modeladmin, request, queryset):
         data_row = [] 
         for field in fields: 
             value = getattr(obj, field.name) 
-            if isinstance(value, datetime.datetime): 
+            if isinstance(value, datetime): 
                 value = value.strftime('%d/%m/%Y') 
             data_row.append(value) 
         writer.writerow(data_row) 
@@ -207,7 +208,7 @@ def export_to_excel(modeladmin, request, queryset):
     for row_num, obj in enumerate(queryset, start=1):
         for col_num, field in enumerate(fields):
             value = getattr(obj, field.name)
-            if isinstance(value, datetime.datetime):
+            if isinstance(value, datetime):
                 value = value.strftime('%d/%m/%Y')
             worksheet.write(row_num, col_num, str(value))  # Convertir a cadena de texto
 
@@ -253,6 +254,46 @@ admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
 
 
+
+@register_component
+class ValoracionComponent(BaseComponent):
+    template_name = "admin/profile_card.html"
+    name = "Valoracion"
+
+    def __init__(self, request, instance=None):
+        self.request = request
+        self.instance = instance
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        p = self.instance  # Solo la instancia actual
+
+        headers = [
+            "Edad (Años)",'servicio', "Institución",    
+            'fecha de asesoria','Valoracion/Archivo Adjunto'
+        ]
+
+        row = [
+            p.edad,
+            p.servicio,
+            p.institucion if p.institucion else "",
+            p.fecha_asesoria.strftime('%d/%m/%Y') if p.fecha_asesoria else "Sin Fecha de Asesoría",
+            p.archivo_adjunto.url if p.archivo_adjunto else "Sin Archivo Adjunto",
+        ]
+
+        context.update({
+            "title": f"Información de Valoración",
+            "table": {
+                "headers": headers,
+                "rows": [row],  # Solo una fila con la instancia actual
+            }
+        })
+        return context
+
+    def render(self):
+        return render_to_string(self.template_name, self.get_context_data())
+
 @admin.register(ValoracionTerapia)
 class ValoracionTerapiaAdmin(ModelAdmin):
     list_display = ['get_perfil_terapeuta_full_name','nombre', 'fecha_valoracion','recibe_asesoria', 'proceso_terapia' ]
@@ -260,8 +301,9 @@ class ValoracionTerapiaAdmin(ModelAdmin):
     search_fields = ['nombre', 'perfil_terapeuta__first_name', 'perfil_terapeuta__last_name']
     list_editable = ['proceso_terapia', 'recibe_asesoria']
     readonly_fields = ['edad']
+    list_sections = [ValoracionComponent]
     #exclude = ('edad',)
-    list_filter = ("fecha_valoracion",)
+    list_filter = ("sucursal",'recibe_asesoria', 'proceso_terapia','es_particular','es_convenio')
     order_by = ('-fecha_valoracion',)
     actions = [export_to_csv, export_to_excel]
 
@@ -271,7 +313,10 @@ class ValoracionTerapiaAdmin(ModelAdmin):
         },
         ArrayField: {
             "widget": ArrayWidget,
-        }
+        },
+        models.DateField: {
+            "widget": CustomDatePickerWidget,
+        },
 
     }
 
@@ -302,7 +347,7 @@ def badge_callback(request):
 @register_component
 class TerapeutaComponent(BaseComponent):
     template_name = "admin/profile_card.html"
-    name = "Perfil de Terapeuta"
+    name = "Información Personal"
 
     def __init__(self, request, instance=None):
         self.request = request
@@ -314,12 +359,12 @@ class TerapeutaComponent(BaseComponent):
         p = self.instance  # Solo la instancia actual
 
         headers = [
-            "Nombres Completos","Especialidad","edad", "Sexo", 
+            "Nombres Completos","Fecha de Ingreso","edad", "Sexo", 
         ]
 
         row = [
             p.user.first_name + " " + p.user.last_name,
-            p.especialidad, 
+            p.fecha_ingreso, 
             p.edad,
             p.sexo,
             
@@ -327,7 +372,7 @@ class TerapeutaComponent(BaseComponent):
         ]
 
         context.update({
-            "title": f"Perfil de {p.nombres_completos}",
+            "title": f"Información Personaal",
             "table": {
                 "headers": headers,
                 "rows": [row],  # Solo una fila con la instancia actual
@@ -357,18 +402,18 @@ class TerapeutaContactoComponent(BaseComponent):
         p = self.instance  # Solo la instancia actual
 
         headers = [
-            "Sucursal-MEDDES®","Correo Electrónico","Telefono de Contacto" 
+            "Correo Electrónico","Telefono de Contacto","Sucursal-MEDDES®"
         ]
 
         row = [
-            p.sucursal,
             p.correo,
             p.telefonos_contacto,
+            p.sucursal,
             
         ]
 
         context.update({
-            "title": f"Perfil de {p.nombres_completos}",
+            "title": f"Información  de Contacto",
             "table": {
                 "headers": headers,
                 "rows": [row],  # Solo una fila con la instancia actual
@@ -398,7 +443,7 @@ class TerapeutaBancariaComponent(BaseComponent):
         p = self.instance  # Solo la instancia actual
 
         headers = [
-         "Banco", "Cédula", "Tipo de Cuenta", "Número de Cuenta", "($) Costo Serivio "
+         "Banco", "Cédula", "Tipo de Cuenta", "Número de Cuenta", "($) Costo Serivio por Hora"
         ]
 
         row = [
@@ -411,7 +456,7 @@ class TerapeutaBancariaComponent(BaseComponent):
         ]
 
         context.update({
-            "title": f"Perfil de {p.nombres_completos}",
+            "title": f"Información Bancaria",
             "table": {
                 "headers": headers,
                 "rows": [row],  # Solo una fila con la instancia actual
@@ -428,10 +473,8 @@ class TerapeutaBancariaComponent(BaseComponent):
 class Perfil_TerapeutaAdmin(ModelAdmin):
         # Display fields in changeform in compressed mode
     compressed_fields = True  # Default: False
-    form = PerfilTerapeutaForm 
-    list_filter = (
-        ["especialidad", HorizontalChoicesFieldListFilter],
-    )
+    
+
     
     list_sections = [TerapeutaComponent,TerapeutaContactoComponent,TerapeutaBancariaComponent]
 
@@ -483,8 +526,15 @@ class Perfil_TerapeutaAdmin(ModelAdmin):
     }
 
     search_fields = ('paciente__nombre','sucursal', 'terapeuta__nombres_completos')  # Ajusta a tus campos
-    list_display = ['get_full_name','sucursal','activo', 'servicio_domicilio','servicio_institucion' ]
+    list_display = ['get_full_name','especialidad','activo', 'servicio_domicilio','servicio_institucion' ]
     list_editable = ['activo','servicio_domicilio','servicio_institucion']
+    list_filter = (
+        'sucursal',
+        'activo',
+        'servicio_institucion',
+        'servicio_domicilio',
+        
+        )
 
    
     
@@ -495,6 +545,9 @@ class Perfil_TerapeutaAdmin(ModelAdmin):
     def get_full_name(self, obj):
         return obj.user.get_full_name()  # assumes a related 'user' field with a get_full_name() method
     get_full_name.short_description = 'Terapeuta Registrado' 
+    form = PerfilTerapeutaForm 
+    def save_model(self, request, obj, form, change):
+        obj.save()
 
 
 
@@ -620,6 +673,68 @@ class TareasComentariosInline(TabularInline):
     
 
 
+@register_component
+class TareasComponent(BaseComponent):
+    template_name = "admin/profile_card.html"
+    name = "Actividades"
+
+    def __init__(self, request, instance=None):
+        self.request = request
+        self.instance = instance  # Puede ser Profile o tareas
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Determinar si la instancia es Profile o tareas
+        if isinstance(self.instance, Profile):
+            profile = self.instance
+        elif isinstance(self.instance, tareas):
+            profile = self.instance.profile
+        else:
+            profile = None
+
+        if profile is None:
+            context.update({
+                "title": "Tareas asignadas",
+                "table": {
+                    "headers": ["Sin datos disponibles"],
+                    "rows": [["No se pudo obtener un perfil válido."]],
+                }
+            })
+            return context
+
+        tareas_asignadas = tareas.objects.filter(profile=profile)
+
+        headers = [
+            "Título", "Fecha de envío", "Fecha de entrega",
+            "¿Realizada?", "¿Culminó terapia?", "Archivo adjunto", "Multimedia"
+        ]
+
+        rows = []
+        for tarea in tareas_asignadas:
+            rows.append([
+                tarea.titulo or "Sin título",
+                tarea.fecha_envio.strftime("%d/%m/%Y") if tarea.fecha_envio else "Sin fecha",
+                tarea.fecha_entrega.strftime("%d/%m/%Y") if tarea.fecha_entrega else "Sin fecha",
+                "✅" if tarea.realizada else "❌",
+                "✅" if tarea.tarea_no_realizada else "❌",
+                tarea.material_adjunto.url if tarea.material_adjunto else "N/A",
+                tarea.media_terapia.url if tarea.media_terapia else "N/A",
+            ])
+
+        context.update({
+            "title": f"Tareas asignadas a {profile.nombre_completo}",
+            "table": {
+                "headers": headers,
+                "rows": rows,
+            }
+        })
+
+        return context
+
+    def render(self):
+        return render_to_string(self.template_name, self.get_context_data())
+
 @admin.register(tareas)
 class tareasAdmin(ModelAdmin):
     inlines = [TareasComentariosInline] 
@@ -676,13 +791,14 @@ class tareasAdmin(ModelAdmin):
         }
     }
 
-    search_fields = ['paciente__nombre', 'terapeuta__nombres_completos', 'tarea']
+    search_fields = ['profile__nombre_completo', 'terapeuta__nombres_completos', 'tarea']
     list_filter = (
         'fecha_envio',
         'fecha_entrega',)
     list_editable = ['realizada', 'tarea_no_realizada']
+    list_sections = [TareasComponent]
 
-    list_display = ['get_terapeuta_full_name', 'fecha_envio','fecha_entrega','realizada', 'tarea_no_realizada']
+    list_display = ['get_terapeuta_full_name','profile', 'fecha_envio','fecha_entrega','realizada', 'tarea_no_realizada']
     exclude = ('terapeuta',)
     actions = [ export_to_csv, export_to_excel]
     verbose_name = "Registro Administrativo / Tarea Terapéutica"
@@ -809,11 +925,10 @@ class prospecion_administrativaAdmin(ModelAdmin):
     ]
     #list_editable = ('pendiente','confirmada','cancelada',)
     list_filter = (
-        # Autocomplete filter
-        ["nombre", AutocompleteSelectFilter],
-        ["sucursal", AutocompleteSelectFilter],
-
-  
+        'sucursal',  # Filtro por sucursal
+        'es_en_cita', 'es_valoracion', 'es_finalizado',
+        
+       
     )
     list_editable = ['es_en_cita', 'es_valoracion', 'es_finalizado']
 
@@ -957,10 +1072,10 @@ class PagosComponent(BaseComponent):
 
 @admin.register(pagos)
 class PagosAdmin(ModelAdmin):
-    list_display = ['numero_factura','vencido','pendiente','al_dia','pago']
+    list_display = ['numero_factura','pago','vencido','pendiente','al_dia']
     list_editable = ['vencido','pendiente','al_dia',]
     list_sections = [PagosComponent]
-    list_filter = ("vencido",)
+    list_filter = ('sucursal',"vencido",'pendiente','al_dia')
     search_fields = ('numero_factura',)
     list_filter_sheet = True
     list_filter_submit = True  # Submit button at the bottom of the filter
@@ -1166,13 +1281,13 @@ class CitaAdmin(ModelAdmin):
     list_per_page = 20
     compressed_fields = True
     list_horizontal_scrollbar_top = True
-    list_display = ("tipo_cita", "get_destinatario_full_name", "fecha", "motivo",'pendiente','confirmada','cancelada')
+    list_display = ("get_destinatario_full_name","tipo_cita", "fecha", "motivo",'pendiente','confirmada','cancelada')
     list_editable = ('pendiente','confirmada','cancelada',)
-    search_fields = ("motivo", "notas", "creador__username", "destinatario__username")
-    list_filter = ("fecha",)
-    list_filter_submit = False
-    list_filter_sheet = True
-    list_fullwidth = True
+    search_fields = ("motivo", "notas", "creador__first_name","destinatario__first_name",)
+    list_filter = ('sucursal','pendiente','confirmada','cancelada',"fecha",)
+  #  list_filter_submit = False
+ #   list_filter_sheet = True
+ #   list_fullwidth = True
     change_form_show_cancel_button = True
     exclude = ('creador',)
     ordering = ['fecha']
@@ -1189,7 +1304,7 @@ class CitaAdmin(ModelAdmin):
 
     def get_destinatario_full_name(self, obj):
         return obj.destinatario.get_full_name() if obj.destinatario else "—"
-    get_destinatario_full_name.short_description = "Destinatario"
+    get_destinatario_full_name.short_description = "Cita para"
     get_destinatario_full_name.admin_order_field = 'destinatario__first_name'
 
     def get_admin_changelist_url(self):
@@ -1258,7 +1373,7 @@ class PagosItemInline(TabularInline):
 
 class TareaItemInline(TabularInline):
     model = tareas
-    raw_id_fields = ['paciente']
+    raw_id_fields = ['profile']
     readonly_fields = [ 'titulo', 'terapeuta', 'fecha_envio', 'descripcion_tarea']
     fields = ['titulo', 'terapeuta', 'fecha_envio', 'descripcion_tarea','media_terapia']  # Mostramos solo estos 4 campos
     can_delete = True
@@ -1317,7 +1432,7 @@ class ProfileComponent(BaseComponent):
         p = self.instance  # Solo la instancia actual
 
         headers = [
-            "Foto", "Nombre Completo","edad", "Sexo", "Institución",
+            "Foto", "Nombre Completo","Edad (Años)", "Sexo", "Institución",
             "Teléfono",
         ]
 
@@ -1326,13 +1441,13 @@ class ProfileComponent(BaseComponent):
             p.user.first_name + " " + p.user.last_name,
             p.edad,
             p.sexo,
-            p.institucion.nombre if p.institucion else "",
+            p.institucion if p.institucion else "",
             p.telefono,
 
         ]
 
         context.update({
-            "title": f"Perfil de {p.nombre_paciente} {p.apellidos_paciente}",
+            "title": f"Información personal del paciente",
             "table": {
                 "headers": headers,
                 "rows": [row],  # Solo una fila con la instancia actual
@@ -1373,7 +1488,7 @@ class ProfileComponentRepresentante(BaseComponent):
         ]
 
         context.update({
-            "title": f"Perfil de {p.nombre_paciente} {p.apellidos_paciente}",
+            "title": f"Información del Representante",
             "table": {
                 "headers": headers,
                 "rows": [row],  # Solo una fila con la instancia actual
@@ -1415,7 +1530,7 @@ class ProfileComponentTerapeutico(BaseComponent):
         ]
 
         context.update({
-            "title": f"Perfil de {p.nombre_paciente} {p.apellidos_paciente}",
+            "title": f"Información Terapéutica",
             "table": {
                 "headers": headers,
                 "rows": [row],  # Solo una fila con la instancia actual
@@ -1439,16 +1554,13 @@ class ProfileCardSection(TemplateSection):
 
 @admin.register(Profile)
 class ProfileAdmin(ModelAdmin):
-    readonly_fields = ['edad']  
     autocomplete_fields = ['user','user_terapeuta',]
             # Display fields in changeform in compressed mode
     compressed_fields = True  # Default: False
     inlines = [TareaItemInline,CitaItemInline,PagosItemInline]
     search_fields = ['user__username', 'user__first_name', 'user__last_name']
     list_sections = [ProfileComponent,ProfileComponentRepresentante,ProfileComponentTerapeutico]  # Agregar sección personalizada
-    
 
-    
 
     # Warn before leaving unsaved changes in changeform
     warn_unsaved_form = True  # Default: False
@@ -1495,20 +1607,29 @@ class ProfileAdmin(ModelAdmin):
         models.TextField: {
             "widget": WysiwygWidget,
         },
+
+        models.DateField: {
+            "widget":CustomDatePickerWidget ,
+        },
+
         ArrayField: {
             "widget": ArrayWidget,
         }
     }
 
-    list_display = ['get_full_name','edad','fecha_alta','es_retirado','es_en_terapia', 'es_alta']
+    list_display = ['get_full_name','fecha_inicio','fecha_alta','es_retirado','es_en_terapia', 'es_alta']
 
-    @admin.display(description='Nombre completo')
+    @admin.display(description='Paciente')
     def get_full_name(self, obj):
         return obj.user.get_full_name()
 
 
+
     list_editable  = ['es_retirado','es_en_terapia', 'es_alta']
-    list_filter= ['nombre_paciente','sucursales','tipo_servicio','fecha_inicio','fecha_alta']
+    list_filter= ['sucursales','es_retirado','es_en_terapia', 'es_alta',
+     ('fecha_inicio', RangeDateFilter), 
+     ('fecha_alta', RangeDateFilter), 
+    ]
     actions = [ export_to_csv, export_to_excel]
     verbose_name = "Registro Administrativo / Ingreso de Paciente"
     verbose_name_plural = "Registro Administrativo / Ingreso de Paciente"    
@@ -1527,7 +1648,6 @@ class ProfileAdmin(ModelAdmin):
             'nacionalidad',
             'sexo',
             'fecha_nacimiento',
-            'edad',
             'institucion',
         ),
         'classes': ('collapse',),

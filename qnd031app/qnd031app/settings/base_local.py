@@ -311,7 +311,7 @@ UNFOLD = {
                         "icon": "calendar_today",
                         "link": reverse_lazy("admin:usuarios_cita_changelist"),
                         "badge": "usuarios.unfold_config.badge_callback_citas",
-                        "badge_color": "custom-red-alert",
+                        "badge_color": "font-subtle-light",
                        # "permission": "usuarios.unfold_config.permission_callback",
                     },
                     {
