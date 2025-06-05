@@ -38,7 +38,7 @@ from .forms import ServicioTerapeuticoForm,ValoracionForm, ProspecionAdministrat
 from django.template.loader import render_to_string
 from unfold.decorators import action
 from django.http import HttpRequest
-
+from datetime import date
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.html import format_html
@@ -52,6 +52,7 @@ from unfold.contrib.filters.admin import (
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from .widgets import CustomDatePickerWidget
+from .models import AdministrativeProfile
 
 
 # 1. Anular el registro por defecto
@@ -1799,6 +1800,107 @@ class ProfileAdmin(ModelAdmin):
     }),
 )
 
+
+
+
+@register_component
+class PerfilAdministrativoComponent(BaseComponent):
+    template_name = "admin/profile_card.html"
+    name = "Perfil Administrativo"
+
+    def __init__(self, request, instance=None):
+        self.request = request
+        self.instance = instance
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        p = self.instance  # instancia actual de AdministrativeProfile
+
+        headers = [
+            "Nombre", "Edad (años)",
+            "Fecha de ingreso", "Contrato",
+            "Pacientes captados", "Valor por paciente",
+            "Comisión calculada",
+        ]
+
+        row = [
+            f"{p.user.first_name} {p.user.last_name}",
+            p.age,
+            p.date_joined.strftime('%d/%m/%Y') if p.date_joined else "Sin fecha",
+            dict(p.contract_type_choices).get(p.contract_type, "Desconocido"),
+            p.num_pacientes_captados,
+            f"{p.valor_por_paciente} {p.valor_por_paciente.currency}",
+            f"{p.comision_total_calculada} USD",
+        ]
+
+        context.update({
+            "title": f"Resumen del Perfil Administrativo",
+            "table": {
+                "headers": headers,
+                "rows": [row],  # solo una fila
+            }
+        })
+        return context
+
+    def render(self):
+        return render_to_string(self.template_name, self.get_context_data())
     
 
 
+@register_component
+class ContactoAdministrativoComponent(BaseComponent):
+    template_name = "admin/profile_card.html"
+    name = "Información de Contacto"
+
+    def __init__(self, request, instance=None):
+        self.request = request
+        self.instance = instance
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        p = self.instance
+
+        headers = ["Teléfono", "Correo electrónico", "Dirección", "Hoja de vida"]
+
+        row = [
+            p.phone_number.as_national if p.phone_number else "Sin número",
+            p.email or "Sin correo",
+            p.address or "Sin dirección",
+            f'<a href="{p.resume.url}" target="_blank">Ver archivo</a>' if p.resume else "No disponible",
+        ]
+
+        context.update({
+            "title": "Información de Contacto",
+            "table": {
+                "headers": headers,
+                "rows": [row],
+                "safe_html": True  # permite renderizar el <a> como HTML
+            }
+        })
+        return context
+
+    def render(self):
+        return render_to_string(self.template_name, self.get_context_data())
+
+@admin.register(AdministrativeProfile)
+class AdministrativeProfileAdmin(ModelAdmin):
+    list_display = ('full_name', 'get_job_title_display', 'get_department_display','salary', 'is_active')
+    list_filter = ('job_title', 'department', 'is_active')
+    list_sections = [PerfilAdministrativoComponent,ContactoAdministrativoComponent ]  # Agregar sección personalizada
+    search_fields = ('first_name', 'last_name', 'email')
+    list_editable = ('is_active',)
+    list_per_page = 20
+
+    def full_name(self, obj):
+        return f"{obj.user.first_name} {obj.user.last_name}"
+    full_name.short_description = 'Nombre completo'
+
+    def get_job_title_display(self, obj):
+        return obj.get_job_title_display()
+    get_job_title_display.short_description = 'Cargo'
+
+    def get_department_display(self, obj):
+        return obj.get_department_display()
+    get_department_display.short_description = 'Departamento'

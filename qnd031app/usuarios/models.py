@@ -1170,3 +1170,104 @@ class BitacoraDesarrollo(models.Model):
         self.minutos_restantes = max(TOTAL_MINUTOS - self.minutos_empleados, 0)
 
         super().save(*args, **kwargs)
+
+
+
+class AdministrativeProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='admin_profile')
+    date_of_birth = models.DateField("Fecha de nacimiento")
+    gender_choices = [
+        ('M', 'Masculino'),
+        ('F', 'Femenino'),
+        ('O', 'Otro'),
+    ]
+    gender = models.CharField("Género", max_length=1, choices=gender_choices)
+    national_id = models.CharField("Cédula de identidad", max_length=20, unique=True)
+    phone_regex = RegexValidator(
+        regex=r'^\+?593?\d{9,15}$',
+        message="El número de teléfono debe estar en formato internacional. Ejemplo: +593XXXXXXXXX."
+    )
+    phone_number = PhoneNumberField(
+        verbose_name="Teléfono de la Institución",
+        validators=[phone_regex],
+        default='+593'
+    )
+    email = models.EmailField("Correo electrónico", unique=True)
+    address = models.CharField("Direccion de Domicilio", max_length=200, unique=True)
+
+    # Información administrativa
+    DEPARTMENT_CHOICES = [
+        ('gerencia', 'Gerencia'),
+        ('administracion', 'Administración'),
+        ('financiero', 'Financiero'),
+    ]
+    department = models.CharField("Departamento", max_length=30, choices=DEPARTMENT_CHOICES)
+
+    JOB_TITLE_CHOICES = [
+        # Gerencia
+        ('gerente_general', 'Gerente General'),
+        ('gerente_comercial', 'Gerente Comercial'),
+        
+        # Administración
+        ('tecnico_administrativo', 'Técnico Administrativo'),
+        ('asistente_administrativo', 'Asistente Administrativo'),
+
+        # Financiero
+        ('contador', 'Contador'),
+        ('analista_financiero', 'Analista Financiero'),
+        ('jefe_finanzas', 'Jefe de Finanzas'),
+    ]
+    job_title = models.CharField("Cargo", max_length=50, choices=JOB_TITLE_CHOICES)
+
+    date_joined = models.DateField("Fecha de ingreso")
+    contract_type_choices = [
+        ('FT', 'Tiempo completo'),
+        ('PT', 'Medio tiempo'),
+        ('CT', 'Contrato temporal'),
+    ]
+    contract_type = models.CharField("Tipo de contrato", max_length=2, choices=contract_type_choices)
+    salary = MoneyField("Salario", max_digits=10, decimal_places=2, default_currency='USD')
+    is_active = models.BooleanField("Activo", default=True)
+
+    num_pacientes_captados = models.PositiveIntegerField(
+        "Pacientes captados", default=0, help_text="Número de pacientes adquiridos por este administrativo", null=True, blank=True
+    )
+
+
+    valor_por_paciente = MoneyField(
+        "Valor por paciente", max_digits=10, decimal_places=2, default_currency='USD',
+        help_text="Monto ganado por cada paciente captado",null=True, blank=True
+    )
+
+    # Documentación
+    resume = models.FileField("Hoja de vida", upload_to='resumes/', blank=True, null=True)
+   # photo = models.ImageField("Foto", upload_to='photos/', blank=True, null=True)
+
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Perfil administrativo"
+        verbose_name_plural = "Perfiles administrativos"
+
+    def __str__(self):
+        return f"{self.user.first_name} {self.user.last_name} - {self.get_job_title_display()}"
+    
+    
+    @property
+    def comision_total_calculada(self):
+        # Por ejemplo, $10 por paciente
+        return self.num_pacientes_captados * self.valor_por_paciente 
+    
+    
+    @property
+    def age(self):
+        today = date.today()
+        return today.year - self.date_of_birth.year - (
+            (today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day)
+        )
+
+    @property
+    def patients_count(self):
+        return self.pacientes.count()

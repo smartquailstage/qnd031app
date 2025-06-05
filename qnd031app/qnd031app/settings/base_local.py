@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'serviceapp',
 
     
     'citas_regulares',
@@ -177,10 +178,11 @@ UNFOLD = {
     "SITE_DESCRIPTION": "Plataforma Administrativa MEDDES.S.A Cloud Native App+(I+D)+A",
     "SITE_COPYRIGHT": "Copyright © 2025 SmartQuail S.A.S Todos los derechos reservados.",
     "SITE_DROPDOWN": [
-        {"icon": "people", "title": _("Rol de Usuarios"), "link": "admin:auth_group_changelist"},
         {"icon": "person", "title": _("Usuario del sistema"), "link": reverse_lazy("admin:auth_user_changelist")},
-        {"icon": "medical_services", "title": _("Servicios Terapeuticos"), "link": reverse_lazy("admin:usuarios_servicioterapeutico_changelist")},
-        {"icon": "map", "title": _("Sucursales"), "link": reverse_lazy("admin:usuarios_sucursal_changelist")},
+        {"icon": "work", "title": _("Departamentos"), "link": reverse_lazy("admin:auth_group_changelist")},
+        {"icon": "people", "title": _("Perfil Administrativos"), "link": reverse_lazy("admin:usuarios_administrativeprofile_changelist")},
+        {"icon": "medical_services", "title": _("Servicios Terapeuticos"), "link": reverse_lazy("admin:serviceapp_servicioterapeutico_changelist")},
+        {"icon": "map", "title": _("Sucursales- MEDDES®"), "link": reverse_lazy("admin:usuarios_sucursal_changelist")},
         {"icon": "edit", "title": _("Bitacora DEV-V.QND.0.3.1.0.1"), "link": reverse_lazy("admin:usuarios_bitacoradesarrollo_changelist")},
         {"icon": "circle", "title": _("+ A (Automatización)"), "link": reverse_lazy("admin:django_celery_results_taskresult_changelist")},
     ],
