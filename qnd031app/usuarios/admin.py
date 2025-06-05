@@ -1045,10 +1045,50 @@ def duplicar_citas(modeladmin, request, queryset):
         cita.is_deleted = False  # No cancelada
         cita.save()
 
+
+@register_component
+class MensajeComponent(BaseComponent):
+    template_name = "admin/profile_card.html"
+    name = "Mensaje"
+
+    def __init__(self, request, instance=None):
+        self.request = request
+        self.instance = instance  # instancia de Mensaje
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        m = self.instance
+
+        headers = [
+            "Receptor", "Asunto", "Leído", "Sucursal", "Cuerpo"
+        ]
+
+        row = [
+            str(m.receptor) if m.receptor else "Desconocido",
+            m.get_asunto_display() if m.asunto else "Sin asunto",
+            "Sí" if m.leido else "No",
+            str(m.sucursal) if m.sucursal else "Sin sucursal",
+            m.cuerpo or "Sin contenido",
+        ]
+
+        context.update({
+            "title": f"Información del Mensaje",
+            "table": {
+                "headers": headers,
+                "rows": [row],
+            }
+        })
+        return context
+
+    def render(self):
+        return render_to_string(self.template_name, self.get_context_data())
+
 @admin.register(Mensaje)
 class MensajeAdmin(ModelAdmin):
     list_display = ['get_emisor_full_name', 'get_receptor_full_name', 'asunto', 'fecha_envio', 'leido']
     list_filter = ['leido', 'asunto', 'sucursal']
+    list_sections = [MensajeComponent]
     exclude= ('emisor',)
     list_editable = ['leido']
     search_fields = ['emisor__username', 'receptor__username', 'cuerpo']
