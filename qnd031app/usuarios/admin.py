@@ -891,78 +891,151 @@ class tareasAdmin(ModelAdmin):
 
 
 
+@register_component
+class ProspeccionComponent(BaseComponent):
+    template_name = "admin/profile_card.html"
+    name = "Prospección"
+
+    def __init__(self, request, instance=None):
+        self.request = request
+        self.instance = instance
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        p = self.instance  # Instancia actual de Prospeccion
+
+        headers = [
+            "Provincia",
+            "Nombre de la Institución",
+            "Estado",
+            "Teléfono",
+            "Dirección",
+            "Nombre de Contacto",
+            "Cargo del Contacto",
+            "Email de Contacto",
+            "Proceso Realizado",
+            "Responsable del contacto",
+            "Fecha de Contacto",
+            "Observaciones",
+            "Fecha Próximo Contacto",
+        ]
+
+        row = [
+            p.provincia,
+            p.nombre_institucion,
+            p.estado,
+            p.telefono or "",
+            p.direccion or "",
+            p.nombre_contacto or "",
+            p.cargo_contacto or "",
+            p.email_contacto or "",
+            p.proceso_realizado or "",
+            p.responsable or "",
+            p.fecha_contacto or "",
+            p.observaciones or "",
+            p.fecha_proximo_contacto or "",
+        ]
+
+        context.update({
+            "title": f"Información de Prospección",
+            "table": {
+                "headers": headers,
+                "rows": [row],  # Solo una fila con la instancia actual
+            }
+        })
+
+        return context
+
+    def render(self):
+        return render_to_string(self.template_name, self.get_context_data())
+
+
+
 @admin.register(Prospeccion)
 class ProspeccionAdmin(ModelAdmin):
-    # Display fields in changeform in compressed mode
-    compressed_fields = True  # Default: False
+    # Campos comprimidos en el formulario
+    compressed_fields = True
 
-    # Warn before leaving unsaved changes in changeform
-    warn_unsaved_form = True  # Default: False
+    # Advertencia de cambios no guardados
+    warn_unsaved_form = True
 
-    # Preprocess content of readonly fields before render
+    # Procesamiento previo de campos de solo lectura
     readonly_preprocess_fields = {
         "model_field_name": "html.unescape",
         "other_field_name": lambda content: content.strip(),
     }
 
-    # Display submit button in filters
+    # Ocultar botón de envío en filtros
     list_filter_submit = False
 
-    # Display changelist in fullwidth
+    # Listado no en modo full width
     list_fullwidth = False
 
-    # Set to False, to enable filter as "sidebar"
+    # Filtros como hoja lateral (no sidebar)
     list_filter_sheet = True
 
-    # Position horizontal scrollbar in changelist at the top
+    # No mostrar scrollbar arriba en el listado
     list_horizontal_scrollbar_top = False
 
-    # Dsable select all action in changelist
+    # No seleccionar todos por defecto
     list_disable_select_all = False
 
-    # Custom actions
-    actions_list = []  # Displayed above the results list
-    actions_row = []  # Displayed in a table row in results list
-    actions_detail = []  # Displayed at the top of for in object detail
-    actions_submit_line = []  # Displayed near save in object detail
+    # Desactivar acciones
+    actions_list = []
+    actions_row = []
+    actions_detail = []
+    actions_submit_line = []
 
-    # Changeform templates (located inside the form)
-    # change_form_before_template = "some/template.html"
-    # change_form_after_template = "some/template.html"
+    # Mostrar botón de cancelar
+    change_form_show_cancel_button = True
 
-    # Located outside of the form
-    # change_form_outer_before_template = "some/template.html"
-    # change_form_outer_after_template = "some/template.html"
-
-    # Display cancel button in submit line in changeform
-    change_form_show_cancel_button = True  # show/hide cancel button in changeform, default: False
-
-    # Formfield overrides for widgets (e.g. WYSIWYG editor)
+    # Personaliza los widgets de campos
     formfield_overrides = {
         models.TextField: {
-            "widget": WysiwygWidget,  # Asegúrate de tener este widget importado si lo usas
+            "widget": admin.widgets.AdminTextareaWidget(attrs={'rows': 3}),
         },
-        ArrayField: {
-            "widget": ArrayWidget,  # Asegúrate de tener este widget importado si lo usas
-        }
     }
 
-    # Cambia los campos que se muestran en la lista de objetos
+    # Campos que se muestran en la lista del admin
     list_display = [
-        'nombre_institucion', 'distrito', 'telefono', 'sector', 'tl_fecha_contacto'
+        'nombre_institucion',
+        'provincia',
+        'estado',
+        'telefono',
+        'responsable',
+        'fecha_contacto',
+        'fecha_proximo_contacto',
     ]
 
-    # Opcionales: acciones personalizadas para exportar a CSV o Excel
-    actions = ['export_to_csv', 'export_to_excel']
+    # Campos que se pueden buscar
+    search_fields = [
+        'nombre_institucion',
+        'provincia',
+        'estado',
+        'nombre_contacto',
+        'email_contacto',
+        'responsable__first_name',
+        'responsable__last_name',
+    ]
 
-    # Personaliza el nombre del modelo en la interfaz de admin
-    verbose_name = "Prospección Administrativa"
-    verbose_name_plural = "Prospecciones Administrativas"
+    # Filtros laterales
+    list_filter = [
+        'provincia',
+        'estado',
+        'responsable',
+        'fecha_contacto',
+        'fecha_proximo_contacto',
+    ]
 
-    search_fields = ['nombre_institucion', 'distrito', 'telefono', 'sector']
+    list_sections = [ProspeccionComponent]  # Agregar la sección personalizada
 
-    # Opcional: si deseas personalizar el orden en que aparecen los objetos
-    ordering = ['nombre_institucion']
+    # Orden predeterminado
+    ordering = ['-fecha_contacto']
+
+    # Etiquetas personalizadas para el admin
+    verbose_name = "Administrativo / Prospecciones"
+    verbose_name_plural = "Registros Administrativos / Prospección"
 
 class DocenteCapacitadoInline(TabularInline):
     model = DocenteCapacitado

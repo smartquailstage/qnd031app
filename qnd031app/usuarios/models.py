@@ -40,37 +40,23 @@ class Sucursal(models.Model):
 
 
 
-
 class Prospeccion(models.Model):
-    distrito = models.CharField("DISTRITO", max_length=100)
-    provincia = models.CharField("PROVINCIA", max_length=100)
-    zona = models.CharField("ZONA", max_length=100)
-    nombre_institucion = models.CharField("NOMBRE DE LA INSTITUCIÓN", max_length=200)
-    sostenimiento = models.CharField("SOSTENIMIENTO", max_length=100)
-    estado = models.CharField("ESTADO", max_length=100)
-    telefono = models.CharField("TELEFONO", max_length=100)
-    sector = models.CharField("SECTOR", max_length=100)
-    direccion = models.CharField("DIRECCION", max_length=250)
-
-    tl_nombre_contacto = models.CharField("TERAPIA DE LENGUAJE \nNOMBRE DE CONTACTO", max_length=200)
-    tl_cargo_contacto = models.CharField("TERAPIA DE LENGUAJE \nCARGO CONTACTO", max_length=200)
-    tl_email = models.EmailField("TERAPIA DE LENGUAJE \nEMAIL", blank=True, null=True)
-    tl_proceso_realizado = models.TextField("TERAPIA DE LENGUAJE\nPROCESO REALIZADO", blank=True)
-    tl_responsable = models.CharField("TERAPIA DE LENGUAJE\nRESPONSABLE", max_length=200, blank=True)
-    tl_fecha_contacto = models.DateField("TERAPIA DE LENGUAJE\nFECHA DE CONTACTO", blank=True, null=True)
-    tl_observaciones = models.TextField("TL\nGENERAL OBSERVACIONES", blank=True)
-    tl_fecha_proximo_contacto = models.DateField("TL\nFECHA PROXIMO CONTACTO", blank=True, null=True)
-
-    psicologia_email = models.EmailField("PSICOLOGIA\nEMAIL", blank=True, null=True)
-    psicologia_observaciones = models.TextField("P\nGENERAL OBSERVACIONES", blank=True)
-    psicologia_fecha_proximo_contacto = models.DateField("P\nFECHA PROXIMO CONTACTO", blank=True, null=True)
-
-    vya_observacion = models.TextField("VYA\nOBSERVACIÓN", blank=True)
-    vya_observaciones = models.TextField("VYA\nGENERAL OBSERVACIONES", blank=True)
-    vya_fecha_proximo_contacto = models.DateField("VYA\nFECHA PROXIMO\n CONTACTO", blank=True, null=True)
+    provincia = models.CharField("Provincia", max_length=100)
+    nombre_institucion = models.CharField("Nombre de la Institución", max_length=255)
+    estado = models.CharField("Estado", max_length=100)
+    telefono = models.CharField("Teléfono", max_length=50, blank=True, null=True)
+    direccion = models.CharField("Dirección", max_length=500, blank=True, null=True)
+    nombre_contacto = models.CharField("Nombre de Contacto", max_length=255, blank=True, null=True)
+    cargo_contacto = models.CharField("Cargo del Contacto", max_length=255, blank=True, null=True)
+    email_contacto = models.CharField("Email de Contacto", max_length=255, blank=True, null=True)
+    proceso_realizado = models.CharField("Proceso Realizado", max_length=500, blank=True, null=True)
+    responsable = models.CharField("Responsable del contacto", max_length=255, blank=True, null=True)
+    fecha_contacto = models.CharField("Fecha de Contacto", max_length=20, blank=True, null=True)
+    observaciones = models.CharField("Observaciones", max_length=500, blank=True, null=True)
+    fecha_proximo_contacto = models.CharField("Fecha Próximo Contacto", max_length=20, blank=True, null=True)
 
     class Meta:
-        ordering = ['tl_fecha_contacto']
+        ordering = ['-fecha_contacto']
         verbose_name_plural = "Registros Administrativos / Prospección "
         verbose_name = "Administrativo / Prospecciones"
 
