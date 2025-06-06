@@ -34,7 +34,7 @@ from django.utils import timezone
 from unfold.components import BaseComponent, register_component
 from unfold.sections import TableSection, TemplateSection
 from django.utils.timezone import now
-from .forms import ServicioTerapeuticoForm,ValoracionForm, ProspecionAdministrativaForm,PerfilTerapeutaForm,PerfilPacientesForm
+from .forms import ProfileAdminForm, PerfilTerapeutaAdminForm, ServicioTerapeuticoForm,ValoracionForm, ProspecionAdministrativaForm,PerfilTerapeutaForm,PerfilPacientesForm
 from django.template.loader import render_to_string
 from unfold.decorators import action
 from django.http import HttpRequest
@@ -53,23 +53,17 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from .widgets import CustomDatePickerWidget
 from .models import AdministrativeProfile
+from django.contrib.auth.admin import UserAdmin
+
+
+
 
 
 # 1. Anular el registro por defecto
-admin.site.unregister(User)
+#admin.site.unregister(User)
 admin.site.unregister(Group)
 
 
-# Registrar el modelo User con UserAdmin (de Django) + ModelAdmin (de Unfold)
-@admin.register(User)
-class CustomUserAdmin(ModelAdmin):
-    list_display = ("username", "email", "first_name", "last_name", "is_staff", "is_active")
-    list_filter = ("is_staff", "is_superuser", "is_active", "groups")
-    search_fields = ("username", "email", "first_name", "last_name")
-    ordering = ("username",)
-    fieldsets = UserAdmin.fieldsets  # Heredar la estructura de campos de UserAdmin
-    add_fieldsets = UserAdmin.add_fieldsets  # Para vista de "añadir usuario"
-    filter_horizontal = ("groups", "user_permissions")
 
 
 # Registrar el modelo Group con estilo Unfold también
@@ -111,7 +105,7 @@ class ComentariosCitaSection(TableSection):
 
 @admin.register(ServicioTerapeutico)
 class ServicioTerapeuticoAdmin(ModelAdmin):
-    form = ServicioTerapeuticoForm
+    form = PerfilTerapeutaAdminForm
     list_display = ['servicio', 'costo_por_sesion', 'activo']
     list_filter = ['activo']
     search_fields = ['servicio']
@@ -472,53 +466,44 @@ class TerapeutaBancariaComponent(BaseComponent):
 
 @admin.register(Perfil_Terapeuta)
 class Perfil_TerapeutaAdmin(ModelAdmin):
-        # Display fields in changeform in compressed mode
-    compressed_fields = True  # Default: False
-    
-
-    
-    list_sections = [TerapeutaComponent,TerapeutaContactoComponent,TerapeutaBancariaComponent]
-
-    # Warn before leaving unsaved changes in changeform
-    warn_unsaved_form = True  # Default: False
-
-    # Preprocess content of readonly fields before render
-    readonly_preprocess_fields = {
-        "model_field_name": "html.unescape",
-        "other_field_name": lambda content: content.strip(),
-    }
-
-    # Display submit button in filters
-    list_filter_submit = False
-
-    # Display changelist in fullwidth
-    list_fullwidth = False
-
-    # Set to False, to enable filter as "sidebar"
+    compressed_fields = True
+    warn_unsaved_form = True
     list_filter_sheet = True
-
-    # Position horizontal scrollbar in changelist at the top
+    list_fullwidth = False
     list_horizontal_scrollbar_top = False
-
-    # Dsable select all action in changelist
     list_disable_select_all = False
+    change_form_show_cancel_button = True
 
-    # Custom actions
-    actions_list = []  # Displayed above the results list
-    actions_row = []  # Displayed in a table row in results list
-    actions_detail = []  # Displayed at the top of for in object detail
-    actions_submit_line = []  # Displayed near save in object detail
+    list_sections = [
+        TerapeutaComponent,
+        TerapeutaContactoComponent,
+        TerapeutaBancariaComponent
+    ]
 
-    # Changeform templates (located inside the form)
-  #  change_form_before_template = "some/template.html"
-  #  change_form_after_template = "some/template.html"
+    list_display = [
+        'get_full_name', 'especialidad', 'activo', 
+        'servicio_domicilio', 'servicio_institucion'
+    ]
+    list_editable = ['activo', 'servicio_domicilio', 'servicio_institucion']
 
-    # Located outside of the form
-  #  change_form_outer_before_template = "some/template.html"
-  #  change_form_outer_after_template = "some/template.html"
+    list_filter = [
+        'sucursal',
+        'activo',
+        'servicio_institucion',
+        'servicio_domicilio',
+    ]
 
-    # Display cancel button in submit line in changeform
-    change_form_show_cancel_button = True # show/hide cancel button in changeform, default: False
+    search_fields = (
+        'user__first_name', 
+        'user__last_name',
+        'nombres_completos',
+        'correo',
+        'sucursal__nombre',  # Asegúrate de que 'nombre' esté en Sucursal
+    )
+
+    form = PerfilTerapeutaAdminForm  # Preferible usar un solo form coherente
+
+    actions = [export_to_csv, export_to_excel]
 
     formfield_overrides = {
         models.TextField: {
@@ -526,31 +511,17 @@ class Perfil_TerapeutaAdmin(ModelAdmin):
         },
     }
 
-    search_fields = ('paciente__nombre','sucursal', 'terapeuta__nombres_completos')  # Ajusta a tus campos
-    list_display = ['get_full_name','especialidad','activo', 'servicio_domicilio','servicio_institucion' ]
-    list_editable = ['activo','servicio_domicilio','servicio_institucion']
-    list_filter = (
-        'sucursal',
-        'activo',
-        'servicio_institucion',
-        'servicio_domicilio',
-        
-        )
-
-   
-    
-    actions = [ export_to_csv, export_to_excel]
-    verbose_name = "Registro Administrativo / Ingreso de Terapeuta"
-    verbose_name_plural = "Registro Administrativo / Ingreso de Terapeuta"
+    readonly_preprocess_fields = {
+        "model_field_name": "html.unescape",  # Este campo debería existir
+        "other_field_name": lambda content: content.strip(),  # Igual, verificar que existan
+    }
 
     def get_full_name(self, obj):
-        return obj.user.get_full_name()  # assumes a related 'user' field with a get_full_name() method
-    get_full_name.short_description = 'Terapeuta Registrado' 
-    form = PerfilTerapeutaForm 
+        return obj.user.get_full_name() if obj.user else "Sin usuario"
+    get_full_name.short_description = 'Terapeuta Registrado'
+
     def save_model(self, request, obj, form, change):
-        obj.save()
-
-
+        super().save_model(request, obj, form, change)
 
 
 
@@ -1154,20 +1125,16 @@ class PagosComponent(BaseComponent):
         p = self.instance  # Solo la instancia actual
 
         headers = [
-        "Nombre de Paciente","Institución","sucursal-MEDDES®","servicio","plan", 
+        "Nombre de Paciente","sucursal-MEDDES®",
         ]
 
         row = [
-            p.cliente.first_name + " " + p.cliente.last_name,
-            p.colegio,
+            p.profile.nombre_paciente + " " + p.profile.apellidos_paciente,
             p.sucursal,
-            p.servicio,
-            p.plan,
-            
         ]
 
         context.update({
-            "title": f"Perfil de {p.cliente.first_name }",
+            "title": f"Orden de pago paciente: {p.profile.nombre_paciente} {p.profile.apellidos_paciente}",
             "table": {
                 "headers": headers,
                 "rows": [row],  # Solo una fila con la instancia actual
@@ -1473,9 +1440,9 @@ class OccurrenceAdmin(admin.ModelAdmin):
 
 class PagosItemInline(TabularInline):
     model = pagos
-    raw_id_fields = ['cliente']
-    readonly_fields = ['cuenta', 'sucursal', 'colegio', 'plan', 'convenio', 'servicio', 'estado_de_pago']
-    fields = ['cuenta', 'sucursal', 'colegio', 'estado_de_pago']  # Solo mostramos estos 4 campos
+    raw_id_fields = ['profile']
+    readonly_fields = ['numero_factura', 'sucursal']
+    fields = ['numero_factura', 'sucursal', 'al_dia','pendiente','vencido']  # Solo mostramos estos 4 campos
     can_delete = False
     extra = 0
     max_num = 0  # Evita que se agreguen nuevos elementos
@@ -1653,6 +1620,48 @@ class ProfileComponentTerapeutico(BaseComponent):
 
 
 
+
+@register_component
+class ProfileComponentInformes(BaseComponent):
+    template_name = "admin/profile_card.html"
+    name = "Perfil de Representante Legal"
+
+    def __init__(self, request, instance=None):
+        self.request = request
+        self.instance = instance
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        p = self.instance  # Solo la instancia actual
+
+        headers = [
+            "Autorización de inicio","Informe inicial",
+            "Informe de seguimiento 3 meses", "Informe de seguimiento 6 meses",
+            "Certificado de Alta"
+        ]
+
+        row = [
+            p.certificado_inicio,
+            p.informe_inicial,
+            p.informe_segimiento ,
+            p.informe_segimiento_2,
+            p.certificado_final,
+        ]
+
+        context.update({
+            "title": f"Información Terapéutica",
+            "table": {
+                "headers": headers,
+                "rows": [row],  # Solo una fila con la instancia actual
+            }
+        })
+        return context
+
+    def render(self):
+        return render_to_string(self.template_name, self.get_context_data())
+
+
 class ProfileCardSection(TemplateSection):
     model = Profile
     template_name = "admin/profile_card.html"
@@ -1664,14 +1673,13 @@ class ProfileCardSection(TemplateSection):
 
 @admin.register(Profile)
 class ProfileAdmin(ModelAdmin):
-    autocomplete_fields = ['user','user_terapeuta',]
+    autocomplete_fields = ['user','sucursales']
             # Display fields in changeform in compressed mode
     compressed_fields = True  # Default: False
-    inlines = [TareaItemInline,CitaItemInline,PagosItemInline]
+    inlines = [TareaItemInline,CitaItemInline,PagosItemInline,]
     search_fields = ['user__username', 'user__first_name', 'user__last_name']
-    list_sections = [ProfileComponent,ProfileComponentRepresentante,ProfileComponentTerapeutico]  # Agregar sección personalizada
-
-
+    list_sections = [ProfileComponent,ProfileComponentRepresentante,ProfileComponentTerapeutico,ProfileComponentInformes]  # Agregar sección personalizada
+    form = ProfileAdminForm
     # Warn before leaving unsaved changes in changeform
     warn_unsaved_form = True  # Default: False
 
@@ -1780,14 +1788,17 @@ class ProfileAdmin(ModelAdmin):
     }),
     ('Ingresar Información Terapéutica', {
         'fields': (
-            'user_terapeuta',
             'valorizacion_terapeutica',
-            'tipo_servicio',
-            'fecha_pausa',
-            'fecha_re_inicio',
+            'user_terapeutas',            
+            'tipos',
             'fecha_inicio',
+            'fecha_pausa',
+            'fecha_re_inicio',            
             'fecha_alta',
             'certificado_inicio',
+            'informe_inicial',
+            'informe_segimiento',
+            'informe_segimiento_2',
             'certificado_final',
 
             # Campos booleanos de estados terapéuticos

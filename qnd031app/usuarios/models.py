@@ -22,6 +22,8 @@ from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
 from django.core.exceptions import ValidationError
 from tinymce.models import HTMLField
+from django.contrib.auth.models import AbstractUser
+
 
 
 
@@ -373,13 +375,24 @@ class Perfil_Terapeuta(models.Model):
    # cedula_titular = models.CharField("Cédula del Terapeuta", max_length=20, blank=True, null=True)
     #nombre_titular = models.CharField("Nombre del titular", max_length=100, blank=True, null=True)
     pago_por_hora = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
-    tipo_servicio = models.ManyToManyField('ServicioTerapeutico',
-    related_name='servicios_terapeuticos1',
-    verbose_name="Servicio terapéutico",
-    blank=True
+    TIPO_SERVICIO = [
+        ('TERAPIA DE LENGUAJE', 'Terapia de Lenguaje'),
+        ('ESTIMULACIÓN COGNITIVA', 'Estimulación Cognitiva'),
+        ('PSICOLOGÍA', 'Psicología'),
+        ('ESTIMULACIÓN TEMPRANA', 'Estimulación Temprana'),
+        ('VALORACIÓN', 'Valoración'),
+    ]
+        
+    tipos = models.JSONField(
+        default=list,
+        verbose_name="Tipo de servicio (múltiples opciones)",
+        help_text="Selecciona uno o más tipos"
     )
+
     servicio_domicilio = models.BooleanField(default=False, null=True, blank=True)
     servicio_institucion = models.BooleanField(default=True, null=True, blank=True)
+    servicio_consulta = models.BooleanField(default=True, null=True, blank=True)
+
     activo = models.BooleanField(default=True, verbose_name="¿Terapeuta activo?")
     class Meta:
         ordering = ['user']
@@ -565,7 +578,7 @@ class Profile(models.Model):
     actividad_economica =  models.CharField(max_length=255, blank=True, null=True, verbose_name="Actividad económica del representante")
     
     #Informacion de Terapeutica
-    user_terapeuta = models.OneToOneField(Perfil_Terapeuta, on_delete=models.CASCADE, verbose_name="Terapéuta Asignado")
+    
     MOTIVOS_RETIRO = [
         ('economico', 'Económico'),
         ('insatisfecho', 'Insatisfecho'),
@@ -583,18 +596,53 @@ class Profile(models.Model):
         related_name="valoraciones_terapeuticas",
         verbose_name="Valoración Terapéutica", blank=True, null=True,
     )
-    tipo_servicio = models.ForeignKey(
-        'ServicioTerapeutico',
-        on_delete=models.CASCADE,
-        related_name='servicios_terapeuticos3',
-        verbose_name="Servicio terapéutico",null=True, blank=True
+
+    user_terapeutas = models.ManyToManyField(
+        'Perfil_Terapeuta',  # Asegúrate de que este modelo esté bien importado
+        verbose_name="Elegir Terapéutas Asignados",
+        related_name='asignaciones',  # Este nombre puede ser cualquiera y se usa para acceder desde el otro lado
+        blank=True  # Permite que el campo sea opcional
+        )
+    TIPO_SERVICIO = [
+        ('TERAPIA DE LENGUAJE', 'Terapia de Lenguaje'),
+        ('ESTIMULACIÓN COGNITIVA', 'Estimulación Cognitiva'),
+        ('PSICOLOGÍA', 'Psicología'),
+        ('ESTIMULACIÓN TEMPRANA', 'Estimulación Temprana'),
+        ('VALORACIÓN', 'Valoración'),
+    ]
+        
+    tipos = models.JSONField(
+        default=list,
+        verbose_name="servicios contratados",
+        help_text="Selecciona uno o más tipos"
     )
 
     certificado_inicio = models.FileField(
         upload_to='certificados/inicio/',
         blank=True,
         null=True,
-        verbose_name="Certificado de inicio terapeutico"
+        verbose_name="Autorización inicio Terapéutico",
+    )
+
+    informe_inicial = models.FileField(
+        upload_to='informes/inicio/',
+        blank=True,
+        null=True,
+        verbose_name="Informe Terapéutico Inicial",
+    )
+
+    informe_segimiento = models.FileField(
+        upload_to='informes/seguimiento3M/',
+        blank=True,
+        null=True,
+        verbose_name="Informe de seguimiento Terapéutico 3 meses",
+    )
+
+    informe_segimiento_2 = models.FileField(
+        upload_to='informes/seguimiento6M/',
+        blank=True,
+        null=True,
+        verbose_name="Informe de seguimiento Terapéutico 6 meses",
     )
 
     certificado_final = models.FileField(
@@ -645,52 +693,15 @@ class Profile(models.Model):
 
 
 class pagos(models.Model):
-    cliente = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Nombre de Usuario")
+    #cliente = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Nombre de Usuario")
     sucursal = models.ForeignKey(
         Sucursal,
         on_delete=models.CASCADE,
         related_name="sucursal4",null=True, blank=True
     )
-
-
-    # NUEVOS CAMPOS BOOLEANOS DE ESTADO DE PAGO
-    al_dia = models.BooleanField(default=False, verbose_name="Pago al día")
-    pendiente = models.BooleanField(default=False, verbose_name="Pago pendiente")
-    vencido = models.BooleanField(default=False, verbose_name="Pago vencido")
-
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE,null=True, blank=True, verbose_name="Paciente")
-    cuenta = models.CharField(max_length=255, blank=True, null=True, verbose_name="Número de cuenta")
-    colegio = models.CharField(max_length=255, blank=True, null=True, verbose_name="Nombre del colegio")
-    plan = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        choices=[
-            ('Institucional', 'Institucional'),
-            ('Domicilio Institucional', 'Domicilio Institucional'),
-            ('Domicilio Familiar', 'Domicilio Familiar'),
-            ('Consultorio Institucional', 'Consultorio Institucional'),
-            ('Becas(100%)', 'Becas(100%)'),
-            ('Becas(50%)', 'Becas(50%)'),
-            ('Domicilio', 'Domicilio'),
-            ('Consultorio', 'Consultorio'),
-        ],
-        verbose_name="Plan Económico"
-    )
-    convenio = models.BooleanField(default=False, verbose_name="Convenio")
-    sucursal = models.ForeignKey(
-        Sucursal,
-        on_delete=models.CASCADE,
-        related_name="sucursal5",null=True, blank=True
-    )
-    servicio =  models.ForeignKey(
-        'ServicioTerapeutico',
-        on_delete=models.CASCADE,
-        related_name='servicios_terapeuticos4',
-        verbose_name="Servicio terapéutico",null=True, blank=True
-    )
     ruc = models.CharField(max_length=13, verbose_name="R.U.C de facturación", help_text="Ingrese RUC de facturación",blank=True, null=True)
-    fecha_emision_factura = models.DateField(blank=True, null=True, verbose_name="Fecha de emisión de factura")
+    #fecha_emision_factura = models.DateField(blank=True, null=True, verbose_name="Fecha de emisión de factura")
     numero_factura = models.CharField(max_length=255, blank=True, null=True, verbose_name="Número de Factura")
     pago = MoneyField(
     max_digits=10,
@@ -700,69 +711,91 @@ class pagos(models.Model):
     null=True,
     verbose_name="Saldo a cancelar"
     )
-    fecha_pago = models.DateField(blank=True, null=True, verbose_name="Fecha de pago")
-    fecha_vencimiento = models.DateField(blank=True, null=True, verbose_name="Fecha de vencimiento de pago")
-    estado_de_pago = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        choices=[
-            
-            ('Al día', 'Al día'),
-            ('Pendiente', 'Pendiente'),
-            ('Vencido', 'Vencido'),
-        ],
-        verbose_name="Estado de pago"
-    )
-    comprobante_pago = models.FileField(upload_to='comprobantes/%Y/%m/%d/', blank=True, verbose_name="Comprobante de pago")
-    numero_de_comprobante = models.CharField(max_length=255, blank=True, null=True, verbose_name="Número de comprobante de pago")
-    banco = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        choices=[
-            ('Banco Pichincha', 'Banco Pichincha'),
-            ('Banco del Pacífico', 'Banco del Pacífico'),
-            ('Produbanco', 'Produbanco'),
-            ('Banco Internacional', 'Banco Internacional'),
-            ('Banco Bolivariano', 'Banco Bolivariano'),
-            ('Banco de Guayaquil', 'Banco de Guayaquil'),
-            ('Banco del Austro', 'Banco del Austro'),
-            ('Banco Solidario', 'Banco Solidario'),
-            ('Cooperativa JEP', 'Cooperativa JEP'),
-            ('Cooperativa 29 de Octubre', 'Cooperativa 29 de Octubre'),
-            ('Cooperativa Policía Nacional', 'Cooperativa Policía Nacional'),
-            ('Banco Central del Ecuador', 'Banco Central del Ecuador'),
-            ('Banco Amazonas', 'Banco Amazonas'),
-            ('Banco ProCredit', 'Banco ProCredit'),
-            ('Banco Diners Club', 'Banco Diners Club'),
-            ('Banco General Rumiñahui', 'Banco General Rumiñahui'),
-            ('Banco Coopnacional', 'Banco Coopnacional'),
-            ('Otros', 'Otros'),
-            ('No aplica', 'No aplica'),
-        ],
-        verbose_name="Institución bancaria de Pago"
-    )
-    metodo_pago = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        choices=[
-            ('Efectivo', 'Efectivo'),
-            ('Transferencia Bancaria', 'Transferencia Bancaria'),
-            ('Electónica - PayPhone', 'Electónica - PayPhone'),
-            ('Electónica - DataFast', 'Electónica - DataFast'),
-        ],
-        verbose_name="Método de Pago"
-    )
+   # cuenta = models.CharField(max_length=255, blank=True, null=True, verbose_name="Número de cuenta")
+   # colegio = models.CharField(max_length=255, blank=True, null=True, verbose_name="Nombre del colegio")
+#    plan = models.CharField(
+#        max_length=255,
+#        blank=True,
+#        null=True,
+#        choices=[
+#            ('Institucional', 'Institucional'),
+#            ('Domicilio Institucional', 'Domicilio Institucional'),
+#            ('Domicilio Familiar', 'Domicilio Familiar'),
+#            ('Consultorio Institucional', 'Consultorio Institucional'),
+#            ('Becas(100%)', 'Becas(100%)'),
+#            ('Becas(50%)', 'Becas(50%)'),
+#            ('Domicilio', 'Domicilio'),
+#            ('Consultorio', 'Consultorio'),
+#        ],
+#        verbose_name="Plan Económico"
+#    )
+
+    #convenio = models.BooleanField(default=False, verbose_name="Convenio")
+    #servicio =  models.ForeignKey(
+    #    'ServicioTerapeutico',
+    #    on_delete=models.CASCADE,
+    #    related_name='servicios_terapeuticos4',
+    #    verbose_name="Servicio terapéutico",null=True, blank=True
+    #)
+
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de creación", help_text="Fecha en que se creó el registro de pago",null=True, blank=True)
+ #   fecha_pago = models.DateField(blank=True, null=True, verbose_name="Fecha de pago")
+ #   fecha_vencimiento = models.DateField(blank=True, null=True, verbose_name="Fecha de vencimiento de pago")
+
+#    comprobante_pago = models.FileField(upload_to='comprobantes/%Y/%m/%d/', blank=True, verbose_name="Comprobante de pago")
+#    numero_de_comprobante = models.CharField(max_length=255, blank=True, null=True, verbose_name="Número de comprobante de pago")
+#    banco = models.CharField(
+#        max_length=255,
+#        blank=True,
+#        null=True,
+#        choices=[
+#            ('Banco Pichincha', 'Banco Pichincha'),
+#            ('Banco del Pacífico', 'Banco del Pacífico'),
+#            ('Produbanco', 'Produbanco'),
+#            ('Banco Internacional', 'Banco Internacional'),
+#            ('Banco Bolivariano', 'Banco Bolivariano'),
+#            ('Banco de Guayaquil', 'Banco de Guayaquil'),
+#            ('Banco del Austro', 'Banco del Austro'),
+#            ('Banco Solidario', 'Banco Solidario'),
+#            ('Cooperativa JEP', 'Cooperativa JEP'),
+#            ('Cooperativa 29 de Octubre', 'Cooperativa 29 de Octubre'),
+#            ('Cooperativa Policía Nacional', 'Cooperativa Policía Nacional'),
+#            ('Banco Central del Ecuador', 'Banco Central del Ecuador'),
+#            ('Banco Amazonas', 'Banco Amazonas'),
+#            ('Banco ProCredit', 'Banco ProCredit'),
+#            ('Banco Diners Club', 'Banco Diners Club'),
+#            ('Banco General Rumiñahui', 'Banco General Rumiñahui'),
+#            ('Banco Coopnacional', 'Banco Coopnacional'),
+#            ('Otros', 'Otros'),
+#            ('No aplica', 'No aplica'),
+#        ],
+#        verbose_name="Institución bancaria de Pago"
+#    )
+ #   metodo_pago = models.CharField(
+ #       max_length=255,
+ #       blank=True,
+ #       null=True,
+ #       choices=[
+ #           ('Efectivo', 'Efectivo'),
+ #           ('Transferencia Bancaria', 'Transferencia Bancaria'),
+ #           ('Electónica - PayPhone', 'Electónica - PayPhone'),
+ #           ('Electónica - DataFast', 'Electónica - DataFast'),
+ #       ],
+ #       verbose_name="Método de Pago"
+ #   )
+
+
+    al_dia = models.BooleanField(default=False, verbose_name="Pago al día")
+    pendiente = models.BooleanField(default=False, verbose_name="Pago pendiente")
+    vencido = models.BooleanField(default=False, verbose_name="Pago vencido")
 
     class Meta:
-        ordering = ['fecha_emision_factura']
+        ordering = ['-created_at']
         verbose_name_plural = "Ordenes de Pago"
         verbose_name = "Orden de Pago "
 
     def __str__(self):
-        return f"Pagos de servicio Paciente: {self.cliente.first_name}"
+        return f"Pagos de servicio Paciente: {self.profile.nombre_paciente} {self.profile.apellidos_paciente} - Fecha: {self.created_at.strftime('%d/%m/%Y')}"
 
     #def save(self, *args, **kwargs):
         # Limpiar todos los estados primero

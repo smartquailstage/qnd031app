@@ -152,10 +152,17 @@ def datos_panel_usuario(request):
 
     user = request.user
 
-    # Estado de pago
+    # Estado de pago (evaluar el último pago del usuario)
     try:
-        estado = pagos.objects.get(cliente=user)
-        estado_de_pago = estado.estado_de_pago
+        ultimo_pago = pagos.objects.filter(profile__user=user).latest('created_at')
+        if ultimo_pago.vencido:
+            estado_de_pago = "Vencido"
+        elif ultimo_pago.pendiente:
+            estado_de_pago = "Pendiente"
+        elif ultimo_pago.al_dia:
+            estado_de_pago = "Al día"
+        else:
+            estado_de_pago = "No definido"
     except pagos.DoesNotExist:
         estado_de_pago = "No disponible"
 
@@ -163,10 +170,9 @@ def datos_panel_usuario(request):
     cantidad_mensajes_recibidos = Mensaje.objects.filter(receptor=user).count()
 
     # Tareas realizadas
-    cantidad_terapias_realizadas = tareas.objects.filter(profile__user=request.user,realizada=True).count()
-    
+    cantidad_terapias_realizadas = tareas.objects.filter(profile__user=user, realizada=True).count()
 
-    # Citas confirmadas (ya no hay estado ni is_active/is_deleted)
+    # Citas confirmadas
     citas_realizadas = Cita.objects.filter(destinatario=user, confirmada=True).count()
 
     # Estado de terapia
@@ -217,8 +223,8 @@ def tareas_context(request):
 
 def pagos_context(request):
     if request.user.is_authenticated:
-        pagos_pendientes = pagos.objects.filter(cliente=request.user, estado_de_pago='Pendiente')
-        pagos_vencidos = pagos.objects.filter(cliente=request.user, estado_de_pago='Vencido')
+        pagos_pendientes = pagos.objects.filter(profile__user=request.user, pendiente=True)
+        pagos_vencidos = pagos.objects.filter(profile__user=request.user, vencido=True)
         total_pagos_nuevos = pagos_pendientes.count() + pagos_vencidos.count()
         return {
             'pagos_pendientes_notif': pagos_pendientes,

@@ -42,7 +42,10 @@ class ServicioTerapeutico(models.Model):
         null=True,
         verbose_name="Valor por sesión"
     ) 
-    
+    fecha_ingreso = models.DateField(null=True, blank=True)
+    titulo_universitario = models.FileField(upload_to='documentos/terapeutas/titulo/', blank=True, null=True)
+    antecedentes_penales = models.FileField(upload_to='documentos/terapeutas/antecedentes/', blank=True, null=True)
+    certificados = models.FileField(upload_to='documentos/terapeutas/certificados/', blank=True, null=True)
     observacion = models.TextField(blank=True, null=True, verbose_name="Observación de servicio")
 
     activo = models.BooleanField(default=True, verbose_name="¿Servicio activo?")

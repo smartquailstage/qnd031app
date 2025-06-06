@@ -3928,7 +3928,7 @@ textarea.form-control-lg {
 	--bs-card-cap-color: ;
 	--bs-card-height: ;
 	--bs-card-color: #ffff;
-	--bs-card-bg: #2ca851;
+	--bs-card-bg:#1698b0;
 	--bs-card-img-overlay-padding: 1rem;
 	--bs-card-group-margin: 0.75rem;
 	position: relative;
@@ -7787,7 +7787,7 @@ textarea.form-control-lg {
 }
 .bg-white {
 	--bs-bg-opacity: 1;
-	background-color: #3ba779;
+	background-color: #1698b0;
 }
 .bg-body {
 	--bs-bg-opacity: 1;

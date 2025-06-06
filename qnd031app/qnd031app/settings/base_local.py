@@ -171,11 +171,11 @@ def badge_color_callback(request):
         return "info"
 
 UNFOLD = {
-    "SITE_TITLE": "Plataforma Administrativa MEDDES.S.A Cloud Native App+(I+D)+A",
+    "SITE_TITLE": "Sistema de Administración Terapéutica MEDDES® (I+D)+A",
     "SITE_HEADER": "MEDDES",
     "SHOW_LANGUAGES": True,
     "SITE_SUBHEADER": "Eterprises Research & Development",
-    "SITE_DESCRIPTION": "Plataforma Administrativa MEDDES.S.A Cloud Native App+(I+D)+A",
+    "SITE_DESCRIPTION": "Sistema de Administración Terapéutica MEDDES® (I+D)+A",
     "SITE_COPYRIGHT": "Copyright © 2025 SmartQuail S.A.S Todos los derechos reservados.",
     "SITE_DROPDOWN": [
         {"icon": "person", "title": _("Usuario del sistema"), "link": reverse_lazy("admin:auth_user_changelist")},
@@ -188,7 +188,7 @@ UNFOLD = {
     ],
     "SITE_URL": "https://www.meddes.com.ec/",
     "SITE_ICON": {"light": lambda request: static("img/BA-LOGOS/loro.png"), "dark": lambda request: static("img/BA-LOGOS/loro.png")},
-    "SITE_LOGO": {"light": lambda request: static("img/BA-LOGOS/logo.png"), "dark": lambda request: static("img/BA-LOGOS/logo.png")},
+    "SITE_LOGO": {"light": lambda request: static("img/BA-LOGOS/logoF.png"), "dark": lambda request: static("img/BA-LOGOS/logo.png")},
     "SITE_SYMBOL": "speed",
     "SITE_FAVICONS": [
         {
@@ -204,8 +204,15 @@ UNFOLD = {
     "DASHBOARD_CALLBACK": "usuarios.views.dashboard_callback",
     "ENVIRONMENT": "qnd031app.utils.environment.environment_callback",
     "THEME": "light",
-    "LOGIN": {"image": lambda request: static("img/BA-BG/test.jpg")},
-    "STYLES": [lambda request: static("unfold/css/style.css")],
+    "LOGIN": {  "image": lambda request: static("img/BA-BG/test.jpg"),
+               "password_icon": lambda request: static("icons/eye-solid.svg"),
+                "username_icon": lambda request: static("icons/username-icon.svg")
+                },
+               
+    "STYLES": [
+        lambda request: static("unfold/css/style.css"),        # archivo original
+        lambda request: static("css/unfold_override.css"),     # tu override personalizado
+    ],
     "SCRIPTS": [lambda request: static("unfold/js/script.js")],
     "BORDER_RADIUS": "6px",
     "COLORS": {
