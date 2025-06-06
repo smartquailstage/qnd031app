@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.forms.fields import DateField
 from django.forms import DateInput
 from .models import Mensaje, Cita ,TareaComentario
-from usuarios.models import ServicioTerapeutico
+from serviceapp.models import ServicioTerapeutico
 from ckeditor.widgets import CKEditorWidget
 from django.forms.models import inlineformset_factory
 from .models import prospecion_administrativa, DocenteCapacitado, Perfil_Terapeuta, ValoracionTerapia

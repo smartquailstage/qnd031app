@@ -4,7 +4,7 @@ import datetime
 from datetime import datetime
 from django.contrib import admin
 from django.http import HttpResponse
-from .models import Profile, BitacoraDesarrollo, Perfil_Terapeuta, Mensaje,ServicioTerapeutico, Sucursal , ValoracionTerapia ,DocenteCapacitado, Cita,ComentarioCita, TareaComentario ,AsistenciaTerapeuta,prospecion_administrativa,Prospeccion, tareas, pagos
+from .models import Profile, BitacoraDesarrollo, Perfil_Terapeuta, Mensaje, Sucursal , ValoracionTerapia ,DocenteCapacitado, Cita,ComentarioCita, TareaComentario ,AsistenciaTerapeuta,prospecion_administrativa,Prospeccion, tareas, pagos
 from django.contrib.postgres.fields import ArrayField
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -43,6 +43,7 @@ from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.html import format_html
 from unfold.admin import StackedInline, TabularInline
+from serviceapp.models import ServicioTerapeutico
 
 from unfold.contrib.filters.admin import (
     AutocompleteSelectFilter,
@@ -103,12 +104,7 @@ class ComentariosCitaSection(TableSection):
         return render_to_string("admin/test2.html", {"instance": self.instance})
 
 
-@admin.register(ServicioTerapeutico)
-class ServicioTerapeuticoAdmin(ModelAdmin):
-    form = PerfilTerapeutaAdminForm
-    list_display = ['servicio', 'costo_por_sesion', 'activo']
-    list_filter = ['activo']
-    search_fields = ['servicio']
+
 
 
 class CustomUserChangeForm(forms.ModelForm):
@@ -289,6 +285,44 @@ class ValoracionComponent(BaseComponent):
     def render(self):
         return render_to_string(self.template_name, self.get_context_data())
 
+@register_component
+class ValoracionExtraComponent(BaseComponent):
+    template_name = "admin/profile_card.html"
+    name = "Información DECE"
+
+    def __init__(self, request, instance=None):
+        self.request = request
+        self.instance = instance
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        v = self.instance  # Instancia actual de ValoracionTerapia
+
+        headers = [
+            "Número DECE",
+            "Correo Electrónico",
+            "Observaciones",
+        ]
+
+        row = [
+            v.numero_dece if v.numero_dece else "No registrado",
+            v.mail if v.mail else "Sin correo",
+            v.observaciones if v.observaciones else "Sin observaciones",
+        ]
+
+        context.update({
+            "title": "Información Complementaria de Valoración",
+            "table": {
+                "headers": headers,
+                "rows": [row],
+            }
+        })
+        return context
+
+    def render(self):
+        return render_to_string(self.template_name, self.get_context_data())
+
 @admin.register(ValoracionTerapia)
 class ValoracionTerapiaAdmin(ModelAdmin):
     list_display = ['get_perfil_terapeuta_full_name','nombre', 'fecha_valoracion','recibe_asesoria', 'proceso_terapia' ]
@@ -296,7 +330,7 @@ class ValoracionTerapiaAdmin(ModelAdmin):
     search_fields = ['nombre', 'perfil_terapeuta__first_name', 'perfil_terapeuta__last_name']
     list_editable = ['proceso_terapia', 'recibe_asesoria']
     readonly_fields = ['edad']
-    list_sections = [ValoracionComponent]
+    list_sections = [ValoracionComponent,ValoracionExtraComponent]
     #exclude = ('edad',)
     list_filter = ("sucursal",'recibe_asesoria', 'proceso_terapia','es_particular','es_convenio')
     order_by = ('-fecha_valoracion',)
@@ -438,7 +472,7 @@ class TerapeutaBancariaComponent(BaseComponent):
         p = self.instance  # Solo la instancia actual
 
         headers = [
-         "Banco", "Cédula", "Tipo de Cuenta", "Número de Cuenta", "($) Costo Serivio por Hora"
+         "Banco", "Cédula", "Tipo de Cuenta", "Número de Cuenta", "Costo Serivicio por Hora"
         ]
 
         row = [
@@ -482,9 +516,9 @@ class Perfil_TerapeutaAdmin(ModelAdmin):
 
     list_display = [
         'get_full_name', 'especialidad', 'activo', 
-        'servicio_domicilio', 'servicio_institucion'
+        'servicio_domicilio', 'servicio_institucion','servicio_consulta'
     ]
-    list_editable = ['activo', 'servicio_domicilio', 'servicio_institucion']
+    list_editable = ['activo', 'servicio_domicilio', 'servicio_institucion', 'servicio_consulta']
 
     list_filter = [
         'sucursal',
@@ -1598,9 +1632,9 @@ class ProfileComponentTerapeutico(BaseComponent):
         ]
 
         row = [
-            p.user_terapeuta,
+            p.user_terapeutas,
             p.valorizacion_terapeutica,
-            p.tipo_servicio,
+            p.tipos,
             format_html('<a href="{}" target="_blank">Ver certificado</a>', p.certificado_inicio.url) if p.certificado_inicio else "Sin aprobación",
             p.fecha_retiro,
             p.fecha_pausa,

@@ -23,6 +23,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 from django.core.exceptions import ValidationError
 from tinymce.models import HTMLField
 from django.contrib.auth.models import AbstractUser
+from serviceapp.models import ServicioTerapeutico
 
 
 
@@ -38,66 +39,6 @@ class Sucursal(models.Model):
         return self.nombre
 
 
-class ServicioTerapeutico(models.Model):
-    SERVICIOS = [
-        ('Terapia de Lenguaje - valoración lenguaje', 'Terapia de Lenguaje - valoración lenguaje'),
-        ('Terapia de Lenguaje - Terapia de lenguaje', 'Terapia de Lenguaje - Terapia de lenguaje'),
-        ('Terapia de Lenguaje - paquete mensual(8 sesiones)', 'Terapia de Lenguaje - paquete mensual(8 sesiones)'),
-        ('Terapia de Lenguaje - paquete mensual(24 sesiones)', 'Terapia de Lenguaje - paquete mensual(24 sesiones)'),
-        ('Psicología - valoración Psicologica', 'Psicología - valoración Psicologica'),
-        ('Psicología - valoración Psicopedagogica', 'Psicología - valoración Psicopedagogica'),
-        ('Psicología - Terapia Psicologica', 'Psicología - Terapia Psicologica'),
-        ('Psicología - Terapia Psicologica de pareja', 'Psicología - Terapia Psicologica de pareja'),
-        ('Psicología - Paquete mensual de terapia (4 sesiones)', 'Psicología - Paquete mensual de terapia (4 sesiones)'),
-        ('Psicología - Paquete mensual de terapia (12 sesiones)', 'Psicología - Paquete mensual de terapia (12 sesiones)'),
-        ('Psicología - Paquete mensual de terapia de pareja', 'Psicología - Paquete mensual de terapia de pareja'),
-        ('Psicología - Paquete mensual de terapia de pareja (12 sesiones)', 'Psicología - Paquete mensual de terapia de pareja (12 sesiones)'),
-        ('Estimulación Cognitiva Adulto Mayor - Individual', 'Estimulación Cognitiva Adulto Mayor - Individual'),
-        ('Estimulación Cognitiva Adulto Mayor - grupal (3-5)', 'Estimulación Cognitiva Adulto Mayor - grupal (3-5)'),
-        ('Estimulación Cognitiva Adulto Mayor - Individual (8 sesiones)', 'Estimulación Cognitiva Adulto Mayor - Individual (8 sesiones)'),
-        ('Audiologia Ocupacional', 'Audiologia Ocupacional'),
-        ('Audiologia escolar', 'Audiologia escolar'),
-        ('Audiologia - Limpieza de Oido', 'Audiologia - Limpieza de Oido'),
-        ('Audiologia- lavado de oido', 'Audiologia- lavado de oido'),
-    ]
-
-    TIPO_SERVICIO = [
-        ('TERAPIA DE LENGUAJE', 'Terapia de Lenguaje'),
-        ('ESTIMULACIÓN COGNITIVA', 'Estimulación Cognitiva'),
-        ('PSICOLOGÍA', 'Psicología'),
-        ('ESTIMULACIÓN TEMPRANA', 'Estimulación Temprana'),
-    ]
-
-    servicio = models.CharField(
-        max_length=255,
-        choices=SERVICIOS,
-        unique=True,
-        verbose_name="Servicio terapéutico"
-    )
-
-    costo_por_sesion = models.DecimalField(
-        max_digits=8,
-        decimal_places=2,
-        verbose_name="Costo por sesión ($)"
-    )
-
-    tipos = models.JSONField(
-        default=list,
-        verbose_name="Tipo de servicio (múltiples opciones)",
-        help_text="Selecciona uno o más tipos"
-    )
-
-    descripcion = models.TextField(blank=True, null=True, verbose_name="Descripción del servicio")
-
-    activo = models.BooleanField(default=True, verbose_name="¿Servicio activo?")
-
-    class Meta:
-        verbose_name = "Servicio Terapéutico"
-        verbose_name_plural = "Servicios Terapéuticos"
-        ordering = ['servicio']
-
-    def __str__(self):
-        return f"{self.servicio} - ${self.costo_por_sesion:.2f}"
 
 
 class Prospeccion(models.Model):
@@ -374,7 +315,14 @@ class Perfil_Terapeuta(models.Model):
     numero_cuenta = models.CharField("Número de cuenta", max_length=30, blank=True, null=True)
    # cedula_titular = models.CharField("Cédula del Terapeuta", max_length=20, blank=True, null=True)
     #nombre_titular = models.CharField("Nombre del titular", max_length=100, blank=True, null=True)
-    pago_por_hora = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
+    pago_por_hora = MoneyField(
+        max_digits=10,
+        decimal_places=2,
+        default_currency='USD',  # o 'PEN', 'ARS', etc.
+        blank=True,
+        null=True,
+        verbose_name="Costo por hora de terapia",
+        )
     TIPO_SERVICIO = [
         ('TERAPIA DE LENGUAJE', 'Terapia de Lenguaje'),
         ('ESTIMULACIÓN COGNITIVA', 'Estimulación Cognitiva'),
@@ -389,9 +337,9 @@ class Perfil_Terapeuta(models.Model):
         help_text="Selecciona uno o más tipos"
     )
 
-    servicio_domicilio = models.BooleanField(default=False, null=True, blank=True)
-    servicio_institucion = models.BooleanField(default=True, null=True, blank=True)
-    servicio_consulta = models.BooleanField(default=True, null=True, blank=True)
+    servicio_domicilio = models.BooleanField(default=False, null=True, blank=True,verbose_name="Domicilio")
+    servicio_institucion = models.BooleanField(default=True, null=True, blank=True,verbose_name="Institución")
+    servicio_consulta = models.BooleanField(default=True, null=True, blank=True,verbose_name="Consulta")
 
     activo = models.BooleanField(default=True, verbose_name="¿Terapeuta activo?")
     class Meta:
@@ -422,6 +370,13 @@ class ValoracionTerapia(models.Model):
         null=True,
         blank=True
     )
+    sucursal = models.ForeignKey(
+        Sucursal,
+        on_delete=models.CASCADE,
+        related_name="sucursal1", null=True, blank=True
+    )
+
+
 
     # Reemplazamos el campo tipo_valoracion por booleanos
     es_particular = models.BooleanField(default=False, verbose_name="Valoración Particular")
@@ -447,20 +402,17 @@ class ValoracionTerapia(models.Model):
         blank=True,
         verbose_name="Institución"
     )
+    institucion_sin = models.CharField(max_length=255, verbose_name="Nombre de institución sin convenio", blank=True, null=True)
 
     grado = models.CharField(max_length=100, blank=True, null=True)
     servicio = models.ForeignKey(
-        'ServicioTerapeutico',
+        'serviceapp.ServicioTerapeutico',
         on_delete=models.CASCADE,
-        related_name='servicios_terapeuticos2',
+        related_name='servicios_terapeutico',
         verbose_name="Servicio terapéutico", null=True, blank=True
     )
 
-    sucursal = models.ForeignKey(
-        Sucursal,
-        on_delete=models.CASCADE,
-        related_name="sucursal1", null=True, blank=True
-    )
+
 
     proceso_terapia = models.BooleanField(default=False, verbose_name="Proceso de Terapia")
     diagnostico = models.TextField(blank=True, null=True)
@@ -469,6 +421,9 @@ class ValoracionTerapia(models.Model):
     recibe_asesoria = models.BooleanField(default=False)
 
     observaciones = models.TextField(blank=True, null=True)
+
+    numero_dece = models.CharField(max_length=255, verbose_name="Numero de DECE", blank=True, null=True)
+    mail = models.EmailField(verbose_name="Correo Electrónico", blank=True, null=True)
 
     archivo_adjunto = models.FileField(
         upload_to='valoraciones/adjuntos/',
@@ -931,11 +886,12 @@ class tareas(models.Model):
         null=True,
         blank=True
     )
+    media_terapia =  models.FileField(upload_to='Videos/%Y/%m/%d/', blank=True, verbose_name="Contenido Multimedia de Terapia")
     titulo = models.CharField(max_length=255, blank=True, null=True, verbose_name="Título de la tarea") 
     fecha_envio = models.DateField(blank=True, null=True, verbose_name="Fecha de envio de tarea")
     fecha_entrega = models.DateField(blank=True, null=True, verbose_name="Fecha de entrega de tarea")
     material_adjunto =  models.FileField(upload_to='materiales/%Y/%m/%d/', blank=True, verbose_name="Material adjunto")
-    media_terapia =  models.FileField(upload_to='Videos/%Y/%m/%d/', blank=True, verbose_name="Contenido Multimedia de Terapia")
+   
     descripcion_tarea =  HTMLField(null=True, blank=True, verbose_name="Comentario o actividad a realizar")
     realizada = models.BooleanField(default=False, verbose_name="¿Paciente realizó la tarea?")
     tarea_no_realizada = models.BooleanField(default=False, verbose_name="¿Paciente Culminó la Terapia ?")
@@ -1233,17 +1189,19 @@ class AdministrativeProfile(models.Model):
         ('gerencia', 'Gerencia'),
         ('administracion', 'Administración'),
         ('financiero', 'Financiero'),
+         ('operativo', 'Operativo'),
     ]
     department = models.CharField("Departamento", max_length=30, choices=DEPARTMENT_CHOICES)
 
     JOB_TITLE_CHOICES = [
         # Gerencia
         ('gerente_general', 'Gerente General'),
-        ('gerente_comercial', 'Gerente Comercial'),
+        ('gerente_comercial', 'Ejecutivo Comercial'),
         
         # Administración
         ('tecnico_administrativo', 'Técnico Administrativo'),
         ('asistente_administrativo', 'Asistente Administrativo'),
+        ('terapeuta', 'Terapéuta'),
 
         # Financiero
         ('contador', 'Contador'),
