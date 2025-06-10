@@ -102,8 +102,8 @@ def profile_view(request):
     # Obtener estado de pago desde el modelo `pagos`
     estado_de_pago = None
     try:
-        pago = pagos.objects.get(cliente=request.user)
-        estado_de_pago = pago.estado_de_pago
+        pago = pagos.objects.get(profile__user=request.user)
+        estado_de_pago = pago.pendiente
     except pagos.DoesNotExist:
         estado_de_pago = "No registrado"
 
