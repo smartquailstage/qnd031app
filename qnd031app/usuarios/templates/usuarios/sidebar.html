@@ -25,23 +25,23 @@
         <li>
             <a href="{% url 'usuarios:perfil' %}">
                 <div class="parent-icon">
-                    <ion-icon name="home"></ion-icon>
+                    <ion-icon name="person-circle-outline"></ion-icon>
                 </div>
-                <div class="menu-title">Inicio</div>
+                <div class="menu-title">Perfil de Paciente</div>
             </a>
         </li>
 
         <li>
-            <a href="{% url 'usuarios:perfil' %}">
+            <a href="{% url 'usuarios:lista_tareas' %}">
                 <div class="parent-icon">
                     <ion-icon name="medkit"></ion-icon>
                 </div>
-                <div class="menu-title">Terapias Realizadas</div>
+                <div class="menu-title">Tareas Terapéutica</div>
             </a>
         </li>
 
         <li>
-            <a href="{% url 'usuarios:citas' %}">
+            <a href="{% url 'usuarios:citas_total' %}">
                 <div class="parent-icon">
                     <ion-icon name="calendar"></ion-icon>
                 </div>
@@ -59,32 +59,23 @@
         </li>
 
         <li>
-            <a href="{% url 'usuarios:inbox' %}">
+            <a href="{% url 'usuarios:lista_pagos' %}">
                 <div class="parent-icon">
-                    <ion-icon name="cash"></ion-icon>
+                    <ion-icon name="wallet-outline"></ion-icon>
                 </div>
-                <div class="menu-title">Pagos </div>
+                <div class="menu-title"> Ordenes de Pagos </div>
             </a>
         </li>
 
 
         <li class="menu-label">Configuraciones</li>
-    
-        <li>
-            <a class="nav-link dark-mode-icon" href="javascript:;">
-                <div class="mode-icon">
-                    <ion-icon name="moon-outline"></ion-icon>
-                </div>
-                <div class="menu-title">Contraste</div>
-            </a>
-        </li>
-    
+
         <li>
             <a href="{% url 'logout' %}">
                 <div class="parent-icon">
                     <ion-icon name="exit-outline"></ion-icon>
                 </div>
-                <div class="menu-title">Salir de MEDDES</div>
+                <div class="menu-title">Salir de MEDDES®</div>
             </a>
         </li>
     </ul>

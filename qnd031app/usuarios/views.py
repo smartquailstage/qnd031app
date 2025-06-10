@@ -17,7 +17,7 @@ from django.core.cache import cache
 from .models import Dashboard, Mensaje
 from django.shortcuts import render
 from .models import Cita,tareas, pagos  # Asegúrate de usar la ruta correcta
-
+from django.http import HttpResponseForbidden
 
 
 
@@ -200,33 +200,36 @@ def inbox_record(request):
 def cita_success(request):
     return render(request, 'usuarios/citas/success.html')
     
+@login_required
 def ver_cita(request, pk):
     cita = get_object_or_404(Cita, pk=pk)
 
-    # Si el mensaje no ha sido leído, lo marcamos como leído
-    if not cita.is_active:
-        cita.is_active = True
-        cita.save()
+    # Validar que el usuario sea creador o destinatario de la cita
+    if request.user != cita.creador and request.user != cita.destinatario:
+        return HttpResponseForbidden("No tienes permiso para ver esta cita.")
 
-    return render(request, 'usuarios/citas/cita.html', {'cita': cita })
+    return render(request, 'usuarios/citas/cita.html', {'cita': cita})
+
 
 @login_required
 def citas_record(request):
     profile = Profile.objects.get(user=request.user)
 
-    # Todos los mensajes recibidos (leídos y no leídos)
-    citas = Cita.objects.filter(destinatario=request.user, is_deleted=False)
-    citas_agendadas = Cita.objects.filter(destinatario=request.user)
+    # Todas las citas para el usuario destinatario (puedes ajustar filtro si quieres excluir canceladas)
+    citas = Cita.objects.filter(destinatario=request.user)
 
-    confirmadas = citas_agendadas.filter(is_active=True).count()
-    no_confirmadas = citas_agendadas.filter(is_active=False).count()
-    total = citas_agendadas.count()
+    # Contar citas confirmadas, pendientes y canceladas
+    confirmadas = citas.filter(confirmada=True).count()
+    pendientes = citas.filter(pendiente=True).count()
+    canceladas = citas.filter(cancelada=True).count()
+    total = citas.count()
 
     return render(request, 'usuarios/citas/calendar_total.html', {
         'citas': citas,
         'profile': profile,
         'confirmadas': confirmadas,
-        'no_confirmadas': no_confirmadas,
+        'pendientes': pendientes,
+        'canceladas': canceladas,
         'total': total,
     })
 
@@ -235,8 +238,8 @@ def citas_agendadas_total(request):
     profile = Profile.objects.get(user=request.user)
     citas = request.user.citas_creadas.all()
     
-    confirmadas = citas.filter(is_active=True).count()
-    no_confirmadas = citas.filter(is_active=False).count()
+    confirmadas = citas.filter(confirmada=True).count()
+    no_confirmadas = citas.filter(confirmada=False).count()
     total = citas.count()
 
     return render(request, 'usuarios/citas/calendar_agendadas.html', {
@@ -246,7 +249,6 @@ def citas_agendadas_total(request):
         'no_confirmadas': no_confirmadas,
         'total': total,
     })
-
 
 
 @login_required
@@ -271,18 +273,29 @@ def agendar_cita(request):
 @login_required
 def confirmar_cita(request, pk):
     cita = get_object_or_404(Cita, pk=pk, destinatario=request.user)
+
     if request.method == 'POST':
-        cita.estado = 'confirmada'
-        cita.is_active = True
+        # Cambiar el estado a confirmada y actualizar los demás estados
+        cita.confirmada = True
+        cita.pendiente = False
+        cita.cancelada = False
+        
+        # No tienes is_active en tu modelo, así que elimina o ajusta esta línea si no aplica
+        # cita.is_active = True  <-- eliminar o comentar
+
         cita.save()
+        messages.success(request, "Cita confirmada correctamente.")
+
     return redirect('usuarios:ver_cita', pk=pk)
 
 @login_required
 def cancelar_cita(request, pk):
     cita = get_object_or_404(Cita, pk=pk, destinatario=request.user)
     if request.method == 'POST':
-        cita.estado = 'cancelada'
-        cita.is_active = False
+        # Cambiar los campos booleanos para reflejar que la cita está cancelada
+        cita.pendiente = False
+        cita.confirmada = False
+        cita.cancelada = True
         cita.save()
     return redirect('usuarios:ver_cita', pk=pk)
 
@@ -300,9 +313,9 @@ def config_view(request):
 def gestionar_citas_view(request):
     citas = Cita.objects.filter(destinatario=request.user).order_by('-fecha')
 
-    citas_confirmadas = citas.filter(estado='confirmada').count()
-    citas_pendientes = citas.filter(estado='pendiente').count()
-    citas_canceladas = citas.filter(estado='cancelada').count()
+    citas_confirmadas = citas.filter(confirmada=True).count()
+    citas_pendientes = citas.filter(pendiente=True).count()
+    citas_canceladas = citas.filter(cancelada=True).count()
 
     return render(request, 'usuarios/citas/calendar.html', {
         'citas': citas,
@@ -310,7 +323,6 @@ def gestionar_citas_view(request):
         'citas_pendientes': citas_pendientes,
         'citas_canceladas': citas_canceladas,
     })
-
 
 @login_required
 def cancelar_cita_view(request, cita_id):
@@ -365,7 +377,7 @@ def tareas_asignadas(request):
 @login_required
 def tareas_list(request):
     tareas_nuevas = tareas.objects.filter(
-        paciente=request.user,
+        profile__user=request.user,
         realizada=False
     ).order_by('-fecha_envio')
 
@@ -373,9 +385,11 @@ def tareas_list(request):
         'tareas_nuevas': tareas_nuevas
     })
 
+
 @login_required
 def ver_tarea(request, pk):
-    tarea = get_object_or_404(tareas, pk=pk, paciente=request.user)
+    # Buscar la tarea asegurando que el usuario autenticado es el dueño (paciente)
+    tarea = get_object_or_404(tareas, pk=pk, profile__user=request.user)
 
     comentarios = tarea.comentarios.all()
     form = TareaComentarioForm()
@@ -388,13 +402,17 @@ def ver_tarea(request, pk):
             comentario.tarea = tarea
             comentario.save()
 
-            # Opcional: marcar como realizada si el comentario lo hace el paciente
-            if request.user == tarea.paciente:
-                tarea.realizada = True
-                tarea.save()
+            # Marcar como realizada si el usuario autenticado es el paciente
+            tarea.realizada = True
+            tarea.save()
 
-    return render(request, 'usuarios/tareas/tarea.html', {'tarea': tarea,'comentarios': comentarios,
-        'form': form,})
+            return redirect('usuarios:ver_tarea', pk=tarea.pk)
+
+    return render(request, 'usuarios/tareas/tarea.html', {
+        'tarea': tarea,
+        'comentarios': comentarios,
+        'form': form,
+    })
 
 
 
@@ -427,17 +445,21 @@ def ver_tarea_interactiva(request, pk):
     })
 
 
+
 @login_required
 def tareas_realizadas(request):
-    tareas_completadas = tareas.objects.filter(paciente=request.user, realizada=True)
+    # Filtra tareas que fueron realizadas por el usuario autenticado
+    tareas_completadas = tareas.objects.filter(profile__user=request.user, realizada=True)
 
     return render(request, 'usuarios/tareas/tareas_realizadas.html', {
         'tareas_completadas': tareas_completadas,
     })
 
+
 @login_required
 def marcar_tarea_realizada(request, pk):
-    tarea = get_object_or_404(tareas, pk=pk, paciente=request.user)
+    # Verifica que la tarea pertenezca al usuario
+    tarea = get_object_or_404(tareas, pk=pk, profile__user=request.user)
 
     if request.method == 'POST':
         tarea.realizada = True
@@ -450,11 +472,13 @@ def marcar_tarea_realizada(request, pk):
 
 @login_required
 def lista_pagos(request):
-    pagos_usuario = pagos.objects.filter(cliente=request.user).order_by('-fecha_vencimiento')
+    # Filtrar los pagos relacionados al usuario actual (vía profile.user)
+    pagos_usuario = pagos.objects.filter(profile__user=request.user).order_by('-created_at')
 
-    pagos_pendientes = pagos_usuario.filter(estado_de_pago='Pendiente')
-    pagos_vencidos = pagos_usuario.filter(estado_de_pago='Vencido')
-    pagos_realizados = pagos_usuario.exclude(estado_de_pago__in=['Pendiente', 'Vencido'])
+    # Clasificar según los booleanos
+    pagos_pendientes = pagos_usuario.filter(pendiente=True)
+    pagos_vencidos = pagos_usuario.filter(vencido=True)
+    pagos_realizados = pagos_usuario.filter(al_dia=True)
 
     return render(request, 'usuarios/pagos/lista_pagos.html', {
         'pagos_usuario': pagos_usuario,
@@ -467,11 +491,11 @@ def lista_pagos(request):
 def ver_pago(request, pk):
     pago = get_object_or_404(pagos, pk=pk)
 
-    # Asegurar que el pago pertenezca al usuario autenticado
-    if request.user != pago.cliente:
+    # Verificar que el pago pertenezca al usuario autenticado
+    if not pago.profile or pago.profile.user != request.user:
         return render(request, '403.html', status=403)
 
-    # Si el usuario envía el formulario
+    # Procesar el formulario de carga de comprobante
     if request.method == 'POST' and not pago.comprobante_pago:
         comprobante = request.FILES.get('comprobante_pago')
         numero = request.POST.get('numero_de_comprobante')
@@ -493,7 +517,7 @@ def subir_comprobante_pago(request, pk):
     pago = get_object_or_404(pagos, pk=pk)
 
     # Asegurar que el usuario autenticado sea el dueño del pago
-    if pago.cliente != request.user:
+    if pago.profile.user != request.user:
         messages.error(request, "No tienes permisos para modificar este pago.")
         return redirect('usuarios:lista_pagos')
 

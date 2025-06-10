@@ -146,6 +146,7 @@ def mensajes_nuevos_processor(request):
 
 
 
+
 def datos_panel_usuario(request):
     if not request.user.is_authenticated:
         return {}
@@ -155,27 +156,27 @@ def datos_panel_usuario(request):
     # Estado de pago (evaluar el último pago del usuario)
     try:
         ultimo_pago = pagos.objects.filter(profile__user=user).latest('created_at')
-        if ultimo_pago.vencido:
-            estado_de_pago = "Vencido"
+        if ultimo_pago.al_dia:
+            estado_de_pago = "Al día"
         elif ultimo_pago.pendiente:
             estado_de_pago = "Pendiente"
-        elif ultimo_pago.al_dia:
-            estado_de_pago = "Al día"
+        elif ultimo_pago.vencido:
+            estado_de_pago = "Vencido"
         else:
-            estado_de_pago = "No definido"
+            estado_de_pago = "Sin estado"
     except pagos.DoesNotExist:
         estado_de_pago = "No disponible"
 
-    # Cantidad de mensajes
+    # Cantidad de mensajes recibidos
     cantidad_mensajes_recibidos = Mensaje.objects.filter(receptor=user).count()
 
-    # Tareas realizadas
+    # Tareas realizadas por el paciente
     cantidad_terapias_realizadas = tareas.objects.filter(profile__user=user, realizada=True).count()
 
-    # Citas confirmadas
+    # Citas confirmadas para el usuario
     citas_realizadas = Cita.objects.filter(destinatario=user, confirmada=True).count()
 
-    # Estado de terapia
+    # Estado general de terapia
     estado_terapia = "Activa" if cantidad_terapias_realizadas > 0 else "Pendiente"
 
     return {
@@ -185,7 +186,6 @@ def datos_panel_usuario(request):
         'citas_realizadas': citas_realizadas,
         'estado_terapia': estado_terapia,
     }
-
 
 def citas_context(request):
     if request.user.is_authenticated:
