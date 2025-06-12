@@ -1667,28 +1667,35 @@ class ProfileComponentTerapeutico(BaseComponent):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        p = self.instance  # Solo la instancia actual
+        p = self.instance  # Instancia actual
+
+        # Renderizar los terapeutas como una lista de nombres
+        terapeutas = ", ".join([
+            str(t.user.get_full_name()) if t.user else "Sin usuario"
+            for t in p.user_terapeutas.all()
+        ]) or "Sin terapeutas asignados"
 
         headers = [
-            "Terapeuta Asignado","Valorización Terapéutica",
+            "Terapeuta Asignado", "Valorización Terapéutica",
             "Tipo de Servicio", "Certificado de Inicio",
             "Fecha de Retiro", "Fecha de Pausa",
         ]
 
         row = [
-            p.user_terapeutas,
+            terapeutas,
             p.valorizacion_terapeutica,
-            p.tipos,
-            format_html('<a href="{}" target="_blank">Ver certificado</a>', p.certificado_inicio.url) if p.certificado_inicio else "Sin aprobación",
-            p.fecha_retiro,
-            p.fecha_pausa,
+            ", ".join(p.tipos or []) if p.tipos else "Sin tipos",
+            format_html('<a href="{}" target="_blank">Ver certificado</a>', p.certificado_inicio.url)
+                if p.certificado_inicio else "Sin aprobación",
+            p.fecha_retiro or "—",
+            p.fecha_pausa or "—",
         ]
 
         context.update({
-            "title": f"Información Terapéutica",
+            "title": "Información Terapéutica",
             "table": {
                 "headers": headers,
-                "rows": [row],  # Solo una fila con la instancia actual
+                "rows": [row],
             }
         })
         return context
