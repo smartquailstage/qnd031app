@@ -282,6 +282,9 @@ class ProfileAdminForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = '__all__'
+        widgets = {
+            'fecha_nacimiento': CustomDatePickerWidget(attrs={'class': 'form-control'}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -298,7 +301,6 @@ class ProfileAdminForm(forms.ModelForm):
             instance.save()
             self.save_m2m()
         return instance
-
 
 
 
