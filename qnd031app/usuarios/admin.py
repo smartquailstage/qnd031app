@@ -66,6 +66,7 @@ from datetime import datetime
 
 
 
+
 # 1. Anular el registro por defecto
 #admin.site.unregister(User)
 admin.site.unregister(Group)
