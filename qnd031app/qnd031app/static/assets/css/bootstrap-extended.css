@@ -592,13 +592,13 @@
 	border-color: #212529
 }
 .btn-outline-primary {
-	color: #923eb9;
-	border-color: #923eb9
+	color: #fff;
+    border-color: #fff;
 }
 .btn-outline-primary:hover {
 	color: #fff;
-	background-color: #923eb9;
-	border-color: #923eb9
+	background-color: #06a50e;
+	border-color: #06a50e;
 }
 .btn-check:focus+.btn-outline-primary, .btn-outline-primary:focus {
 	box-shadow: 0 0 0 .25rem rgb(84, 55, 145 , 0.5)
@@ -612,12 +612,12 @@
 	box-shadow: 0 0 0 .25rem rgba(84, 55, 145 , 0.5)
 }
 .btn-outline-primary.disabled, .btn-outline-primary:disabled {
-	color: #923eb9;
+	color: #02a20a;
 	background-color: transparent
 }
 .btn-outline-secondary {
-	color: #6c757d;
-	border-color: #6c757d
+	color: #ffffff;
+	border-color: #ffffff
 }
 .btn-outline-secondary:hover {
 	color: #fff;
