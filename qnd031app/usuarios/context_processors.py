@@ -6,6 +6,7 @@ from django.db.models import Q
 from collections import defaultdict
 from datetime import datetime
 from django.utils.timezone import localtime, is_naive, make_aware
+from django.db.models import FileField, ImageField
 
 def citas_context(request):
     if request.user.is_authenticated:
@@ -227,4 +228,31 @@ def pagos_context(request):
             'pagos_vencidos_notif': pagos_vencidos,
             'total_pagos_nuevos': total_pagos_nuevos,
         }
+    return {}
+
+
+
+
+
+def get_upload_fields(profile_instance):
+    upload_fields = {}
+    for field in profile_instance._meta.get_fields():
+        if isinstance(field, (FileField, ImageField)):
+            value = getattr(profile_instance, field.name)
+            if value and hasattr(value, 'url'):  # Asegura que tiene un archivo subido
+                upload_fields[field.verbose_name or field.name] = value.url
+    return upload_fields
+
+def profile_uploads_context(request):
+    if request.user.is_authenticated:
+        try:
+            profile = Profile.objects.get(user=request.user)
+            uploads = get_upload_fields(profile)
+            if uploads:  # Solo devolver si hay archivos subidos
+                return {
+                    'upload_fields': uploads
+                }
+            return {}  # No mostrar nada si no hay archivos
+        except Profile.DoesNotExist:
+            return {}
     return {}
