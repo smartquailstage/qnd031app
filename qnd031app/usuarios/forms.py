@@ -10,11 +10,13 @@ from .models import Mensaje, Cita ,TareaComentario
 from serviceapp.models import ServicioTerapeutico
 from ckeditor.widgets import CKEditorWidget
 from django.forms.models import inlineformset_factory
-from .models import prospecion_administrativa, DocenteCapacitado, Perfil_Terapeuta, ValoracionTerapia
+from .models import AsistenciaTerapeuta, prospecion_administrativa, DocenteCapacitado, Perfil_Terapeuta, ValoracionTerapia
 from bootstrap_datepicker_plus.widgets import DatePickerInput
 from django import forms
 from .widgets import CustomDatePickerWidget
-
+from .widgets import CustomTimePickerWidget, CustomDateTimePickerWidget
+from datetime import datetime
+from django.utils.timezone import localtime, is_naive, make_aware
 
 class LoginForm(forms.Form):
     username = forms.CharField(label="Nombre de Usuario")
@@ -48,14 +50,13 @@ class MarcarLeidoForm(forms.ModelForm):
         fields = []
 
 class CitaForm(forms.ModelForm):
-    fecha = forms.DateTimeField(
-        widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}),
-        label="Fecha y hora de la cita"
-    )
-
     class Meta:
         model = Cita
-        fields = ['motivo', 'fecha']
+        fields = '__all__'
+        widgets = {
+            'fecha': CustomDatePickerWidget(attrs={'class': 'form-control'}),
+            'hora': CustomTimePickerWidget(attrs={'class': 'form-control'}),
+        }
 
 class TareaComentarioForm(forms.ModelForm):
     class Meta:
@@ -177,15 +178,73 @@ class PerfilPacientesForm(forms.ModelForm):
             'fecha_nacimiento': CustomDatePickerWidget(),
         }
 
-class ValoracionForm(forms.ModelForm):
+
+class ValoracionTerapiaAdminForm(forms.ModelForm):
     class Meta:
         model = ValoracionTerapia
         fields = '__all__'
         widgets = {
-            'fecha_nacimiento': CustomDatePickerWidget(),
-            'fecha_valoracion': CustomDatePickerWidget(),   
-            'observaciones': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+            'fecha_valoracion': CustomDatePickerWidget(attrs={
+                'class': 'form-control', 'placeholder': 'dd/mm/aaaa'
+            }),
+            'fecha_nacimiento': CustomDatePickerWidget(attrs={
+                'class': 'form-control', 'placeholder': 'dd/mm/aaaa'
+            }),
+            'fecha_asesoria': CustomDatePickerWidget(attrs={
+                'class': 'form-control', 'placeholder': 'dd/mm/aaaa'
+            }),
         }
+
+
+class CitaAdminForm(forms.ModelForm):
+    fecha_input = forms.DateField(
+        label="Fecha de la cita",
+        widget=CustomDatePickerWidget(attrs={'class': 'form-control'}),
+        required=False
+    )
+    hora_input = forms.TimeField(
+        label="Hora de la cita",
+        widget=CustomTimePickerWidget(attrs={'class': 'form-control'}),
+        required=False
+    )
+
+    class Meta:
+        model = Cita
+        fields = [  # No incluimos `fecha` directamente
+            'destinatario', 'sucursal', 'tipo_cita', 'motivo', 'notas',
+            'profile', 'profile_terapeuta',
+            'pendiente', 'confirmada', 'cancelada'
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if self.instance and self.instance.fecha:
+            fecha_valor = self.instance.fecha
+            if isinstance(fecha_valor, datetime):
+                self.fields['fecha_input'].initial = fecha_valor.date()
+                self.fields['hora_input'].initial = fecha_valor.time()
+            elif isinstance(fecha_valor, datetime.date):
+                self.fields['fecha_input'].initial = fecha_valor
+                self.fields['hora_input'].initial = None
+
+    def clean(self):
+        cleaned_data = super().clean()
+        fecha = cleaned_data.get('fecha_input')
+        hora = cleaned_data.get('hora_input')
+
+        if fecha and hora:
+            cleaned_data['fecha'] = datetime.combine(fecha, hora)
+            
+        else:
+            cleaned_data['fecha'] = None
+
+        return cleaned_data
+
+    def save(self, commit=True):
+        self.instance.fecha = self.cleaned_data.get('fecha')
+        return super().save(commit)
+
 
 class ProfileAdminForm(forms.ModelForm):
     TIPO_SERVICIO = [
@@ -223,3 +282,16 @@ class ProfileAdminForm(forms.ModelForm):
             instance.save()
             self.save_m2m()
         return instance
+
+
+
+
+class AsistenciaTerapeutaAdminForm(forms.ModelForm):
+    class Meta:
+        model = AsistenciaTerapeuta
+        fields = '__all__'
+        widgets = {
+            'hora_salida': CustomTimePickerWidget(
+                attrs={'class': 'form-control', 'placeholder': 'HH:MM'}
+            ),
+        }

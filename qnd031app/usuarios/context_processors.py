@@ -27,11 +27,9 @@ def citas_context(request):
             dia_str = fecha_local.strftime("%Y-%m-%d")
             hora = fecha_local.strftime("%H:00")
 
-            # Filtrar solo días laborables (lunes a viernes)
             if fecha_local.weekday() >= 5:
                 continue
 
-            # Filtrar solo horas entre 9:00 y 22:00
             if not (9 <= fecha_local.hour <= 22):
                 continue
 
@@ -40,14 +38,12 @@ def citas_context(request):
 
             creador_nombre = (
                 creador.get_full_name() if creador and hasattr(creador, 'get_full_name')
-                else creador.username if creador
-                else "Sin creador"
+                else getattr(creador, 'username', 'Sin creador')
             )
 
             destinatario_nombre = (
                 destinatario.get_full_name() if destinatario and hasattr(destinatario, 'get_full_name')
-                else destinatario.username if destinatario
-                else "Sin destinatario"
+                else getattr(destinatario, 'username', 'Sin destinatario')
             )
 
             agenda[dia_str][hora].append({
@@ -55,10 +51,9 @@ def citas_context(request):
                 "motivo": cita.motivo or "Sin motivo",
                 "creador": creador_nombre,
                 "destinatario": destinatario_nombre,
-                "estado": getattr(cita, 'estado', 'Sin estado'),
+                "estado": cita.estado,  # usa la propiedad
                 "tipo_cita": cita.get_tipo_cita_display() if cita.tipo_cita else "Sin tipo"
             })
-
 
             fechas_unicas.add(dia_str)
             horas_unicas.add(hora)
@@ -73,6 +68,7 @@ def citas_context(request):
         }
 
     return {}
+
 
 
 

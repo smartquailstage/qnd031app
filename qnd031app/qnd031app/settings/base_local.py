@@ -220,13 +220,14 @@ UNFOLD = {
             "green-success": "69 162 67",
             "red-alert": "69 162 67",
         },
+
         "base": {
             "50": "255 255 255",
             "100": "123 204 121",
             "200": "211 213 205",
             "300": "209 213 219",
             "400": "41 168 80",
-            "500": "0 180 81",
+            "500": "51 55 53",
             "600": "75 85 99",
             "700": "7 121 176",
             "800": "4 168 79",
@@ -340,7 +341,7 @@ UNFOLD = {
                 "collapsible": True,
                 "items": [
                     {
-                        "title": _("Valorizaciones"), 
+                        "title": _("Valoraciones"), 
                         "icon": "download", 
                         "link": reverse_lazy("admin:usuarios_valoracionterapia_changelist"),
                         "badge": "usuarios.unfold_config.badge_callback_valoracion",

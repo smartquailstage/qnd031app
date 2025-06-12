@@ -1,7 +1,5 @@
 import csv
 import xlsxwriter
-import datetime
-from datetime import datetime
 from django.contrib import admin
 from django.http import HttpResponse
 from .models import Profile, BitacoraDesarrollo, Perfil_Terapeuta, Mensaje, Sucursal , ValoracionTerapia ,DocenteCapacitado, Cita,ComentarioCita, TareaComentario ,AsistenciaTerapeuta,prospecion_administrativa,Prospeccion, tareas, pagos
@@ -34,11 +32,10 @@ from django.utils import timezone
 from unfold.components import BaseComponent, register_component
 from unfold.sections import TableSection, TemplateSection
 from django.utils.timezone import now
-from .forms import ProfileAdminForm, PerfilTerapeutaAdminForm, ServicioTerapeuticoForm,ValoracionForm, ProspecionAdministrativaForm,PerfilTerapeutaForm,PerfilPacientesForm
+from .forms import  AsistenciaTerapeutaAdminForm,CitaAdminForm, ValoracionTerapiaAdminForm, ProfileAdminForm, PerfilTerapeutaAdminForm, ServicioTerapeuticoForm, ProspecionAdministrativaForm,PerfilTerapeutaForm,PerfilPacientesForm
 from django.template.loader import render_to_string
 from unfold.decorators import action
 from django.http import HttpRequest
-from datetime import date
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.html import format_html
@@ -55,6 +52,15 @@ from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from .widgets import CustomDatePickerWidget
 from .models import AdministrativeProfile
 from django.contrib.auth.admin import UserAdmin
+
+from collections import defaultdict
+from django.template.loader import render_to_string
+from django.utils import timezone
+from collections import defaultdict
+from django.utils.timezone import localtime, is_naive, make_aware
+from datetime import timedelta, time, date
+from datetime import datetime
+
 
 
 
@@ -325,6 +331,7 @@ class ValoracionExtraComponent(BaseComponent):
 
 @admin.register(ValoracionTerapia)
 class ValoracionTerapiaAdmin(ModelAdmin):
+    form= ValoracionTerapiaAdminForm
     list_display = ['get_perfil_terapeuta_full_name','nombre', 'fecha_valoracion','recibe_asesoria', 'proceso_terapia' ]
     exclude = ('perfil_terapeuta',)
     search_fields = ['nombre', 'perfil_terapeuta__first_name', 'perfil_terapeuta__last_name']
@@ -336,18 +343,7 @@ class ValoracionTerapiaAdmin(ModelAdmin):
     order_by = ('-fecha_valoracion',)
     actions = [export_to_csv, export_to_excel]
 
-    formfield_overrides = {
-        models.TextField: {
-            "widget": WysiwygWidget,
-        },
-        ArrayField: {
-            "widget": ArrayWidget,
-        },
-        models.DateField: {
-            "widget": CustomDatePickerWidget,
-        },
 
-    }
 
     def get_perfil_terapeuta_full_name(self, obj):
         return obj.perfil_terapeuta.get_full_name() if obj.perfil_terapeuta else "—"
@@ -619,6 +615,7 @@ class AsistenciaComponent(BaseComponent):
 @admin.register(AsistenciaTerapeuta)
 class AsistenciaTerapeutaAdmin(ModelAdmin):
     change_form_show_cancel_button = True
+    form = AsistenciaTerapeutaAdminForm
 
     list_display = ('get_terapeuta_full_name', 'evento', 'hora_salida', 'no_asistire', 'asistire')
     list_filter = ('terapeuta', 'no_asistire', 'asistire', 'evento')
@@ -629,14 +626,7 @@ class AsistenciaTerapeutaAdmin(ModelAdmin):
     actions = [export_to_csv, export_to_excel]
     exclude = ('terapeuta',)
 
-    formfield_overrides = {
-        models.TextField: {
-            "widget": WysiwygWidget,
-        },
-        ArrayField: {
-            "widget": ArrayWidget,
-        }
-    }
+
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -857,14 +847,7 @@ class tareasAdmin(ModelAdmin):
     # Display cancel button in submit line in changeform
     change_form_show_cancel_button = True # show/hide cancel button in changeform, default: False
 
-    formfield_overrides = {
-        models.TextField: {
-            "widget": WysiwygWidget,
-        },
-        ArrayField: {
-            "widget": ArrayWidget,
-        }
-    }
+
 
     search_fields = ['profile__nombre_completo', 'terapeuta__nombres_completos', 'tarea']
     list_filter = (
@@ -1168,7 +1151,7 @@ class MensajeAdmin(ModelAdmin):
     list_display = ['get_emisor_full_name', 'get_receptor_full_name', 'asunto', 'fecha_envio', 'leido']
     list_filter = ['leido', 'asunto', 'sucursal']
     list_sections = [MensajeComponent]
-    exclude= ('emisor',)
+    exclude= ('emisor','creado')
     list_editable = ['leido']
     search_fields = ['emisor__username', 'receptor__username', 'cuerpo']
     actions = [duplicar_mensajes]
@@ -1337,14 +1320,9 @@ def ver_en_calendario(obj):
 
 
 
-from collections import defaultdict
-from django.template.loader import render_to_string
-from django.utils import timezone
-from collections import defaultdict
-from django.utils.timezone import localtime, is_naive, make_aware
 
 
-from datetime import time, datetime, timedelta
+
 
 def generar_intervalos_horas(inicio='08:00', fin='18:00', paso_minutos=60):
     hora_inicio = datetime.strptime(inicio, '%H:%M')
@@ -1357,15 +1335,10 @@ def generar_intervalos_horas(inicio='08:00', fin='18:00', paso_minutos=60):
 
     return horas
 
-from collections import defaultdict
-from datetime import datetime, timedelta
-from django.utils.timezone import make_aware, localtime
-from .models import Cita
 
 @register_component
 class CitasCohortComponent(BaseComponent):
     template_name = "admin/test.html"
-    
 
     def __init__(self, request, instance=None):
         super().__init__(request)
@@ -1375,8 +1348,11 @@ class CitasCohortComponent(BaseComponent):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Obtener las 7 citas más recientes
-        citas = Cita.objects.all().select_related("creador", "destinatario").order_by('-fecha')[:7]
+        citas = (
+            Cita.objects
+            .select_related("creador", "destinatario")
+            .order_by("-fecha")[:7]
+        )
 
         agenda = defaultdict(lambda: defaultdict(list))
         fechas_unicas = set()
@@ -1386,66 +1362,63 @@ class CitasCohortComponent(BaseComponent):
             if not cita.fecha:
                 continue
 
-            fecha = cita.fecha
-            if is_naive(fecha):
-                fecha = make_aware(fecha)
+            fecha_valor = cita.fecha
 
-            fecha_local = localtime(fecha)
+            # 🔒 Convertir a datetime si es solo date
+            if isinstance(fecha_valor, date) and not isinstance(fecha_valor, datetime):
+                fecha_hora = datetime.combine(fecha_valor, time.min)  # hora 00:00
+            else:
+                fecha_hora = fecha_valor
+
+            # 🔒 Asegurar zona horaria
+            if is_naive(fecha_hora):
+                fecha_hora = make_aware(fecha_hora)
+
+            fecha_local = localtime(fecha_hora)
             dia_str = fecha_local.strftime("%Y-%m-%d")
-            hora = fecha_local.strftime("%H:00")
+            hora_str = fecha_local.strftime("%H:%M")
 
-            # Filtrar solo días de la semana (lunes a viernes)
-            if fecha_local.weekday() >= 5:
+            if fecha_local.weekday() >= 5:  # solo lunes a viernes
                 continue
 
-            # Filtrar solo horas entre 9:00 y 22:00
             if not (9 <= fecha_local.hour <= 22):
                 continue
 
-            creador = cita.creador
-            destinatario = cita.destinatario
-
             creador_nombre = (
-                creador.get_full_name() if creador and hasattr(creador, 'get_full_name')
-                else creador.username if creador
-                else "Sin creador"
+                cita.creador.get_full_name() if cita.creador and hasattr(cita.creador, 'get_full_name')
+                else getattr(cita.creador, 'username', 'Sin creador')
             )
 
             destinatario_nombre = (
-                destinatario.get_full_name() if destinatario and hasattr(destinatario, 'get_full_name')
-                else destinatario.username if destinatario
-                else "Sin destinatario"
+                cita.destinatario.get_full_name() if cita.destinatario and hasattr(cita.destinatario, 'get_full_name')
+                else getattr(cita.destinatario, 'username', 'Sin destinatario')
             )
 
-            # Nota: Asumí que tienes una propiedad llamada 'estado' en el modelo que devuelve el estado como string
-            agenda[dia_str][hora].append({
+            agenda[dia_str][hora_str].append({
                 "id": cita.id,
                 "motivo": cita.motivo or "Sin motivo",
                 "creador": creador_nombre,
                 "destinatario": destinatario_nombre,
-                "estado": cita.estado if hasattr(cita, 'estado') else "Sin estado",
-                "tipo_cita": cita.get_tipo_cita_display() if cita.tipo_cita else "Sin tipo"
+                "estado": getattr(cita, 'estado', "Sin estado"),
+                "tipo_cita": cita.get_tipo_cita_display() if cita.tipo_cita else "Sin tipo",
+                "hora": hora_str,
             })
 
             fechas_unicas.add(dia_str)
-            horas_unicas.add(hora)
+            horas_unicas.add(hora_str)
 
         dias_date = [datetime.strptime(d, "%Y-%m-%d").date() for d in fechas_unicas]
 
         context["agenda"] = agenda
         context["dias"] = sorted(dias_date)
         context["horas"] = sorted(horas_unicas)
-        context["dias_str_map"] = {
-            datetime.strptime(d, "%Y-%m-%d").date(): d for d in fechas_unicas
-        }
+        context["dias_str_map"] = {datetime.strptime(d, "%Y-%m-%d").date(): d for d in fechas_unicas}
 
         return context
 
     def render(self):
         context = self.get_context_data()
         return render_to_string(self.template_name, context, request=self.request)
-
-
 
 
 
@@ -1460,6 +1433,7 @@ class CardSection(TemplateSection):
 # Asegúrate de importar: export_to_csv, export_to_excel, duplicar_citas, WysiwygWidget, ArrayWidget
 @admin.register(Cita)
 class CitaAdmin(ModelAdmin):
+    form = CitaAdminForm  # Asegúrate de que este formulario esté definido correctamente
     list_sections = [ComentariosCitaSection, CitasCohortComponent]  # Agregar secciones personalizadas
     list_sections_layout = "horizontal"
     list_per_page = 20
@@ -1481,10 +1455,7 @@ class CitaAdmin(ModelAdmin):
     actions_row = []
     actions_submit_line = []
 
-    formfield_overrides = {
-        models.TextField: {"widget": WysiwygWidget},
-        ArrayField: {"widget": ArrayWidget},
-    }
+
 
     def get_destinatario_full_name(self, obj):
         return obj.destinatario.get_full_name() if obj.destinatario else "—"

@@ -26,6 +26,107 @@ from django.contrib.auth.models import AbstractUser
 from serviceapp.models import ServicioTerapeutico
 
 
+class AdministrativeProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='admin_profile')
+    date_of_birth = models.DateField("Fecha de nacimiento")
+    gender_choices = [
+        ('M', 'Masculino'),
+        ('F', 'Femenino'),
+        ('O', 'Otro'),
+    ]
+    gender = models.CharField("Género", max_length=1, choices=gender_choices)
+    national_id = models.CharField("Cédula de identidad", max_length=20, unique=True)
+    phone_regex = RegexValidator(
+        regex=r'^\+?593?\d{9,15}$',
+        message="El número de teléfono debe estar en formato internacional. Ejemplo: +593XXXXXXXXX."
+    )
+    phone_number = PhoneNumberField(
+        verbose_name="Teléfono de la Institución",
+        validators=[phone_regex],
+        default='+593'
+    )
+    email = models.EmailField("Correo electrónico", unique=True)
+    address = models.CharField("Direccion de Domicilio", max_length=200, unique=True)
+
+    # Información administrativa
+    DEPARTMENT_CHOICES = [
+        ('gerencia', 'Gerencia'),
+        ('administracion', 'Administración'),
+        ('financiero', 'Financiero'),
+         ('operativo', 'Operativo'),
+    ]
+    department = models.CharField("Departamento", max_length=30, choices=DEPARTMENT_CHOICES)
+
+    JOB_TITLE_CHOICES = [
+        # Gerencia
+        ('gerente_general', 'Gerente General'),
+        ('gerente_comercial', 'Ejecutivo Comercial'),
+        
+        # Administración
+        ('tecnico_administrativo', 'Técnico Administrativo'),
+        ('asistente_administrativo', 'Asistente Administrativo'),
+        ('terapeuta', 'Terapéuta'),
+
+        # Financiero
+        ('contador', 'Contador'),
+        ('analista_financiero', 'Analista Financiero'),
+        ('jefe_finanzas', 'Jefe de Finanzas'),
+    ]
+    job_title = models.CharField("Cargo", max_length=50, choices=JOB_TITLE_CHOICES)
+
+    date_joined = models.DateField("Fecha de ingreso")
+    contract_type_choices = [
+        ('FT', 'Tiempo completo'),
+        ('PT', 'Medio tiempo'),
+        ('CT', 'Contrato temporal'),
+    ]
+    contract_type = models.CharField("Tipo de contrato", max_length=2, choices=contract_type_choices)
+    salary = MoneyField("Salario", max_digits=10, decimal_places=2, default_currency='USD')
+    is_active = models.BooleanField("Activo", default=True)
+
+    num_pacientes_captados = models.PositiveIntegerField(
+        "Pacientes captados", default=0, help_text="Número de pacientes adquiridos por este administrativo", null=True, blank=True
+    )
+
+
+    valor_por_paciente = MoneyField(
+        "Valor por paciente", max_digits=10, decimal_places=2, default_currency='USD',
+        help_text="Monto ganado por cada paciente captado",null=True, blank=True
+    )
+
+    # Documentación
+    resume = models.FileField("Hoja de vida", upload_to='resumes/', blank=True, null=True)
+   # photo = models.ImageField("Foto", upload_to='photos/', blank=True, null=True)
+
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Perfil administrativo"
+        verbose_name_plural = "Perfiles administrativos"
+
+    def __str__(self):
+        return f"{self.user.first_name} {self.user.last_name} - {self.get_job_title_display()}"
+    
+    
+    @property
+    def comision_total_calculada(self):
+        # Por ejemplo, $10 por paciente
+        return self.num_pacientes_captados * self.valor_por_paciente 
+    
+    
+    @property
+    def age(self):
+        today = date.today()
+        return today.year - self.date_of_birth.year - (
+            (today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day)
+        )
+
+    @property
+    def patients_count(self):
+        return self.pacientes.count()
+
 
 
 class Sucursal(models.Model):
@@ -126,8 +227,8 @@ class prospecion_administrativa(models.Model):
         'Velasco Ibarra', 'Ventanas', 'Vinces', 'Yaguachi', 'Zamora'
     ]]
 
-    ciudad = models.CharField(max_length=100, choices=CIUDADES_ECUADOR, null=True, blank=True)
-    direccion = models.TextField(null=True, blank=True)
+    ciudad = models.CharField(default='Quito' ,max_length=100, choices=CIUDADES_ECUADOR, null=True, blank=True)
+    direccion = models.CharField(max_length=200, null=True, blank=True)
 
     mail_institucion_general = models.EmailField(blank=True, null=True, verbose_name="Mail General de la Institución")
 
@@ -162,14 +263,7 @@ class prospecion_administrativa(models.Model):
     )
 
     # Ejecutivo Meddes
-    ejecutivo_meddes = models.ForeignKey(
-        'auth.User',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='instituciones_asignadas',
-        verbose_name="Ejecutivo Meddes"
-    )
+    ejecutivo_meddes = models.ForeignKey(AdministrativeProfile, on_delete=models.CASCADE,null=True, blank=True, verbose_name="Ejecutivo Meddes")
     cargo_ejecutivo_meddes = models.CharField(max_length=150, null=True, blank=True)
     telefono_ejecutivo_meddes = models.CharField(max_length=50, null=True, blank=True)
     mail_ejecutivo_meddes = models.EmailField(blank=True, null=True)
@@ -401,12 +495,12 @@ class ValoracionTerapia(models.Model):
 
 
     proceso_terapia = models.BooleanField(default=False, verbose_name="Proceso de Terapia")
-    diagnostico = models.TextField(blank=True, null=True)
+    diagnostico = HTMLField(null=True, blank=True, verbose_name="descripción del diagnóstico")
 
     fecha_asesoria = models.DateField(null=True, blank=True)
     recibe_asesoria = models.BooleanField(default=False)
 
-    observaciones = models.TextField(blank=True, null=True)
+    observaciones = HTMLField(null=True, blank=True, verbose_name="observaciones de la valoración")
 
     numero_dece = models.CharField(max_length=255, verbose_name="Numero de DECE", blank=True, null=True)
     mail = models.EmailField(verbose_name="Correo Electrónico", blank=True, null=True)
@@ -762,24 +856,23 @@ class Cita(models.Model):
         settings.AUTH_USER_MODEL,
         related_name='citas_creadas',
         on_delete=models.CASCADE,
-        null=True,
-        blank=True
+        null=True, blank=True
     )
     destinatario = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name='citas_recibidas',
         on_delete=models.CASCADE,
-        verbose_name="Cita con:",
+        verbose_name="Cita con:"
     )
     sucursal = models.ForeignKey(
         'Sucursal',
         on_delete=models.CASCADE,
         related_name="sucursal8",
-        null=True,
-        blank=True
+        null=True, blank=True
     )
-    fecha = models.DateTimeField()
-    fecha_final = models.DateTimeField(null=True, blank=True)
+
+    fecha = models.DateField(null=True, blank=True, verbose_name="Fecha de la cita")
+    hora = models.TimeField(null=True, blank=True, verbose_name="Hora de la cita")
 
     TIPO_CITA_CHOICES = [
         ('administrativa', 'Administrativa'),
@@ -795,13 +888,12 @@ class Cita(models.Model):
     )
 
     motivo = models.CharField(max_length=255)
-    notas = models.TextField(blank=True, null=True)
+    notas = models.TextField(null=True, blank=True, verbose_name="Notas adicionales")
 
     profile = models.ForeignKey(
         'Profile',
         on_delete=models.CASCADE,
-        null=True,
-        blank=True,
+        null=True, blank=True,
         verbose_name="Asignar perfil de paciente",
         related_name='Asignar_perfil_de_paciente'
     )
@@ -809,43 +901,36 @@ class Cita(models.Model):
     profile_terapeuta = models.ForeignKey(
         'Perfil_Terapeuta',
         on_delete=models.CASCADE,
-        null=True,
-        blank=True,
+        null=True, blank=True,
         verbose_name="Asignar perfil de terapeuta",
         related_name='Asignar_perfil_de_terapeuta'
     )
 
-    # Representación del estado con booleanos
     pendiente = models.BooleanField(default=True, verbose_name="Pendiente")
     confirmada = models.BooleanField(default=False, verbose_name="Confirmada")
     cancelada = models.BooleanField(default=False, verbose_name="Cancelada")
 
     class Meta:
-        ordering = ['-fecha']
+        ordering = ['-fecha', '-hora']
         verbose_name = "Administrativos / Ingreso de Cita"
         verbose_name_plural = "Registros Administrativos / Ingreso de Citas"
 
-    @property
-    def estado(self):
-        if self.confirmada:
-            return "Confirmada"
-        if self.pendiente:
-            return "Pendiente"
-        if self.cancelada:
-            return "Cancelada"
-        return "Sin estado"
-
     def __str__(self):
-        return f"{self.creador} → {self.destinatario} ({self.fecha.strftime('%d/%m/%Y %H:%M')})"
+        fecha_str = self.fecha.strftime('%d/%m/%Y') if self.fecha else 'Sin fecha'
+        hora_str = self.hora.strftime('%H:%M') if self.hora else 'Sin hora'
+        return f"{self.creador} → {self.destinatario} ({fecha_str} {hora_str})"
 
     def clean(self):
-        # Esta validación se refleja en el formulario del admin
+        super().clean()
+
         estados = ['pendiente', 'confirmada', 'cancelada']
         seleccionados = [estado for estado in estados if getattr(self, estado)]
 
         if len(seleccionados) > 1:
             raise ValidationError("Solo un estado puede estar activo a la vez: pendiente, confirmada o cancelada.")
 
+        if len(seleccionados) == 0:
+            raise ValidationError("Debe seleccionarse al menos un estado.")
 
 
 
@@ -862,6 +947,11 @@ def __str__(self):
 
 
 class tareas(models.Model):
+    sucursal = models.ForeignKey(
+        Sucursal,
+        on_delete=models.CASCADE,
+        related_name="sucursal6",null=True, blank=True
+    )
 
     cita_terapeutica_asignada = models.OneToOneField(Cita, on_delete=models.CASCADE, verbose_name="Elija la cita correspondiente a esta sesion de terapia", null=True, blank=True)
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE, verbose_name="Asignar perfil de paciente", related_name='Asignar_perfil_de_paciente2')
@@ -872,20 +962,16 @@ class tareas(models.Model):
         null=True,
         blank=True
     )
-    media_terapia =  models.FileField(upload_to='Videos/%Y/%m/%d/', blank=True, verbose_name="Contenido Multimedia de Terapia")
+    media_terapia =  models.FileField(upload_to='Videos/%Y/%m/%d/', blank=True, verbose_name="Contenido Multimedia ")
     titulo = models.CharField(max_length=255, blank=True, null=True, verbose_name="Título de la tarea") 
     fecha_envio = models.DateField(blank=True, null=True, verbose_name="Fecha de envio de tarea")
     fecha_entrega = models.DateField(blank=True, null=True, verbose_name="Fecha de entrega de tarea")
     material_adjunto =  models.FileField(upload_to='materiales/%Y/%m/%d/', blank=True, verbose_name="Material adjunto")
    
-    descripcion_tarea =  HTMLField(null=True, blank=True, verbose_name="Comentario o actividad a realizar")
+    descripcion_tarea =  HTMLField(null=True, blank=True, verbose_name="Describa la tarea a realizar")
     realizada = models.BooleanField(default=False, verbose_name="¿Paciente realizó la tarea?")
     tarea_no_realizada = models.BooleanField(default=False, verbose_name="¿Paciente Culminó la Terapia ?")
-    sucursal = models.ForeignKey(
-        Sucursal,
-        on_delete=models.CASCADE,
-        related_name="sucursal6",null=True, blank=True
-    )
+
 
 
 
@@ -928,7 +1014,12 @@ class Mensaje(models.Model):
         ('Reclamo del servicio  Médico', 'Reclamo del servicio  Médico'),
         ('Cancelación del servicio Médico', 'Cancelación del servicio Médico'),
     ]
-    
+
+    sucursal = models.ForeignKey(
+        Sucursal,
+        on_delete=models.CASCADE,
+        related_name="sucursal7",null=True, blank=True
+    )
     emisor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='mensajes_enviados', on_delete=models.CASCADE)
     receptor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='mensajes_recibidos', on_delete=models.CASCADE, verbose_name="Destinatario")
     asunto = models.CharField(max_length=50, choices=ASUNTOS_CHOICES, default='Consulta')  
@@ -936,11 +1027,7 @@ class Mensaje(models.Model):
     leido = models.BooleanField(default=False)
     creado = models.DateTimeField(default=timezone.now)
     fecha_envio = models.DateTimeField(auto_now_add=True)
-    sucursal = models.ForeignKey(
-        Sucursal,
-        on_delete=models.CASCADE,
-        related_name="sucursal7",null=True, blank=True
-    )
+
 
     # ➕ Campo para vincular con Celery
     task_id = models.CharField(max_length=255, blank=True, null=True, help_text="ID de la tarea de Celery asociada")
@@ -1148,103 +1235,3 @@ class BitacoraDesarrollo(models.Model):
 
 
 
-class AdministrativeProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='admin_profile')
-    date_of_birth = models.DateField("Fecha de nacimiento")
-    gender_choices = [
-        ('M', 'Masculino'),
-        ('F', 'Femenino'),
-        ('O', 'Otro'),
-    ]
-    gender = models.CharField("Género", max_length=1, choices=gender_choices)
-    national_id = models.CharField("Cédula de identidad", max_length=20, unique=True)
-    phone_regex = RegexValidator(
-        regex=r'^\+?593?\d{9,15}$',
-        message="El número de teléfono debe estar en formato internacional. Ejemplo: +593XXXXXXXXX."
-    )
-    phone_number = PhoneNumberField(
-        verbose_name="Teléfono de la Institución",
-        validators=[phone_regex],
-        default='+593'
-    )
-    email = models.EmailField("Correo electrónico", unique=True)
-    address = models.CharField("Direccion de Domicilio", max_length=200, unique=True)
-
-    # Información administrativa
-    DEPARTMENT_CHOICES = [
-        ('gerencia', 'Gerencia'),
-        ('administracion', 'Administración'),
-        ('financiero', 'Financiero'),
-         ('operativo', 'Operativo'),
-    ]
-    department = models.CharField("Departamento", max_length=30, choices=DEPARTMENT_CHOICES)
-
-    JOB_TITLE_CHOICES = [
-        # Gerencia
-        ('gerente_general', 'Gerente General'),
-        ('gerente_comercial', 'Ejecutivo Comercial'),
-        
-        # Administración
-        ('tecnico_administrativo', 'Técnico Administrativo'),
-        ('asistente_administrativo', 'Asistente Administrativo'),
-        ('terapeuta', 'Terapéuta'),
-
-        # Financiero
-        ('contador', 'Contador'),
-        ('analista_financiero', 'Analista Financiero'),
-        ('jefe_finanzas', 'Jefe de Finanzas'),
-    ]
-    job_title = models.CharField("Cargo", max_length=50, choices=JOB_TITLE_CHOICES)
-
-    date_joined = models.DateField("Fecha de ingreso")
-    contract_type_choices = [
-        ('FT', 'Tiempo completo'),
-        ('PT', 'Medio tiempo'),
-        ('CT', 'Contrato temporal'),
-    ]
-    contract_type = models.CharField("Tipo de contrato", max_length=2, choices=contract_type_choices)
-    salary = MoneyField("Salario", max_digits=10, decimal_places=2, default_currency='USD')
-    is_active = models.BooleanField("Activo", default=True)
-
-    num_pacientes_captados = models.PositiveIntegerField(
-        "Pacientes captados", default=0, help_text="Número de pacientes adquiridos por este administrativo", null=True, blank=True
-    )
-
-
-    valor_por_paciente = MoneyField(
-        "Valor por paciente", max_digits=10, decimal_places=2, default_currency='USD',
-        help_text="Monto ganado por cada paciente captado",null=True, blank=True
-    )
-
-    # Documentación
-    resume = models.FileField("Hoja de vida", upload_to='resumes/', blank=True, null=True)
-   # photo = models.ImageField("Foto", upload_to='photos/', blank=True, null=True)
-
-    # Timestamps
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name = "Perfil administrativo"
-        verbose_name_plural = "Perfiles administrativos"
-
-    def __str__(self):
-        return f"{self.user.first_name} {self.user.last_name} - {self.get_job_title_display()}"
-    
-    
-    @property
-    def comision_total_calculada(self):
-        # Por ejemplo, $10 por paciente
-        return self.num_pacientes_captados * self.valor_por_paciente 
-    
-    
-    @property
-    def age(self):
-        today = date.today()
-        return today.year - self.date_of_birth.year - (
-            (today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day)
-        )
-
-    @property
-    def patients_count(self):
-        return self.pacientes.count()

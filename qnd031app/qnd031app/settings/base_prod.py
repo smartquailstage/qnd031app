@@ -248,7 +248,7 @@ UNFOLD = {
                 "items": [
 
                     {
-                        "title": _("Valorizaciones"),
+                        "title": _("Valoraciones"),
                         "icon": "download",
                         "link": reverse_lazy("admin:usuarios_valoracionterapia_changelist"),
                     },
