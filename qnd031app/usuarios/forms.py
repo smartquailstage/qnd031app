@@ -10,13 +10,25 @@ from .models import Mensaje, Cita ,TareaComentario
 from serviceapp.models import ServicioTerapeutico
 from ckeditor.widgets import CKEditorWidget
 from django.forms.models import inlineformset_factory
-from .models import AsistenciaTerapeuta, prospecion_administrativa, DocenteCapacitado, Perfil_Terapeuta, ValoracionTerapia
+from .models import AsistenciaTerapeuta, prospecion_administrativa, DocenteCapacitado, Perfil_Terapeuta, ValoracionTerapia, AdministrativeProfile
 from bootstrap_datepicker_plus.widgets import DatePickerInput
 from django import forms
 from .widgets import CustomDatePickerWidget
 from .widgets import CustomTimePickerWidget, CustomDateTimePickerWidget
 from datetime import datetime
 from django.utils.timezone import localtime, is_naive, make_aware
+
+
+
+class AdministrativeProfileForm(forms.ModelForm):
+    class Meta:
+        model = AdministrativeProfile
+        fields = '__all__'
+        widgets = {
+            'date_of_birth': CustomDatePickerWidget(attrs={'class': 'form-control'}),
+            'date_joined': CustomDatePickerWidget(attrs={'class': 'form-control'}),
+        }
+
 
 class LoginForm(forms.Form):
     username = forms.CharField(label="Nombre de Usuario")
@@ -136,6 +148,7 @@ class PerfilTerapeutaForm(forms.ModelForm):
         }
 
 
+
 class PerfilTerapeutaAdminForm(forms.ModelForm):
     TIPO_SERVICIO = Perfil_Terapeuta.TIPO_SERVICIO
 
@@ -150,15 +163,18 @@ class PerfilTerapeutaAdminForm(forms.ModelForm):
     class Meta:
         model = Perfil_Terapeuta
         fields = '__all__'
+        widgets = {
+            'fecha_nacimiento': CustomDatePickerWidget(attrs={'class': 'form-control'}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Convierte la lista JSON en lista normal
+        # Convertir JSONField a MultipleChoiceField
         if self.instance and self.instance.pk:
             self.initial['tipos'] = self.instance.tipos
 
     def clean_tipos(self):
-        # Devuelve como lista para guardar en JSONField
+        # Guardar como lista en JSONField
         return self.cleaned_data['tipos']
 
     def save(self, commit=True):

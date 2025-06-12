@@ -32,7 +32,7 @@ from django.utils import timezone
 from unfold.components import BaseComponent, register_component
 from unfold.sections import TableSection, TemplateSection
 from django.utils.timezone import now
-from .forms import  AsistenciaTerapeutaAdminForm,CitaAdminForm, ValoracionTerapiaAdminForm, ProfileAdminForm, PerfilTerapeutaAdminForm, ServicioTerapeuticoForm, ProspecionAdministrativaForm,PerfilTerapeutaForm,PerfilPacientesForm
+from .forms import  AdministrativeProfileForm, AsistenciaTerapeutaAdminForm,CitaAdminForm, ValoracionTerapiaAdminForm, ProfileAdminForm, PerfilTerapeutaAdminForm,PerfilTerapeutaForm, ServicioTerapeuticoForm, ProspecionAdministrativaForm,PerfilTerapeutaForm,PerfilPacientesForm
 from django.template.loader import render_to_string
 from unfold.decorators import action
 from django.http import HttpRequest
@@ -1975,6 +1975,7 @@ class ContactoAdministrativoComponent(BaseComponent):
 
 @admin.register(AdministrativeProfile)
 class AdministrativeProfileAdmin(ModelAdmin):
+    form = AdministrativeProfileForm
     list_display = ('full_name', 'get_job_title_display', 'get_department_display','salary', 'is_active')
     list_filter = ('job_title', 'department', 'is_active')
     list_sections = [PerfilAdministrativoComponent,ContactoAdministrativoComponent ]  # Agregar sección personalizada

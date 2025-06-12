@@ -5,6 +5,7 @@ from djmoney.models.fields import MoneyField
 
 
 class ServicioTerapeutico(models.Model):
+
     LUGAR_CHOICES = [
         ('INSTITUCIONAL', 'Institucional'),
         ('DOMICILIO', 'Domicilio'),
@@ -42,11 +43,8 @@ class ServicioTerapeutico(models.Model):
         null=True,
         verbose_name="Valor por sesión"
     ) 
-    fecha_ingreso = models.DateField(null=True, blank=True)
-    titulo_universitario = models.FileField(upload_to='documentos/terapeutas/titulo/', blank=True, null=True)
-    antecedentes_penales = models.FileField(upload_to='documentos/terapeutas/antecedentes/', blank=True, null=True)
-    certificados = models.FileField(upload_to='documentos/terapeutas/certificados/', blank=True, null=True)
-    observacion = models.TextField(blank=True, null=True, verbose_name="Observación de servicio")
+
+    observacion = models.TextField(blank=True, null=True, verbose_name="Escriba Detalle del servicio")
 
     activo = models.BooleanField(default=True, verbose_name="¿Servicio activo?")
 
@@ -56,4 +54,4 @@ class ServicioTerapeutico(models.Model):
         ordering = ['servicio']
 
     def __str__(self):
-        return f"{self.servicio} - {self.lugar_servicio} - {self.costo_por_sesion}"
+        return f"{self.servicio} - {self.lugar_servicio}"
