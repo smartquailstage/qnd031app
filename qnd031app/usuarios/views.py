@@ -96,14 +96,20 @@ def profile_view(request):
 
     cantidad_mensajes_recibidos = Mensaje.objects.filter(receptor=request.user).count()
     cantidad_mensajes_enviados = Mensaje.objects.filter(emisor=request.user).count()
-    cantidad_terapias_realizadas =  tareas.objects.filter(profile__user=request.user,realizada=True).count()
+    cantidad_terapias_realizadas = tareas.objects.filter(profile__user=request.user, realizada=True).count()
     citas_realizadas = Cita.objects.filter(destinatario=request.user).count()
 
     # Obtener estado de pago desde el modelo `pagos`
-    estado_de_pago = None
     try:
-        pago = pagos.objects.get(profile__user=request.user)
-        estado_de_pago = pago.pendiente
+        pago = pagos.objects.filter(profile__user=request.user).latest('created_at')
+        if pago.al_dia:
+            estado_de_pago = "Al día"
+        elif pago.pendiente:
+            estado_de_pago = "Pendiente"
+        elif pago.vencido:
+            estado_de_pago = "Vencido"
+        else:
+            estado_de_pago = "Sin estado"
     except pagos.DoesNotExist:
         estado_de_pago = "No registrado"
 

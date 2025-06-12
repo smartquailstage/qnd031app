@@ -437,7 +437,7 @@ class Perfil_Terapeuta(models.Model):
         return None
 
     def __str__(self):
-        return f'{self.user.get_full_name()}'
+        return f'{self.user.get_full_name()} - {self.especialidad}'
 
 
 
@@ -687,13 +687,14 @@ class Profile(models.Model):
         verbose_name="Certificado de alta terapeutica"
     )
 
+    fecha_inicio = models.DateField(blank=True, null=True, verbose_name="Fecha de inicio")
 
     # Campos opcionales según estado
     fecha_retiro = models.DateField(null=True, blank=True)
     motivo_retiro = models.CharField(max_length=50, choices=MOTIVOS_RETIRO, null=True, blank=True)
     motivo_otro = models.CharField(max_length=255, null=True, blank=True, help_text="Especifique otro motivo (si aplica)")
 
-    fecha_inicio = models.DateField(blank=True, null=True, verbose_name="Fecha de inicio")
+    
 
     fecha_alta = models.DateField(null=True, blank=True,verbose_name="Fecha de Alta")
     fecha_pausa = models.DateField(null=True, blank=True)

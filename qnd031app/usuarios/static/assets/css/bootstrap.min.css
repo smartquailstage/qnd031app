@@ -1841,7 +1841,7 @@ progress {
   font-weight: 400;
   line-height: 1.5;
   color: #fff;
-  background-color: #1698b0;
+  background-color: #18bb6b;
   background-clip: padding-box;
   border: var(--bs-border-width) solid var(--bs-border-color);
   -webkit-appearance: none;
@@ -3020,47 +3020,48 @@ textarea.form-control-lg {
 	margin-left: 0
 }
 .dropdown-menu {
-	--bs-dropdown-zindex: 1000;
-	--bs-dropdown-min-width: 10rem;
-	--bs-dropdown-padding-x: 0;
-	--bs-dropdown-padding-y: 0.5rem;
-	--bs-dropdown-spacer: 0.125rem;
-	--bs-dropdown-font-size: 1rem;
-	--bs-dropdown-color: var(--bs-body-color);
-	--bs-dropdown-bg: #fff;
-	--bs-dropdown-border-color: var(--bs-border-color-translucent);
-	--bs-dropdown-border-radius: var(--bs-border-radius);
-	--bs-dropdown-border-width: var(--bs-border-width);
-	--bs-dropdown-inner-border-radius: calc(var(--bs-border-radius) - var(--bs-border-width));
-	--bs-dropdown-divider-bg: var(--bs-border-color-translucent);
-	--bs-dropdown-divider-margin-y: 0.5rem;
-	--bs-dropdown-box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-	--bs-dropdown-link-color: var(--bs-body-color);
-	--bs-dropdown-link-hover-color: var(--bs-body-color);
-	--bs-dropdown-link-hover-bg: var(--bs-tertiary-bg);
-	--bs-dropdown-link-active-color: #fff;
-	--bs-dropdown-link-active-bg: #0d6efd;
-	--bs-dropdown-link-disabled-color: var(--bs-tertiary-color);
-	--bs-dropdown-item-padding-x: 1rem;
-	--bs-dropdown-item-padding-y: 0.25rem;
-	--bs-dropdown-header-color: #6c757d;
-	--bs-dropdown-header-padding-x: 1rem;
-	--bs-dropdown-header-padding-y: 0.5rem;
-	position: absolute;
-	z-index: var(--bs-dropdown-zindex);
-	display: none;
-	min-width: var(--bs-dropdown-min-width);
-	padding: var(--bs-dropdown-padding-y) var(--bs-dropdown-padding-x);
-	margin: 0;
-	font-size: var(--bs-dropdown-font-size);
-	color: var(--bs-dropdown-color);
-	text-align: left;
-	list-style: none;
-	background-color: var(--bs-dropdown-bg);
-	background-clip: padding-box;
-	border: var(--bs-dropdown-border-width) solid var(--bs-dropdown-border-color);
-	border-radius: var(--bs-dropdown-border-radius)
+    --bs-dropdown-zindex: 1000;
+    --bs-dropdown-min-width: 10rem;
+    --bs-dropdown-padding-x: 0;
+    --bs-dropdown-padding-y: 0.5rem;
+    --bs-dropdown-spacer: 0.125rem;
+    --bs-dropdown-font-size: 1rem;
+    --bs-dropdown-color: #ededed;
+    --bs-dropdown-bg: #169e41;
+    --bs-dropdown-border-color: var(--bs-border-color-translucent);
+    --bs-dropdown-border-radius: var(--bs-border-radius);
+    --bs-dropdown-border-width: var(--bs-border-width);
+    --bs-dropdown-inner-border-radius: calc(var(--bs-border-radius) - var(--bs-border-width));
+    --bs-dropdown-divider-bg: var(--bs-border-color-translucent);
+    --bs-dropdown-divider-margin-y: 0.5rem;
+    --bs-dropdown-box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    --bs-dropdown-link-color: var(--bs-body-color);
+    --bs-dropdown-link-hover-color: var(--bs-body-color);
+    --bs-dropdown-link-hover-bg: var(--bs-tertiary-bg);
+    --bs-dropdown-link-active-color: #fff;
+    --bs-dropdown-link-active-bg: #0d6efd;
+    --bs-dropdown-link-disabled-color: var(--bs-tertiary-color);
+    --bs-dropdown-item-padding-x: 1rem;
+    --bs-dropdown-item-padding-y: 0.25rem;
+    --bs-dropdown-header-color: #6c757d;
+    --bs-dropdown-header-padding-x: 1rem;
+    --bs-dropdown-header-padding-y: 0.5rem;
+    position: absolute;
+    z-index: var(--bs-dropdown-zindex);
+    display: none;
+    min-width: var(--bs-dropdown-min-width);
+    padding: var(--bs-dropdown-padding-y) var(--bs-dropdown-padding-x);
+    margin: 0;
+    font-size: var(--bs-dropdown-font-size);
+    color: var(--bs-dropdown-color);
+    text-align: left;
+    list-style: none;
+    background-color: var(--bs-dropdown-bg);
+    background-clip: padding-box;
+    border: var(--bs-dropdown-border-width) solid var(--bs-dropdown-border-color);
+    border-radius: var(--bs-dropdown-border-radius);
 }
+
 .dropdown-menu[data-bs-popper] {
 	top: 100%;
 	left: 0;
@@ -3246,7 +3247,7 @@ textarea.form-control-lg {
   padding: var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x);
   clear: both;
   font-weight: 400;
-  color: #0457aa;
+  color: #ffffff;
   text-align: inherit;
   text-decoration: none;
   white-space: nowrap;
@@ -3928,7 +3929,7 @@ textarea.form-control-lg {
 	--bs-card-cap-color: ;
 	--bs-card-height: ;
 	--bs-card-color: #ffff;
-	--bs-card-bg:#1698b0;
+	--bs-card-bg:#18bb6b;
 	--bs-card-img-overlay-padding: 1rem;
 	--bs-card-group-margin: 0.75rem;
 	position: relative;
@@ -7557,8 +7558,8 @@ textarea.form-control-lg {
 	color: rgba(var(--bs-body-color-rgb), var(--bs-text-opacity))!important
 }
 .text-muted {
-	--bs-text-opacity: 1;
-	color: var(--bs-secondary-color)!important
+  --bs-text-opacity: 1;
+  color: rgb(255, 255, 255) !important;
 }
 .text-black-50 {
 	--bs-text-opacity: 1;
@@ -7787,7 +7788,7 @@ textarea.form-control-lg {
 }
 .bg-white {
 	--bs-bg-opacity: 1;
-	background-color: #1698b0;
+	background-color: #18bb6b;
 }
 .bg-body {
 	--bs-bg-opacity: 1;
