@@ -12,30 +12,44 @@
 
         <div class="row">
             <div class="col-12 col-lg-8 col-xl-9">
-                <h4>Citas Recibidas</h4>
-                <p>Total: {{ total }} | Confirmadas: {{ confirmadas }} | No confirmadas: {{ no_confirmadas }}</p>
 
                 {% if citas %}
                     <div class="row row-cols-1 row-cols-lg-3">
                         {% for cita in citas %}
                             <div class="col mb-3">
-                                <a href="{% url 'usuarios:ver_cita' cita.id %}">
-                                    <div class="card radius-10 bg-info text-white">
+                                <a href="{% url 'usuarios:ver_cita' cita.id %}" class="text-decoration-none">
+                                    <div class="card radius-10 
+                                        {% if cita.confirmada %}
+                                            bg-success text-white
+                                        {% elif cita.cancelada %}
+                                            bg-danger text-white
+                                        {% elif cita.pendiente %}
+                                            bg-warning text-dark
+                                        {% else %}
+                                            bg-secondary text-white
+                                        {% endif %}
+                                    ">
                                         <div class="card-body">
                                             <div class="d-flex align-items-center mb-2">
-                                                <div class="service-box bg-white text-white me-2">
-                                                    {% if cita.estado == 'pendiente' %}
-                                                        <ion-icon name="pulse"></ion-icon>
-                                                    {% elif cita.estado == 'confirmada' %}
-                                                        <ion-icon name="card"></ion-icon>
-                                                    {% elif cita.estado == 'cancelada' %}
-                                                        <ion-icon name="megaphone"></ion-icon>
-                                                    {% endif %}
+                                                <div class="service-box bg-white text-white me-2 d-flex align-items-center justify-content-center rounded-circle" style="width: 40px; height: 40px;">
+                                                    <ion-icon name="calendar-outline" size="large"></ion-icon>
                                                 </div>
                                                 <h5 class="mb-0">{{ cita.destinatario.get_full_name }}</h5>
                                             </div>
-                                            <h6>{{ cita.fecha|date:"d M Y H:i" }}</h6>
-                                            <p>{{ cita.notas|truncatechars:50 }}</p>
+                                            <h6>{{ cita.fecha|date:"d M Y" }} - {{ cita.hora|time:"H:i" }}</h6>
+                                            <p class="mb-1"><strong>Motivo:</strong> {{ cita.motivo|default:"(Sin motivo)" }}</p>
+                                            <p class="mb-1"><strong>Notas:</strong> {{ cita.notas|default:"(Sin notas)"|truncatechars:50 }}</p>
+                                            <p class="mb-0"><strong>Estado:</strong>
+                                                {% if cita.confirmada %}
+                                                    Confirmada
+                                                {% elif cita.cancelada %}
+                                                    Cancelada
+                                                {% elif cita.pendiente %}
+                                                    Pendiente
+                                                {% else %}
+                                                    Desconocido
+                                                {% endif %}
+                                            </p>
                                         </div>
                                     </div>
                                 </a>

@@ -206,60 +206,58 @@ def inbox_record(request):
 def cita_success(request):
     return render(request, 'usuarios/citas/success.html')
     
-@login_required
-def ver_cita(request, pk):
-    cita = get_object_or_404(Cita, pk=pk)
 
-    # Validar que el usuario sea creador o destinatario de la cita
-    if request.user != cita.creador and request.user != cita.destinatario:
-        return HttpResponseForbidden("No tienes permiso para ver esta cita.")
-
-    return render(request, 'usuarios/citas/cita.html', {'cita': cita})
 
 
 @login_required
 def citas_record(request):
-    profile = Profile.objects.get(user=request.user)
+    profile = get_object_or_404(Profile, user=request.user)
 
-    # Todas las citas para el usuario destinatario (puedes ajustar filtro si quieres excluir canceladas)
-    citas = Cita.objects.filter(destinatario=request.user)
+    citas = (
+        Cita.objects
+        .filter(destinatario=request.user)
+        .select_related('creador', 'destinatario')
+        .order_by('-fecha', '-hora')
+    )
 
-    # Contar citas confirmadas, pendientes y canceladas
-    confirmadas = citas.filter(confirmada=True).count()
-    pendientes = citas.filter(pendiente=True).count()
-    canceladas = citas.filter(cancelada=True).count()
-    total = citas.count()
+    confirmadas = citas.filter(confirmada=True, pendiente=False, cancelada=False)
+    pendientes = citas.filter(pendiente=True, confirmada=False, cancelada=False)
+    canceladas = citas.filter(cancelada=True, pendiente=False, confirmada=False)
 
-    return render(request, 'usuarios/citas/calendar_total.html', {
+    context = {
         'citas': citas,
         'profile': profile,
-        'confirmadas': confirmadas,
-        'pendientes': pendientes,
-        'canceladas': canceladas,
-        'total': total,
-    })
+        'confirmadas': confirmadas.count(),
+        'pendientes': pendientes.count(),
+        'canceladas': canceladas.count(),
+        'total': citas.count(),
+    }
+
+    return render(request, 'usuarios/citas/calendar_total.html', context)
+
 
 @login_required
 def citas_agendadas_total(request):
-    profile = Profile.objects.get(user=request.user)
-    citas = request.user.citas_creadas.all()
-    
-    confirmadas = citas.filter(confirmada=True).count()
-    no_confirmadas = citas.filter(confirmada=False).count()
-    total = citas.count()
+    profile = get_object_or_404(Profile, user=request.user)
+
+    # 🔸 Filtrar solo las citas pendientes
+    citas_pendientes = request.user.citas_creadas.filter(pendiente=True)
+
+    confirmadas = request.user.citas_creadas.filter(confirmada=True).count()
+    no_confirmadas = request.user.citas_creadas.filter(confirmada=False).count()
+    total = request.user.citas_creadas.count()
 
     return render(request, 'usuarios/citas/calendar_agendadas.html', {
-        'citas': citas,
+        'citas': citas_pendientes,  # solo las pendientes
         'profile': profile,
         'confirmadas': confirmadas,
         'no_confirmadas': no_confirmadas,
         'total': total,
     })
 
-
 @login_required
 def agendar_cita(request):
-    destinatario = User.objects.get(id=1)  # ID del médico o administrador que recibe las citas
+    destinatario = get_object_or_404(User, id=1)  # 👈 Ajusta al destinatario real
 
     if request.method == 'POST':
         form = CitaForm(request.POST)
@@ -267,13 +265,43 @@ def agendar_cita(request):
             cita = form.save(commit=False)
             cita.creador = request.user
             cita.destinatario = destinatario
-            cita.estado = 'pendiente'
+            cita.pendiente = True
+            cita.confirmada = False
+            cita.cancelada = False
             cita.save()
-            return redirect('usuarios:cita_success')
+            return redirect('usuarios:cita_success')  # 👈 Asegúrate de tener esta vista definida
     else:
         form = CitaForm()
-    
+
     return render(request, 'usuarios/citas/agendar_cita.html', {'form': form})
+
+
+@login_required
+def ver_cita(request, pk):
+    cita = get_object_or_404(Cita, pk=pk)
+
+    # Solo el creador o destinatario puede acceder
+    if request.user != cita.creador and request.user != cita.destinatario:
+        return HttpResponseForbidden("No tienes permiso para ver esta cita.")
+
+    if request.method == "POST":
+        accion = request.POST.get("accion")
+
+        if accion == "confirmar":
+            cita.confirmada = True
+            cita.pendiente = False
+            cita.cancelada = False
+            messages.success(request, "Cita confirmada correctamente.")
+        elif accion == "cancelar":
+            cita.cancelada = True
+            cita.confirmada = False
+            cita.pendiente = False
+            messages.warning(request, "Cita cancelada correctamente.")
+
+        cita.save()
+        return redirect('usuarios:ver_cita', pk=cita.pk)
+
+    return render(request, 'usuarios/citas/cita.html', {'cita': cita})
 
 
 @login_required

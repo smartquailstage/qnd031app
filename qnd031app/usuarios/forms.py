@@ -64,11 +64,31 @@ class MarcarLeidoForm(forms.ModelForm):
 class CitaForm(forms.ModelForm):
     class Meta:
         model = Cita
-        fields = '__all__'
+        fields = ['motivo', 'fecha', 'hora', 'tipo_cita', 'notas']
         widgets = {
-            'fecha': CustomDatePickerWidget(attrs={'class': 'form-control'}),
-            'hora': CustomTimePickerWidget(attrs={'class': 'form-control'}),
+            'fecha': CustomDatePickerWidget(attrs={'class': 'form-control datepicker', 'type':'date'}),
+            'hora': CustomTimePickerWidget(attrs={'class': 'form-control timepicker'}),
+            'tipo_cita': forms.Select(attrs={'class': 'form-select'}),
+            'motivo': forms.TextInput(attrs={'class': 'form-control'}),
+            'notas': forms.Textarea(attrs={'class': 'form-control'}),
+            'sucursal': forms.Select(attrs={'class': 'form-select'}),
         }
+
+    def save(self, commit=True, creador=None, destinatario=None):
+        cita = super().save(commit=False)
+        if creador:
+            cita.creador = creador
+        if destinatario:
+            cita.destinatario = destinatario
+
+        # Aseguramos el estado correcto
+        cita.pendiente = True
+        cita.confirmada = False
+        cita.cancelada = False
+
+        if commit:
+            cita.save()
+        return cita
 
 class TareaComentarioForm(forms.ModelForm):
     class Meta:

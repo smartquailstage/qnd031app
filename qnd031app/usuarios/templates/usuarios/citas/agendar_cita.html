@@ -2,49 +2,64 @@
 {% load widget_tweaks %}
 {% load static %}
 
-
-
-
-
-
 {% block content %}
-
 <div class="page-content-wrapper">
-    <!-- start page content-->
    <div class="page-content">
+      <div class="row">
+         {% include 'usuarios/logo.html' %}
+      </div>
 
       <div class="row">
+         <div class="col-12 col-lg-8 col-xl-9">
+            <div class="card radius-10">
+               <div class="card-body">
+                  <form method="POST">
+                     {% csrf_token %}
 
+                     <!-- Motivo -->
+                     <div class="mb-3">
+                        {{ form.motivo.label_tag }}
+                        {{ form.motivo|add_class:"form-control" }}
+                     </div>
 
+                     <!-- Fecha -->
+                     <div class="mb-3">
+                        {{ form.fecha.label_tag }}
+                        <input type="date" name="{{ form.fecha.name }}" class="form-control datepicker" value="{{ form.fecha.value|default_if_none:'' }}">
+                     </div>
 
-         {% include 'usuarios/logo.html' %} 
+                     <!-- Hora -->
+                     <div class="mb-3">
+                        {{ form.hora.label_tag }}
+                        <input type="time" name="{{ form.hora.name }}" class="form-control timepicker" value="{{ form.hora.value|default_if_none:'' }}">
+                     </div>
 
-    </div> <!-- Fin row -->
+                     <!-- Tipo de cita -->
+                     <div class="mb-3">
+                        {{ form.tipo_cita.label_tag }}
+                        {{ form.tipo_cita|add_class:"form-select" }}
+                     </div>
 
-    <div class="row">
-        <div class="col-12 col-lg-8 col-xl-9">
+                     <!-- Sucursal -->
+                     <div class="mb-3">
+                        {{ form.sucursal.label_tag }}
+                        {{ form.sucursal|add_class:"form-select" }}
+                     </div>
 
-     <div class="card radius-10">
-    <div class="card-body">
-           <form method="POST">
-        {% csrf_token %}
-        <div class="mb-3">
-            {{ form.motivo.label_tag }}<br>
-            {{ form.motivo }}
-        </div>
-        <div class="mb-3">
-            {{ form.fecha.label_tag }}<br>
-            {{ form.fecha }}
-        </div>
-        <button type="submit" class="btn btn-primary">Agendar cita</button>
-    </form>
-    </div>
+                     <!-- Notas -->
+                     <div class="mb-3">
+                        {{ form.notas.label_tag }}
+                        {{ form.notas|add_class:"form-control" }}
+                     </div>
+
+                     <button type="submit" class="btn btn-primary">Agendar cita</button>
+                  </form>
+               </div>
+            </div>
+         </div>
+
+         {% include 'usuarios/panel_usuario.html' %}
+      </div>
+   </div>
 </div>
-
-
-    </div>
-
-     {% include 'usuarios/panel_usuario.html' %} 
-    </div>
-
 {% endblock %}

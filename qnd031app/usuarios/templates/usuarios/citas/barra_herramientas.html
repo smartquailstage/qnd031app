@@ -9,8 +9,9 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div>                       
-                            <h4 class="mb-0 text-primary">Calendario</h4>
-                            <p class="mb-0" style="margin-top: 0px;">  <ion-icon name="medkit"></ion-icon> Pendientes {{ mensajes_nuevos }}  / Confirmadas {{ leidos }} </p>
+                            <h5 class="mb-0 text-primary">Calendario</h5>
+                            <p class="mb-0" style="margin-top: 0px;"> 
+                                 {{ total }} Citas / {{ confirmadas }} Confirmadas   </p>
                         </div>
                         <div class="ms-auto widget-icon bg-light-primary text-primary">
                             <ion-icon name="calendar"></ion-icon>
@@ -30,8 +31,9 @@
                         <div>
                            
 
-                            <h4 class="mb-0 text-primary">Confirmar cita </h4>
-                            <p class="mb-0" style="margin-top: 0px;">  <ion-icon name="medkit"></ion-icon>  por confirmar {{ mensajes_nuevos }} </p>
+                            <h5 class="mb-0 text-primary">Citas Agendadas</h5>
+                            <p class="mb-0" style="margin-top: 0px;"> 
+                                    {{ pendientes }} Pendientes de confirmación  </p>
                         </div>
                         <div class="ms-auto widget-icon bg-light-primary text-primary">
                             <ion-icon name="medkit"></ion-icon>
@@ -49,7 +51,7 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div>
-                            <h4 class="mb-0 text-primary">Agendar cita</h4>
+                            <h5 class="mb-0 text-primary">Agendar cita</h5>
                              <p class="mb-0" style="margin-top: 0px;"> Grupo MEDDES®</p>
                         </div>
                         <div class="ms-auto widget-icon bg-light-primary text-primary">
