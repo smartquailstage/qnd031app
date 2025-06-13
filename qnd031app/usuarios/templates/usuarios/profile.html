@@ -25,13 +25,13 @@
   </div>
 
   <!-- Avatar centrado -->
-  <div class="user-profile-avatar shadow position-absolute top-50 start-0 translate-middle-x">
-    {% if profile.photo %}
-      <img src="{{ profile.photo.url }}" alt="User Photo">
-    {% else %}
-      <img src="{% static 'img/user.png' %}" alt="Default Photo">
-    {% endif %}
-  </div>
+<div class="user-profile-avatar shadow position-absolute top-50 start-0 translate-middle-x">
+  {% if profile.photo and profile.photo.url %}
+    <img src="{{ profile.photo.url }}" alt="User Photo">
+  {% else %}
+    <img src="{% static 'img/BA-LOGOS/user.png' %}" style="width:150px;" alt="Default Photo">
+  {% endif %}
+</div>
 </div>
             <div class="card-body">
               <div class="mt-5 d-flex align-items-start justify-content-between">
