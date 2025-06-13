@@ -980,7 +980,7 @@ ion-icon {
 }
 
 .profile-cover {
-    background-image: url("../images/login_bg/1.jpg");
+    background-image: url("../images/login_bg/1.png");
     background-size: cover;
     height: 10rem;
     background-position: center;

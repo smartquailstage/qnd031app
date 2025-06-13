@@ -9,8 +9,7 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div>                       
-                            <h4 class="mb-0 text-primary">Tareas Asiganadas </h4>
-                            <p class="mb-0" style="margin-top: 0px;"> Nuevas {{ mensajes_nuevos }} <ion-icon name="mail-unread"></ion-icon> / En bandeja {{ leidos }} <ion-icon name="mail-open"></ion-icon>  </p>
+                            <h5 class="mb-0 text-primary">Tareas Asiganadas </h5>
                         </div>
                         <div class="ms-auto widget-icon bg-light-primary text-primary">
                             <ion-icon name="archive"></ion-icon>
@@ -28,10 +27,7 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div>
-                           
-
-                            <h4 class="mb-0 text-primary">Realizar Actividad</h4>
-                            <p class="mb-0" style="margin-top: 0px;"> Nuevas {{ mensajes_nuevos }} <ion-icon name="mail-unread"></ion-icon> </p>
+                            <h5 class="mb-0 text-primary">Tareas Pendientes</h5>
                         </div>
                         <div class="ms-auto widget-icon bg-light-primary text-primary">
                             <ion-icon name="mail-unread"></ion-icon>
@@ -43,20 +39,3 @@
         </div>
 
                 <!-- Card 2: No leídas -->
-        <div class="col-12 col-md-6 col-lg-3">
-           <a href="{% url 'usuarios:enviar_mensaje' %}">
-            <div class="card radius-10 bg-yellow mb-3">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div>
-                            <h4 class="mb-0 text-primary"> Actividades Realizadas </h4>
-                             <p class="mb-0" style="margin-top: 0px;"> Grupo MEDDES®</p>
-                        </div>
-                        <div class="ms-auto widget-icon bg-light-primary text-primary">
-                            <ion-icon name="send"></ion-icon>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            </a>
-        </div>

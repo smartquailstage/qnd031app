@@ -43,7 +43,7 @@
 </a>
 
 
-     
+     <a href="{% url 'usuarios:inbox_total' %}">    
           <div class="card radius-10 bg-yellow">
             <div class="card-body">
               <div class="d-flex align-items-center">
@@ -57,9 +57,10 @@
               </div>
             </div>
           </div>
-    
-
-          <div class="card radius-10 bg-info ">
+      </a>                
+        
+      <a href="{% url 'usuarios:lista_tareas' %}"> 
+      <div class="card radius-10 bg-info ">
             <div class="card-body">
               <div class="d-flex align-items-center">
                 <div class="">
@@ -73,7 +74,10 @@
               </div>
             </div>
           </div>
-        
+          </a>
+          
+          
+        <a href="{% url 'usuarios:citas_total' %}">
           <div class="card radius-10 bg-orange">
             <div class="card-body">
               <div class="d-flex align-items-center">
@@ -89,7 +93,10 @@
               </div>
             </div>
           </div>
+        </a>
 
+
+<a href="{% url 'usuarios:vista_certificados' %}">        
 <div class="card radius-10 
   {% if profile.es_alta %}
     bg-success
@@ -129,4 +136,5 @@
     </div>
   </div>
 </div>
+</a>
 
