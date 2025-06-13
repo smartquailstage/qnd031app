@@ -7518,8 +7518,8 @@ textarea.form-control-lg {
 	color: rgba(var(--bs-primary-rgb), var(--bs-text-opacity))!important
 }
 .text-secondary {
-	--bs-text-opacity: 1;
-	color: rgba(var(--bs-secondary-rgb), var(--bs-text-opacity))!important
+  --bs-text-opacity: 1;
+  color: rgb(245, 245, 245) !important;
 }
 .text-success {
 	--bs-text-opacity: 1;

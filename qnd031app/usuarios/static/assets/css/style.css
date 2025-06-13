@@ -121,16 +121,18 @@ ion-icon {
 }
 
 .sidebar-wrapper .sidebar-header .logo-icon {
-    width: 48px;
+  width: 62px;
 }
 
-.sidebar-wrapper .sidebar-header  .logo-text {
-    font-size: 22px;
-    margin-left: -26px;
-    margin-bottom: 0;
-    letter-spacing: 1px;
-    color: #923eb9;
+.sidebar-wrapper .sidebar-header .logo-text {
+  font-size: 22px;
+  margin-left: 5px;
+  margin-bottom: 0;
+  letter-spacing: 1px;
+  color: #12a42d;
 }
+
+
 
 .toggle-icon {
     display: flex;
@@ -1301,7 +1303,7 @@ ul.categories-list li {
 }
 
 .seperator-2 {
-  background-color: #1698b0;
+  background-color: #18bb6b;
   left: 45%;
   padding: 0px 10px;
 }
@@ -1377,7 +1379,7 @@ ul.categories-list li {
 }
 
 .au-reset-password-cover {
-    background-image: url("../images/login_bg/test2.jpg");
+    background-image: url("../images/login_bg/1.jpg");
     background-position: center;
     background-size: cover;
     width: 100%;

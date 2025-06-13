@@ -269,7 +269,7 @@
   </a>
   <ul class="dropdown-menu dropdown-menu-end">
     <li>
-      <a class="dropdown-item" href="javascript:;">
+      <a class="dropdown-item" href="{% url 'usuarios:perfil' %}">
         <div class="d-flex  flex-row  align-items-center gap-2">
           {% if profile_photo %}
             <img src="{{ profile_photo }}" alt="Foto de perfil" class="rounded-circle" width="44" height="44">
@@ -281,15 +281,7 @@
         </div>
       </a>
     </li>
-    <li><hr class="dropdown-divider"></li>
-    <li>
-      <a class="dropdown-item" href="{% url 'usuarios:perfil' %}">
-        <div class="d-flex align-items-center">
-          <div><ion-icon name="person-outline"></ion-icon></div>
-          <div class="ms-3"><span>Perfil</span></div>
-        </div>
-      </a>
-    </li>
+
     <li><hr class="dropdown-divider"></li>
     <li>
       <a class="dropdown-item" href="{% url 'logout' %}">

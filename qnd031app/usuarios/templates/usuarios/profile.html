@@ -21,7 +21,7 @@
   
   <!-- Logo arriba a la derecha -->
   <div class="position-absolute top-0 end-0 m-3">
-    <img src="{% static 'img/logo.png' %}" alt="Logo" style="height: 50px;">
+    <img src="{% static 'img/logo_header.png' %}" alt="Logo" style="height: 60px;">
   </div>
 
   <!-- Avatar centrado -->
@@ -36,8 +36,9 @@
             <div class="card-body">
               <div class="mt-5 d-flex align-items-start justify-content-between">
                 <div class="">
-                  <h3 class="mb-2">{{ profile.nombre_paciente }}</h3>  
+                  <h3 class="mb-2">{{ profile.nombre_paciente }}</h3>
                   <p class="mb-2" style ="margin-top:-15px;">{{ profile.apellidos_paciente }}, {{ profile.edad }} años </p>  
+                   <p class="mb-2" style ="margin-top:-5px;">Paciente - MEDDES®</p>   
                    <p class="mb-1"><strong>{{ profile.institucion }}</strong></p>   
                   <p class="mb-0"><strong>{{ profile.tipos|join:" + " }}</strong></p>            
                 </div>
@@ -98,7 +99,7 @@
           <div class="service-box bg-white text-white me-2">
             <ion-icon name="pulse-outline" role="img" class="md hydrated" aria-label="pulse outline"></ion-icon>
           </div>
-          <h6 class="mb-0">Mi Tratamiento terapéutico</h6>
+          <h6 class="mb-0">Mis terapeutas </h6>
         </div>
         <p class="mb-0"><ion-icon name="heart-circle-outline"></ion-icon>
     <strong>
@@ -109,16 +110,7 @@
     {% endfor %}
   </strong>
 </p>
-        <p class="mb-0"><ion-icon name="clipboard-outline"></ion-icon> {{ profile.valorizacion_terapeutica }}</p>
-        <p class="mb-0"><ion-icon name="calendar-outline"></ion-icon> {{ profile.fecha_inicio }}(Inicio)</p>
-        <p class="mb-0">
-  <ion-icon name="calendar-outline"></ion-icon>
-  {% if profile.fecha_alta %}
-    {{ profile.fecha_alta }} (Fin)
-  {% else %}
-    ---
-  {% endif %} 
-</p>
+ 
 
 
 

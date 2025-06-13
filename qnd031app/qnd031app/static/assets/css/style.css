@@ -596,7 +596,7 @@ ion-icon {
 
 .dropdown-large .msg-header .msg-header-title {
 	font-size: 15px;
-	color: #3d975c;
+	color: #d8d8d8;
 	margin-bottom: 0;
 	font-weight: 500
 }
@@ -608,13 +608,13 @@ ion-icon {
 }
 
 .dropdown-large .msg-footer {
-	padding: .8rem 1rem;
-	color: #464641;
-	border-top: 1px solid #ededed;
-	background-clip: border-box;
-	background: 0% 0;
-	font-size: 14px;
-	font-weight: 500;
+  padding: .8rem 1rem;
+  color: #ff0;
+  border-top: 1px solid #ededed;
+  background-clip: border-box;
+  background: 0% 0;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .dropdown-large .user-online {
@@ -978,7 +978,7 @@ ion-icon {
 }
 
 .profile-cover {
-    background-image: url("../images/login_bg/test2.jpg");
+    background-image: url("../images/login_bg/1.jpg");
     background-size: cover;
     height: 10rem;
     background-position: center;
@@ -1006,7 +1006,7 @@ ion-icon {
 .widget-icon {
     width: 48px;
     height: 48px;
-    background-color: #fafafa;
+    background-color: #078a78;
     border-radius: 50%;
     font-size: 22px;
     display: flex;
