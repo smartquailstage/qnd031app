@@ -33,6 +33,8 @@
                                     <ion-icon name="card"></ion-icon>
                                 {% elif mensaje.asunto == 'Reclamo del servicio  Médico' %}
                                     <ion-icon name="megaphone"></ion-icon>
+                                {% elif mensaje.asunto == 'Consulta' %}
+                                    <ion-icon name="chatbubbles-outline"></ion-icon>
                                 {% endif %}
                             </div>
                             <h5 class="mb-0">{{ mensaje.emisor.get_full_name }}</h5>

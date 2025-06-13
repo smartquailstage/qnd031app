@@ -7,6 +7,7 @@
 
        <div class="col-12 col-lg-4 col-xl-3">
 
+<a href="">
 <div class="card radius-10 
   {% if estado_de_pago == 'Al día' %}
     bg-success
@@ -27,7 +28,7 @@
           {% if estado_de_pago == 'Vencido' %}
             <span class="badge bg-white text-danger">En mora</span>
           {% elif estado_de_pago == 'Pendiente' %}
-            <span class="badge bg-white text-white">Por pagar {{ pagos }}</span>
+            <span class="badge bg-white text-white">Por efectivizar {{ pagos }}</span>
           {% elif estado_de_pago == 'Al día' %}
             <span class="badge bg-white text-success">✔</span>
           {% endif %}
@@ -39,6 +40,7 @@
     </div>
   </div>
 </div>
+</a>
 
 
      

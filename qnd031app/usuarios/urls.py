@@ -40,6 +40,7 @@ urlpatterns = [
     path('pagos/<int:pk>/', views.ver_pago, name='ver_pago'),
     path('pagos/<int:pk>/subir-comprobante/', views.subir_comprobante_pago, name='subir_comprobante_pago'),
 
+    path('certificados/', views.vista_certificados, name='vista_certificados'),
 
 
 

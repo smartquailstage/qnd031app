@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import LoginForm,MensajeForm,CitaForm,TareaComentarioForm                 
+from .forms import LoginForm,MensajeForm,CitaForm,TareaComentarioForm, AutorizacionForm                 
 from .models import Profile, Cita
 from django.shortcuts import get_object_or_404
 from django.conf import settings
@@ -544,3 +544,26 @@ def subir_comprobante_pago(request, pk):
                 return redirect('usuarios:ver_pago', pk=pago.pk)
 
     return render(request, 'usuarios/pagos/subir_comprobante.html', {'pago': pago})
+
+
+
+
+@login_required
+def vista_certificados(request):
+    profile = Profile.objects.get(user=request.user)
+
+    if request.method == 'POST':
+        form = AutorizacionForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('usuarios:vista_certificados')
+    else:
+        form = AutorizacionForm(instance=profile)
+
+    mensajes = Mensaje.objects.filter(receptor=request.user).order_by('-fecha_envio')  # Para usarlo con tus cards
+
+    return render(request, 'usuarios/certificados/certificados_total.html', {
+        'form': form,
+        'profile': profile,
+        'mensajes': mensajes
+    })

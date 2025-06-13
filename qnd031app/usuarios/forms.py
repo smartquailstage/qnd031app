@@ -313,3 +313,10 @@ class AsistenciaTerapeutaAdminForm(forms.ModelForm):
                 attrs={'class': 'form-control', 'placeholder': 'HH:MM'}
             ),
         }
+
+
+class AutorizacionForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['adjunto_autorizacion']
+        labels = {'adjunto_autorizacion': 'Archivo de autorización'}
