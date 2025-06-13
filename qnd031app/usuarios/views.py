@@ -386,9 +386,17 @@ def tareas_list(request):
         profile__user=request.user,
         realizada=False
     ).order_by('-fecha_envio')
+    tareas_usuario = tareas.objects.filter(profile__user=request.user)
+    
+    tareas_realizadas = tareas_usuario.filter(realizada=True)
+    tareas_pendientes = tareas_usuario.filter(realizada=False)
 
     return render(request, 'usuarios/tareas/tareas_list.html', {
-        'tareas_nuevas': tareas_nuevas
+        'tareas_nuevas': tareas_nuevas,
+        'total': tareas_usuario.count(),
+        'total_realizadas': tareas_realizadas.count(),
+        'total_pendientes': tareas_pendientes.count(),
+
     })
 
 

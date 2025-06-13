@@ -12,9 +12,6 @@
 
         <div class="row">
             <div class="col-12 col-lg-8 col-xl-9">
-                <h4>Tareas Asignadas</h4>
-                <p>Total: {{ tareas_nuevas|length }}</p>
-
                 {% if tareas_nuevas %}
                     <div class="row row-cols-1 row-cols-lg-3">
                         {% for tarea in tareas_nuevas %}

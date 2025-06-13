@@ -14,11 +14,9 @@
 
         <div class="row">
             <div class="col-12 col-lg-8 col-xl-9">
-                <h4>Tareas Asignadas</h4>
-                <p>Total: {{ total }} | Realizadas: {{ total_realizadas }} | Pendientes: {{ total_pendientes }}</p>
 
                 <!-- Tareas Pendientes -->
-                <h5 class="mt-4">🕐 Tareas Pendientes</h5>
+          
                 {% if tareas_pendientes %}
                     <div class="row row-cols-1 row-cols-lg-3">
                         {% for tarea in tareas_pendientes %}
@@ -40,16 +38,8 @@
                             </div>
                         {% endfor %}
                     </div>
-                {% else %}
-                    <div class="alert alert-info">
-                        No tienes tareas pendientes.
-                    </div>
-                {% endif %}
-
-                <!-- Tareas Realizadas -->
-                <h5 class="mt-4">✅ Tareas Realizadas</h5>
-                {% if tareas_realizadas %}
-                    <div class="row row-cols-1 row-cols-lg-3">
+                {% elif tareas_realizadas %}
+                   <div class="row row-cols-1 row-cols-lg-3">
                         {% for tarea in tareas_realizadas %}
                             <div class="col mb-3">
                                 <a href="{% url 'usuarios:ver_tarea' tarea.id %}">
@@ -69,11 +59,13 @@
                             </div>
                         {% endfor %}
                     </div>
-                {% else %}
-                    <div class="alert alert-success">
-                        Aún no has completado tareas asignadas.
+                    {% else %}
+                    <div class="alert alert-info">
+                        No tienes tareas pendientes.
                     </div>
                 {% endif %}
+
+  
             </div>
 
 

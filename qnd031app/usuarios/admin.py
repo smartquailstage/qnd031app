@@ -1317,26 +1317,6 @@ def ver_en_calendario(obj):
 
 
 
-
-
-
-
-
-
-
-
-def generar_intervalos_horas(inicio='08:00', fin='18:00', paso_minutos=60):
-    hora_inicio = datetime.strptime(inicio, '%H:%M')
-    hora_fin = datetime.strptime(fin, '%H:%M')
-    horas = []
-
-    while hora_inicio <= hora_fin:
-        horas.append(hora_inicio.strftime('%H:00'))
-        hora_inicio += timedelta(minutes=paso_minutos)
-
-    return horas
-
-
 @register_component
 class CitasCohortComponent(BaseComponent):
     template_name = "admin/test.html"
@@ -1349,78 +1329,70 @@ class CitasCohortComponent(BaseComponent):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        citas = (
-            Cita.objects
-            .select_related("creador", "destinatario")
-            .order_by("-fecha")[:7]
-        )
+        now = localtime(make_aware(datetime.now()))
+        start_date = now.date()
+        end_date = start_date + timedelta(days=5)
+
+        time_slots = [time(hour=h) for h in range(9, 23)]
 
         agenda = defaultdict(lambda: defaultdict(list))
         fechas_unicas = set()
         horas_unicas = set()
 
+        for i in range(6):
+            dia = start_date + timedelta(days=i)
+            if dia.weekday() >= 5:
+                continue
+
+            dia_str = dia.strftime("%Y-%m-%d")
+            fechas_unicas.add(dia_str)
+
+            for t in time_slots:
+                hora_str = t.strftime("%H:%M")
+                agenda[dia_str][hora_str]
+                horas_unicas.add(hora_str)
+
+        citas = Cita.objects.filter(
+            fecha__range=(start_date, end_date),
+            hora__range=(time(9, 0), time(22, 0))
+        ).select_related("creador", "destinatario")
+
         for cita in citas:
-            if not cita.fecha:
+            if not cita.fecha or not cita.hora:
                 continue
 
-            fecha_valor = cita.fecha
+            cita_dt = datetime.combine(cita.fecha, cita.hora)
+            if is_naive(cita_dt):
+                cita_dt = make_aware(cita_dt)
+            cita_dt = localtime(cita_dt)
 
-            # 🔒 Convertir a datetime si es solo date
-            if isinstance(fecha_valor, date) and not isinstance(fecha_valor, datetime):
-                fecha_hora = datetime.combine(fecha_valor, time.min)  # hora 00:00
-            else:
-                fecha_hora = fecha_valor
-
-            # 🔒 Asegurar zona horaria
-            if is_naive(fecha_hora):
-                fecha_hora = make_aware(fecha_hora)
-
-            fecha_local = localtime(fecha_hora)
-            dia_str = fecha_local.strftime("%Y-%m-%d")
-            hora_str = fecha_local.strftime("%H:%M")
-
-            if fecha_local.weekday() >= 5:  # solo lunes a viernes
+            if cita_dt.weekday() >= 5:
                 continue
 
-            if not (9 <= fecha_local.hour <= 22):
-                continue
-
-            creador_nombre = (
-                cita.creador.get_full_name() if cita.creador and hasattr(cita.creador, 'get_full_name')
-                else getattr(cita.creador, 'username', 'Sin creador')
-            )
-
-            destinatario_nombre = (
-                cita.destinatario.get_full_name() if cita.destinatario and hasattr(cita.destinatario, 'get_full_name')
-                else getattr(cita.destinatario, 'username', 'Sin destinatario')
-            )
+            dia_str = cita_dt.strftime("%Y-%m-%d")
+            hora_str = cita_dt.strftime("%H:%M")
 
             agenda[dia_str][hora_str].append({
                 "id": cita.id,
                 "motivo": cita.motivo or "Sin motivo",
-                "creador": creador_nombre,
-                "destinatario": destinatario_nombre,
-                "estado": getattr(cita, 'estado', "Sin estado"),
+                "creador": cita.creador.get_full_name() if cita.creador else "Sin creador",
+                "destinatario": cita.destinatario.get_full_name() if cita.destinatario else "Sin destinatario",
+                "estado": "Confirmada" if cita.confirmada else "Pendiente" if cita.pendiente else "Cancelada",
                 "tipo_cita": cita.get_tipo_cita_display() if cita.tipo_cita else "Sin tipo",
                 "hora": hora_str,
             })
-
-            fechas_unicas.add(dia_str)
-            horas_unicas.add(hora_str)
 
         dias_date = [datetime.strptime(d, "%Y-%m-%d").date() for d in fechas_unicas]
 
         context["agenda"] = agenda
         context["dias"] = sorted(dias_date)
         context["horas"] = sorted(horas_unicas)
-        context["dias_str_map"] = {datetime.strptime(d, "%Y-%m-%d").date(): d for d in fechas_unicas}
-
+        context["dias_str_map"] = {d: d.strftime("%Y-%m-%d") for d in dias_date}
         return context
 
     def render(self):
         context = self.get_context_data()
         return render_to_string(self.template_name, context, request=self.request)
-
 
 
 
