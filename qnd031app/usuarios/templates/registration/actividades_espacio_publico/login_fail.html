@@ -13,14 +13,14 @@
       <div class="card-body p-4">
         <img src="{% static 'assets/images/escudo.png' %}" style="width: 50px;" alt="">
         <img src="{% static 'assets/images/secretaria.png' %}" style="width: 170px;" alt="">
+        <h3 style="color:#2a3881">Levantamiento de actividades culturales en espacios públicos. <i class="lni lni-twitch"></i> </h3>
         <h4 class="text-center"></h4>
-        <p class="text-center">Lo sentimos, parece que el nombre de usuario y la contraseña
+      <p class="text-center">Lo sentimos, parece que el nombre de usuario y la contraseña
            que has proporcionado no coinciden con nuestros registros. Por favor, verifica si 
            el nombre de usuario corresponde a la contraseña registrada. Si has olvidado tu 
            contraseña o crees que ha habido un error, te recomendamos hacer clic en "Recuperación 
            de Contraseña" para restablecer tu acceso de manera segura. Si sigues experimentando problemas,
            no dudes en ponerte en contacto con nuestro equipo de soporte para obtener ayuda adicional. </p>
-        <form class="form-body row g-3" method="post">
           {% csrf_token %}
           <div class="col-12 col-lg-12">
             <div class="d-grid gap-2">
@@ -93,7 +93,7 @@
           <p>¿Olvidó su contraseña?<a href="{% url 'password_reset' %}"> Recuperar contraseña</a></p>
 
           <div class="col-12">
-            <p>Al ingresar, usted automáticamente acepta los términos y condiciones de uso de la plataforma.</p>
+            <p>Al ingresar, usted automáticamente acepta las <a href="{% url 'usuarios:activity_privacy_policy' %}">políticas de privacidad</a> y los  <a href="{% url 'usuarios:activity_terms_of_use' %}">términos y condiciones de uso</a> de la plataforma.</p>
           </div>
 
           <div class="col-12 d-grid">
@@ -101,17 +101,19 @@
           </div>
 
           <div class="col-12">
-            <p>¿No se ha registrado todavía?<a href="{% url 'usuarios:register' %}"> Registrarse</a></p>
+            <p>¿No se ha registrado todavía?<a href="{% url 'usuarios:activity_register' %}"> Registrarse</a></p>
+            <p  style="text-align: center; font-size: 10px;">AppRelease: QND.V1.0</p>
           </div>
 
-          <div class="col-12">
-           
-          </div>
+       
 
         </form>
       </div>
     </div>
   </div>
+  
 </div>
+
+
 
 {% endblock %}
