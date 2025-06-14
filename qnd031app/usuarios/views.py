@@ -46,18 +46,19 @@ def user_login(request):
         form = LoginForm(request.POST)
         if form.is_valid():
             cd = form.cleaned_data
-            user = authenticate(request,
-                                username=cd['username'],
-                                password=cd['password'])
+            try:
+                user_obj = User.objects.get(email=cd['email'])
+                user = authenticate(request, username=user_obj.username, password=cd['password'])
+            except User.DoesNotExist:
+                user = None
+
             if user is not None:
                 if user.is_active:
                     login(request, user)
-                    user_profile = Profile.objects.get(user=user)
                     return redirect('usuarios:perfil')
                 else:
-                    return HttpResponse('Disabled account')
+                    return HttpResponse('Cuenta desactivada.')
             else:
-                form = LoginForm()
                 return render(request, 'registration/editorial_literario/login_fail.html', {'form': form})
     else:
         form = LoginForm()

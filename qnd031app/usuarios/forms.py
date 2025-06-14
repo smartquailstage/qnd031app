@@ -31,8 +31,8 @@ class AdministrativeProfileForm(forms.ModelForm):
 
 
 class LoginForm(forms.Form):
-    username = forms.CharField(label="Nombre de Usuario")
-    password = forms.CharField(widget=forms.PasswordInput,label="Contraseña")
+    email = forms.EmailField(label="Correo electrónico")
+    password = forms.CharField(widget=forms.PasswordInput, label="Contraseña")
 
     
 
