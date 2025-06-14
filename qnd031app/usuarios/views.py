@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout
 from django.contrib import messages
 from .forms import LoginForm,MensajeForm,CitaForm,TareaComentarioForm, AutorizacionForm                 
 from .models import Profile, Cita
@@ -34,6 +35,11 @@ def dashboard_callback(request, context):
     })
 
     return context
+
+@login_required
+def user_logout(request):
+    logout(request)
+    return redirect('usuarios:login')  
 
 def user_login(request):
     if request.method == 'POST':
