@@ -488,7 +488,7 @@ class ValoracionTerapia(models.Model):
     servicio = models.ForeignKey(
         'serviceapp.ServicioTerapeutico',
         on_delete=models.CASCADE,
-        related_name='servicios_terapeutico',
+        related_name='servicios_terapeutico_pagos',
         verbose_name="Servicio terapéutico", null=True, blank=True
     )
 
@@ -736,6 +736,13 @@ class pagos(models.Model):
         related_name="sucursal4",null=True, blank=True
     )
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE,null=True, blank=True, verbose_name="Paciente")
+    servicio = models.ForeignKey(
+        'serviceapp.ServicioTerapeutico',
+        on_delete=models.CASCADE,
+        related_name='servicios_terapeutico',
+        verbose_name="Servicio terapéutico", null=True, blank=True
+    )
+    fecha_vencimiento = models.DateField(null=True, blank=True)
     ruc = models.CharField(max_length=13, verbose_name="R.U.C de facturación", help_text="Ingrese RUC de facturación",blank=True, null=True)
     #fecha_emision_factura = models.DateField(blank=True, null=True, verbose_name="Fecha de emisión de factura")
     numero_factura = models.CharField(max_length=255, blank=True, null=True, verbose_name="Número de Factura")

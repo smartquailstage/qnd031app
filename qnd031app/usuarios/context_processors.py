@@ -222,14 +222,19 @@ def pagos_context(request):
     if request.user.is_authenticated:
         pagos_pendientes = pagos.objects.filter(profile__user=request.user, pendiente=True)
         pagos_vencidos = pagos.objects.filter(profile__user=request.user, vencido=True)
-        total_pagos_nuevos = pagos_pendientes.count() + pagos_vencidos.count()
+
+        total_pendientes = pagos_pendientes.count()
+        total_vencidos = pagos_vencidos.count()
+        total_pagos_nuevos = total_pendientes + total_vencidos
+
         return {
             'pagos_pendientes_notif': pagos_pendientes,
             'pagos_vencidos_notif': pagos_vencidos,
+            'total_pendientes': total_pendientes,
+            'total_vencidos': total_vencidos,
             'total_pagos_nuevos': total_pagos_nuevos,
         }
     return {}
-
 
 
 

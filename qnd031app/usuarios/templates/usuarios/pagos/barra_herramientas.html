@@ -9,11 +9,11 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div>                       
-                            <h4 class="mb-0 text-primary">Pagos Realizados </h4>
-                            <p class="mb-0" style="margin-top: 0px;"> Nuevas {{ mensajes_nuevos }} <ion-icon name="mail-unread"></ion-icon> / En bandeja {{ leidos }} <ion-icon name="mail-open"></ion-icon>  </p>
+                            <h5 class="mb-0 text-primary">Ordenes de Pago </h5>
+                            <p class="mb-0" style="margin-top: 0px;">  {{ total_pagos_nuevos }} Total  </p>
                         </div>
                         <div class="ms-auto widget-icon bg-light-primary text-primary">
-                            <ion-icon name="archive"></ion-icon>
+                            <ion-icon name="pricetags-outline"></ion-icon>
                         </div>
                     </div>
                 </div>
@@ -23,18 +23,18 @@
       
         <!-- Card 2: No leídas -->
         <div class="col-12 col-md-6 col-lg-3">
-          <a href="{% url 'usuarios:lista_pagos'  %}">
+          <a href="{% url 'usuarios:pagos_pendientes'  %}">
             <div class="card radius-10 bg-yellow mb-3">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div>
                            
 
-                            <h4 class="mb-0 text-primary">Pagos Pendientes</h4>
-                            <p class="mb-0" style="margin-top: 0px;"> Nuevas {{ mensajes_nuevos }} <ion-icon name="mail-unread"></ion-icon> </p>
+                            <h5 class="mb-0 text-primary">Pagos Pendientes</h5>
+                            <p class="mb-0" style="margin-top: 0px;">{{ total_pendientes }} Pendientes </p>
                         </div>
                         <div class="ms-auto widget-icon bg-light-primary text-primary">
-                            <ion-icon name="mail-unread"></ion-icon>
+                            <ion-icon name="card-outline"></ion-icon>
                         </div>
                     </div>
                 </div>
@@ -44,16 +44,16 @@
 
                 <!-- Card 2: No leídas -->
         <div class="col-12 col-md-6 col-lg-3">
-           <a href="{% url 'usuarios:enviar_mensaje' %}">
+           <a href="{% url 'usuarios:pagos_vencidos' %}">
             <div class="card radius-10 bg-yellow mb-3">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div>
-                            <h4 class="mb-0 text-primary"> Pagos Adeudados </h4>
-                             <p class="mb-0" style="margin-top: 0px;"> Grupo MEDDES®</p>
+                            <h5 class="mb-0 text-primary"> Pagos Adeudados </h5>
+                             <p class="mb-0" style="margin-top: 0px;"> {{ total_vencidos }} Vencidos</p>
                         </div>
                         <div class="ms-auto widget-icon bg-light-primary text-primary">
-                            <ion-icon name="send"></ion-icon>
+                            <ion-icon name="warning-outline"></ion-icon>
                         </div>
                     </div>
                 </div>

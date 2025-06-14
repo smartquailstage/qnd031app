@@ -535,6 +535,28 @@ def lista_pagos(request):
         'pagos_realizados': pagos_realizados,
     })
 
+
+@login_required
+def pagos_pendientes_view(request):
+    pagos_pendientes = pagos.objects.filter(profile__user=request.user, pendiente=True).order_by('-fecha_vencimiento')
+
+    return render(request, 'usuarios/pagos/pagos_pendientes.html', {
+        'pagos_pendientes': pagos_pendientes,
+    })
+
+
+
+@login_required
+def pagos_vencidos_view(request):
+    pagos_vencidos = pagos.objects.filter(profile__user=request.user, vencido=True).order_by('-fecha_vencimiento')
+
+    return render(request, 'usuarios/pagos/pagos_vencidos.html', {
+        'pagos_vencidos': pagos_vencidos,
+    })
+
+
+
+
 @login_required
 def ver_pago(request, pk):
     pago = get_object_or_404(pagos, pk=pk)
@@ -609,3 +631,24 @@ def vista_certificados(request):
         'profile': profile,
         'mensajes': mensajes
     })
+
+
+@login_required
+def certificado_inicial(request):
+    perfil = Profile.objects.get(user=request.user)
+    return render(request, 'usuarios/documentos/certificado_inicial.html', {'perfil': perfil})
+
+@login_required
+def informe_inicial(request):
+    perfil = Profile.objects.get(user=request.user)
+    return render(request, 'usuarios/documentos/informe_inicial.html', {'perfil': perfil})
+
+@login_required
+def informes_seguimiento(request):
+    perfil = Profile.objects.get(user=request.user)
+    return render(request, 'usuarios/documentos/informes_seguimiento.html', {'perfil': perfil})
+
+@login_required
+def certificado_alta(request):
+    perfil = Profile.objects.get(user=request.user)
+    return render(request, 'usuarios/documentos/certificado_alta.html', {'perfil': perfil})
