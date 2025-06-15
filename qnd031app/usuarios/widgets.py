@@ -2,7 +2,14 @@
 from django import forms
 
 class CustomDatePickerWidget(forms.DateInput):
+    input_type = 'text'  # JS datepicker lo maneja, no HTML5
     template_name = 'admin/widgets/custom_datepicker.html'
+
+    def __init__(self, attrs=None, format=None):
+        default_attrs = {'class': 'custom-datepicker', 'autocomplete': 'off'}
+        if attrs:
+            default_attrs.update(attrs)
+        super().__init__(attrs=default_attrs, format=format or '%Y-%m-%d')
 
     class Media:
         css = {
@@ -13,7 +20,6 @@ class CustomDatePickerWidget(forms.DateInput):
             'https://cdnjs.cloudflare.com/ajax/libs/datepicker/0.6.5/datepicker.min.js',
             'https://cdnjs.cloudflare.com/ajax/libs/datepicker/0.6.5/i18n/datepicker.es-ES.min.js',
         )
-
 
 class CustomTimePickerWidget(forms.TimeInput):
     template_name = 'admin/widgets/custom_timepicker.html'

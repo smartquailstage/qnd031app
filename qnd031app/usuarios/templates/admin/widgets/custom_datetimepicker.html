@@ -14,26 +14,4 @@
     </div>
 </div>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const input = document.getElementById("{{ widget.attrs.id }}");
-        const toggle = document.getElementById("datetimepicker-toggle-{{ widget.attrs.id }}");
 
-        if (typeof flatpickr !== 'undefined') {
-            const fp = flatpickr(input, {
-                enableTime: true,
-                dateFormat: "Y-m-d\\TH:i",
-                locale: "es",
-                time_24hr: true,
-                altInput: true,
-                altFormat: "d/m/Y H:i"
-            });
-
-            toggle.addEventListener("click", function () {
-                input._flatpickr.open();
-            });
-        } else {
-            console.warn("Flatpickr no está cargado correctamente.");
-        }
-    });
-</script>

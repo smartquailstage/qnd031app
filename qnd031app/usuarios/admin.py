@@ -1788,18 +1788,10 @@ class ProfileAdmin(ModelAdmin):
     change_form_show_cancel_button = True # show/hide cancel button in changeform, default: False
 
     formfield_overrides = {
-        models.TextField: {
-            "widget": WysiwygWidget,
-        },
-
-        models.DateField: {
-            "widget":CustomDatePickerWidget ,
-        },
-
-        ArrayField: {
-            "widget": ArrayWidget,
-        }
-    }
+    models.DateField: {
+        "widget": CustomDatePickerWidget(),  # ← Paréntesis: instancia
+    },
+}
 
     list_display = ['get_full_name','fecha_inicio','fecha_alta','es_retirado','es_en_terapia', 'es_alta']
 
