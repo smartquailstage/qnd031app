@@ -15,49 +15,45 @@
           </tr>
         </thead>
         <tbody>
-          {% for dia in dias %}
+          {% for dia_info in agenda_dias %}
             <tr>
               <td class="border border-dashed border-base-200 sticky left-0 z-10 bg-white dark:bg-base-900 px-3 py-2">
                 <div class="font-semibold text-font-important-light truncate dark:text-font-important-dark">
-                  {{ dia|date:"j \\d\\e F" }}
+                  {{ dia_info.date|date:"j \\d\\e F" }}
                 </div>
-                <div class="mt-0.5 text-xs">{{ dia|date:"l" }}</div>
+                <div class="mt-0.5 text-xs">{{ dia_info.date|date:"l" }}</div>
               </td>
 
-              {% with dia_str=dias_str_map|get_item:dia %}
-                {% with dia_agenda=agenda|get_item:dia_str %}
-                  {% for hora in horas %}
-                    <td class="border border-dashed border-base-200 align-top px-3 py-2 bg-white dark:bg-base-900">
-                      {% with citas=dia_agenda|get_item:hora %}
-                        {% if citas %}
-                          {% for cita in citas %}
-                            <div class="flex flex-col justify-center px-2 py-2 mb-2 rounded-default
-                              {% if cita.estado == 'Pendiente' %}
-                                bg-blue-600
-                              {% elif cita.estado == 'Confirmada' %}
-                                bg-green-600
-                              {% elif cita.estado == 'Cancelada' %}
-                                bg-red-600
-                              {% else %}
-                                bg-gray-500
-                              {% endif %}
-                              text-white dark:text-base-600">
-                              <span><strong>Cita #{{ cita.id }}</strong></span>
-                              <span class="mt-0.5 truncate"><strong>De:</strong> {{ cita.creador }}</span>
-                              <span class="mt-0.5 truncate"><strong>Para:</strong> {{ cita.destinatario }}</span>
-                              <span class="mt-0.5 truncate"><strong>Motivo:</strong> {{ cita.motivo }}</span>
-                              <span class="mt-0.5 text-xs italic truncate">{{ cita.tipo_cita }}</span>
-                              <span class="mt-0.5 text-xs italic">{{ cita.estado }}</span>
-                            </div>
-                          {% endfor %}
-                        {% else %}
-                          <div class="text-gray-400 text-xs">–</div>
-                        {% endif %}
-                      {% endwith %}
-                    </td>
-                  {% endfor %}
-                {% endwith %}
-              {% endwith %}
+              {% for hora in horas %}
+                <td class="border border-dashed border-base-200 align-top px-3 py-2 bg-white dark:bg-base-900">
+                  {% with citas=dia_info.agenda|get_item:hora %}
+                    {% if citas %}
+                      {% for cita in citas %}
+                        <div class="flex flex-col justify-center px-2 py-2 mb-2 rounded-default
+                          {% if cita.estado == 'Pendiente' %}
+                            bg-blue-600
+                          {% elif cita.estado == 'Confirmada' %}
+                            bg-green-600
+                          {% elif cita.estado == 'Cancelada' %}
+                            bg-red-600
+                          {% else %}
+                            bg-gray-500
+                          {% endif %}
+                          text-white dark:text-base-600">
+                          <span><strong>Cita #{{ cita.id }}</strong></span>
+                          <span class="mt-0.5 truncate"><strong>De:</strong> {{ cita.creador }}</span>
+                          <span class="mt-0.5 truncate"><strong>Para:</strong> {{ cita.destinatario }}</span>
+                          <span class="mt-0.5 truncate"><strong>Motivo:</strong> {{ cita.motivo }}</span>
+                          <span class="mt-0.5 text-xs italic truncate">{{ cita.tipo_cita }}</span>
+                          <span class="mt-0.5 text-xs italic">{{ cita.estado }}</span>
+                        </div>
+                      {% endfor %}
+                    {% else %}
+                      <div class="text-gray-400 text-xs">–</div>
+                    {% endif %}
+                  {% endwith %}
+                </td>
+              {% endfor %}
             </tr>
           {% endfor %}
         </tbody>

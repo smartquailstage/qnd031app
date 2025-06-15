@@ -1349,7 +1349,7 @@ class CitasCohortComponent(BaseComponent):
 
             for t in time_slots:
                 hora_str = t.strftime("%H:%M")
-                agenda[dia_str][hora_str]
+                agenda[dia_str][hora_str]  # inicializa vacío si no existe
                 horas_unicas.add(hora_str)
 
         citas = Cita.objects.filter(
@@ -1384,10 +1384,18 @@ class CitasCohortComponent(BaseComponent):
 
         dias_date = [datetime.strptime(d, "%Y-%m-%d").date() for d in fechas_unicas]
 
-        context["agenda"] = agenda
-        context["dias"] = sorted(dias_date)
+        agenda_dias = []
+        for d in sorted(dias_date):
+            d_str = d.strftime("%Y-%m-%d")
+            agenda_dias.append({
+                "date": d,
+                "str": d_str,
+                "agenda": agenda[d_str],
+            })
+
+        context["agenda_dias"] = agenda_dias
         context["horas"] = sorted(horas_unicas)
-        context["dias_str_map"] = {d: d.strftime("%Y-%m-%d") for d in dias_date}
+
         return context
 
     def render(self):
@@ -1406,7 +1414,7 @@ class CardSection(TemplateSection):
 # Asegúrate de importar: export_to_csv, export_to_excel, duplicar_citas, WysiwygWidget, ArrayWidget
 @admin.register(Cita)
 class CitaAdmin(ModelAdmin):
-    form = CitaAdminForm  # Asegúrate de que este formulario esté definido correctamente
+   # form = CitaAdminForm  # Asegúrate de que este formulario esté definido correctamente
     list_sections = [ComentariosCitaSection, CitasCohortComponent]  # Agregar secciones personalizadas
     list_sections_layout = "horizontal"
     list_per_page = 20

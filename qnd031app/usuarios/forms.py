@@ -15,8 +15,9 @@ from bootstrap_datepicker_plus.widgets import DatePickerInput
 from django import forms
 from .widgets import CustomDatePickerWidget
 from .widgets import CustomTimePickerWidget, CustomDateTimePickerWidget
-from datetime import datetime
 from django.utils.timezone import localtime, is_naive, make_aware
+from datetime import date, datetime
+
 
 
 
@@ -66,7 +67,7 @@ class CitaForm(forms.ModelForm):
         model = Cita
         fields = ['motivo', 'fecha', 'hora', 'tipo_cita', 'notas']
         widgets = {
-            'fecha': CustomDatePickerWidget(attrs={'class': 'form-control datepicker', 'type':'date'}),
+            'fecha': CustomDatePickerWidget(attrs={'class': 'form-control datepicker' }),
             'hora': CustomTimePickerWidget(attrs={'class': 'form-control timepicker'}),
             'tipo_cita': forms.Select(attrs={'class': 'form-select'}),
             'motivo': forms.TextInput(attrs={'class': 'form-control'}),
@@ -260,7 +261,7 @@ class CitaAdminForm(forms.ModelForm):
             if isinstance(fecha_valor, datetime):
                 self.fields['fecha_input'].initial = fecha_valor.date()
                 self.fields['hora_input'].initial = fecha_valor.time()
-            elif isinstance(fecha_valor, datetime.date):
+            elif isinstance(fecha_valor, date):
                 self.fields['fecha_input'].initial = fecha_valor
                 self.fields['hora_input'].initial = None
 
