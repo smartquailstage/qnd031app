@@ -761,6 +761,12 @@ class pagos(models.Model):
     null=True,
     verbose_name="Saldo a cancelar"
     )
+    comprobante_pago = models.FileField(
+    upload_to='comprobantes/%Y/%m/%d/',
+    blank=True,
+    null=True,
+    verbose_name="Comprobante de pago"
+    )
    # cuenta = models.CharField(max_length=255, blank=True, null=True, verbose_name="Número de cuenta")
    # colegio = models.CharField(max_length=255, blank=True, null=True, verbose_name="Nombre del colegio")
 #    plan = models.CharField(
