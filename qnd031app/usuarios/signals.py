@@ -57,7 +57,6 @@ def notificar_valoracion(sender, instance, created, **kwargs):
     - Nombre: {instance.nombre}
     - Fecha de Nacimiento: {instance.fecha_nacimiento}
     - Edad: {instance.edad}
-   # - Tipo de Valoración: {instance.get_tipo_valoracion_display()}
     - Servicio: {instance.servicio}
     - Fecha de Valoración: {instance.fecha_valoracion}
     - Diagnóstico: {instance.diagnostico or 'No ingresado'}
