@@ -100,8 +100,8 @@ def badge_callback_citas(request):
     try:
         citas = {
             "pendientes": Cita.objects.filter(pendiente=True).count(),
-            "confirmadas": Cita.objects.filter(confirmada=True).count(),
             "canceladas": Cita.objects.filter(cancelada=True).count(),
+            "confirmadas": Cita.objects.filter(confirmada=True).count(),
         }
 
         return " | ".join(str(value) for value in citas.values())
