@@ -157,7 +157,8 @@ LOGOUT_URL = 'logout'
 
 
 
-from usuarios.utils import permission_callback,permission_callback_prospecion
+from usuarios.utils import  permission_callback,permission_callback_prospecion
+
 
 
 def badge_color_callback(request):
@@ -292,7 +293,7 @@ UNFOLD = {
                         "link": reverse_lazy("admin:usuarios_prospeccion_changelist"),
                         "badge": "usuarios.unfold_config.badge_callback_meddes",  # ✅ función real
                         "badge_color": "colors-primary-500",
-                        "permission": permission_callback_prospecion,
+                        #"permission": "usuarios.unfold_config.permission_callback_pacientes",
                         
                     },
                     {

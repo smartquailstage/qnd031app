@@ -10,6 +10,10 @@ from django.utils import timezone
 from usuarios.models import Mensaje
 from usuarios.models import Prospeccion
 
+
+
+
+
 def badge_callback_meddes(request):
     try:
         total = Prospeccion.objects.count()
