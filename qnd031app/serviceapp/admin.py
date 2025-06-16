@@ -66,10 +66,10 @@ export_to_excel.short_description = 'Exportar a Excel'
 
 @admin.register(ServicioTerapeutico)
 class ServicioTerapeuticoAdmin(ModelAdmin):
-    list_display = ['servicio', 'costo_por_sesion', 'activo']
+    list_display = ['servicio', 'costo_por_sesion','lugar_servicio', 'activo']
     list_editable = ['costo_por_sesion', 'activo']
     list_display_links = ['servicio']
-    list_filter = ['activo']
+    list_filter = ['activo','lugar_servicio']
     search_fields = ['servicio']
     list_per_page = 20
     actions = [export_to_csv, export_to_excel]

@@ -32,7 +32,7 @@ from django.utils import timezone
 from unfold.components import BaseComponent, register_component
 from unfold.sections import TableSection, TemplateSection
 from django.utils.timezone import now
-from .forms import  AdministrativeProfileForm, AsistenciaTerapeutaAdminForm,CitaAdminForm, ValoracionTerapiaAdminForm, ProfileAdminForm, PerfilTerapeutaAdminForm,PerfilTerapeutaForm, ServicioTerapeuticoForm, ProspecionAdministrativaForm,PerfilTerapeutaForm,PerfilPacientesForm
+from .forms import  CitaForm,AdministrativeProfileForm, AsistenciaTerapeutaAdminForm,CitaAdminForm, ValoracionTerapiaAdminForm, ProfileAdminForm, PerfilTerapeutaAdminForm,PerfilTerapeutaForm, ServicioTerapeuticoForm, ProspecionAdministrativaForm,PerfilTerapeutaForm,PerfilPacientesForm
 from django.template.loader import render_to_string
 from unfold.decorators import action
 from django.http import HttpRequest
@@ -1414,7 +1414,7 @@ class CardSection(TemplateSection):
 # Asegúrate de importar: export_to_csv, export_to_excel, duplicar_citas, WysiwygWidget, ArrayWidget
 @admin.register(Cita)
 class CitaAdmin(ModelAdmin):
-   # form = CitaAdminForm  # Asegúrate de que este formulario esté definido correctamente
+    form = CitaForm # Asegúrate de que este formulario esté definido correctamente
     list_sections = [ComentariosCitaSection, CitasCohortComponent]  # Agregar secciones personalizadas
     list_sections_layout = "horizontal"
     list_per_page = 20
@@ -1899,7 +1899,7 @@ class PerfilAdministrativoComponent(BaseComponent):
             p.date_joined.strftime('%d/%m/%Y') if p.date_joined else "Sin fecha",
             dict(p.contract_type_choices).get(p.contract_type, "Desconocido"),
             p.num_pacientes_captados,
-            f"{p.valor_por_paciente} {p.valor_por_paciente.currency}",
+            f"{p.valor_por_paciente} USD ",
             f"{p.comision_total_calculada} USD",
         ]
 

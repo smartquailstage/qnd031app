@@ -81,7 +81,14 @@ class AdministrativeProfile(models.Model):
         ('CT', 'Contrato temporal'),
     ]
     contract_type = models.CharField("Tipo de contrato", max_length=2, choices=contract_type_choices)
-    salary = MoneyField("Salario", max_digits=10, decimal_places=2, default_currency='USD')
+    salary = MoneyField(
+        max_digits=10,
+        decimal_places=2,
+        default_currency='USD',  # o 'PEN', 'ARS', etc.
+        blank=True,
+        null=True,
+        verbose_name="Costo por hora de terapia",
+        )
     is_active = models.BooleanField("Activo", default=True)
 
     num_pacientes_captados = models.PositiveIntegerField(

@@ -31,7 +31,6 @@ class ServicioTerapeutico(models.Model):
     servicio = models.CharField(
         max_length=255,
         choices=TIPO_SERVICIO,
-        unique=True,
         verbose_name="Servicio terapéutico"
     )
 
