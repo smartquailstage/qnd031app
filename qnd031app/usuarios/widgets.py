@@ -4,6 +4,7 @@ from django import forms
 class CustomDatePickerWidget(forms.DateInput):
     input_type = 'date'
 
+
     def __init__(self, attrs=None, format=None):
         default_attrs = {
             'class': 'unfold-input w-full custom-datepicker',
@@ -18,6 +19,7 @@ class CustomDatePickerWidget(forms.DateInput):
 class CustomTimePickerWidget(forms.TimeInput):
     input_type = 'time'
 
+
     def __init__(self, attrs=None, format=None):
         default_attrs = {
             'class': 'unfold-input w-full custom-timepicker',
@@ -27,7 +29,7 @@ class CustomTimePickerWidget(forms.TimeInput):
             default_attrs.update(attrs)
         super().__init__(attrs=default_attrs, format=format or '%H:%M')
 
-        
+
 
 class CustomDateTimePickerWidget(forms.DateTimeInput):
     input_type = 'datetime-local'
