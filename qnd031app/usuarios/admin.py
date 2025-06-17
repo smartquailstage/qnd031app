@@ -1410,11 +1410,16 @@ class CardSection(TemplateSection):
 
 
 
-
+from .widgets import CustomDatePickerWidget, CustomTimePickerWidget
 # Asegúrate de importar: export_to_csv, export_to_excel, duplicar_citas, WysiwygWidget, ArrayWidget
 @admin.register(Cita)
 class CitaAdmin(ModelAdmin):
-    form = CitaForm # Asegúrate de que este formulario esté definido correctamente
+   
+    formfield_overrides = {
+        models.DateField: {'widget': CustomDatePickerWidget()},
+        models.TimeField: {'widget': CustomTimePickerWidget()},
+    }
+    
     list_sections = [ComentariosCitaSection, CitasCohortComponent]  # Agregar secciones personalizadas
     list_sections_layout = "horizontal"
     list_per_page = 20

@@ -9,7 +9,7 @@ class CustomDatePickerWidget(forms.DateInput):
         default_attrs = {'class': 'custom-datepicker', 'autocomplete': 'off'}
         if attrs:
             default_attrs.update(attrs)
-        super().__init__(attrs=default_attrs, format=format or '%Y-%m-%d')
+        super().__init__(attrs=default_attrs, format=format or '%d/%m/%Y')
 
     class Media:
         css = {
@@ -23,6 +23,7 @@ class CustomDatePickerWidget(forms.DateInput):
 
 class CustomTimePickerWidget(forms.TimeInput):
     template_name = 'admin/widgets/custom_timepicker.html'
+    input_type = 'time'  # JS datepicker lo maneja, no HTML5
 
     class Media:
         css = {

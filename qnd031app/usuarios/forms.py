@@ -67,7 +67,7 @@ class CitaForm(forms.ModelForm):
         model = Cita
         fields = ['motivo', 'fecha', 'hora', 'tipo_cita', 'notas']
         widgets = {
-            'fecha': CustomDatePickerWidget(attrs={'class': 'form-control datepicker' }),
+            'fecha': CustomDatePickerWidget(attrs={'class': 'form-control' }),
             'hora': CustomTimePickerWidget(
                 attrs={'class': 'form-control', 'placeholder': 'HH:MM'}
             ),
