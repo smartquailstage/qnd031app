@@ -629,8 +629,9 @@ class Profile(models.Model):
 
     es_en_terapia = models.BooleanField(default=False, verbose_name="En terapia")
     es_retirado = models.BooleanField(default=False, verbose_name="Retirado")
-    es_alta = models.BooleanField(default=False, verbose_name="En Alta")
     es_pausa = models.BooleanField(default=False, verbose_name="En Pausa")
+    es_alta = models.BooleanField(default=False, verbose_name="En Alta")
+    
 
     valorizacion_terapeutica = models.ForeignKey(
         ValoracionTerapia,

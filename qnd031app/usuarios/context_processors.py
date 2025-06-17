@@ -150,7 +150,13 @@ def datos_panel_usuario(request):
 
     user = request.user
 
-    # Estado de pago (evaluar el último pago del usuario)
+    # Obtener el perfil asociado
+    try:
+        profile = user.profile
+    except Profile.DoesNotExist:
+        profile = None
+
+    # Estado de pago
     try:
         ultimo_pago = pagos.objects.filter(profile__user=user).latest('created_at')
         if ultimo_pago.al_dia:
@@ -173,8 +179,17 @@ def datos_panel_usuario(request):
     # Citas confirmadas para el usuario
     citas_realizadas = Cita.objects.filter(destinatario=user, confirmada=True).count()
 
-    # Estado general de terapia
-    estado_terapia = "Activa" if cantidad_terapias_realizadas > 0 else "Pendiente"
+    # Determinar estado general de la terapia desde el modelo Profile
+    estado_terapia = "No definido"
+    if profile:
+        if profile.es_en_terapia:
+            estado_terapia = "En terapia"
+        elif profile.es_retirado:
+            estado_terapia = "Retirado"
+        elif profile.es_pausa:
+            estado_terapia = "En pausa"
+        elif profile.es_alta:
+            estado_terapia = "Alta"
 
     return {
         'estado_de_pago': estado_de_pago,
@@ -183,6 +198,8 @@ def datos_panel_usuario(request):
         'citas_realizadas': citas_realizadas,
         'estado_terapia': estado_terapia,
     }
+
+
 
 def citas_context(request):
     if request.user.is_authenticated:

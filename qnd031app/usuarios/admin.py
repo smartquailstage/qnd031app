@@ -1419,7 +1419,7 @@ class CitaAdmin(ModelAdmin):
         models.DateField: {'widget': CustomDatePickerWidget()},
         models.TimeField: {'widget': CustomTimePickerWidget()},
     }
-    
+
     list_sections = [ComentariosCitaSection, CitasCohortComponent]  # Agregar secciones personalizadas
     list_sections_layout = "horizontal"
     list_per_page = 20
@@ -1798,7 +1798,7 @@ class ProfileAdmin(ModelAdmin):
     },
 }
 
-    list_display = ['get_full_name','fecha_inicio','fecha_alta','es_retirado','es_en_terapia', 'es_alta']
+    list_display = ['get_full_name','fecha_inicio','fecha_alta','es_retirado','es_en_terapia','es_pausa', 'es_alta']
 
     @admin.display(description='Paciente')
     def get_full_name(self, obj):
@@ -1806,7 +1806,7 @@ class ProfileAdmin(ModelAdmin):
 
 
 
-    list_editable  = ['es_retirado','es_en_terapia', 'es_alta']
+    list_editable  = ['es_retirado','es_en_terapia','es_pausa', 'es_alta']
     list_filter= ['sucursales','es_retirado','es_en_terapia', 'es_alta',
      ('fecha_inicio', RangeDateFilter), 
      ('fecha_alta', RangeDateFilter), 

@@ -115,7 +115,7 @@ def badge_callback_terapeutico(request):
             estados = {
                 "Retirado": Profile.objects.filter(es_retirado=True).count(),
                 "En Terapia": Profile.objects.filter(es_en_terapia=True).count(),
-            # "Retirado": Profile.objects.filter(es_retirado=True).count(),
+                "Pausa": Profile.objects.filter(es_pausa=True).count(),
                 "Alta": Profile.objects.filter(es_alta=True).count(),
                 
             }

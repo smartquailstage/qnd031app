@@ -115,17 +115,7 @@
       <div>
         <p class="mb-1 text-white">Estado</p>
         <h4 class="mb-0 text-white"> 
-          {% if profile.es_alta %}
-            Estado en Alta
-          {% elif profile.es_retirado %}
-            Retirado
-          {% elif profile.es_pausa %}
-            En Pausa
-          {% elif profile.es_en_terapia %}
-            En Terapia
-          {% else %}
-            Sin estado definido
-          {% endif %}
+          {{ estado_terapia }}
         </h4>
       </div>
       <div class="ms-auto widget-icon bg-light text-white">
