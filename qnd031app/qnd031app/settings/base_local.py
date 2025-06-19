@@ -304,7 +304,7 @@ UNFOLD = {
                         "badge_color": "custom-green-success",
                     },
                     {
-                        "title": _("Terapistas"),
+                        "title": _("Terapéutas"),
                         "icon": "medical_services",
                         "link": reverse_lazy("admin:usuarios_perfil_terapeuta_changelist"),
                         "badge": "usuarios.unfold_config.badge_callback",
