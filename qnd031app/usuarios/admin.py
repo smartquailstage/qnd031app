@@ -1425,7 +1425,7 @@ class CitaAdmin(ModelAdmin):
     list_per_page = 20
     compressed_fields = True
     list_horizontal_scrollbar_top = True
-    list_display = ("get_destinatario_full_name","tipo_cita", "fecha", "motivo",'pendiente','cancelada','confirmada')
+    list_display = ("get_destinatario_full_name","tipo_cita", "fecha",'hora', "motivo",'pendiente','cancelada','confirmada')
     list_editable = ('pendiente','confirmada','cancelada',)
     search_fields = ("motivo", "notas", "creador__first_name","destinatario__first_name",)
     list_filter = ('sucursal','pendiente','confirmada','cancelada',"fecha",)
