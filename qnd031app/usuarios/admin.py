@@ -1329,9 +1329,15 @@ class CitasCohortComponent(BaseComponent):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        now = localtime(make_aware(datetime.now()))
-        start_date = now.date()
-        end_date = start_date + timedelta(days=5)
+        cita_centrada = self.instance  # Cita actual
+        if not cita_centrada or not cita_centrada.fecha:
+            base_date = localtime(make_aware(datetime.now())).date()
+        else:
+            base_date = cita_centrada.fecha
+
+        # Mostrar 2 días antes y 2 después (excluye fin de semana)
+        start_date = base_date - timedelta(days=2)
+        end_date = base_date + timedelta(days=2)
 
         time_slots = [time(hour=h) for h in range(9, 23)]
 
@@ -1339,9 +1345,9 @@ class CitasCohortComponent(BaseComponent):
         fechas_unicas = set()
         horas_unicas = set()
 
-        for i in range(6):
+        for i in range((end_date - start_date).days + 1):
             dia = start_date + timedelta(days=i)
-            if dia.weekday() >= 5:
+            if dia.weekday() >= 5:  # Excluir sábado y domingo
                 continue
 
             dia_str = dia.strftime("%Y-%m-%d")
@@ -1349,7 +1355,7 @@ class CitasCohortComponent(BaseComponent):
 
             for t in time_slots:
                 hora_str = t.strftime("%H:%M")
-                agenda[dia_str][hora_str]  # inicializa vacío si no existe
+                agenda[dia_str][hora_str]  # Inicializa vacío
                 horas_unicas.add(hora_str)
 
         citas = Cita.objects.filter(
@@ -1377,8 +1383,12 @@ class CitasCohortComponent(BaseComponent):
                 "motivo": cita.motivo or "Sin motivo",
                 "creador": cita.creador.get_full_name() if cita.creador else "Sin creador",
                 "destinatario": cita.destinatario.get_full_name() if cita.destinatario else "Sin destinatario",
-                "estado": "Confirmada" if cita.confirmada else "Pendiente" if cita.pendiente else "Cancelada",
-                "tipo_cita": cita.get_tipo_cita_display() if cita.tipo_cita else "Sin tipo",
+                "estado": (
+                    "Confirmada" if cita.confirmada
+                    else "Pendiente" if cita.pendiente
+                    else "Cancelada"
+                ),
+                "tipo_cita": cita.tipo_cita or "sin_tipo",
                 "hora": hora_str,
             })
 
@@ -1401,9 +1411,7 @@ class CitasCohortComponent(BaseComponent):
     def render(self):
         context = self.get_context_data()
         return render_to_string(self.template_name, context, request=self.request)
-
-
-
+        
 
 class CardSection(TemplateSection):
     template_name = "admin/test2.html"
