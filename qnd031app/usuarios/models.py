@@ -874,27 +874,12 @@ class pagos(models.Model):
 
 
 class Cita(models.Model):
-    creador = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        related_name='citas_creadas',
-        on_delete=models.CASCADE,
-        null=True, blank=True
-    )
-    destinatario = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        related_name='citas_recibidas',
-        on_delete=models.CASCADE,
-        verbose_name="Cita con:"
-    )
     sucursal = models.ForeignKey(
         'Sucursal',
         on_delete=models.CASCADE,
         related_name="sucursal8",
         null=True, blank=True
     )
-
-    fecha = models.DateField(null=True, blank=True, verbose_name="Fecha de la cita")
-    hora = models.TimeField(null=True, blank=True, verbose_name="Hora de la cita")
 
     TIPO_CITA_CHOICES = [
         ('administrativa', 'Administrativa'),
@@ -908,25 +893,65 @@ class Cita(models.Model):
         default='terapeutica',
         verbose_name="Categoría de Cita"
     )
+    
 
-    motivo = models.CharField(max_length=255)
-    notas = models.TextField(null=True, blank=True, verbose_name="Notas adicionales")
+    creador = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name='citas_creadas',
+        on_delete=models.CASCADE,
+        null=True, blank=True
+    )
+
+    destinatario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name='citas_recibidas',
+        on_delete=models.CASCADE,
+        verbose_name=" Asignar cita a Administrativo"
+    )
 
     profile = models.ForeignKey(
         'Profile',
         on_delete=models.CASCADE,
         null=True, blank=True,
-        verbose_name="Asignar perfil de paciente",
+        verbose_name="Asignar cita a paciente",
         related_name='Asignar_perfil_de_paciente'
     )
+
 
     profile_terapeuta = models.ForeignKey(
         'Perfil_Terapeuta',
         on_delete=models.CASCADE,
         null=True, blank=True,
-        verbose_name="Asignar perfil de terapeuta",
+        verbose_name="Asignar cita a terapeuta",
         related_name='Asignar_perfil_de_terapeuta'
     )
+
+    nombre_paciente = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        verbose_name="Nombre del Paciente Particular"
+    )
+
+
+
+    fecha = models.DateField(null=True, blank=True, verbose_name="Fecha de la cita")
+    hora = models.TimeField(null=True, blank=True, verbose_name="Hora de la cita")
+    motivo = models.CharField(max_length=255)
+    notas = models.TextField(null=True, blank=True, verbose_name="Notas adicionales")
+
+
+    DIAS_SEMANA = [
+    ("lunes", "Lunes"),
+    ("martes", "Martes"),
+    ("miercoles", "Miércoles"),
+    ("jueves", "Jueves"),
+    ("viernes", "Viernes"),
+]
+
+    #dia_semana = models.CharField(max_length=10, choices=DIAS_SEMANA, blank=True, null=True)
+
+
 
     pendiente = models.BooleanField(default=True, verbose_name="Pendiente")
     confirmada = models.BooleanField(default=False, verbose_name="Confirmada")

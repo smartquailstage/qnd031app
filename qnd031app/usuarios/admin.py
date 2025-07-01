@@ -1414,24 +1414,44 @@ from .widgets import CustomDatePickerWidget, CustomTimePickerWidget
 # Asegúrate de importar: export_to_csv, export_to_excel, duplicar_citas, WysiwygWidget, ArrayWidget
 @admin.register(Cita)
 class CitaAdmin(ModelAdmin):
-   
     formfield_overrides = {
         models.DateField: {'widget': CustomDatePickerWidget()},
         models.TimeField: {'widget': CustomTimePickerWidget()},
     }
 
-    list_sections = [ComentariosCitaSection, CitasCohortComponent]  # Agregar secciones personalizadas
+    list_sections = [ComentariosCitaSection, CitasCohortComponent]
     list_sections_layout = "horizontal"
+    
+    conditional_fields = {
+    # Campos exclusivos de tipo 'terapeutica'
+    "profile": "tipo_cita == 'terapeutica'",
+    "perfil_terapeuta": "tipo_cita == 'terapeutica'",
+
+    # Campos exclusivos de tipo 'particular'
+    "nombre_paciente": "tipo_cita == 'particular'",
+
+    # Campos compartidos entre 'administrativa' y 'particular'
+    "destinatario": "tipo_cita == 'administrativa' ",
+
+    # Campos comunes a todos los tipos
+    "fecha": "tipo_cita == 'terapeutica' or tipo_cita == 'administrativa' or tipo_cita == 'particular'",
+    "hora": "tipo_cita == 'terapeutica' or tipo_cita == 'administrativa' or tipo_cita == 'particular'",
+    "motivo": "tipo_cita == 'terapeutica' or tipo_cita == 'administrativa' or tipo_cita == 'particular'",
+    "notas": "tipo_cita == 'terapeutica' or tipo_cita == 'administrativa' or tipo_cita == 'particular'",
+    }
+
     list_per_page = 20
     compressed_fields = True
     list_horizontal_scrollbar_top = True
-    list_display = ("get_destinatario_full_name","tipo_cita", "fecha",'hora', "motivo",'pendiente','cancelada','confirmada')
-    list_editable = ('pendiente','confirmada','cancelada',)
-    search_fields = ("motivo", "notas", "creador__first_name","destinatario__first_name",)
-    list_filter = ('sucursal','pendiente','confirmada','cancelada',"fecha",)
-  #  list_filter_submit = False
- #   list_filter_sheet = True
- #   list_fullwidth = True
+    list_display = (
+        "get_destinatario_full_name", "tipo_cita", "fecha", 'hora', "motivo",
+        'pendiente', 'cancelada', 'confirmada'
+    )
+    list_editable = ('pendiente', 'confirmada', 'cancelada',)
+    search_fields = (
+        "motivo", "notas", "creador__first_name", "destinatario__first_name",
+    )
+    list_filter = ('sucursal', 'pendiente', 'confirmada', 'cancelada', "fecha",)
     change_form_show_cancel_button = True
     exclude = ('creador',)
     ordering = ['fecha']
@@ -1441,15 +1461,12 @@ class CitaAdmin(ModelAdmin):
     actions_row = []
     actions_submit_line = []
 
-
-
     def get_destinatario_full_name(self, obj):
         return obj.destinatario.get_full_name() if obj.destinatario else "—"
     get_destinatario_full_name.short_description = "Cita para"
     get_destinatario_full_name.admin_order_field = 'destinatario__first_name'
 
     def get_admin_changelist_url(self):
-        # Construye el nombre de la url changelist del admin dinámicamente
         app_label = self.model._meta.app_label
         model_name = self.model._meta.model_name
         return reverse_lazy(f"admin:{app_label}_{model_name}_changelist")
@@ -1458,9 +1475,9 @@ class CitaAdmin(ModelAdmin):
     def changelist_action(self, request: HttpRequest, object_id=None):
         url = self.get_admin_changelist_url()
         return redirect(url)
-        
+
     changelist_action.short_description = "Volver a Registros"
-    actions_detail = ["changelist_action"]  # Importante: usar string con el nombre del método
+    actions_detail = ["changelist_action"]
 
     def has_changelist_action_permission(self, request, object_id=None):
         return True
