@@ -14,12 +14,29 @@ class ServicioTerapeutico(models.Model):
 
 
     TIPO_SERVICIO = [
-        ('TERAPIA DE LENGUAJE', 'Terapia de Lenguaje'),
-        ('ESTIMULACIÓN COGNITIVA', 'Estimulación Cognitiva'),
-        ('PSICOLOGÍA', 'Psicología'),
-        ('ESTIMULACIÓN TEMPRANA', 'Estimulación Temprana'),
-        ('VALORACIÓN', 'Valoración'),
+    # Terapias principales
+    ('TERAPIA_DE_LENGUAJE', 'Terapia de Lenguaje'),
+    ('ESTIMULACION_COGNITIVA', 'Estimulación Cognitiva'),
+    ('TERAPIA_OCUPACIONAL', 'Terapia Ocupacional'),
+
+    # Psicología (subtipos incluidos)
+    ('PSICOLOGIA_PAREJA', 'Psicología - Pareja'),
+    ('PSICOLOGIA_INFANTIL', 'Psicología - Infantil'),
+    ('PSICOLOGIA_FAMILIAR', 'Psicología - Familiar'),
+    ('PSICOLOGIA_ADULTOS', 'Psicología - Adultos'),
+
+    # Valoraciones
+    ('VALORACION_PSICOLOGICA', 'Valoración Psicológica'),
+    ('VALORACION_LENGUAJE', 'Valoración de Lenguaje'),
+
+    # Estimulación
+    ('ESTIMULACION_TEMPRANA', 'Estimulación Temprana'),
+
+    # Otros servicios clínicos
+    ('AUDIOLOGIA', 'Audiología'),
+    ('OPTOMETRIA_OFTALMOLOGIA', 'Optometría / Oftalmología'),
     ]
+
 
     lugar_servicio = models.CharField(
         max_length=50,

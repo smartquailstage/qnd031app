@@ -87,7 +87,7 @@ class AdministrativeProfile(models.Model):
         default_currency='USD',  # o 'PEN', 'ARS', etc.
         blank=True,
         null=True,
-        verbose_name="Costo por hora de terapia",
+        verbose_name="Valor base",
         )
     is_active = models.BooleanField("Activo", default=True)
 
@@ -98,7 +98,7 @@ class AdministrativeProfile(models.Model):
 
     valor_por_paciente = MoneyField(
         "Valor por paciente", max_digits=10, decimal_places=2, default_currency='USD',
-        help_text="Monto ganado por cada paciente captado",null=True, blank=True
+        help_text="Valor por paciente/Comisión",null=True, blank=True
     )
 
     # Documentación
@@ -207,7 +207,8 @@ class prospecion_administrativa(models.Model):
     es_en_terapia = models.BooleanField(default=False, verbose_name="¿Recibe terapia?")
     es_rechazado = models.BooleanField(default=False, verbose_name="¿Fue rechazado?")
     es_finalizado = models.BooleanField(default=False, verbose_name="¿Finalizó el proceso?")
-    es_inactivo = models.BooleanField(default=False, verbose_name="¿Está inactivo?")
+    es_inactivo = models.BooleanField(default=False, verbose_name="Acvtivo/Inactivo")
+    fecha_activo = models.DateField(verbose_name="Fecha de Activación",null=True, blank=True)
     fecha_estado_actualizado = models.DateField(auto_now=True)
 
     sucursal = models.ForeignKey(
@@ -274,6 +275,12 @@ class prospecion_administrativa(models.Model):
     cargo_ejecutivo_meddes = models.CharField(max_length=150, null=True, blank=True)
     telefono_ejecutivo_meddes = models.CharField(max_length=50, null=True, blank=True)
     mail_ejecutivo_meddes = models.EmailField(blank=True, null=True)
+    obserciones = models.TextField(
+        null=True,
+        blank=True,
+        verbose_name="Observaciones",
+        help_text="Observaciones adicionales sobre la institución"
+    )
 
     convenio_pdf = models.FileField(
         upload_to='convenios/',
@@ -449,7 +456,7 @@ class Perfil_Terapeuta(models.Model):
 
 
 class ValoracionTerapia(models.Model):
-    perfil_terapeuta =  models.ForeignKey(
+    perfil_terapeuta = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name='perfil_terapeuta_asignado',
         on_delete=models.CASCADE,
@@ -457,33 +464,24 @@ class ValoracionTerapia(models.Model):
         null=True,
         blank=True
     )
+
     sucursal = models.ForeignKey(
-        Sucursal,
+        'sucursal',
         on_delete=models.CASCADE,
-        related_name="sucursal1", null=True, blank=True
+        related_name="sucursal1",
+        null=True,
+        blank=True
     )
 
-
-
-    # Reemplazamos el campo tipo_valoracion por booleanos
     es_particular = models.BooleanField(default=False, verbose_name="Valoración Particular")
     es_convenio = models.BooleanField(default=False, verbose_name="Valoración por Convenio")
 
     fecha_valoracion = models.DateField(verbose_name="Fecha de Valoración")
     nombre = models.CharField(max_length=255, verbose_name="Nombre del Paciente Valorado")
-    fecha_nacimiento = models.DateField()
-
-    @property
-    def edad(self):
-        today = date.today()
-        if self.fecha_nacimiento:
-            return today.year - self.fecha_nacimiento.year - (
-                (today.month, today.day) < (self.fecha_nacimiento.month, self.fecha_nacimiento.day)
-            )
-        return None
+    fecha_nacimiento = models.DateField(verbose_name="Fecha de nacimiento")
 
     institucion = models.ForeignKey(
-        prospecion_administrativa,
+        'prospecion_administrativa',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -492,25 +490,25 @@ class ValoracionTerapia(models.Model):
     institucion_sin = models.CharField(max_length=255, verbose_name="Nombre de institución sin convenio", blank=True, null=True)
 
     grado = models.CharField(max_length=100, blank=True, null=True)
+
     servicio = models.ForeignKey(
         'serviceapp.ServicioTerapeutico',
         on_delete=models.CASCADE,
         related_name='servicios_terapeutico_pagos',
-        verbose_name="Servicio terapéutico", null=True, blank=True
+        verbose_name="Servicio terapéutico",
+        null=True,
+        blank=True
     )
 
-
-
     proceso_terapia = models.BooleanField(default=False, verbose_name="Proceso de Terapia")
-    diagnostico = HTMLField(null=True, blank=True, verbose_name="descripción del diagnóstico")
+    diagnostico = HTMLField(null=True, blank=True, verbose_name="Descripción del diagnóstico")
 
     fecha_asesoria = models.DateField(null=True, blank=True)
     recibe_asesoria = models.BooleanField(default=False)
+    necesita_terapia = models.BooleanField(default=False)
+    toma_terapia = models.BooleanField(default=False)
 
-    observaciones = HTMLField(null=True, blank=True, verbose_name="observaciones de la valoración")
-
-    numero_dece = models.CharField(max_length=255, verbose_name="Numero de DECE", blank=True, null=True)
-    mail = models.EmailField(verbose_name="Correo Electrónico", blank=True, null=True)
+    observaciones = HTMLField(null=True, blank=True, verbose_name="Observaciones de la valoración")
 
     archivo_adjunto = models.FileField(
         upload_to='valoraciones/adjuntos/',
@@ -530,8 +528,25 @@ class ValoracionTerapia(models.Model):
 
     def __str__(self):
         tipo = "Particular" if self.es_particular else "Convenio" if self.es_convenio else "Sin especificar"
-        return f"{self.nombre} - {self.fecha_valoracion} ({tipo})"
+        return f"{self.nombre}- {self.institucion} - {self.fecha_valoracion} ({tipo})"
 
+    @property
+    def edad(self):
+        if not self.fecha_nacimiento:
+            return None
+
+        today = date.today()
+        years = today.year - self.fecha_nacimiento.year
+        months = today.month - self.fecha_nacimiento.month
+        days = today.day - self.fecha_nacimiento.day
+
+        if days < 0:
+            months -= 1
+        if months < 0:
+            years -= 1
+            months += 12
+
+        return f"{years} año{'s' if years != 1 else ''} y {months} mes{'es' if months != 1 else ''}"
 
 
 
@@ -718,19 +733,28 @@ class Profile(models.Model):
         verbose_name_plural = "Registro Administrativo / Ingreso de Paciente"   
 
     @property
-    def edad(self):
+    def edad_detallada(self):
+        if not self.fecha_nacimiento:
+            return None
+
         today = date.today()
-        if self.fecha_nacimiento:
-            return today.year - self.fecha_nacimiento.year - (
-                (today.month, today.day) < (self.fecha_nacimiento.month, self.fecha_nacimiento.day)
-            )
-        return None
+        years = today.year - self.fecha_nacimiento.year
+        months = today.month - self.fecha_nacimiento.month
+        days = today.day - self.fecha_nacimiento.day
+
+        if days < 0:
+            months -= 1
+        if months < 0:
+            years -= 1
+            months += 12
+
+        return f"{years} año{'s' if years != 1 else ''} y {months} mes{'es' if months != 1 else ''}"
 
 
 
     @property
     def nombre_completo(self):
-        return f"{self.nombre_paciente} {self.apellidos_paciente}".strip()
+        return f"{self.nombre_paciente} -  {self.institucion} -  {self.apellidos_paciente}".strip()
 
     def __str__(self):
         return self.nombre_completo
@@ -873,6 +897,35 @@ class pagos(models.Model):
     #    super().save(*args, **kwargs)
 
 
+class MultipleChoicesField(models.CharField):
+    description = "Campo para múltiples opciones almacenadas como texto separado por comas"
+
+    def __init__(self, *args, **kwargs):
+        self.choices = kwargs.get('choices', [])
+        kwargs['max_length'] = kwargs.get('max_length', 255)
+        super().__init__(*args, **kwargs)
+
+    def to_python(self, value):
+        if isinstance(value, list):
+            return value
+        if value:
+            return value.split(',')
+        return []
+
+    def get_prep_value(self, value):
+        if isinstance(value, list):
+            return ",".join(value)
+        return value
+
+    def validate(self, value, model_instance):
+        if value:
+            for val in value:
+                if val not in dict(self.choices).keys():
+                    raise ValidationError(f"Valor '{val}' no es válido")
+        super().validate(value, model_instance)
+
+
+
 class Cita(models.Model):
     sucursal = models.ForeignKey(
         'Sucursal',
@@ -893,7 +946,6 @@ class Cita(models.Model):
         default='terapeutica',
         verbose_name="Categoría de Cita"
     )
-    
 
     creador = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -905,8 +957,9 @@ class Cita(models.Model):
     destinatario = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name='citas_recibidas',
+        null=True, blank=True,
         on_delete=models.CASCADE,
-        verbose_name=" Asignar cita a Administrativo"
+        verbose_name="Asignar cita a Administrativo"
     )
 
     profile = models.ForeignKey(
@@ -916,7 +969,6 @@ class Cita(models.Model):
         verbose_name="Asignar cita a paciente",
         related_name='Asignar_perfil_de_paciente'
     )
-
 
     profile_terapeuta = models.ForeignKey(
         'Perfil_Terapeuta',
@@ -933,34 +985,40 @@ class Cita(models.Model):
         verbose_name="Nombre del Paciente Particular"
     )
 
-
-
     fecha = models.DateField(null=True, blank=True, verbose_name="Fecha de la cita")
     hora = models.TimeField(null=True, blank=True, verbose_name="Hora de la cita")
     motivo = models.CharField(max_length=255)
     notas = models.TextField(null=True, blank=True, verbose_name="Notas adicionales")
 
-
+    # ✅ Nuevos campos
     DIAS_SEMANA = [
-    ("lunes", "Lunes"),
-    ("martes", "Martes"),
-    ("miercoles", "Miércoles"),
-    ("jueves", "Jueves"),
-    ("viernes", "Viernes"),
-]
+        ("lunes", "Lunes"),
+        ("martes", "Martes"),
+        ("miercoles", "Miércoles"),
+        ("jueves", "Jueves"),
+        ("viernes", "Viernes"),
+        ("sabado", "Sábado"),
+        ("domingo", "Domingo"),
+    ]
 
-    #dia_semana = models.CharField(max_length=10, choices=DIAS_SEMANA, blank=True, null=True)
+    dias_recurrentes = models.CharField(
+    max_length=100,
+    blank=True,
+    null=True,
+    verbose_name="Días de la semana para repetir la cita",
+    help_text="Ejemplo: lunes,martes,viernes"
+    )
 
-
+    fecha_fin = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name="Fecha fin de cita recurrente",
+        help_text="Fecha en la que dejarán de repetirse las citas"
+    )
 
     pendiente = models.BooleanField(default=True, verbose_name="Pendiente")
     confirmada = models.BooleanField(default=False, verbose_name="Confirmada")
     cancelada = models.BooleanField(default=False, verbose_name="Cancelada")
-
-    class Meta:
-        ordering = ['-fecha', '-hora']
-        verbose_name = "Administrativos / Ingreso de Cita"
-        verbose_name_plural = "Registros Administrativos / Ingreso de Citas"
 
     def __str__(self):
         fecha_str = self.fecha.strftime('%d/%m/%Y') if self.fecha else 'Sin fecha'
@@ -979,18 +1037,13 @@ class Cita(models.Model):
         if len(seleccionados) == 0:
             raise ValidationError("Debe seleccionarse al menos un estado.")
 
-
-
-    
+        if self.fecha_fin and self.fecha and self.fecha_fin < self.fecha:
+            raise ValidationError("La fecha de finalización no puede ser anterior a la fecha de inicio.")
 
     class Meta:
-        
-        ordering = ['-fecha']
-        verbose_name_plural = "Citas Agendadas"
+        ordering = ['-fecha', '-hora']
         verbose_name = "Cita Agendada"
-
-def __str__(self):
-    return f"{self.creador} → {self.destinatario} ({self.fecha.strftime('%d/%m/%Y %H:%M')})"
+        verbose_name_plural = "Citas Agendadas"
 
 
 class tareas(models.Model):

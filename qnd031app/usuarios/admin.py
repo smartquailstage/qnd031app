@@ -268,7 +268,7 @@ class ValoracionComponent(BaseComponent):
         p = self.instance  # Solo la instancia actual
 
         headers = [
-            "Edad (Años)",'servicio', "Institución",    
+            "Edad",'servicio', "Institución",    
             'fecha de asesoria','Valoracion/Archivo Adjunto'
         ]
 
@@ -307,14 +307,10 @@ class ValoracionExtraComponent(BaseComponent):
         v = self.instance  # Instancia actual de ValoracionTerapia
 
         headers = [
-            "Número DECE",
-            "Correo Electrónico",
             "Observaciones",
         ]
 
         row = [
-            v.numero_dece if v.numero_dece else "No registrado",
-            v.mail if v.mail else "Sin correo",
             v.observaciones if v.observaciones else "Sin observaciones",
         ]
 
@@ -333,10 +329,10 @@ class ValoracionExtraComponent(BaseComponent):
 @admin.register(ValoracionTerapia)
 class ValoracionTerapiaAdmin(ModelAdmin):
     form= ValoracionTerapiaAdminForm
-    list_display = ['get_perfil_terapeuta_full_name','nombre', 'fecha_valoracion','recibe_asesoria', 'proceso_terapia' ]
+    list_display = ['get_perfil_terapeuta_full_name','nombre', 'fecha_valoracion','recibe_asesoria','necesita_terapia','toma_terapia', 'proceso_terapia' ]
     exclude = ('perfil_terapeuta',)
     search_fields = ['nombre', 'perfil_terapeuta__first_name', 'perfil_terapeuta__last_name']
-    list_editable = ['proceso_terapia', 'recibe_asesoria']
+    list_editable = ['proceso_terapia', 'recibe_asesoria','necesita_terapia','toma_terapia' ]
     readonly_fields = ['edad']
     list_sections = [ValoracionComponent,ValoracionExtraComponent]
     #exclude = ('edad',)
@@ -1048,12 +1044,15 @@ class CustomTableSection(TableSection):
 
 @admin.register(prospecion_administrativa)
 class prospecion_administrativaAdmin(ModelAdmin):
+    conditional_fields = {
+        "fecha_activo": "es_activo == true",
+    }
     inlines = [DocenteCapacitadoInline]
     list_sections = [CustomTableSection]  # Agregar la sección personalizada
 
     # Mostrar campos clave
     list_display = [
-        'nombre','responsable_institucional_1','mail_responsable_1','telefono_responsable_1', 'es_en_cita', 'es_valoracion', 'es_finalizado'
+        'nombre','responsable_institucional_1','mail_responsable_1','telefono_responsable_1', 'es_en_cita','es_convenio_firmado', 'es_valoracion','es_inactivo', 'es_finalizado'
     ]
     #list_editable = ('pendiente','confirmada','cancelada',)
     list_filter = (
@@ -1062,7 +1061,7 @@ class prospecion_administrativaAdmin(ModelAdmin):
         
        
     )
-    list_editable = ['es_en_cita', 'es_valoracion', 'es_finalizado']
+    list_editable = ['es_en_cita','es_convenio_firmado','es_inactivo', 'es_valoracion', 'es_finalizado']
 
     search_fields = ['nombre', 'ciudad', 'responsable_institucional_1']
 
@@ -1329,17 +1328,18 @@ class CitasCohortComponent(BaseComponent):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        cita_centrada = self.instance  # Cita actual
+        cita_centrada = self.instance
         if not cita_centrada or not cita_centrada.fecha:
             base_date = localtime(make_aware(datetime.now())).date()
         else:
             base_date = cita_centrada.fecha
 
-        # Mostrar 2 días antes y 2 después (excluye fin de semana)
+        # Mostrar 2 días antes y 2 días después (lunes a domingo)
         start_date = base_date - timedelta(days=2)
         end_date = base_date + timedelta(days=2)
 
-        time_slots = [time(hour=h) for h in range(9, 23)]
+        # Cambiado a 7:00 a 22:00
+        time_slots = [time(hour=h) for h in range(7, 23)]
 
         agenda = defaultdict(lambda: defaultdict(list))
         fechas_unicas = set()
@@ -1347,20 +1347,19 @@ class CitasCohortComponent(BaseComponent):
 
         for i in range((end_date - start_date).days + 1):
             dia = start_date + timedelta(days=i)
-            if dia.weekday() >= 5:  # Excluir sábado y domingo
-                continue
 
             dia_str = dia.strftime("%Y-%m-%d")
             fechas_unicas.add(dia_str)
 
             for t in time_slots:
                 hora_str = t.strftime("%H:%M")
-                agenda[dia_str][hora_str]  # Inicializa vacío
+                agenda[dia_str][hora_str]
                 horas_unicas.add(hora_str)
 
+        # Filtrado ajustado a nueva franja horaria
         citas = Cita.objects.filter(
             fecha__range=(start_date, end_date),
-            hora__range=(time(9, 0), time(22, 0))
+            hora__range=(time(7, 0), time(22, 0))
         ).select_related("creador", "destinatario")
 
         for cita in citas:
@@ -1371,9 +1370,6 @@ class CitasCohortComponent(BaseComponent):
             if is_naive(cita_dt):
                 cita_dt = make_aware(cita_dt)
             cita_dt = localtime(cita_dt)
-
-            if cita_dt.weekday() >= 5:
-                continue
 
             dia_str = cita_dt.strftime("%Y-%m-%d")
             hora_str = cita_dt.strftime("%H:%M")
@@ -1411,6 +1407,7 @@ class CitasCohortComponent(BaseComponent):
     def render(self):
         context = self.get_context_data()
         return render_to_string(self.template_name, context, request=self.request)
+
         
 
 class CardSection(TemplateSection):
@@ -1422,6 +1419,8 @@ from .widgets import CustomDatePickerWidget, CustomTimePickerWidget
 # Asegúrate de importar: export_to_csv, export_to_excel, duplicar_citas, WysiwygWidget, ArrayWidget
 @admin.register(Cita)
 class CitaAdmin(ModelAdmin):
+    form = CitaForm  # Asegúrate de que CitaForm esté definido en tu forms.py
+    #form = CitaForm 
     formfield_overrides = {
         models.DateField: {'widget': CustomDatePickerWidget()},
         models.TimeField: {'widget': CustomTimePickerWidget()},
@@ -1498,6 +1497,10 @@ class CitaAdmin(ModelAdmin):
     @admin.display(description="Calendario")
     def ver_en_calendario(self, obj):
         return format_html('<a href="{}">Ver</a>', obj.get_calendar_url())
+
+        # Override sólo el campo dias_recurrentes para que use checkbox múltiple
+
+    
 
 
 
@@ -1589,40 +1592,39 @@ class ProfileComponent(BaseComponent):
     name = "Perfil de Paciente"
 
     def __init__(self, request, instance=None):
+        super().__init__(request)  # Corrección importante
         self.request = request
         self.instance = instance
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+        context = {}  # No dependemos de super()
 
-        p = self.instance  # Solo la instancia actual
+        p = self.instance  # Instancia del perfil
 
         headers = [
-            "Foto", "Nombre Completo","Edad (Años)", "Sexo", "Institución",
-            "Teléfono",
+            "Foto", "Nombre Completo", "Edad", "Sexo", "Institución", "Teléfono",
         ]
 
         row = [
             format_html('<img src="{}" style="width:80px; border-radius:50%;" />', p.photo.url) if p.photo else "Sin foto",
-            p.user.first_name + " " + p.user.last_name,
-            p.edad,
-            p.sexo,
-            p.institucion if p.institucion else "",
-            p.telefono,
-
+            f"{p.user.first_name} {p.user.last_name}" if p.user else "Sin usuario",
+            p.edad_detallada if hasattr(p, "edad_detallada") else p.edad or "Desconocida",
+            p.sexo or "No especificado",
+            str(p.institucion) if p.institucion else "N/A",
+            str(p.telefono) if p.telefono else "N/A",
         ]
 
         context.update({
-            "title": f"Información personal del paciente",
+            "title": "Información personal del paciente",
             "table": {
                 "headers": headers,
-                "rows": [row],  # Solo una fila con la instancia actual
+                "rows": [row],
             }
         })
         return context
 
     def render(self):
-        return render_to_string(self.template_name, self.get_context_data())
+        return render_to_string(self.template_name, self.get_context_data(), request=self.request)
 
 
 @register_component

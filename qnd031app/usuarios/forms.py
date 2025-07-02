@@ -62,29 +62,46 @@ class MarcarLeidoForm(forms.ModelForm):
         model = Mensaje
         fields = []
 
+DIAS_SEMANA = [
+    ("lunes", "Lunes"),
+    ("martes", "Martes"),
+    ("miercoles", "Miércoles"),
+    ("jueves", "Jueves"),
+    ("viernes", "Viernes"),
+    ("sabado", "Sábado"),
+    ("domingo", "Domingo"),
+]
+
 class CitaForm(forms.ModelForm):
+    dias_recurrentes = forms.MultipleChoiceField(
+        choices=DIAS_SEMANA,
+        required=False,
+        widget=forms.CheckboxSelectMultiple(),
+        label="Días de la semana (recurrentes)"
+    )
+
     class Meta:
         model = Cita
-        fields = ['motivo', 'fecha', 'hora', 'tipo_cita', 'notas']
-        widgets = {
-            'fecha': CustomDatePickerWidget(attrs={'class': 'form-control' }),
-            'hora': CustomTimePickerWidget(
-                attrs={'class': 'form-control', 'placeholder': 'HH:MM'}
-            ),
-            'tipo_cita': forms.Select(attrs={'class': 'form-select'}),
-            'motivo': forms.TextInput(attrs={'class': 'form-control'}),
-            'notas': forms.Textarea(attrs={'class': 'form-control'}),
-            'sucursal': forms.Select(attrs={'class': 'form-select'}),
-        }
+        # Aquí pones todos los campos que quieras mostrar (o '__all__' para todos)
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.dias_recurrentes:
+            self.initial["dias_recurrentes"] = self.instance.dias_recurrentes.split(",")
+
+    def clean_dias_recurrentes(self):
+        return ",".join(self.cleaned_data.get("dias_recurrentes", []))
 
     def save(self, commit=True, creador=None, destinatario=None):
         cita = super().save(commit=False)
+
         if creador:
             cita.creador = creador
         if destinatario:
             cita.destinatario = destinatario
 
-        # Aseguramos el estado correcto
+        # Estados por defecto
         cita.pendiente = True
         cita.confirmada = False
         cita.cancelada = False
