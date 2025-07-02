@@ -174,7 +174,7 @@ def datos_panel_usuario(request):
     cantidad_mensajes_recibidos = Mensaje.objects.filter(receptor=user).count()
 
     # Tareas realizadas por el paciente
-    cantidad_terapias_realizadas = tareas.objects.filter(profile__user=user, realizada=True).count()
+    cantidad_terapias_realizadas = tareas.objects.filter(profile__user=user, tarea_realizada=True).count()
 
     # Citas confirmadas para el usuario
     citas_realizadas = Cita.objects.filter(destinatario=user, confirmada=True).count()
@@ -221,7 +221,7 @@ def tareas_context(request):
     if request.user.is_authenticated:
         tareas_nuevas_qs = tareas.objects.filter(
             profile__user=request.user,
-            realizada=False
+            tarea_realizada=False
         ).order_by('-fecha_envio')
 
         tareas_count = tareas_nuevas_qs.count()

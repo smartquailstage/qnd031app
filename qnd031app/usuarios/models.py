@@ -1055,6 +1055,7 @@ class tareas(models.Model):
 
     cita_terapeutica_asignada = models.OneToOneField(Cita, on_delete=models.CASCADE, verbose_name="Elija la cita correspondiente a esta sesion de terapia", null=True, blank=True)
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE, verbose_name="Asignar perfil de paciente", related_name='Asignar_perfil_de_paciente2')
+    fecha_envio = models.DateField(blank=True, null=True, verbose_name="Fecha de envio de tarea")
     terapeuta = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name='terapeuta_asiga_tarea',
@@ -1062,15 +1063,19 @@ class tareas(models.Model):
         null=True,
         blank=True
     )
-    media_terapia =  models.FileField(upload_to='Videos/%Y/%m/%d/', blank=True, verbose_name="Contenido Multimedia ")
-    titulo = models.CharField(max_length=255, blank=True, null=True, verbose_name="Título de la tarea") 
-    fecha_envio = models.DateField(blank=True, null=True, verbose_name="Fecha de envio de tarea")
+    asistire = models.BooleanField(default=False, verbose_name="¿Asistirá a la terapia?")
+    titulo = models.CharField(max_length=255, blank=True, null=True, verbose_name="Título de Actividad") 
+    descripcion_actividad =  HTMLField(null=True, blank=True, verbose_name="Describa la actividad a realizar")
+    media_terapia =  models.FileField(upload_to='Videos/%Y/%m/%d/', blank=True, verbose_name="Video Multimedia de actividad ")
+    actividad_realizada = models.BooleanField(default=False, verbose_name="¿Realizó la terea?")
+    descripcion_tarea =  HTMLField(null=True, blank=True, verbose_name="Describa la tarea a realizar")
+   # fecha_envio = models.DateField(blank=True, null=True, verbose_name="Fecha de envio de tarea")
     fecha_entrega = models.DateField(blank=True, null=True, verbose_name="Fecha de entrega de tarea")
     material_adjunto =  models.FileField(upload_to='materiales/%Y/%m/%d/', blank=True, verbose_name="Material adjunto")
    
-    descripcion_tarea =  HTMLField(null=True, blank=True, verbose_name="Describa la tarea a realizar")
-    realizada = models.BooleanField(default=False, verbose_name="¿Paciente realizó la tarea?")
-    tarea_no_realizada = models.BooleanField(default=False, verbose_name="¿Paciente Culminó la Terapia ?")
+    
+    tarea_realizada = models.BooleanField(default=False, verbose_name="¿Paciente Culminó la Terapia ?")
+
 
 
 
@@ -1078,8 +1083,8 @@ class tareas(models.Model):
 
     class Meta:
         ordering = ['profile__user__first_name']
-        verbose_name_plural = "Tareas Asignadas"
-        verbose_name = "Paciente/ Tareas"
+        verbose_name_plural = "Tareas & Actividades Asignadas"
+        verbose_name = "Paciente/ Tareas & Actividades Asignadas"
 
     def __str__(self):
         return f"Tareas terapéuticas de {self.profile.nombre_paciente} {self.profile.apellidos_paciente} - {self.titulo}"
@@ -1096,7 +1101,7 @@ class TareaComentario(models.Model):
     class Meta:
         ordering = ['fecha']
         verbose_name = "Revisar Tarea Terapeutica"
-        verbose_name_plural = "Revisar Tareas Terapeuticas"
+        verbose_name_plural = "Tareas Terapeuticas"
 
     def __str__(self):
         return f"Corregir Tarea  {self.autor.username} - {self.tarea.titulo}"

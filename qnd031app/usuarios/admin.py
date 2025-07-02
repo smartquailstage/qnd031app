@@ -850,10 +850,10 @@ class tareasAdmin(ModelAdmin):
     list_filter = (
         'fecha_envio',
         'fecha_entrega',)
-    list_editable = ['realizada', 'tarea_no_realizada']
+    list_editable = ['asistire',]
     list_sections = [TareasComponent]
 
-    list_display = ['get_terapeuta_full_name','profile', 'fecha_envio','fecha_entrega','realizada', 'tarea_no_realizada']
+    list_display = ['get_terapeuta_full_name','profile', 'fecha_envio','fecha_entrega', 'asistire',]
     exclude = ('terapeuta',)
     actions = [ export_to_csv, export_to_excel]
     verbose_name = "Registro Administrativo / Tarea Terapéutica"
