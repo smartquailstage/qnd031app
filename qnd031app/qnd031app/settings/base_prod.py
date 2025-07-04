@@ -390,13 +390,13 @@ MIDDLEWARE = [
     #'wagtail.contrib.redirects.middleware.RedirectMiddleware',
 ]
 
-ELASTIC_APM = {
-    'SERVICE_NAME': 'qnd031app',
-    'SECRET_TOKEN': '',  # déjalo vacío si no usas auth
-    'SERVER_URL': 'http://apm-server:8200',
-    'ENVIRONMENT': 'production',
-    'DEBUG': True,
-}
+#ELASTIC_APM = {
+    #'SERVICE_NAME': 'qnd031app',
+    #'SECRET_TOKEN': '',  # déjalo vacío si no usas auth
+    #'SERVER_URL': 'http://apm-server:8200',
+    #'ENVIRONMENT': 'production',
+    #'DEBUG': True,
+#}
 
 
 
