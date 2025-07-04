@@ -334,21 +334,13 @@ UNFOLD = {
                     },
 
                     {
-                        "title": _("Actividades"), 
+                        "title": _("Terapias"), 
                         "icon": "task", 
                         "link": reverse_lazy("admin:usuarios_tareas_changelist"),
                         "badge": "usuarios.unfold_config.badge_callback_tareas",
                         "badge_color": "custom-red-alert",
                       #  "permission": "usuarios.unfold_config.permission_callback",
                         
-                    },
-                    {
-                        "title": _("Asistencias"), 
-                        "icon": "calendar_today", 
-                        "link": reverse_lazy("admin:usuarios_asistenciaterapeuta_changelist"),
-                        "badge": "usuarios.unfold_config.badge_callback_asistencias",
-                        "badge_color": "custom-red-alert",
-                       # "permission": "usuarios.unfold_config.permission_callback",
                     },
                 ],
             },
@@ -373,6 +365,7 @@ UNFOLD = {
         {"title": _("Users"), "icon": "people", "link": reverse_lazy("admin:auth_user_changelist")},
     ],
 }
+
 
 
 
