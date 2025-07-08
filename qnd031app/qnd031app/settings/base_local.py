@@ -6,6 +6,12 @@ from dotenv import load_dotenv
 from django.utils.translation import gettext_lazy as _
 from django.templatetags.static import static
 from django.urls import reverse_lazy
+from decouple import config, Csv
+
+
+
+
+
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -14,9 +20,58 @@ ENV_FILE_PATH = BASE_DIR / ".env_local"
 load_dotenv(dotenv_path=ENV_FILE_PATH)
 
 
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='support@smartquail.io')
+SERVER_EMAIL = config('SERVER_EMAIL', default='support@smartquail.io')
+
+
+ADMINS = [
+    ("Soporte Meddes", "info@meddes.com.ec"),
+    # ("Otro Nombre", "otro@correo.com"),  # Puedes agregar más si deseas
+]
 
 # Retrieve the Django secret key from environment variables.
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+
+ALLOWED_HOSTS = ['tusitio.com', '127.0.0.1'] 
+
+# Configura DEBUG usando variable de entorno o por defecto False
+DEBUG = config('DEBUG', default=False, cast=bool)
+
+if DEBUG:
+    ADMINS = []
+else:
+    # En producción, define tus administradores correctamente:
+    ADMINS = [
+        ("Soporte SmartQuail", "support@smartquail.io"),
+    ]
+
+    
+
+
+# Variable que define si estás en entorno local
+ENVIRONMENT = config("ENVIRONMENT", default="local")  # local, staging, production
+
+if ENVIRONMENT == "local":
+    EMAIL_BACKEND = config("EMAIL_BACKEND")
+    EMAIL_HOST = config("EMAIL_HOST")
+    EMAIL_PORT = config("EMAIL_PORT", cast=int)
+    EMAIL_USE_TLS = config("EMAIL_USE_TLS", cast=bool)
+    EMAIL_USE_SSL = config("EMAIL_USE_SSL", cast=bool)
+    EMAIL_HOST_USER = config("EMAIL_HOST_USER")
+    EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
+    DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+else:
+    # Configuración de producción u otros entornos
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    EMAIL_HOST = "smtp.gmail.com"
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_USE_SSL = False
+    EMAIL_HOST_USER = "phys.mauiricio.silva@gmail.com"
+    EMAIL_HOST_PASSWORD = "secreto_produccion"
+    DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+
 
 # Optionally, you can add a default value or raise an exception if SECRET_KEY is not set
 if SECRET_KEY is None:

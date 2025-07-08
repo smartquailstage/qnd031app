@@ -9,9 +9,22 @@ from django.urls import reverse_lazy
 import json
 import logging
 from datetime import datetime
+from django.urls import reverse_lazy
+from decouple import config, Csv
 
 #prueba
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='support@smartquail.io')
+SERVER_EMAIL = config('SERVER_EMAIL', default='support@smartquail.io')
+
+ADMINS = [
+    ("Soporte Meddes", "info@meddes.com.ec"),
+    # ("Otro Nombre", "otro@correo.com"),  # Puedes agregar más si deseas
+]
+
 
 
 # Load environment variables from the .env_local file.
@@ -436,7 +449,28 @@ REDIS_DB  = os.environ.get('REDIS_DB')
 
 #WEBAPP SETTINGS
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Variable que define si estás en entorno local
+ENVIRONMENT = config("ENVIRONMENT", default="local")  # local, staging, production
+
+if ENVIRONMENT == "local":
+    EMAIL_BACKEND = config("EMAIL_BACKEND")
+    EMAIL_HOST = config("EMAIL_HOST")
+    EMAIL_PORT = config("EMAIL_PORT", cast=int)
+    EMAIL_USE_TLS = config("EMAIL_USE_TLS", cast=bool)
+    EMAIL_USE_SSL = config("EMAIL_USE_SSL", cast=bool)
+    EMAIL_HOST_USER = config("EMAIL_HOST_USER")
+    EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
+    DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+else:
+    # Configuración de producción u otros entornos
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    EMAIL_HOST = "smtp.gmail.com"
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_USE_SSL = False
+    EMAIL_HOST_USER = "phys.mauiricio.silva@gmail.com"
+    EMAIL_HOST_PASSWORD = "secreto_produccion"
+    DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 CART_SESSION_ID = 'cart'
 SBLCART_SESSION_ID = 'cart'

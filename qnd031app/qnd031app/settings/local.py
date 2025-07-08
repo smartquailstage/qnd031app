@@ -1,6 +1,6 @@
 from .base_local import *
+from decouple import config, Csv
 
-DEBUG=False
 
 
 
@@ -33,9 +33,7 @@ ALLOWED_HOSTS = ['*']
 
 
 
-ADMINS= (
-    ('SILVA MAU', 'smartquail.dev@gmail.com')
-)
+
 
 ALLOWED_HOSTS = ['*']
 
