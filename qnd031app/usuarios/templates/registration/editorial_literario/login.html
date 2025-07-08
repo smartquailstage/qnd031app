@@ -11,7 +11,7 @@
         <div class="col-xl-5 col-lg-6 col-md-7 mx-auto mt-5">
           <div class="card radius-10">
             <div class="card-body p-4">
-              <div class="text-center">
+              <div class="text-left">
             
                  <img src="{% static 'img/BA-LOGOS/logoF.png' %}" style="width: 280px;" alt="">
              
@@ -20,9 +20,8 @@
              
 
               <div class="col-12 col-lg-12">
-               <p class="text-left">
-  Bienvenido a nuestra plataforma. Para continuar, por favor ingrese su correo electrónico y contraseña en los campos correspondientes. 
-</p>
+                <h4>Bienvenido a MEDDES®, nuestra plataforma de gestión terapéutica.</h4>
+<p class="text-left">  Si usted es paciente registrado, por favor ingrese su correo electrónico y contraseña asociados a su cuenta  en los campos correspondientes. </p>
               {% csrf_token %}
                 <div class="position-relative border-bottom my-3">
                   <div class="position-absolute seperator-2 translate-middle-y"></div>
@@ -95,19 +94,18 @@
 
    <div class="col-12 text-center">
   <p style="font-size: 10px;">
-  <strong>Al ingresar, aceptas los <a href="{% url 'usuarios:politicas_terminos' %}">términos y condiciones de uso y la política de privacidad.</a></strong>
+  <strong>Al ingresar, usted esta aceptando los <a href="{% url 'usuarios:politicas_terminos' %}">términos y condiciones de uso y la política de privacidad.</a></strong>
 
      <strong>Para más información:</strong> 
      <a href="mailto:info@meddes.com.ec" class="text-green-600 hover:underline">info@meddes.com.ec</a> | 
-     <a href="tel:+5939963639500" class="text-blue-600 hover:underline">+593 99-6363-9500</a> | 
+     <a href="https://wa.me/5939963639500" target="_blank" class="text-blue-600 hover:underline">+593 99-6363-9500</a> |
+
      <strong>Matriz:</strong> La Niña, E8-58 y Yánez Pinzón, Ed. Royal Business, tercer piso No. 307, Quito | 
      <strong>Valle de los Chillos:</strong> Aurelio Naranjo, calle Salcedo No. 26, Quito  | 
      <strong>Guayaquil:</strong> Av. Maldonado y Ajaví, Plaza Sur, Local 12
      
   </p>
-  <p style="font-size: 10px;">
-    <strong> 2025 ® Todos los Derechos Reservados, Ecuador</strong>
-  </p>
+
 </div>
 
 
