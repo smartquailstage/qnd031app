@@ -22,6 +22,13 @@ from django.http import HttpResponseForbidden
 
 
 
+def politicas_terminos(request):
+    """
+    Vista que renderiza la página de Políticas de Seguridad,
+    Uso de la Información y Términos y Condiciones.
+    """
+    return render(request, 'politicas_terminos.html')
+
 
 
 
