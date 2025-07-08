@@ -23,8 +23,8 @@ from unfold.sections import TableSection, TemplateSection
 from .sites import custom_admin_site
 from django.contrib.auth.admin import UserAdmin
 from unfold.sites import UnfoldAdminSite
-from schedule.models import Calendar, Event, Rule, Occurrence
-from schedule.admin import CalendarAdmin 
+#from schedule.models import Calendar, Event, Rule, Occurrence
+#from schedule.admin import CalendarAdmin 
 from django.utils.timezone import localtime
 from django.utils.timezone import make_aware
 from django import forms
@@ -60,10 +60,17 @@ from collections import defaultdict
 from django.utils.timezone import localtime, is_naive, make_aware
 from datetime import timedelta, time, date
 from datetime import datetime
+from django.contrib.auth import get_user_model
 
 
 
 
+def dashboard_callback(request, context):
+    context.update({
+        "users_count": get_user_model().objects.count(),
+        "orders_count": Profile.objects.count(),
+    })
+    return context
 
 
 
@@ -1505,22 +1512,7 @@ class CitaAdmin(ModelAdmin):
 
 
 
-class CalendarAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug')
-    search_fields = ('name', 'slug')
 
-
-
-class RuleAdmin(admin.ModelAdmin):
-    list_display = ('name', 'frequency')
-    search_fields = ('name',)
-
-
-
-class EventAdmin(admin.ModelAdmin):
-    list_display = ('title', 'start', 'end', 'calendar', 'creator')
-    list_filter = ('calendar',)
-    search_fields = ('title', 'description')
 
 
 
@@ -2006,3 +1998,8 @@ class AdministrativeProfileAdmin(ModelAdmin):
     def get_department_display(self, obj):
         return obj.get_department_display()
     get_department_display.short_description = 'Departamento'
+
+
+
+
+

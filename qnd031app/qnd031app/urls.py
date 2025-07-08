@@ -25,6 +25,7 @@ import usuarios.custom_admin_urls as custom_admin_urls
 
 from django.conf.urls.i18n import i18n_patterns
 
+
 #from agenda.sites import custom_admin_site
 
 
@@ -33,11 +34,12 @@ urlpatterns = [
     path('tinymce/', include('tinymce.urls')),
    # path("admin2/", custom_admin_site.urls),
    # path("Agenda_Meddes/", include("agenda.urls")),
-    path("Citas_regulares/", include("citas_regulares.urls")),
+  #  path("Citas_regulares/", include("citas_regulares.urls")),
     path("admin/", dashboard_view),
+  
     #path("admin/citas/<int:cita_id>/", admin_cita_detail, name="admin_cita_detail"),
     path('admin/citas/', include((custom_admin_urls.urlpatterns,'custom_admin'))),
-    path('calendario/', include('schedule.urls')),
+    #path('calendario/', include('schedule.urls')),
   #  path('calendar/', include('calendarium.urls'))
     #path('inicio/', admin.site.urls),
  #   path('appointment/', include('appointment.urls')),

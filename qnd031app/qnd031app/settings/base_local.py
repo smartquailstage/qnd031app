@@ -73,7 +73,7 @@ INSTALLED_APPS = [
     'serviceapp',
 
     
-    'citas_regulares',
+    #'citas_regulares',
 
 
    # 'appointment',
@@ -96,8 +96,8 @@ INSTALLED_APPS = [
    
     
 
-    'agenda',
-    'schedule',
+   # 'agenda',
+    #'schedule',
     'usuarios',
 
 
@@ -146,7 +146,6 @@ INSTALLED_APPS = [
   
 ]
 
-
 #LOGINGS REDIRECT
 
 LOGIN_REDIRECT_URL = 'usuarios:perfil'
@@ -171,6 +170,11 @@ def badge_color_callback(request):
     else:
         return "info"
 
+
+
+def is_terapeuta(request):
+    return request.user.groups.filter(name="terapeutas").exists()
+
 UNFOLD = {
     "SITE_TITLE": "Sistema de Administración Terapéutica MEDDES® (I+D)+A",
     "SITE_HEADER": "MEDDES",
@@ -178,6 +182,7 @@ UNFOLD = {
     "SITE_SUBHEADER": "Eterprises Research & Development",
     "SITE_DESCRIPTION": "Sistema de Administración Terapéutica MEDDES® (I+D)+A",
     "SITE_COPYRIGHT": "Copyright © 2025 SmartQuail S.A.S Todos los derechos reservados.",
+    "DASHBOARD_CALLBACK": "usuarios.views.dashboard_callback",
     "SITE_DROPDOWN": [
         {"icon": "person", "title": _("Usuario del sistema"), "link": reverse_lazy("admin:auth_user_changelist")},
         {"icon": "work", "title": _("Departamentos"), "link": reverse_lazy("admin:auth_group_changelist")},
@@ -279,8 +284,8 @@ UNFOLD = {
         },
     ],
     "SIDEBAR": {
-        "show_search": True,
-        "show_all_applications": True,
+        "show_search": False,
+        "show_all_applications": False,
         "navigation": [
             {
                 "title": _("Registros Administrativos"),
@@ -294,6 +299,7 @@ UNFOLD = {
                         "badge": "usuarios.unfold_config.badge_callback_meddes",  # ✅ función real
                         "badge_color": "colors-primary-500",
                         #"permission": "usuarios.unfold_config.permission_callback_pacientes",
+                        "permission": lambda request: request.user.has_perm("auth.view_user"),
                         
                     },
                     {
@@ -302,6 +308,7 @@ UNFOLD = {
                         "link": reverse_lazy("admin:usuarios_prospecion_administrativa_changelist"),
                         "badge": "usuarios.unfold_config.badge_callback_prospeccion",
                         "badge_color": "custom-green-success",
+                        "permission": lambda request: request.user.has_perm("auth.view_user"),
                     },
                     {
                         "title": _("Terapéutas"),
@@ -309,6 +316,7 @@ UNFOLD = {
                         "link": reverse_lazy("admin:usuarios_perfil_terapeuta_changelist"),
                         "badge": "usuarios.unfold_config.badge_callback",
                         "badge_color": badge_color_callback,
+                        "permission": lambda request: request.user.has_perm("auth.view_user"),
                       #  "permission": "usuarios.unfold_config.permission_callback",
                     },
                     {
@@ -316,6 +324,7 @@ UNFOLD = {
                         "icon": "person",
                         "link": reverse_lazy("admin:usuarios_profile_changelist"),
                         "badge": "usuarios.unfold_config.badge_callback_terapeutico",
+                        "permission": lambda request: request.user.has_perm("auth.view_user"),
                         "badge_color": "success",
                     },
                     {
@@ -324,6 +333,7 @@ UNFOLD = {
                         "link": reverse_lazy("admin:usuarios_cita_changelist"),
                         "badge": "usuarios.unfold_config.badge_callback_citas",
                         "badge_color": "font-subtle-light",
+                        "permission": lambda request: request.user.has_perm("auth.view_user"),
                        # "permission": "usuarios.unfold_config.permission_callback",
                     },
                     {
@@ -332,6 +342,7 @@ UNFOLD = {
                         "link": reverse_lazy("admin:usuarios_pagos_changelist"),
                         "badge": "usuarios.unfold_config.badge_callback_pagos",
                         "badge_color": "custom-red-alert",
+                        "permission": lambda request: request.user.has_perm("auth.view_user"),
                         #"permission": "usuarios.unfold_config.permission_callback",
                     },
                 ],
@@ -347,6 +358,7 @@ UNFOLD = {
                         "link": reverse_lazy("admin:usuarios_valoracionterapia_changelist"),
                         "badge": "usuarios.unfold_config.badge_callback_valoracion",
                         "badge_color": "custom-red-alert",
+                        "permission": lambda request: request.user.has_perm("auth.view_user"),
                        # "permission": "usuarios.unfold_config.permission_callback",
                     },
 
@@ -356,6 +368,7 @@ UNFOLD = {
                         "link": reverse_lazy("admin:usuarios_tareas_changelist"),
                         "badge": "usuarios.unfold_config.badge_callback_tareas",
                         "badge_color": "custom-red-alert",
+                        "permission": is_terapeuta,
                       #  "permission": "usuarios.unfold_config.permission_callback",
                         
                     },
@@ -371,15 +384,20 @@ UNFOLD = {
                         "icon": "notifications", "link": reverse_lazy("admin:usuarios_mensaje_changelist"),
                         "badge": "usuarios.unfold_config.badge_callback_notificaciones",
                         "badge_color": "custom-red-alert",
-                        #"permission": "usuarios.unfold_config.permission_callback",
+                        "permission": lambda request: request.user.has_perm("auth.view_user"),
                     },
                 ],
             },
         ],
     },
     "MENU": [
-        {"title": _("Dashboard"), "icon": "dashboard", "link": reverse_lazy("admin:index"), "permission": lambda request: request.user.is_superuser},
+        #{"title": _("Dashboard"), "icon": "dashboard", "link": reverse_lazy("admin:index"), "permission": lambda request: request.user.is_superuser},
         {"title": _("Users"), "icon": "people", "link": reverse_lazy("admin:auth_user_changelist")},
+        {
+            "label": "Dashboard",
+            "url": "/es/inicio/",
+            "icon": "home",
+        },
     ],
 }
 

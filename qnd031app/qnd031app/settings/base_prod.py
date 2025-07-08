@@ -67,7 +67,7 @@ INSTALLED_APPS = [
     'serviceapp',
 
     
-    'citas_regulares',
+    #'citas_regulares',
 
 
    # 'appointment',
@@ -90,8 +90,8 @@ INSTALLED_APPS = [
    
     
 
-    'agenda',
-    'schedule',
+   # 'agenda',
+    #'schedule',
     'usuarios',
 
 

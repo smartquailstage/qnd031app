@@ -653,3 +653,21 @@ def informes_seguimiento(request):
 def certificado_alta(request):
     perfil = Profile.objects.get(user=request.user)
     return render(request, 'usuarios/documentos/certificado_alta.html', {'perfil': perfil})
+
+
+
+def dashboard_callback(request, context):
+    context.update({
+        "custom_variable": "value",
+    })
+
+    return context
+
+
+from django.views.generic import TemplateView
+from unfold.views import UnfoldModelAdminViewMixin
+
+class DashboardPrincipalView(UnfoldModelAdminViewMixin, TemplateView):
+    title = "Dashboard Principal"  # Esto aparece como título en la página
+    permission_required = ()       # Asegúrate de configurar esto para tu seguridad
+    template_name = "usuarios/dashboard_principal.html"
