@@ -16,6 +16,13 @@ from decouple import config, Csv
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+# Load environment variables from the .env_local file.
+ENV_FILE_PATH = BASE_DIR / ".env_prod"
+load_dotenv(dotenv_path=ENV_FILE_PATH)
+
+# Retrieve the Django secret key from environment variables.
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+
 
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='support@smartquail.io')
 SERVER_EMAIL = config('SERVER_EMAIL', default='support@smartquail.io')
@@ -25,14 +32,6 @@ ADMINS = [
     # ("Otro Nombre", "otro@correo.com"),  # Puedes agregar más si deseas
 ]
 
-
-
-# Load environment variables from the .env_local file.
-ENV_FILE_PATH = BASE_DIR / ".env_prod"
-load_dotenv(dotenv_path=ENV_FILE_PATH)
-
-# Retrieve the Django secret key from environment variables.
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 # Optionally, you can add a default value or raise an exception if SECRET_KEY is not set
 if SECRET_KEY is None:
