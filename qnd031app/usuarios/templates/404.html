@@ -14,7 +14,7 @@
     }
 
     .content-wrapper {
-      background-color: rgba(255, 255, 255, 0.85);
+      background-color: rgba(255, 255, 255, 0);
       backdrop-filter: blur(2px);
       border-radius: 0.5rem;
       padding: 2rem;
@@ -38,28 +38,7 @@
       Por favor, verifica la URL o vuelve al inicio.
     </p>
 
-    <!-- Información de contacto e indicación del soporte de SmartQuail -->
-    <div class="mb-8 text-gray-600 text-base space-y-2 text-center">
-      <p>
-        📧 <strong>Email:</strong>
-        <a href="mailto:info@meddes.com.ec" class="text-green-600 hover:underline">
-          info@meddes.com.ec
-        </a>
-      </p>
-      <p>
-        📞 <strong>Teléfono:</strong>
-        <a href="tel:+593993521262" class="text-blue-600 hover:underline">
-          +593 99 352 1262, Quito – Ecuador
-        </a>
-      </p>
-      <p>
-        MEDDES® es soportado por 
-<a href="https://www.smartquail.io" target="_blank" rel="noopener noreferrer">
-  <img src="{% static 'img/BA-LOGOS/logosmartquail.png' %}" alt="Logo SmartQuail" class="inline w-20 mx-2 align-middle" />
-  <strong>SmartQuail,Inc</strong>
-</a>
-      </p>
-    </div>
+
 
     <!-- Botón volver -->
     <a href="{% url 'usuarios:' %}"
@@ -68,19 +47,35 @@
     </a>
   </div>
 
-  <!-- Footer -->
   <footer class="w-full mt-16 bg-gray-100 border-t border-gray-200 py-6">
     <div class="max-w-screen-xl mx-auto px-6 flex flex-col items-center justify-center space-y-4 sm:flex-row sm:justify-between sm:space-y-0">
-      
-      <div class="flex items-center space-x-4">
-        <img src="{% static 'img/BA-LOGOS/logoF.png' %}" alt="Logo MEDDES" class="w-5" />
-        <img src="{% static 'img/BA-LOGOS/logosmartquail.png' %}" alt="Logo del proveedor" class="inline h-5 align-text-bottom" style="margin-right: 4px;" />
+      <p>
+    <a href="mailto:info@meddes.com.ec" class="text-green-600 hover:underline">
+     📧 info@meddes.com.ec
+    </a>
+    <a href="tel:+5939963639500" class="text-blue-600 hover:underline">
+         +593 99-6363-9500
+    </a>
+  </p>
 
-      </div>
 
-      <div class="text-gray-600 text-sm">
-        <p>Contacto: <a href="mailto:info@meddes.com.ec" class="hover:underline">info@meddes.com.ec</a> | Tel: +593 99 352 1262</p>
-      </div>
-    </div>
+  <p>🏢 <strong>Matriz:</strong> La Niña, E8-58 y Yánez Pinzón,
+Ed. Royal Business, tercer piso No. 307, Quito - Ecuador     
+</p>
+  <p>🏬 <strong>Valle de los Chillos: </strong> Aurelio Naranjo, calle Salcedo No. 26, Quito - Ecuador</p>
+  <p>🏬 <strong>Guayaquil:</strong> Av. Maldonado y Ajaví, Plaza Sur, Local 12</p>
+
+  <p>MEDDES®, V.QND.0.3.0.3</p>
+
+  <p>
+    Es soportado por 
+    <a href="https://www.smartquail.io" class="text-blue-600 hover:underline">
+   
+    <img src="{% static 'img/BA-LOGOS/logo_smartquailFooter.png' %}" alt="Logo del proveedor" class="inline h-4 align-text-bottom" style="margin-right: 4px;" />
+    </a>
+  </p>
+
+  <p><strong>Todos los Derechos Reservados ® 2025,UIO-Ec</strong></p>
+</div>
   </footer>
 {% endblock %}

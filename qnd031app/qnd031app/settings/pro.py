@@ -2,7 +2,6 @@ from .base_prod import *
 
 
 
-DEBUG=True
 
 # Obtener las variables de entorno desde Kubernetes
 IP = os.environ.get("IP")

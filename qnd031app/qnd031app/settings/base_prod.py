@@ -27,10 +27,19 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='support@smartquail.io')
 SERVER_EMAIL = config('SERVER_EMAIL', default='support@smartquail.io')
 
-ADMINS = [
-    ("Soporte Meddes", "info@meddes.com.ec"),
-    # ("Otro Nombre", "otro@correo.com"),  # Puedes agregar más si deseas
-]
+
+
+DEBUG = config('DEBUG', default=False, cast=bool)
+
+if DEBUG:
+    ADMINS = []
+else:
+    ADMINS = config(
+        'ADMINS',
+        cast=Csv(post_process=lambda val: tuple(val.split(':'))),
+        default='Soporte SmartQuail:support@smartquail.io'
+    )
+    ADMINS = [ADMINS]  # Convierte en lista de tuplas
 
 
 # Optionally, you can add a default value or raise an exception if SECRET_KEY is not set

@@ -228,7 +228,20 @@ def badge_color_callback(request):
 
 
 def is_terapeuta(request):
-    return request.user.groups.filter(name="terapeutas").exists()
+    return request.user.groups.filter(name="terapeutico").exists()
+
+def is_administrativo(request):
+    return request.user.groups.filter(name="administrativo").exists()
+
+def is_financiero(request):
+    return request.user.groups.filter(name="financiero").exists()
+
+def is_admin_o_terapeuta(request):
+    return is_administrativo(request) or is_terapeuta(request)
+
+def is_admin_o_financiero(request):
+    return is_administrativo(request) or is_financiero(request)
+
 
 UNFOLD = {
     "SITE_TITLE": "Sistema de Administración Terapéutica MEDDES® (I+D)+A",
@@ -341,109 +354,102 @@ UNFOLD = {
     "SIDEBAR": {
         "show_search": False,
         "show_all_applications": False,
-        "navigation": [
+"navigation": [
+    {
+        "title": _("Registros Administrativos"),
+        "separator": True,
+        "collapsible": True,
+        "items": [
             {
-                "title": _("Registros Administrativos"),
-                "separator": True,
-                "collapsible": True,
-                "items": [
-                    {
-                        "title": _("Prospecciones"),
-                        "icon": "edit",
-                        "link": reverse_lazy("admin:usuarios_prospeccion_changelist"),
-                        "badge": "usuarios.unfold_config.badge_callback_meddes",  # ✅ función real
-                        "badge_color": "colors-primary-500",
-                        #"permission": "usuarios.unfold_config.permission_callback_pacientes",
-                        "permission": lambda request: request.user.has_perm("auth.view_user"),
-                        
-                    },
-                    {
-                        "title": _("Instituciones"),
-                        "icon": "school",
-                        "link": reverse_lazy("admin:usuarios_prospecion_administrativa_changelist"),
-                        "badge": "usuarios.unfold_config.badge_callback_prospeccion",
-                        "badge_color": "custom-green-success",
-                        "permission": lambda request: request.user.has_perm("auth.view_user"),
-                    },
-                    {
-                        "title": _("Terapéutas"),
-                        "icon": "medical_services",
-                        "link": reverse_lazy("admin:usuarios_perfil_terapeuta_changelist"),
-                        "badge": "usuarios.unfold_config.badge_callback",
-                        "badge_color": badge_color_callback,
-                        "permission": lambda request: request.user.has_perm("auth.view_user"),
-                      #  "permission": "usuarios.unfold_config.permission_callback",
-                    },
-                    {
-                        "title": _("Pacientes"),
-                        "icon": "person",
-                        "link": reverse_lazy("admin:usuarios_profile_changelist"),
-                        "badge": "usuarios.unfold_config.badge_callback_terapeutico",
-                        "permission": lambda request: request.user.has_perm("auth.view_user"),
-                        "badge_color": "success",
-                    },
-                    {
-                        "title": _("Agenda"),
-                        "icon": "calendar_today",
-                        "link": reverse_lazy("admin:usuarios_cita_changelist"),
-                        "badge": "usuarios.unfold_config.badge_callback_citas",
-                        "badge_color": "font-subtle-light",
-                        "permission": lambda request: request.user.has_perm("auth.view_user"),
-                       # "permission": "usuarios.unfold_config.permission_callback",
-                    },
-                    {
-                        "title": _("Pagos"), 
-                        "icon": "payment", 
-                        "link": reverse_lazy("admin:usuarios_pagos_changelist"),
-                        "badge": "usuarios.unfold_config.badge_callback_pagos",
-                        "badge_color": "custom-red-alert",
-                        "permission": lambda request: request.user.has_perm("auth.view_user"),
-                        #"permission": "usuarios.unfold_config.permission_callback",
-                    },
-                ],
+                "title": _("Prospecciones"),
+                "icon": "edit",
+                "link": reverse_lazy("admin:usuarios_prospeccion_changelist"),
+                "badge": "usuarios.unfold_config.badge_callback_meddes",
+                "badge_color": "colors-primary-500",
+                "permission": is_administrativo,
             },
             {
-                "title": _("Registros Terapéuticos"),
-                "separator": True,
-                "collapsible": True,
-                "items": [
-                    {
-                        "title": _("Valoraciones"), 
-                        "icon": "download", 
-                        "link": reverse_lazy("admin:usuarios_valoracionterapia_changelist"),
-                        "badge": "usuarios.unfold_config.badge_callback_valoracion",
-                        "badge_color": "custom-red-alert",
-                        "permission": lambda request: request.user.has_perm("auth.view_user"),
-                       # "permission": "usuarios.unfold_config.permission_callback",
-                    },
-
-                    {
-                        "title": _("Terapias"), 
-                        "icon": "task", 
-                        "link": reverse_lazy("admin:usuarios_tareas_changelist"),
-                        "badge": "usuarios.unfold_config.badge_callback_tareas",
-                        "badge_color": "custom-red-alert",
-                        "permission": is_terapeuta,
-                      #  "permission": "usuarios.unfold_config.permission_callback",
-                        
-                    },
-                ],
+                "title": _("Instituciones"),
+                "icon": "school",
+                "link": reverse_lazy("admin:usuarios_prospecion_administrativa_changelist"),
+                "badge": "usuarios.unfold_config.badge_callback_prospeccion",
+                "badge_color": "custom-green-success",
+                "permission": is_administrativo,
             },
             {
-                "title": _("Comunicaciones"),
-                "separator": True,
-                "collapsible": True,
-                "items": [
-                    {
-                        "title": _("Notificaciones"), 
-                        "icon": "notifications", "link": reverse_lazy("admin:usuarios_mensaje_changelist"),
-                        "badge": "usuarios.unfold_config.badge_callback_notificaciones",
-                        "badge_color": "custom-red-alert",
-                        "permission": lambda request: request.user.has_perm("auth.view_user"),
-                    },
-                ],
+                "title": _("Terapéutas"),
+                "icon": "medical_services",
+                "link": reverse_lazy("admin:usuarios_perfil_terapeuta_changelist"),
+                "badge": "usuarios.unfold_config.badge_callback",
+                "badge_color": badge_color_callback,
+                "permission": is_administrativo,
+            },
+            {
+                "title": _("Pacientes"),
+                "icon": "person",
+                "link": reverse_lazy("admin:usuarios_profile_changelist"),
+                "badge": "usuarios.unfold_config.badge_callback_terapeutico",
+                "badge_color": "success",
+                "permission": is_admin_o_terapeuta,
+            },
+            {
+                "title": _("Agenda"),
+                "icon": "calendar_today",
+                "link": reverse_lazy("admin:usuarios_cita_changelist"),
+                "badge": "usuarios.unfold_config.badge_callback_citas",
+                "badge_color": "font-subtle-light",
+                "permission": is_admin_o_terapeuta,
+            },
+            {
+                "title": _("Pagos"),
+                "icon": "payment",
+                "link": reverse_lazy("admin:usuarios_pagos_changelist"),
+                "badge": "usuarios.unfold_config.badge_callback_pagos",
+                "badge_color": "custom-red-alert",
+                "permission": is_admin_o_financiero,
             },
         ],
+    },
+    {
+        "title": _("Registros Terapéuticos"),
+        "separator": True,
+        "collapsible": True,
+        "items": [
+            {
+                "title": _("Valoraciones"),
+                "icon": "download",
+                "link": reverse_lazy("admin:usuarios_valoracionterapia_changelist"),
+                "badge": "usuarios.unfold_config.badge_callback_valoracion",
+                "badge_color": "custom-red-alert",
+                "permission": is_admin_o_terapeuta,
+            },
+            {
+                "title": _("Terapias"),
+                "icon": "task",
+                "link": reverse_lazy("admin:usuarios_tareas_changelist"),
+                "badge": "usuarios.unfold_config.badge_callback_tareas",
+                "badge_color": "custom-red-alert",
+                "permission": is_admin_o_terapeuta,
+            },
+        ],
+    },
+    {
+        "title": _("Comunicaciones"),
+        "separator": True,
+        "collapsible": True,
+        "items": [
+            {
+                "title": _("Notificaciones"),
+                "icon": "notifications",
+                "link": reverse_lazy("admin:usuarios_mensaje_changelist"),
+                "badge": "usuarios.unfold_config.badge_callback_notificaciones",
+                "badge_color": "custom-red-alert",
+                "permission": is_admin_o_terapeuta,
+            },
+        ],
+    },
+],
+
     },
     "MENU": [
         #{"title": _("Dashboard"), "icon": "dashboard", "link": reverse_lazy("admin:index"), "permission": lambda request: request.user.is_superuser},
