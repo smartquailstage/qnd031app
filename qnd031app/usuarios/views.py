@@ -21,15 +21,16 @@ from .models import Cita,tareas, pagos  # Asegúrate de usar la ruta correcta
 from django.http import HttpResponseForbidden
 
 @login_required
-def mi_representante(request):
-    # Obtener el perfil del paciente
-    paciente_profile = request.user.profile
-    
+def ultima_cita(request):
     # Obtener la última cita asignada al paciente
-    ultima_cita = Cita.objects.filter(profile=paciente_profile).order_by('-fecha', '-hora').first()
+    ultima_cita = Cita.objects.filter(destinatario=request.user).order_by('-fecha', '-hora').first()
     
+    if not ultima_cita:
+        # Redirigir o mostrar un mensaje si no hay citas
+        return render(request, 'usuarios/panel_usuario2.html', {'mensaje': 'No tienes citas registradas.'})
+
     # Renderizar la plantilla con la última cita y el perfil
-    return render(request, 'usuarios/panel_usuario2.html', {'profile': paciente_profile, 'ultima_cita': ultima_cita})
+    return render(request, 'usuarios/panel_usuario2.html', {'ultima_cita': ultima_cita})
 
 
 def politicas_terminos(request):

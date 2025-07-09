@@ -8,20 +8,19 @@
        <div class="col-12 col-lg-4 col-xl-3">
 
 
-    <div class="card radius-10 bg-primary">
-      <a class="dropdown-item" href="{% url 'usuarios:ver_cita' pk=ultima_cita.id %}">
-        <div class="card-body text-white">
-            <div class="d-flex align-items-center mb-2">
-              
-                <div class="service-box bg-white text-white me-2">
-
-                    <ion-icon name="calendar-outline" ></ion-icon>
+<div class="card radius-10 bg-primary">
+    {% if ultima_cita %}
+        <!-- Solo generamos el enlace si ultima_cita existe -->
+        <a class="dropdown-item" href="{% url 'usuarios:ver_cita' pk=ultima_cita.pk %}">
+            <div class="card-body text-white">
+                <div class="d-flex align-items-center mb-2">
+                    <div class="service-box bg-white text-white me-2">
+                        <ion-icon name="calendar-outline"></ion-icon>
+                    </div>
+                    <h6 class="mb-0">Asistencias</h6>
                 </div>
-                <h6 class="mb-0">Asistencias</h6>
-            </div>
 
-            <!-- Mostrar la última cita si está disponible -->
-            {% if ultima_cita %}
+                <!-- Información de la última cita -->
                 <div class="mt-3 pt-2 border-top">
                     <h6 class="text-white">Usted tiene la siguiente asistencia</h6>
                     <p>Pendiente a confirmar</p>
@@ -31,14 +30,24 @@
                     <p class="mb-0"><strong>Motivo:</strong> {{ ultima_cita.motivo }}</p>
                     <p class="mb-0"><strong>Notas:</strong> {{ ultima_cita.notas }}</p>
                 </div>
-            {% else %}
-                <div class="mt-3 pt-2 border-top">
-                    <p class="mb-0">No tienes citas agendadas.</p>
+            </div>
+        </a>
+    {% else %}
+        <!-- Si no hay cita, mostramos un mensaje alternativo -->
+        <div class="card-body text-white">
+            <div class="d-flex align-items-center mb-2">
+                <div class="service-box bg-white text-white me-2">
+                    <ion-icon name="calendar-outline"></ion-icon>
                 </div>
-            {% endif %}
+                <h6 class="mb-0">Asistencias</h6>
+            </div>
+
+            <div class="mt-3 pt-2 border-top">
+                <p class="mb-0">No tienes citas agendadas.</p>
+            </div>
         </div>
-        </a> 
-    </div>
+    {% endif %}
+</div>
       
         
 
