@@ -20,6 +20,16 @@ from django.shortcuts import render
 from .models import Cita,tareas, pagos  # Asegúrate de usar la ruta correcta
 from django.http import HttpResponseForbidden
 
+@login_required
+def mi_representante(request):
+    # Obtener el perfil del paciente
+    paciente_profile = request.user.profile
+    
+    # Obtener la última cita asignada al paciente
+    ultima_cita = Cita.objects.filter(profile=paciente_profile).order_by('-fecha', '-hora').first()
+    
+    # Renderizar la plantilla con la última cita y el perfil
+    return render(request, 'usuarios/panel_usuario2.html', {'profile': paciente_profile, 'ultima_cita': ultima_cita})
 
 
 def politicas_terminos(request):

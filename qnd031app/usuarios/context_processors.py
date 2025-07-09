@@ -8,6 +8,22 @@ from datetime import datetime
 from django.utils.timezone import localtime, is_naive, make_aware
 from django.db.models import FileField, ImageField
 
+
+
+
+def ultima_cita(request):
+    """
+    Este procesador de contexto obtiene la última cita asignada al paciente (usuario autenticado).
+    """
+    if request.user.is_authenticated:
+        # Obtener la última cita asignada al paciente
+        ultima_cita = Cita.objects.filter(destinatario=request.user).order_by('-fecha', '-hora').first()
+        
+        return {'ultima_cita': ultima_cita}
+    return {}
+
+
+
 def citas_context(request):
     if request.user.is_authenticated:
         citas = Cita.objects.filter(destinatario=request.user).select_related('creador', 'destinatario').order_by('-fecha')[:20]
@@ -138,6 +154,8 @@ def mensajes_nuevos_processor(request):
         'mensajes_recientes': mensajes,
         'conteo_por_emisor': conteo_por_emisor  # Lista de diccionarios con emisor y cantidad
     }
+
+
 
 
 

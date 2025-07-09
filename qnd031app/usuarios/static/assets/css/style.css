@@ -32,7 +32,7 @@ body {
     color: #4c5258;
     font-size: 14px;
     letter-spacing: .5px;
-    background-color: #e7f3ef;
+    background-color: #e4eff3;
     overflow-x: hidden;
     font-family: Roboto, sans-serif;
 }
@@ -737,14 +737,15 @@ ion-icon {
     position: absolute;
     left: 260px;
     right: 0;
-    bottom: 0;
-    padding: 0.7rem;
-    color: #484444;
-    background-color: #b5e0c5;
-    border-top: 0px solid #e9ecef;
-    text-align: center;
-    transition: .3s all;
+    bottom: -140px;
+  padding: 0.7rem;
+  color: #484444;
+  background-color: #98d2e852;
+  border-top: 0px solid #e9ecef;
+  text-align: center;
+  transition: .3s all;
 }
+
 
 .wrapper.toggled .footer {
     left: 0px;
