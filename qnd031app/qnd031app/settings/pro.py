@@ -8,7 +8,7 @@ IP = os.environ.get("IP")
 DOMAIN = os.environ.get("DOMAIN")
 HOST = os.environ.get("HOST")
 
-ALLOWED_HOSTS='127.0.0.1',"localhost","https://qnd03101.smartquail.io","qnd03101.smartquail.io","64.23.178.103"
+ALLOWED_HOSTS='127.0.0.1',"localhost","https://web.meddes.com.ec","web.meddes.com.ec","64.23.178.103"
 
 #import wagtail_ai
 
@@ -26,7 +26,7 @@ ALLOWED_HOSTS='127.0.0.1',"localhost","https://qnd03101.smartquail.io","qnd03101
 #CSRF_COOKIE_SECURE = True
 #CSRF_TRUSTED_ORIGINS = ['https://qnd03101.smartquail.io','https://meddes.smartquail.io/','https://146.190.164.22']
 CORS_ALLOWED_ORIGINS = [
-    'https://qnd03101.smartquail.io','https://qnd03101.smartquail.io/ingresar'
+    'https://web.meddes.com.ec','web.meddes.com.ec'
     # Otros orígenes permitidos si los hay
 ]
 
@@ -77,7 +77,7 @@ if DB_IS_AVAILABLE:
 
 
 
-from .cdn.conf import * #noqa
+
 
 
 
@@ -164,15 +164,6 @@ result_serializer = 'json'  # Esto reemplaza 'CELERY_RESULT_SERIALIZER'
 #broker_connection_retry_on_startup = True
 
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-EMAIL_HOST = 'smtp.gmail.com'  # Para Gmail
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'phys.mauricio.silva@gmail.com'  # Tu correo de Gmail
-EMAIL_HOST_PASSWORD = '1719183830'  # La contraseña de tu cuenta de Gmail
-DEFAULT_FROM_EMAIL = 'phys.mauricio.silva@gmail.com'
-
 
 
 
@@ -181,7 +172,7 @@ TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
 TWILIO_WHATSAPP_FROM = os.getenv("TWILIO_WHATSAPP_FROM")
 
 
-
+from .cdn.conf import * #noqa
 # Configuración de AWS
 AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
