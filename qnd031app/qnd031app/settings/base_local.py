@@ -126,6 +126,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'serviceapp',
+    'rosetta',
 
     
     #'citas_regulares',
@@ -204,8 +205,8 @@ INSTALLED_APPS = [
 #LOGINGS REDIRECT
 
 LOGIN_REDIRECT_URL = 'usuarios:perfil'
-LOGIN_URL = 'login'
-LOGOUT_URL = 'logout'
+LOGIN_URL = 'usuarios:login'
+LOGOUT_URL = 'usuarios:logout'
 
 
 
