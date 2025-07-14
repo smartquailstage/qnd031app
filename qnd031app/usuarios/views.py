@@ -442,8 +442,8 @@ def tareas_asignadas(request):
     tareas_usuario = tareas.objects.filter(profile__user=request.user)
 
     # Separar por estado
-    tareas_realizadas = tareas_usuario.filter(realizada=True)
-    tareas_pendientes = tareas_usuario.filter(realizada=False)
+    tareas_realizadas = tareas_usuario.filter(actividad_realizada=True)
+    tareas_pendientes = tareas_usuario.filter(actividad_realizada=False)
 
     context = {
         'tareas_realizadas': tareas_realizadas,
