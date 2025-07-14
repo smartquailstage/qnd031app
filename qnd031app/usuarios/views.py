@@ -539,7 +539,7 @@ def ver_tarea_interactiva(request, pk):
 @login_required
 def tareas_realizadas(request):
     # Filtra tareas que fueron realizadas por el usuario autenticado
-    tareas_completadas = tareas.objects.filter(profile__user=request.user, realizada=True)
+    tareas_completadas = tareas.objects.filter(profile__user=request.user, actividad_realizada=True)
 
     return render(request, 'usuarios/tareas/tareas_realizadas.html', {
         'tareas_completadas': tareas_completadas,

@@ -22,6 +22,7 @@
   <!-- Logo arriba a la derecha -->
   <div class="position-absolute top-0 end-0 m-3">
     <img src="{% static 'img/logo_header.png' %}" alt="Logo" style="height: 60px;">
+      <h5 style="color: rgb(52, 132, 72);"><i class="bx bx-plus-medical"></i> Servicios Terapéuticos</h5>
   </div>
 
   <!-- Avatar centrado -->
@@ -31,6 +32,7 @@
   {% else %}
     <img src="{% static 'img/BA-LOGOS/user.png' %}" style="width:150px;" alt="Default Photo">
   {% endif %}
+
 </div>
 </div>
             <div class="card-body">
@@ -84,9 +86,18 @@
                         </div>
                     </a>
                 </div>
+                  <div class="mt-3 pt-2 border-top">
+                    <p class="mb-0">
+  <strong>{{ ultima_tarea.fecha_atividad|date:"d/m/Y H:i" }}</strong>
+</p>
+                    <p class="mb-0"><strong>Motivo:</strong> {{ ultima_cita.motivo }}</p>
+                </div>
             </div>
+            
         </div>
         <video id="hiddenVideo" src="{{ ultima_tarea.media_terapia.url }}" style="display: none;"></video>
+
+        
     </div>
     {% endif %}
 
@@ -135,17 +146,41 @@
                     </div>
                 </div>
 
-                <div class="mt-3 pt-2 border-top">
-                    <p class="mb-0"><strong>Nueva Cita:</strong> {{ ultima_cita.get_tipo_cita_display }}</p>
-                    <p class="mb-0"><strong>Motivo:</strong> {{ ultima_cita.motivo }}</p>
-                </div>
 
-                <a href="{% url 'usuarios:ver_cita' pk=ultima_cita.pk %}">
+<div>
+  <span class="badge p-2
+    {% if ultima_cita.confirmada  %}
+      bg-success
+    {% elif ultima_cita.cancelada %}
+      bg-danger
+    {% else %}
+      bg-warning text-dark
+    {% endif %}
+  ">
+    {% if ultima_cita.confirmada %}
+      <i class="fadeIn animated bx bx-check-double"></i> Confirmada
+    {% elif ultima_cita.cancelada  %}
+      ✖ No asistirá
+    {% else %}
+        <i class="lni lni-checkmark"></i> Sin confirmar
+    {% endif %}
+  </span>
+</div>
+
+                  <a href="{% url 'usuarios:ver_cita' pk=ultima_cita.pk %}">
                     <div class="d-flex align-items-center theme-icons shadow-sm p-2 cursor-pointer rounded mt-3">
                         <div class="font-22"><i class="fadeIn animated bx bx-check-double"></i></div>
                         <div class="ms-2">Confirmar Asistencia</div>
                     </div>
                 </a>
+
+
+                <div class="mt-3 pt-2 border-top">
+                    <p class="mb-0"><strong>Nueva Cita:</strong> {{ ultima_cita.get_tipo_cita_display }}</p>
+                    <p class="mb-0"><strong>Motivo:</strong> {{ ultima_cita.motivo }}</p>
+                </div>
+
+              
             </div>
             {% else %}
             <div class="card-body">
@@ -186,8 +221,8 @@
                         <div class="fw-bold">{{ ultima_tarea.fecha_entrega|date:"d M Y" }}</div>
                     </div>
                     <div>
-                        <span class="badge {% if ultima_tarea.tarea_realizada %}bg-success{% else %}bg-warning text-dark{% endif %} p-2">
-                            {% if ultima_tarea.tarea_realizada %}✔ Realizada{% else %}⏳ Pendiente{% endif %}
+                        <span class="badge {% if ultima_tarea.actividad_realizada %}bg-success{% else %}bg-warning text-dark{% endif %} p-2">
+                            {% if ultima_tarea.actividad_realizada %}✔ Realizada{% else %}⏳ Pendiente{% endif %}
                         </span>
                     </div>
                 </div>
@@ -205,6 +240,13 @@
                         <div class="ms-2">Realizar Actividad</div>
                     </div>
                 </a>
+
+                  <div class="mt-3 pt-2 border-top">
+                    <p class="mb-0"><strong>Nueva Cita:</strong> {{ ultima_cita.get_tipo_cita_display }}</p>
+                    <p class="mb-0"><strong>Motivo:</strong> {{ ultima_cita.motivo }}</p>
+                </div>
+
+
             </div>
             {% else %}
             <div class="card-body">
@@ -235,28 +277,7 @@
 </div>
 
 
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const video = document.getElementById('hiddenVideo');
-    const img = document.getElementById('thumbnailPreview');
 
-    // Espera a que los metadatos se carguen para poder buscar el primer frame
-    video.addEventListener('loadeddata', function () {
-        const canvas = document.createElement('canvas');
-        canvas.width = 160;
-        canvas.height = 160;
-
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        const imageUrl = canvas.toDataURL('image/png');
-        img.src = imageUrl;
-    });
-
-    // Asegura que solo cargue hasta el primer frame
-    video.currentTime = 0.1;
-});
-</script>
 
 
 {% endblock %}

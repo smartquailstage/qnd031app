@@ -1067,9 +1067,11 @@ class tareas(models.Model):
     titulo = models.CharField(max_length=255, blank=True, null=True, verbose_name="Título de Actividad") 
     descripcion_actividad =  HTMLField(null=True, blank=True, verbose_name="Describa la actividad a realizar")
     media_terapia =  models.FileField(upload_to='Videos/%Y/%m/%d/', blank=True, verbose_name="Video Multimedia de actividad ")
+    fecha_actividad = models.DateTimeField(auto_now=True, verbose_name="Fecha de Actividad")
+
     actividad_realizada = models.BooleanField(default=False, verbose_name="¿Realizó la terea?")
     descripcion_tarea =  HTMLField(null=True, blank=True, verbose_name="Describa la tarea a realizar")
-   # fecha_envio = models.DateField(blank=True, null=True, verbose_name="Fecha de envio de tarea")
+   
     fecha_entrega = models.DateField(blank=True, null=True, verbose_name="Fecha de entrega de tarea")
     material_adjunto =  models.FileField(upload_to='materiales/%Y/%m/%d/', blank=True, verbose_name="Material adjunto")
    
