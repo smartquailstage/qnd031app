@@ -9,14 +9,14 @@
 
 {% block content %}
 
-
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
 <div class="page-content-wrapper">
     <!-- start page content-->
    <div class="page-content">
     <div class="row">
         <div class="col-12 col-lg-8 col-xl-9">
-          <div class="card overflow-hidden radius-10">
+<div class="card overflow-hidden radius-10">
 <div class="profile-cover bg-dark position-relative mb-4">
   
   <!-- Logo arriba a la derecha -->
@@ -45,81 +45,186 @@
               </div>
             </div>
 
+            
+
+            
 
 
-          </div>
-
-<div class="row row-cols-1 row-cols-lg-3">
-  <!-- Bloque Paciente -->
-  <div class="col">
-    <div class="card radius-10 bg-success">
-      <div class="card-body text-white">
-        <div class="d-flex align-items-center mb-2">
-                
-          <div class="service-box bg-white text-white me-2">
-            <ion-icon name="person-add" role="img" class="md hydrated" aria-label="person add"></ion-icon>
 
           </div>
-         
-          <h6 class="mb-3">Mis datos Personales</h6>
-         
+
+
+<div class="row row-cols-1 row-cols-lg-3 g-3"> <!-- g-3 agrega espacio uniforme entre tarjetas -->
+
+    {% if ultima_tarea and ultima_tarea.media_terapia %}
+    <div class="col">
+        <div class="card radius-10 bg-primary text-white h-100">
+            <div class="card-body text-center">
+                <div class="d-flex align-items-center mb-3 justify-content-center">
+                    <div class="service-box bg-white text-white me-2">
+                        <div class="font-22">
+                            <ion-icon name="pulse-outline"></ion-icon>
+                        </div>
+                    </div>
+                    <h6 class="mb-0">Actividad Terapéutica</h6>
+                </div>
+
+                <div class="position-relative d-inline-block">
+                    <a href="{{ ultima_tarea.media_terapia.url }}" target="_blank">
+                        <img id="thumbnailPreview"
+                             src="{{ ultima_tarea.thumbnail_url }}"
+                             alt="Previsualización del video"
+                             class="img-fluid rounded-circle shadow"
+                             style="width: 160px; height: 160px; object-fit: cover;">
+
+                        <div class="position-absolute top-50 start-50 translate-middle">
+                            <span class="bg-white text-secondary rounded-circle p-2 shadow" style="font-size: 1.5rem;">
+                                <i class="bi bi-play-fill"></i>
+                            </span>
+                        </div>
+                    </a>
+                </div>
+            </div>
         </div>
-
-        <p class="mb-0"><ion-icon name="egg-outline"></ion-icon> {{ profile.fecha_nacimiento  }} </p>
-        <p class="mb-0"><ion-icon name="location-outline"></ion-icon> {{ profile.nacionalidad }}</p>
-        <p class="mb-0"><ion-icon name="male-female-outline"></ion-icon> {{ profile.sexo }}</p>
-        <p class="mb-0"><ion-icon name="navigate-circle-outline"></ion-icon> {{ profile.sucursales }}</p>
-      </div>  
+        <video id="hiddenVideo" src="{{ ultima_tarea.media_terapia.url }}" style="display: none;"></video>
     </div>
-  </div>
+    {% endif %}
 
-  <!-- Bloque Representante -->
-  <div class="col">
-    <div class="card radius-10 bg-success">
-      <div class="card-body text-white">
-        <div class="d-flex align-items-center mb-2">
-          <div class="service-box bg-white text-white me-2">
-            <ion-icon name="accessibility-outline" role="img" class="md hydrated" aria-label="accessibility outline"></ion-icon>
-          </div>
-          <h6 class="mb-0">Mi Representante/Tutor</h6>
+    <div class="col">
+        <div class="card radius-10 bg-primary text-white h-100">
+            {% if ultima_cita %}
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="service-box bg-white text-white me-2">
+                        <div class="font-22">
+                            <i class="lni lni-checkmark"></i>
+                        </div>
+                    </div>
+                    <h6 class="mb-0">Asistencia Terapéutica</h6>
+                </div>
+
+                <div class="d-flex align-items-center justify-content-start mb-3">
+                    <!-- Fecha -->
+                    <div class="text-center bg-white text-primary p-2 rounded shadow-sm me-3" style="width: 70px;">
+                        <div class="fw-bold" style="font-size: 1.5rem;">
+                            {{ ultima_cita.fecha|date:"d" }}
+                        </div>
+                        <div style="text-transform: uppercase; font-size: 0.8rem;">
+                            {{ ultima_cita.fecha|date:"b" }}
+                        </div>
+                    </div>
+
+                    <!-- Hora -->
+                    <div class="text-center bg-white text-primary p-2 rounded shadow-sm me-3" style="width: 70px;">
+                        <div class="fw-bold" style="font-size: 1.5rem;">
+                            <i class="lni lni-alarm-clock"></i>
+                        </div>
+                        <div style="text-transform: uppercase; font-size: 0.8rem;">
+                            {{ ultima_cita.hora }}
+                        </div>
+                    </div>
+
+                    <!-- Lugar -->
+                    <div class="text-center bg-white text-primary p-2 rounded shadow-sm me-3" style="width: 70px;">
+                        <div class="fw-bold" style="font-size: 1.5rem;">
+                            <i class="lni lni-map"></i>
+                        </div>
+                        <div style="text-transform: uppercase; font-size: 0.8rem;">
+                            {{ ultima_cita.sucursal }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-3 pt-2 border-top">
+                    <p class="mb-0"><strong>Nueva Cita:</strong> {{ ultima_cita.get_tipo_cita_display }}</p>
+                    <p class="mb-0"><strong>Motivo:</strong> {{ ultima_cita.motivo }}</p>
+                </div>
+
+                <a href="{% url 'usuarios:ver_cita' pk=ultima_cita.pk %}">
+                    <div class="d-flex align-items-center theme-icons shadow-sm p-2 cursor-pointer rounded mt-3">
+                        <div class="font-22"><i class="fadeIn animated bx bx-check-double"></i></div>
+                        <div class="ms-2">Confirmar Asistencia</div>
+                    </div>
+                </a>
+            </div>
+            {% else %}
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-2">
+                    <div class="service-box bg-white text-white me-2">
+                        <ion-icon name="calendar-outline"></ion-icon>
+                    </div>
+                    <h6 class="mb-0">Asistencias</h6>
+                </div>
+                <div class="mt-3 pt-2 border-top">
+                    <p class="mb-0">No tienes citas agendadas.</p>
+                </div>
+            </div>
+            {% endif %}
         </div>
-        <p class="mb-0"><ion-icon name="woman-outline"></ion-icon> {{ profile.nombre_representante }} {{ profile.apellidos_representante_legal }}</p>
-        <p class="mb-0"><ion-icon name="accessibility-outline"></ion-icon></strong> {{ profile.relacion_del_representante }}</p>
-        <p class="mb-0"><ion-icon name="mail-outline"></ion-icon> {{ profile.email }}</p>
-        <p class="mb-0"><ion-icon name="logo-whatsapp"></ion-icon> {{ profile.celular }}</p>
-      </div>
     </div>
-  </div>
 
-  <!-- Bloque Tratamiento -->
-  <div class="col">
-    <div class="card radius-10 bg-success">
-      <div class="card-body text-white">
-        <div class="d-flex align-items-center mb-2">
-          <div class="service-box bg-white text-white me-2">
-            <ion-icon name="pulse-outline" role="img" class="md hydrated" aria-label="pulse outline"></ion-icon>
-          </div>
-          <h6 class="mb-0">Mis terapeutas </h6>
+    <div class="col">
+        <div class="card radius-10 bg-primary text-white h-100">
+            {% if ultima_tarea %}
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="service-box bg-white text-white me-2">
+                        <div class="font-22">
+                            <i class="lni lni-notepad"></i>
+                        </div>
+                    </div>
+                    <h6 class="mb-0">Tarea Terapéutica Asignada</h6>
+                </div>
+
+                <div class="d-flex flex-wrap gap-3 mb-3">
+                    <div class="bg-white text-primary text-center p-2 rounded shadow-sm" style="width: 110px;">
+                        <small>Enviada</small>
+                        <div class="fw-bold">{{ ultima_tarea.fecha_envio|date:"d M Y" }}</div>
+                    </div>
+                    <div class="bg-white text-primary text-center p-2 rounded shadow-sm" style="width: 110px;">
+                        <small>Entrega</small>
+                        <div class="fw-bold">{{ ultima_tarea.fecha_entrega|date:"d M Y" }}</div>
+                    </div>
+                    <div>
+                        <span class="badge {% if ultima_tarea.tarea_realizada %}bg-success{% else %}bg-warning text-dark{% endif %} p-2">
+                            {% if ultima_tarea.tarea_realizada %}✔ Realizada{% else %}⏳ Pendiente{% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                {% if ultima_tarea.material_adjunto %}
+                <p class="mt-3 mb-0">
+                    <strong>Material:</strong>
+                    <a class="text-white text-decoration-underline" href="{{ ultima_tarea.material_adjunto.url }}" download>Descargar</a>
+                </p>
+                {% endif %}
+
+                <a href="{% url 'usuarios:ver_tarea' pk=ultima_tarea.pk %}">
+                    <div class="d-flex align-items-center theme-icons shadow-sm p-2 cursor-pointer rounded mt-3">
+                        <div class="font-22"><ion-icon name="pencil"></ion-icon></div>
+                        <div class="ms-2">Realizar Actividad</div>
+                    </div>
+                </a>
+            </div>
+            {% else %}
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-2">
+                    <div class="service-box bg-white text-white me-2">
+                        <ion-icon name="document-text-outline"></ion-icon>
+                    </div>
+                    <h6 class="mb-0">Tarea Terapéutica</h6>
+                </div>
+                <div class="mt-3 pt-2 border-top">
+                    <p class="mb-0">No tienes tareas asignadas.</p>
+                </div>
+            </div>
+            {% endif %}
         </div>
-        <p class="mb-0"><ion-icon name="heart-circle-outline"></ion-icon>
-    <strong>
-    {% for terapeuta in profile.user_terapeutas.all %}
-      {{ terapeuta }}{% if not forloop.last %}, {% endif %}
-    {% empty %}
-      No hay terapeutas asignados.
-    {% endfor %}
-  </strong>
-</p>
- 
-
-
-
-
-        
-      </div>
     </div>
-  </div>
 </div>
+
+
+    
 
 
         </div>
@@ -128,5 +233,30 @@
 </div>
 
 </div>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const video = document.getElementById('hiddenVideo');
+    const img = document.getElementById('thumbnailPreview');
+
+    // Espera a que los metadatos se carguen para poder buscar el primer frame
+    video.addEventListener('loadeddata', function () {
+        const canvas = document.createElement('canvas');
+        canvas.width = 160;
+        canvas.height = 160;
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const imageUrl = canvas.toDataURL('image/png');
+        img.src = imageUrl;
+    });
+
+    // Asegura que solo cargue hasta el primer frame
+    video.currentTime = 0.1;
+});
+</script>
+
 
 {% endblock %}

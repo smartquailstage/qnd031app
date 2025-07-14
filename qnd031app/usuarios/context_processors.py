@@ -23,6 +23,21 @@ def ultima_cita(request):
     return {}
 
 
+def ultima_tarea(request):
+    """
+    Este procesador de contexto obtiene la última tarea asignada al paciente (usuario autenticado).
+    """
+    if request.user.is_authenticated:
+        try:
+            profile = Profile.objects.get(user=request.user)
+            ultima_tarea = tareas.objects.filter(profile=profile).order_by('-fecha_envio', '-fecha_entrega').first()
+            return {'ultima_tarea': ultima_tarea}
+        except Profile.DoesNotExist:
+            return {'ultima_tarea': None}
+    return {}
+
+    
+
 
 def citas_context(request):
     if request.user.is_authenticated:

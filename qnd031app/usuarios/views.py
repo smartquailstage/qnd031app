@@ -42,6 +42,29 @@ def politicas_terminos(request):
 
 
 
+@login_required
+def ultima_tarea(request):
+    try:
+        # Obtener el perfil del usuario autenticado
+        profile = Profile.objects.get(user=request.user)
+
+        # Buscar la última tarea asignada a este perfil, según fecha de envío o de entrega
+        ultima_tarea = tareas.objects.filter(profile=profile).order_by('-fecha_envio', '-fecha_entrega').first()
+
+        if not ultima_tarea:
+            return render(request, 'usuarios/panel_usuario2.html', {
+                'mensaje': 'No tienes tareas asignadas.'
+            })
+
+        return render(request, 'usuarios/panel_usuario2.html', {
+            'ultima_tarea': ultima_tarea
+        })
+
+    except Profile.DoesNotExist:
+        return render(request, 'usuarios/panel_usuario2.html', {
+            'mensaje': 'No se encontró el perfil del usuario.'
+        })
+
 
 @staff_member_required
 def dashboard_view(request):

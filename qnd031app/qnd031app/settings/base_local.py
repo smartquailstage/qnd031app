@@ -569,6 +569,7 @@ TEMPLATES = [
                 'usuarios.context_processors.pagos_context',  
                 'usuarios.context_processors.profile_uploads_context',
                 'usuarios.context_processors.ultima_cita',
+                'usuarios.context_processors.ultima_tarea',
                 
             ],
         },
