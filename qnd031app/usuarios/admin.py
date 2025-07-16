@@ -1321,6 +1321,72 @@ def ver_en_calendario(obj):
         reverse('custom_admin:admin_cita_detail', args=[obj.id])))
 
 
+@register_component
+class CitasComponent(BaseComponent):
+    template_name = "admin/profile_card.html"
+    name = "Citas"
+
+    def __init__(self, request, instance=None):
+        self.request = request
+        self.instance = instance  # Puede ser Profile o Cita
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Obtener el perfil
+        if isinstance(self.instance, Profile):
+            profile = self.instance
+        elif isinstance(self.instance, Cita):
+            profile = self.instance.profile
+        else:
+            profile = None
+
+        if not profile:
+            context.update({
+                "title": "Citas del paciente",
+                "table": {
+                    "headers": ["Sin datos disponibles"],
+                    "rows": [["No se pudo obtener un perfil válido."]],
+                }
+            })
+            return context
+
+        citas = Cita.objects.filter(profile=profile).order_by('-fecha', '-hora')
+
+        headers = [
+            "Fecha", "Hora", "Motivo", "Notas",
+            "Sucursal", "Tipo", "Estado", "Terapeuta"
+        ]
+
+        rows = []
+        for cita in citas:
+            estado = (
+                "✅ Confirmada" if cita.confirmada else
+                "❌ Cancelada" if cita.cancelada else
+                "🕒 Pendiente"
+            )
+            rows.append([
+                cita.fecha.strftime("%d/%m/%Y") if cita.fecha else "Sin fecha",
+                cita.hora.strftime("%H:%M") if cita.hora else "Sin hora",
+                cita.motivo or "Sin motivo",
+                (cita.notas[:50] + "...") if cita.notas else "Sin notas",
+                str(cita.sucursal) if cita.sucursal else "N/A",
+                dict(Cita.TIPO_CITA_CHOICES).get(cita.tipo_cita, "Desconocido"),
+                estado,
+                str(cita.profile_terapeuta) if cita.profile_terapeuta else "N/A",
+            ])
+
+        context.update({
+            "title": f"Citas agendadas para {profile.nombre_completo}",
+            "table": {
+                "headers": headers,
+                "rows": rows,
+            }
+        })
+        return context
+
+    def render(self):
+        return render_to_string(self.template_name, self.get_context_data())
 
 
 @register_component
@@ -1433,7 +1499,7 @@ class CitaAdmin(ModelAdmin):
         models.TimeField: {'widget': CustomTimePickerWidget()},
     }
 
-    list_sections = [ComentariosCitaSection, CitasCohortComponent]
+    list_sections = [CitasComponent, CitasCohortComponent]
     list_sections_layout = "horizontal"
     
     conditional_fields = {
@@ -1740,7 +1806,7 @@ class ProfileComponentInformes(BaseComponent):
         ]
 
         context.update({
-            "title": f"Información Terapéutica",
+            "title": f"Informes Terapéuticos",
             "table": {
                 "headers": headers,
                 "rows": [row],  # Solo una fila con la instancia actual
