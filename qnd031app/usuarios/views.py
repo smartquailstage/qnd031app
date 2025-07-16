@@ -20,17 +20,27 @@ from django.shortcuts import render
 from .models import Cita,tareas, pagos  # Asegúrate de usar la ruta correcta
 from django.http import HttpResponseForbidden
 
+
 @login_required
 def ultima_cita(request):
-    # Obtener la última cita asignada al paciente
-    ultima_cita = Cita.objects.filter(destinatario=request.user).order_by('-fecha', '-hora').first()
-    
-    if not ultima_cita:
-        # Redirigir o mostrar un mensaje si no hay citas
+    profile = Profile.objects.filter(user=request.user).first()
+
+    if not profile:
         return render(request, 'usuarios/panel_usuario2.html', {'mensaje': 'No tienes citas registradas.'})
 
-    # Renderizar la plantilla con la última cita y el perfil
+    # Obtener la primera cita pendiente (no confirmada ni cancelada)
+    ultima_cita = (
+        Cita.objects
+        .filter(profile=profile, pendiente=True, confirmada=False, cancelada=False)
+        .order_by('fecha', 'hora')
+        .first()
+    )
+
+    if not ultima_cita:
+        return render(request, 'usuarios/panel_usuario2.html', {'mensaje': 'No tienes citas pendientes.'})
+
     return render(request, 'usuarios/panel_usuario2.html', {'ultima_cita': ultima_cita})
+
 
 
 def politicas_terminos(request):
@@ -145,7 +155,7 @@ def profile_view(request):
     cantidad_mensajes_recibidos = Mensaje.objects.filter(receptor=request.user).count()
     cantidad_mensajes_enviados = Mensaje.objects.filter(emisor=request.user).count()
     cantidad_terapias_realizadas = tareas.objects.filter(profile__user=request.user, actividad_realizada=True).count()
-    citas_realizadas = Cita.objects.filter(destinatario=request.user).count()
+    citas_realizadas = Cita.objects.filter(profile=profile).count()
 
     # Obtener estado de pago desde el modelo `pagos`
     try:
@@ -263,8 +273,8 @@ def citas_record(request):
 
     citas = (
         Cita.objects
-        .filter(destinatario=request.user)
-        .select_related('creador', 'destinatario')
+        .filter(profile=profile)
+        .select_related('creador', 'profile')
         .order_by('-fecha', '-hora')
     )
 
@@ -288,12 +298,13 @@ def citas_record(request):
 def citas_agendadas_total(request):
     profile = get_object_or_404(Profile, user=request.user)
 
-    # 🔸 Filtrar solo las citas pendientes
-    citas_pendientes = request.user.citas_creadas.filter(pendiente=True)
+    # 🔸 Filtrar solo las citas pendientes usando el campo profile
+    citas_pendientes = Cita.objects.filter(profile=profile, pendiente=True)
 
-    confirmadas = request.user.citas_creadas.filter(confirmada=True).count()
-    no_confirmadas = request.user.citas_creadas.filter(confirmada=False).count()
-    total = request.user.citas_creadas.count()
+    # 🔸 Contar solo las citas del usuario actual (usando profile)
+    confirmadas = Cita.objects.filter(profile=profile, confirmada=True).count()
+    no_confirmadas = Cita.objects.filter(profile=profile, confirmada=False).count()
+    total = Cita.objects.filter(profile=profile).count()
 
     return render(request, 'usuarios/citas/calendar_agendadas.html', {
         'citas': citas_pendientes,  # solo las pendientes
@@ -303,25 +314,29 @@ def citas_agendadas_total(request):
         'total': total,
     })
 
+
+from .forms import CitaPacienteForm
+
 @login_required
 def agendar_cita(request):
-    destinatario = get_object_or_404(User, id=1)  # 👈 Ajusta al destinatario real
+    profile = getattr(request.user, 'profile', None)
 
     if request.method == 'POST':
-        form = CitaForm(request.POST)
+        form = CitaPacienteForm(request.POST)
         if form.is_valid():
             cita = form.save(commit=False)
             cita.creador = request.user
-            cita.destinatario = destinatario
-            cita.pendiente = True
-            cita.confirmada = False
-            cita.cancelada = False
+            cita.profile = profile
+            cita.pendiente = True  # Estado inicial
             cita.save()
-            return redirect('usuarios:cita_success')  # 👈 Asegúrate de tener esta vista definida
+            return redirect('usuarios:ver_cita', pk=cita.pk)
     else:
-        form = CitaForm()
+        form = CitaPacienteForm()
 
     return render(request, 'usuarios/citas/agendar_cita.html', {'form': form})
+
+
+
 
 
 @login_required
@@ -329,7 +344,7 @@ def ver_cita(request, pk):
     cita = get_object_or_404(Cita, pk=pk)
 
     # Solo el creador o destinatario puede acceder
-    if request.user != cita.creador and request.user != cita.destinatario:
+    if request.user != cita.creador and request.user != cita.profile.user:
         return HttpResponseForbidden("No tienes permiso para ver esta cita.")
 
     if request.method == "POST":
@@ -354,17 +369,19 @@ def ver_cita(request, pk):
 
 @login_required
 def confirmar_cita(request, pk):
-    cita = get_object_or_404(Cita, pk=pk, destinatario=request.user)
+    # Obtener el profile del usuario actual
+    profile = Profile.objects.filter(user=request.user).first()
+
+    if not profile:
+        return redirect('usuarios:panel_usuario')  # O muestra un error si lo prefieres
+
+    # Obtener la cita solo si pertenece al profile del usuario
+    cita = get_object_or_404(Cita, pk=pk, profile=profile)
 
     if request.method == 'POST':
-        # Cambiar el estado a confirmada y actualizar los demás estados
         cita.confirmada = True
         cita.pendiente = False
         cita.cancelada = False
-        
-        # No tienes is_active en tu modelo, así que elimina o ajusta esta línea si no aplica
-        # cita.is_active = True  <-- eliminar o comentar
-
         cita.save()
         messages.success(request, "Cita confirmada correctamente.")
 

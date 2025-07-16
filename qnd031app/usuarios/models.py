@@ -944,7 +944,9 @@ class Cita(models.Model):
         max_length=20,
         choices=TIPO_CITA_CHOICES,
         default='terapeutica',
-        verbose_name="Categoría de Cita"
+        verbose_name="Categoría de Cita",
+        blank=True,
+        null=True,
     )
 
     creador = models.ForeignKey(

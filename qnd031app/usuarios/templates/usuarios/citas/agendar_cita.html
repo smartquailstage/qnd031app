@@ -6,6 +6,7 @@
 <div class="page-content-wrapper">
    <div class="page-content">
       <div class="row">
+         {% include 'usuarios/citas/barra_herramientas.html' %}
          {% include 'usuarios/logo.html' %}
       </div>
 
@@ -16,11 +17,7 @@
                   <form method="POST">
                      {% csrf_token %}
 
-                     <!-- Motivo -->
-                     <div class="mb-3">
-                        {{ form.motivo.label_tag }}
-                        {{ form.motivo|add_class:"form-control" }}
-                     </div>
+  
 
                      <!-- Fecha -->
                      <div class="mb-3">
@@ -35,10 +32,6 @@
                      </div>
 
                      <!-- Tipo de cita -->
-                     <div class="mb-3">
-                        {{ form.tipo_cita.label_tag }}
-                        {{ form.tipo_cita|add_class:"form-select" }}
-                     </div>
 
                      <!-- Sucursal -->
                      <div class="mb-3">

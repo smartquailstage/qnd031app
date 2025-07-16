@@ -7,36 +7,45 @@ from collections import defaultdict
 from datetime import datetime
 from django.utils.timezone import localtime, is_naive, make_aware
 from django.db.models import FileField, ImageField
+from django.shortcuts import get_object_or_404
 
 
 
 
 def ultima_cita(request):
     """
-    Este procesador de contexto obtiene la última cita asignada al paciente (usuario autenticado).
+    Procesador de contexto que obtiene la primera cita pendiente del usuario autenticado,
+    filtrando por su perfil, sin lanzar errores si no existe.
     """
     if request.user.is_authenticated:
-        # Obtener la última cita asignada al paciente
-        ultima_cita = Cita.objects.filter(destinatario=request.user).order_by('-fecha', '-hora').first()
-        
+        profile = Profile.objects.filter(user=request.user).first()
+        if profile is None:
+            return {'ultima_cita': None}
+
+        # Obtener la primera cita pendiente (no confirmada ni cancelada)
+        ultima_cita = (
+            Cita.objects
+            .filter(profile=profile, pendiente=True, confirmada=False, cancelada=False)
+            .order_by('fecha', 'hora')
+            .first()
+        )
+
         return {'ultima_cita': ultima_cita}
+
     return {}
 
 
 def ultima_tarea(request):
     """
-    Este procesador de contexto obtiene la última tarea asignada al paciente (usuario autenticado).
+    Obtener la última tarea usando profile, sin error si no existe el profile.
     """
     if request.user.is_authenticated:
-        try:
-            profile = Profile.objects.get(user=request.user)
-            ultima_tarea = tareas.objects.filter(profile=profile).order_by('-fecha_envio', '-fecha_entrega').first()
-            return {'ultima_tarea': ultima_tarea}
-        except Profile.DoesNotExist:
+        profile = Profile.objects.filter(user=request.user).first()  # devuelve None si no existe
+        if profile is None:
             return {'ultima_tarea': None}
+        ultima_tarea = tareas.objects.filter(profile=profile).order_by('-fecha_envio', '-fecha_entrega').first()
+        return {'ultima_tarea': ultima_tarea}
     return {}
-
-    
 
 
 def citas_context(request):
@@ -210,7 +219,10 @@ def datos_panel_usuario(request):
     cantidad_terapias_realizadas = tareas.objects.filter(profile__user=user, tarea_realizada=True).count()
 
     # Citas confirmadas para el usuario
-    citas_realizadas = Cita.objects.filter(destinatario=user, confirmada=True).count()
+    if profile:
+        citas_realizadas = Cita.objects.filter(profile=profile, confirmada=True).count()
+    else:
+        citas_realizadas = 0
 
     # Determinar estado general de la terapia desde el modelo Profile
     estado_terapia = "No definido"
@@ -236,8 +248,12 @@ def datos_panel_usuario(request):
 
 def citas_context(request):
     if request.user.is_authenticated:
-        # Citas donde el usuario es destinatario
-        citas = Cita.objects.filter(destinatario=request.user)
+        try:
+            profile = Profile.objects.get(user=request.user)
+        except Profile.DoesNotExist:
+            return {}  # No se incluye nada si no hay perfil
+
+        citas = Cita.objects.filter(profile=profile)
 
         return {
             'citas_todas': citas,

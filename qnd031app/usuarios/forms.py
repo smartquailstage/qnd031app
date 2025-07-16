@@ -110,6 +110,18 @@ class CitaForm(forms.ModelForm):
             cita.save()
         return cita
 
+
+class CitaPacienteForm(forms.ModelForm):
+    class Meta:
+        model = Cita
+        fields = ['fecha', 'hora', 'notas']
+        widgets = {
+            'fecha': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'hora': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
+            'notas': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
+
+        
 class TareaComentarioForm(forms.ModelForm):
     class Meta:
         model = TareaComentario

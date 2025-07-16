@@ -103,7 +103,8 @@
         
     </div>
     {% endif %}
-   {% if ultima_cita %}
+    {% if ultima_cita.pendiente %}
+   
     <div class="col">
         <div class="card radius-10 bg-primary text-white h-100">
          
@@ -161,19 +162,20 @@
     {% endif %}
   ">
     {% if ultima_cita.confirmada %}
-      <i class="fadeIn animated bx bx-check-double"></i> Confirmada
+      <i class="fadeIn animated bx bx-check-double"></i> Asistencia Confirmada
     {% elif ultima_cita.cancelada  %}
-      ✖ No asistirá
+      ✖ Asistencia Cancelada
     {% else %}
-        <i class="lni lni-checkmark"></i> Sin confirmar
+        <i class="lni lni-checkmark"></i> Asistencia Pendiente
     {% endif %}
   </span>
 </div>
 
                   <a href="{% url 'usuarios:ver_cita' pk=ultima_cita.pk %}">
                     <div class="d-flex align-items-center theme-icons shadow-sm p-2 cursor-pointer rounded mt-3">
-                        <div class="font-22"><i class="fadeIn animated bx bx-check-double"></i></div>
-                        <div class="ms-2">Confirmar Asistencia</div>
+                        <div class="font-22">	<i class="lni lni-calendar"></i>
+                </div>
+                        <div class="ms-2">Cita Terapéutica</div>
                     </div>
                 </a>
 
@@ -249,7 +251,7 @@
     </div>
     {% else %}
 
-{% endif %}
+            {% endif %}
 </div>
 
 

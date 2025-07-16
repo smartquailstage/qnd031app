@@ -9,12 +9,13 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div>                       
-                            <h5 class="mb-0 text-primary">Calendario</h5>
+                            <h5 class="mb-0 text-primary"> {{ total }} Citas Agendadas</h5>
                             <p class="mb-0" style="margin-top: 0px;"> 
-                                 {{ total }} Citas / {{ confirmadas }} Confirmadas   </p>
+                             {{ confirmadas }} Asistidas  </p>
                         </div>
                         <div class="ms-auto widget-icon bg-light-primary text-primary">
-                            <ion-icon name="calendar"></ion-icon>
+                           
+                            <i class="lni lni-calendar"></i>
                         </div>
                     </div>
                 </div>
@@ -31,12 +32,12 @@
                         <div>
                            
 
-                            <h5 class="mb-0 text-primary">Citas Agendadas</h5>
-                            <p class="mb-0" style="margin-top: 0px;"> 
-                                    {{ pendientes }} Pendientes de confirmación  </p>
+                            <h5 class="mb-0 text-primary">{{ pendientes }} Asistencias Pendientes</h5>
+                         
+
                         </div>
                         <div class="ms-auto widget-icon bg-light-primary text-primary">
-                            <ion-icon name="medkit"></ion-icon>
+                              <i class="lni lni-hourglass"></i>
                         </div>
                     </div>
                 </div>
