@@ -6,6 +6,75 @@ from .tasks import enviar_correo_async, enviar_whatsapp_async, enviar_correo_val
 from django.core.mail import send_mail
 from django.conf import settings
 
+from .models import Cita
+from datetime import timedelta
+
+
+
+@receiver(post_save, sender=Cita)
+def crear_citas_recurrentes(sender, instance, created, **kwargs):
+    if not created:
+        return
+
+    if instance.tipo_cita != 'terapeutica':
+        return
+
+    if not instance.dias_recurrentes or not instance.fecha_fin:
+        return
+
+    dias = instance.dias_recurrentes.lower().split(",")
+    dias = [dia.strip() for dia in dias]
+    fecha_actual = instance.fecha
+    fecha_fin = instance.fecha_fin
+
+    dias_map = {
+        "lunes": 0,
+        "martes": 1,
+        "miercoles": 2,
+        "miércoles": 2,
+        "jueves": 3,
+        "viernes": 4,
+        "sabado": 5,
+        "sábado": 5,
+        "domingo": 6,
+    }
+
+    dias_numeros = [dias_map[dia] for dia in dias if dia in dias_map]
+
+    fecha_iter = fecha_actual + timedelta(days=1)
+    while fecha_iter <= fecha_fin:
+        if fecha_iter.weekday() in dias_numeros:
+            conflicto_terapeuta = Cita.objects.filter(
+                profile_terapeuta=instance.profile_terapeuta,
+                fecha=fecha_iter,
+                hora=instance.hora,
+            ).exists()
+
+            conflicto_paciente = Cita.objects.filter(
+                profile=instance.profile,
+                fecha=fecha_iter,
+                hora=instance.hora,
+            ).exists()
+
+            if not conflicto_terapeuta and not conflicto_paciente:
+                Cita.objects.create(
+                    sucursal=instance.sucursal,
+                    tipo_cita=instance.tipo_cita,
+                    creador=instance.creador,
+                    destinatario=instance.destinatario,
+                    profile=instance.profile,
+                    profile_terapeuta=instance.profile_terapeuta,
+                    nombre_paciente=instance.nombre_paciente,
+                    fecha=fecha_iter,
+                    hora=instance.hora,
+                    motivo=instance.motivo,
+                    notas=instance.notas,
+                    pendiente=instance.pendiente,
+                    confirmada=False,
+                    cancelada=False,
+                )
+        fecha_iter += timedelta(days=1)
+
 
 @receiver(post_save, sender=Mensaje)
 def manejar_mensaje(sender, instance, created, **kwargs):
