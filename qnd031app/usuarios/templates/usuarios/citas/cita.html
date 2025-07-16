@@ -41,11 +41,11 @@
                 <div class="card radius-10 bg-light mt-3">
                     <div class="card-body">
                         <h5><ion-icon name="calendar-outline"></ion-icon> Detalles de la Cita</h5>
-                        <p><strong>Fecha:</strong> {{ cita.fecha }}</p>
-                        <p><strong>Hora:</strong> {{ cita.hora }}</p>
-                        <p><strong>Motivo:</strong> {{ cita.motivo }}</p>
-                        <p><strong>Notas:</strong> {{ cita.notas|default:"(Sin notas)" }}</p>
-                        <p><strong>Tipo:</strong> {{ cita.get_tipo_cita_display }}</p>
+                        <p style="margin-bottom: 0rem;"><strong>Fecha:</strong> {{ cita.fecha }}</p>
+                         <p style="margin-bottom: 0rem;"><strong>Hora:</strong> {{ cita.hora }}</p>
+                         <p style="margin-bottom: 0rem;"><strong>Motivo:</strong> {{ cita.motivo }}</p>
+                         <p style="margin-bottom: 0rem;"><strong>Notas:</strong> {{ cita.notas|default:"(Sin notas)" }}</p>
+                         <p style="margin-bottom: 0rem;"><strong>Tipo:</strong> {{ cita.get_tipo_cita_display }}</p>
 
                         {% if request.user == cita.destinatario or request.user == cita.creador %}
                             {% if cita.pendiente %}
