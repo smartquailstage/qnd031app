@@ -80,6 +80,7 @@ django-bootstrap4
 # Django JQuery
 django-jquery
 
+python-decouple
 
 django-tinymce==4.1.0
 
