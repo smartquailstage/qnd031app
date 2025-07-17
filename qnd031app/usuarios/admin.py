@@ -1448,7 +1448,8 @@ class CitasCohortComponent(BaseComponent):
             hora_str = cita_dt.strftime("%H:%M")
 
             agenda[dia_str][hora_str].append({
-               "paciente": cita.profile.nombre_paciente + " " + cita.profile.apellidos_paciente,
+               "nombre_paciente": cita.nombre_paciente or "Sin nombre",
+               "paciente": cita.profile.nombre_paciente + " " + cita.profile.apellidos_paciente  if cita.profile else "",
                "tipo_cita": cita.tipo_cita,
                 "motivo": cita.motivo or "Sin motivo",
                 "creador": cita.creador.get_full_name() if cita.creador else "Sin creador",
