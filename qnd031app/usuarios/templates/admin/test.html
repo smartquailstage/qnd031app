@@ -50,10 +50,7 @@
   {% endif %}
   
   text-white dark:text-base-600">
-                          <span><strong>Cita #{{ cita.id }}</strong></span>
-                          <span class="mt-0.5 truncate"><strong>De:</strong> {{ cita.creador }}</span>
-                          <span class="mt-0.5 truncate"><strong>Para:</strong> {{ cita.destinatario }}</span>
-                          <span class="mt-0.5 truncate"><strong>Motivo:</strong> {{ cita.motivo }}</span>
+                          <span class="mt-0.5 truncate">{{ cita.paciente }}</span>
                           <span class="mt-0.5 text-xs italic truncate">{{ cita.tipo_cita }}</span>
                           <span class="mt-0.5 text-xs italic">{{ cita.estado }}</span>
                         </div>

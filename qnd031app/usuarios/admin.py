@@ -1354,8 +1354,8 @@ class CitasComponent(BaseComponent):
         citas = Cita.objects.filter(profile=profile).order_by('-fecha', '-hora')
 
         headers = [
-            "Fecha", "Hora", "Motivo", "Notas",
-            "Sucursal", "Tipo", "Estado", "Terapeuta"
+            "Fecha", "Hora", "Motivo",
+            "Sucursal", "Estado", "Terapeuta"
         ]
 
         rows = []
@@ -1368,10 +1368,10 @@ class CitasComponent(BaseComponent):
             rows.append([
                 cita.fecha.strftime("%d/%m/%Y") if cita.fecha else "Sin fecha",
                 cita.hora.strftime("%H:%M") if cita.hora else "Sin hora",
-                cita.motivo or "Sin motivo",
+               
                 (cita.notas[:50] + "...") if cita.notas else "Sin notas",
                 str(cita.sucursal) if cita.sucursal else "N/A",
-                dict(Cita.TIPO_CITA_CHOICES).get(cita.tipo_cita, "Desconocido"),
+       
                 estado,
                 str(cita.profile_terapeuta) if cita.profile_terapeuta else "N/A",
             ])
@@ -1448,16 +1448,15 @@ class CitasCohortComponent(BaseComponent):
             hora_str = cita_dt.strftime("%H:%M")
 
             agenda[dia_str][hora_str].append({
-                "id": cita.id,
+               "paciente": cita.profile.nombre_paciente + " " + cita.profile.apellidos_paciente,
+               "tipo_cita": cita.tipo_cita,
                 "motivo": cita.motivo or "Sin motivo",
                 "creador": cita.creador.get_full_name() if cita.creador else "Sin creador",
-                "destinatario": cita.destinatario.get_full_name() if cita.destinatario else "Sin destinatario",
                 "estado": (
                     "Confirmada" if cita.confirmada
                     else "Pendiente" if cita.pendiente
                     else "Cancelada"
                 ),
-                "tipo_cita": cita.tipo_cita or "sin_tipo",
                 "hora": hora_str,
             })
 
