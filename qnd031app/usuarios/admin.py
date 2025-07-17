@@ -854,7 +854,15 @@ class tareasAdmin(ModelAdmin):
 
 
 
-    search_fields = ['profile__nombre_completo', 'terapeuta__nombres_completos', 'tarea']
+    search_fields = [
+    'profile__nombre_paciente',
+    'profile__apellidos_paciente',
+    'terapeuta__first_name',
+    'terapeuta__last_name',
+    'titulo',
+    'descripcion_actividad',
+    'descripcion_tarea',
+    ]
     list_filter = (
         'fecha_envio',
         'fecha_entrega',)
