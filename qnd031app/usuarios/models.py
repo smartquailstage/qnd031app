@@ -1028,7 +1028,7 @@ class Cita(models.Model):
     def __str__(self):
         fecha_str = self.fecha.strftime('%d/%m/%Y') if self.fecha else 'Sin fecha'
         hora_str = self.hora.strftime('%H:%M') if self.hora else 'Sin hora'
-        return f"{self.creador} → {self.destinatario} ({fecha_str} {hora_str})"
+        return f"{self.creador} → {self.profile} ({fecha_str} {hora_str})"
 
     def clean(self):
         super().clean()
