@@ -1990,10 +1990,10 @@ class PerfilAdministrativoComponent(BaseComponent):
             p.age,
             p.date_joined.strftime('%d/%m/%Y') if p.date_joined else "Sin fecha",
             dict(p.contract_type_choices).get(p.contract_type, "Desconocido"),
-            p.num_pacientes_captadosif p.valor_por_paciente or "No registrado",
-            f"{p.valor_por_paciente} USD "  if p.valor_por_paciente or "No registrado",
-            f"{p.comision_total_calculada} USD" if p.comision_total_calculada or "No registrado",
-        ]
+            p.num_pacientes_captados if p.valor_por_paciente else "No registrado",
+            f"{p.valor_por_paciente} USD" if p.valor_por_paciente else "No registrado",
+            f"{p.comision_total_calculada} USD" if p.comision_total_calculada else "No registrado",
+      ]
 
         context.update({
             "title": f"Resumen del Perfil Administrativo",
