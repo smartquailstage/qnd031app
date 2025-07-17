@@ -775,7 +775,7 @@ class TareasComponent(BaseComponent):
         tareas_asignadas = tareas.objects.filter(profile=profile)
 
         headers = [
-            "Título", "Fecha de envío", "Fecha de entrega","Asisteráa la cita?",,
+            "Título", "Fecha de envío", "Fecha de entrega","Asisterá a la cita?",
             "¿Realizó la Tarea?", "¿Culminó terapia?", "Archivo adjunto", "Multimedia"
         ]
 
