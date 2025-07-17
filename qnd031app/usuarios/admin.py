@@ -858,7 +858,7 @@ class tareasAdmin(ModelAdmin):
     list_filter = (
         'fecha_envio',
         'fecha_entrega',)
-    list_editable = ['asistire',]
+    list_editable = ['asistire','actividad_realizada','tarea_realizada']
     list_sections = [TareasComponent]
 
     list_display = ['get_terapeuta_full_name','profile', 'fecha_envio','fecha_entrega', 'asistire','actividad_realizada','tarea_realizada']
@@ -1532,7 +1532,7 @@ class CitaAdmin(ModelAdmin):
     )
     list_editable = ('pendiente', 'confirmada', 'cancelada',)
     search_fields = (
-        "motivo", "notas", "creador__first_name", "destinatario__first_name",
+        "motivo", "notas", "creador__first_name", "destinatario__first_name","profile__nombre_paciente",
     )
     list_filter = ('sucursal', 'pendiente', 'confirmada', 'cancelada', "fecha",)
     change_form_show_cancel_button = True
