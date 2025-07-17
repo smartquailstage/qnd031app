@@ -989,10 +989,14 @@ class Cita(models.Model):
 
     fecha = models.DateField(null=True, blank=True, verbose_name="Fecha de la cita")
     hora = models.TimeField(null=True, blank=True, verbose_name="Hora de la cita")
-    motivo = models.CharField(max_length=255)
-    notas = models.TextField(null=True, blank=True, verbose_name="Notas adicionales")
+    fecha_fin = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name="Fecha fin de terapias",
+        help_text="Fecha en la que dejarán de repetirse las citas"
+    )
 
-    # ✅ Nuevos campos
+        # ✅ Nuevos campos
     DIAS_SEMANA = [
         ("lunes", "Lunes"),
         ("martes", "Martes"),
@@ -1007,16 +1011,15 @@ class Cita(models.Model):
     max_length=100,
     blank=True,
     null=True,
-    verbose_name="Días de la semana para repetir la cita",
-    help_text="Ejemplo: lunes,martes,viernes"
+    verbose_name="Días de la semana recurrentes",
     )
 
-    fecha_fin = models.DateField(
-        null=True,
-        blank=True,
-        verbose_name="Fecha fin de cita recurrente",
-        help_text="Fecha en la que dejarán de repetirse las citas"
-    )
+
+    motivo = models.CharField(max_length=255)
+    notas = models.TextField(null=True, blank=True, verbose_name="Notas adicionales")
+
+
+
 
     pendiente = models.BooleanField(default=True, verbose_name="Pendiente")
     confirmada = models.BooleanField(default=False, verbose_name="Confirmada")

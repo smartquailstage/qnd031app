@@ -1506,6 +1506,8 @@ class CitaAdmin(ModelAdmin):
     # Campos exclusivos de tipo 'terapeutica'
     "profile": "tipo_cita == 'terapeutica'",
     "perfil_terapeuta": "tipo_cita == 'terapeutica'",
+    "fecha_final": "tipo_cita == 'terapeutica'",
+    "dias_recurrentes"  : "tipo_cita == 'terapeutica'",
 
     # Campos exclusivos de tipo 'particular'
     "nombre_paciente": "tipo_cita == 'particular'",
@@ -1524,7 +1526,7 @@ class CitaAdmin(ModelAdmin):
     compressed_fields = True
     list_horizontal_scrollbar_top = True
     list_display = (
-        "get_destinatario_full_name", "tipo_cita", "fecha", 'hora', "motivo",
+         "tipo_cita", "fecha", 'hora', "motivo",
         'pendiente', 'cancelada', 'confirmada'
     )
     list_editable = ('pendiente', 'confirmada', 'cancelada',)
