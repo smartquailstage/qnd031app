@@ -188,6 +188,9 @@ def is_administrativo(request):
 def is_financiero(request):
     return request.user.groups.filter(name="financiero").exists()
 
+def is_comercial(request):
+    return request.user.groups.filter(name="comercial").exists()
+
 def is_admin_o_terapeuta(request):
     return is_administrativo(request) or is_terapeuta(request)
 
@@ -205,7 +208,7 @@ UNFOLD = {
     "DASHBOARD_CALLBACK": "usuarios.views.dashboard_callback",
     "SITE_DROPDOWN": [
         {"icon": "person", "title": _("Usuario del sistema"), "link": reverse_lazy("admin:auth_user_changelist")},
-        {"icon": "work", "title": _("Departamentos"), "link": reverse_lazy("admin:auth_group_changelist")},
+        {"icon": "key", "title": _("Roles de Usuario"), "link": reverse_lazy("admin:auth_group_changelist")},
         {"icon": "people", "title": _("Perfil Administrativos"), "link": reverse_lazy("admin:usuarios_administrativeprofile_changelist")},
         {"icon": "medical_services", "title": _("Servicios Terapeuticos"), "link": reverse_lazy("admin:serviceapp_servicioterapeutico_changelist")},
         {"icon": "map", "title": _("Sucursales- MEDDES®"), "link": reverse_lazy("admin:usuarios_sucursal_changelist")},
