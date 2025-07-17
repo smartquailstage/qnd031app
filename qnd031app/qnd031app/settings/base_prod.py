@@ -34,12 +34,15 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 if DEBUG:
     ADMINS = []
 else:
-    ADMINS = config(
+    # Obtener como lista separada por comas
+    raw_admins = config(
         'ADMINS',
-        cast=Csv(post_process=lambda val: tuple(val.split(':'))),
+        cast=Csv(),
         default='Soporte SmartQuail:support@smartquail.io'
     )
-    ADMINS = [ADMINS]  # Convierte en lista de tuplas
+
+    # Transformar cada valor tipo 'Nombre:correo' en una tupla
+    ADMINS = [tuple(val.split(':')) for val in raw_admins]
 
 
 # Optionally, you can add a default value or raise an exception if SECRET_KEY is not set
