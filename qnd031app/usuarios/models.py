@@ -1081,7 +1081,7 @@ class tareas(models.Model):
     material_adjunto =  models.FileField(upload_to='materiales/%Y/%m/%d/', blank=True, verbose_name="Material adjunto")
    
     
-    tarea_realizada = models.BooleanField(default=False, verbose_name="¿Paciente Culminó la Terapia ?")
+    tarea_realizada = models.BooleanField(default=False, verbose_name="¿Paciente Culminó la tarea Terapia ?")
 
 
 
