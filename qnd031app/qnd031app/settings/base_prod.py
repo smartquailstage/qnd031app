@@ -15,7 +15,7 @@ from decouple import config, Csv
 #prueba
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+DEBUG = os.environ.get('DEBUG')
 # Load environment variables from the .env_local file.
 ENV_FILE_PATH = BASE_DIR / ".env_prod"
 load_dotenv(dotenv_path=ENV_FILE_PATH)
@@ -29,20 +29,20 @@ SERVER_EMAIL = config('SERVER_EMAIL', default='support@smartquail.io')
 
 
 
-DEBUG = config('DEBUG', default=False, cast=bool)
+#DEBUG = config('DEBUG', default=False, cast=bool)
 
-if DEBUG:
-    ADMINS = []
-else:
+#if DEBUG:
+#    ADMINS = []
+#else:
     # Obtener como lista separada por comas
-    raw_admins = config(
-        'ADMINS',
-        cast=Csv(),
-        default='Soporte SmartQuail:support@smartquail.io'
-    )
+#    raw_admins = config(
+#        'ADMINS',
+#        cast=Csv(),
+#        default='Soporte SmartQuail:support@smartquail.io'
+#    )
 
     # Transformar cada valor tipo 'Nombre:correo' en una tupla
-    ADMINS = [tuple(val.split(':')) for val in raw_admins]
+#    ADMINS = [tuple(val.split(':')) for val in raw_admins]
 
 
 # Optionally, you can add a default value or raise an exception if SECRET_KEY is not set
