@@ -55,8 +55,9 @@ def badge_callback_asistencias(request):
 def badge_callback_tareas(request):
     try:
         conteos = {
-            "Realizadas": tareas.objects.filter(realizada=True).count(),
-            "Pendientes": tareas.objects.filter(tarea_no_realizada=True).count(),
+            "Asistencia": tareas.objects.filter(asistire=True).count(),
+            "Actividad realizada": tareas.objects.filter(actividad_realizada=True).count(),
+            "Tarea realizada": tareas.objects.filter(tarea_realizada=True).count(),
         }
 
         return " | ".join(f"{value}" for key, value in conteos.items())

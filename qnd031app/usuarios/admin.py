@@ -775,8 +775,8 @@ class TareasComponent(BaseComponent):
         tareas_asignadas = tareas.objects.filter(profile=profile)
 
         headers = [
-            "Título", "Fecha de envío", "Fecha de entrega",
-            "¿Realizada?", "¿Culminó terapia?", "Archivo adjunto", "Multimedia"
+            "Título", "Fecha de envío", "Fecha de entrega","Asisteráa la cita?",,
+            "¿Realizó la Tarea?", "¿Culminó terapia?", "Archivo adjunto", "Multimedia"
         ]
 
         rows = []
@@ -785,6 +785,7 @@ class TareasComponent(BaseComponent):
                 tarea.titulo or "Sin título",
                 tarea.fecha_envio.strftime("%d/%m/%Y") if tarea.fecha_envio else "Sin fecha",
                 tarea.fecha_entrega.strftime("%d/%m/%Y") if tarea.fecha_entrega else "Sin fecha",
+                "✅" if tarea.activida.asistire  else "❌",
                 "✅" if tarea.actividad_realizada  else "❌",
                 "✅" if tarea.tarea_realizada else "❌",
                 tarea.material_adjunto.url if tarea.material_adjunto else "N/A",
@@ -860,7 +861,7 @@ class tareasAdmin(ModelAdmin):
     list_editable = ['asistire',]
     list_sections = [TareasComponent]
 
-    list_display = ['get_terapeuta_full_name','profile', 'fecha_envio','fecha_entrega', 'asistire',]
+    list_display = ['get_terapeuta_full_name','profile', 'fecha_envio','fecha_entrega', 'asistire','actividad_realizada','tarea_realizada']
     exclude = ('terapeuta',)
     actions = [ export_to_csv, export_to_excel]
     verbose_name = "Registro Administrativo / Tarea Terapéutica"
