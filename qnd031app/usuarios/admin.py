@@ -785,7 +785,7 @@ class TareasComponent(BaseComponent):
                 tarea.titulo or "Sin título",
                 tarea.fecha_envio.strftime("%d/%m/%Y") if tarea.fecha_envio else "Sin fecha",
                 tarea.fecha_entrega.strftime("%d/%m/%Y") if tarea.fecha_entrega else "Sin fecha",
-                "✅" if tarea.activida.asistire  else "❌",
+                "✅" if tarea.asistire  else "❌",
                 "✅" if tarea.actividad_realizada  else "❌",
                 "✅" if tarea.tarea_realizada else "❌",
                 tarea.material_adjunto.url if tarea.material_adjunto else "N/A",
