@@ -1984,7 +1984,6 @@ class PerfilAdministrativoComponent(BaseComponent):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
         p = self.instance  # instancia actual de AdministrativeProfile
 
         headers = [
@@ -1995,17 +1994,17 @@ class PerfilAdministrativoComponent(BaseComponent):
         ]
 
         row = [
-            f"{p.user.first_name} {p.user.last_name}",
-            p.age,
+            f"{p.user.first_name} {p.user.last_name}" if p.user else "Sin usuario",
+            p.age if p.age is not None else "Sin información",
             p.date_joined.strftime('%d/%m/%Y') if p.date_joined else "Sin fecha",
-            dict(p.contract_type_choices).get(p.contract_type, "Desconocido"),
-            p.num_pacientes_captados if p.valor_por_paciente else "No registrado",
-            f"{p.valor_por_paciente} USD" if p.valor_por_paciente else "No registrado",
-            f"{p.comision_total_calculada} USD" if p.comision_total_calculada else "No registrado",
-      ]
+            dict(p.contract_type_choices).get(p.contract_type, "Desconocido") if p.contract_type else "Sin contrato",
+            p.num_pacientes_captados if p.num_pacientes_captados is not None else "No registrado",
+            f"{p.valor_por_paciente} USD" if p.valor_por_paciente is not None else "No registrado",
+            f"{p.comision_total_calculada} USD" if p.comision_total_calculada is not None else "No registrado",
+        ]
 
         context.update({
-            "title": f"Resumen del Perfil Administrativo",
+            "title": "Resumen del Perfil Administrativo",
             "table": {
                 "headers": headers,
                 "rows": [row],  # solo una fila
