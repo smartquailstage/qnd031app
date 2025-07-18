@@ -24,6 +24,7 @@ from django.core.exceptions import ValidationError
 from tinymce.models import HTMLField
 from django.contrib.auth.models import AbstractUser
 from serviceapp.models import ServicioTerapeutico
+from decimal import Decimal
 
 
 class AdministrativeProfile(models.Model):
