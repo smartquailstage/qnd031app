@@ -40,9 +40,9 @@
               <div class="mt-5 d-flex align-items-start justify-content-between">
                 <div class="">
                   <h3 class="mb-2">{{ profile.nombre_paciente }}</h3>
-                  <p class="mb-2" style ="margin-top:-15px;">{{ profile.apellidos_paciente }}, {{ profile.edad }} años </p>  
+                  <p class="mb-2" style ="margin-top:-15px;">{{ profile.apellidos_paciente }}, {{ profile.edad_detallada }}</p>  
                    <p class="mb-2" style ="margin-top:-5px;">Paciente - MEDDES®</p>   
-                   <p class="mb-1"><strong>{{ profile.institucion }}</strong></p>   
+                   <p class="mb-1"><strong>{{ profile.institucion|default:"Particular" }}</strong></p>  
                   <p class="mb-0"><strong>{{ profile.tipos|join:" + " }}</strong></p>            
                 </div>
               </div>
