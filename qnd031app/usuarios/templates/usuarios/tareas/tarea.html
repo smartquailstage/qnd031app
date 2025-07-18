@@ -21,7 +21,7 @@
                                 Estado: <span class="badge bg-success">Realizada</span>
                             {% endif %}
                         </h5>
-                        <h6 class="mb-0">Terapéuta: {{ tarea.terapeuta }}</h6>
+                        <h6 class="mb-0">Terapéuta: {{ tarea.terapeuta.first_name }} {{ tarea.terapeuta.last_name }}</h6>
                         <p class="mb-0">Paciente: {{ tarea.paciente.first_name }} {{ tarea.paciente.last_name }}</p>
                         <p class="mb-0"><strong>Enviada:</strong> {{ tarea.fecha_envio|date:"d M Y" }}</p>
                         <p class="mb-0"><strong>Entrega:</strong> {{ tarea.fecha_entrega|date:"d M Y" }}</p>
