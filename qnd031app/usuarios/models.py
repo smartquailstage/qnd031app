@@ -113,14 +113,17 @@ class AdministrativeProfile(models.Model):
         verbose_name = "Perfil administrativo"
         verbose_name_plural = "Perfiles administrativos"
 
+
+
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name} - {self.get_job_title_display()}"
     
     
     @property
     def comision_total_calculada(self):
-        # Por ejemplo, $10 por paciente
-        return self.num_pacientes_captados * self.valor_por_paciente 
+        if self.num_pacientes_captados is None or self.valor_por_paciente is None:
+            return Decimal('0.00')
+        return self.num_pacientes_captados * self.valor_por_paciente.amount
     
     
     @property
