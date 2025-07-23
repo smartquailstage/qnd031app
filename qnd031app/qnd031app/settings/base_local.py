@@ -256,7 +256,9 @@ UNFOLD = {
         {"icon": "person", "title": _("Usuario del sistema"), "link": reverse_lazy("admin:auth_user_changelist")},
         {"icon": "key", "title": _("Roles de Usuario"), "link": reverse_lazy("admin:auth_group_changelist")},
         {"icon": "people", "title": _("Perfil Administrativos"), "link": reverse_lazy("admin:usuarios_administrativeprofile_changelist")},
+        {"icon": "people", "title": _("Perfil de institucionales"), "link": reverse_lazy("admin:usuarios_perfilinstitucional_changelist")},
         {"icon": "medical_services", "title": _("Servicios Terapeuticos"), "link": reverse_lazy("admin:serviceapp_servicioterapeutico_changelist")},
+        
         {"icon": "map", "title": _("Sucursales- MEDDES®"), "link": reverse_lazy("admin:usuarios_sucursal_changelist")},
         {"icon": "edit", "title": _("Bitacora DEV-V.QND.0.3.1.0.1"), "link": reverse_lazy("admin:usuarios_bitacoradesarrollo_changelist")},
         {"icon": "circle", "title": _("+ A (Automatización)"), "link": reverse_lazy("admin:django_celery_results_taskresult_changelist")},

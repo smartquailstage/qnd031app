@@ -27,6 +27,10 @@ from serviceapp.models import ServicioTerapeutico
 from decimal import Decimal
 
 
+
+
+
+
 class AdministrativeProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='admin_profile')
     date_of_birth = models.DateField("Fecha de nacimiento")
@@ -176,7 +180,23 @@ class Prospeccion(models.Model):
         return self.nombre_institucion
 
 
+class PerfilInstitucional(models.Model):
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE)
+    colegio = models.ForeignKey(Prospeccion, on_delete=models.SET_NULL, null=True)
+    cargo = models.CharField(max_length=100, null=True, blank=True, verbose_name="Cargo del Usuario en la Institución")
+    phone_regex = RegexValidator(
+        regex=r'^\+?593?\d{9,15}$',
+        message="El número de teléfono debe estar en formato internacional. Ejemplo: +593XXXXXXXXX."
+    )
+    numero_contacto = PhoneNumberField(verbose_name="Teléfono convencional de contacto",validators=[phone_regex],default='+593')  # Puedes cambiar la región a la tuya
+    correo_electronico = models.EmailField()
 
+    def __str__(self):
+        return f"{self.usuario.get_full_name()} - {self.colegio.nombre_institucion if self.colegio else 'Sin colegio'} - {self.cargo if self.cargo else 'Sin cargo'}"
+
+    def nombre_completo(self):
+        full_name = self.usuario.get_full_name()
+        return full_name if full_name else self.usuario.username
 
 
 
@@ -211,7 +231,7 @@ class prospecion_administrativa(models.Model):
     es_en_terapia = models.BooleanField(default=False, verbose_name="¿Recibe terapia?")
     es_rechazado = models.BooleanField(default=False, verbose_name="¿Fue rechazado?")
     es_finalizado = models.BooleanField(default=False, verbose_name="¿Finalizó el proceso?")
-    es_inactivo = models.BooleanField(default=False, verbose_name="Acvtivo/Inactivo")
+    es_inactivo = models.BooleanField(default=False, verbose_name="Activo/Inactivo")
     fecha_activo = models.DateField(verbose_name="Fecha de Activación",null=True, blank=True)
     fecha_estado_actualizado = models.DateField(auto_now=True)
 
@@ -256,16 +276,26 @@ class prospecion_administrativa(models.Model):
     )
 
     # Responsable Institucional 1
-    responsable_institucional_1 = models.CharField(max_length=150, null=True, blank=True, verbose_name="Responsable Institucional 1")
-    cargo_responsable_1 = models.CharField(max_length=150, null=True, blank=True)
-    telefono_responsable_1 = PhoneNumberField(verbose_name="Teléfono responsable 1", validators=[phone_regex], default='+593')
-    mail_responsable_1 = models.EmailField(blank=True, null=True)
+    responsable_institucional_1 = models.ForeignKey(
+        PerfilInstitucional,
+        on_delete=models.CASCADE,
+        related_name='instituciones_asignadas',
+        verbose_name="Responsable Institucional 1",
+        null=True,
+        blank=True
+    )
+
 
     # Responsable Institucional 2
-    responsable_institucional_2 = models.CharField(max_length=150, null=True, blank=True, verbose_name="Responsable Institucional 2")
-    cargo_responsable_2 = models.CharField(max_length=150, null=True, blank=True)
-    telefono_responsable_2 = PhoneNumberField(verbose_name="Teléfono responsable 2", validators=[phone_regex], default='+593')
-    mail_responsable_2 = models.EmailField(blank=True, null=True)
+    responsable_institucional_2 = models.ForeignKey(
+        PerfilInstitucional,
+        on_delete=models.CASCADE,
+        related_name='instituciones_asignadas2',
+        verbose_name="Responsable Institucional 2",
+        null=True,
+        blank=True
+    )
+
 
     # Terapeutas
     terapeutas_asignados = models.ManyToManyField(
@@ -460,6 +490,28 @@ class Perfil_Terapeuta(models.Model):
 
 
 class ValoracionTerapia(models.Model):
+
+
+    institucion = models.ForeignKey(
+        'prospecion_administrativa',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Institución"
+    )
+
+    Insitucional_a_cargo = models.ForeignKey(
+        PerfilInstitucional,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='valoraciones_institucionales',
+        verbose_name="Institución a cargo"
+    )
+
+    es_particular = models.BooleanField(default=False, verbose_name="Valoración Particular")
+    es_convenio = models.BooleanField(default=False, verbose_name="Valoración por Convenio")
+
     perfil_terapeuta = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name='perfil_terapeuta_asignado',
@@ -477,20 +529,12 @@ class ValoracionTerapia(models.Model):
         blank=True
     )
 
-    es_particular = models.BooleanField(default=False, verbose_name="Valoración Particular")
-    es_convenio = models.BooleanField(default=False, verbose_name="Valoración por Convenio")
+
 
     fecha_valoracion = models.DateField(verbose_name="Fecha de Valoración")
     nombre = models.CharField(max_length=255, verbose_name="Nombre del Paciente Valorado")
     fecha_nacimiento = models.DateField(verbose_name="Fecha de nacimiento")
 
-    institucion = models.ForeignKey(
-        'prospecion_administrativa',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        verbose_name="Institución"
-    )
     institucion_sin = models.CharField(max_length=255, verbose_name="Nombre de institución sin convenio", blank=True, null=True)
 
     grado = models.CharField(max_length=100, blank=True, null=True)
@@ -657,6 +701,15 @@ class Profile(models.Model):
         on_delete=models.CASCADE,
         related_name="valoraciones_terapeuticas",
         verbose_name="Valoración Terapéutica", blank=True, null=True,
+    )
+
+    instirucional = models.ForeignKey(
+        'PerfilInstitucional',
+        on_delete=models.CASCADE,
+        related_name="instituciones3",
+        null=True,
+        blank=True,
+        verbose_name="Responsable Institucional"
     )
 
     user_terapeutas = models.ManyToManyField(
@@ -1060,6 +1113,14 @@ class tareas(models.Model):
         Sucursal,
         on_delete=models.CASCADE,
         related_name="sucursal6",null=True, blank=True
+    )
+    Insitucional_a_cargo = models.ForeignKey(
+        PerfilInstitucional,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='tareas_institucionales',
+        verbose_name="Institución a cargo"
     )
 
     cita_terapeutica_asignada = models.OneToOneField(Cita, on_delete=models.CASCADE, verbose_name="Elija la cita correspondiente a esta sesion de terapia", null=True, blank=True)

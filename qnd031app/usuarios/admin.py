@@ -2,7 +2,7 @@ import csv
 import xlsxwriter
 from django.contrib import admin
 from django.http import HttpResponse
-from .models import Profile, BitacoraDesarrollo, Perfil_Terapeuta, Mensaje, Sucursal , ValoracionTerapia ,DocenteCapacitado, Cita,ComentarioCita, TareaComentario ,AsistenciaTerapeuta,prospecion_administrativa,Prospeccion, tareas, pagos
+from .models import Profile, BitacoraDesarrollo, PerfilInstitucional ,Perfil_Terapeuta, Mensaje, Sucursal , ValoracionTerapia ,DocenteCapacitado, Cita,ComentarioCita, TareaComentario ,AsistenciaTerapeuta,prospecion_administrativa,Prospeccion, tareas, pagos
 from django.contrib.postgres.fields import ArrayField
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -32,7 +32,7 @@ from django.utils import timezone
 from unfold.components import BaseComponent, register_component
 from unfold.sections import TableSection, TemplateSection
 from django.utils.timezone import now
-from .forms import  CitaForm,AdministrativeProfileForm, AsistenciaTerapeutaAdminForm,CitaAdminForm, ValoracionTerapiaAdminForm, ProfileAdminForm, PerfilTerapeutaAdminForm,PerfilTerapeutaForm, ServicioTerapeuticoForm, ProspecionAdministrativaForm,PerfilTerapeutaForm,PerfilPacientesForm
+from .forms import  CitaForm,AdministrativeProfileForm,AsistenciaTerapeutaAdminForm,CitaAdminForm, ValoracionTerapiaAdminForm, ProfileAdminForm, PerfilTerapeutaAdminForm,PerfilTerapeutaForm, ServicioTerapeuticoForm, ProspecionAdministrativaForm,PerfilTerapeutaForm,PerfilPacientesForm
 from django.template.loader import render_to_string
 from unfold.decorators import action
 from django.http import HttpRequest
@@ -260,6 +260,8 @@ admin.site.register(User, CustomUserAdmin)
 
 
 
+
+
 @register_component
 class ValoracionComponent(BaseComponent):
     template_name = "admin/profile_card.html"
@@ -299,6 +301,163 @@ class ValoracionComponent(BaseComponent):
     def render(self):
         return render_to_string(self.template_name, self.get_context_data())
 
+
+import html
+
+@register_component
+class InstitucionalUsuarioComponent(BaseComponent):
+    template_name = "admin/profile_card.html"
+    name = "Usuario"
+
+    def __init__(self, request, instance=None):
+        self.request = request
+        self.instance = instance
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        u = self.instance.usuario
+
+        headers = ["Username", "Nombre completo", "Email del usuario"]
+        row = [
+            u.username if u else "Sin usuario",
+            u.get_full_name() if u else "N/A",
+            u.email if u else "N/A",
+        ]
+
+        context.update({
+            "title": "Información del Usuario",
+            "table": {
+                "headers": headers,
+                "rows": [row],
+            }
+        })
+        return context
+
+    def render(self):
+        return render_to_string(self.template_name, self.get_context_data())
+
+@register_component
+class InstitucionalContactoComponent(BaseComponent):
+    template_name = "admin/profile_card.html"
+    name = "Contacto"
+
+    def __init__(self, request, instance=None):
+        self.request = request
+        self.instance = instance
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        headers = ["Correo electrónico", "Número de contacto"]
+        row = [
+            self.instance.correo_electronico or "No disponible",
+            str(self.instance.numero_contacto) or "No disponible",
+        ]
+
+        context.update({
+            "title": "Información de Contacto",
+            "table": {
+                "headers": headers,
+                "rows": [row],
+            }
+        })
+        return context
+
+    def render(self):
+        return render_to_string(self.template_name, self.get_context_data())
+
+
+@register_component
+class InstitucionalColegioComponent(BaseComponent):
+    template_name = "admin/profile_card.html"
+    name = "Institución Educativa"
+
+    def __init__(self, request, instance=None):
+        self.request = request
+        self.instance = instance
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        colegio = self.instance.colegio
+
+        headers = ["Nombre del colegio"]
+        row = [
+            colegio.nombre_institucion if colegio else "No asignado"
+        ]
+
+        context.update({
+            "title": "Información de la Institución Educativa",
+            "table": {
+                "headers": headers,
+                "rows": [row],
+            }
+        })
+        return context
+
+    def render(self):
+        return render_to_string(self.template_name, self.get_context_data())
+
+@admin.register(PerfilInstitucional)
+class PerfilInstitucionalAdmin(ModelAdmin):
+    compressed_fields = True
+    warn_unsaved_form = True
+    list_filter_sheet = True
+    list_fullwidth = False
+    list_horizontal_scrollbar_top = False
+    list_disable_select_all = False
+    change_form_show_cancel_button = True
+
+    list_sections = [
+        InstitucionalUsuarioComponent,
+        InstitucionalContactoComponent,
+        InstitucionalColegioComponent
+    ]
+
+    list_display = [
+        'get_full_name', 'correo_electronico', 'numero_contacto', 'get_colegio'
+    ]
+
+    list_editable = ['correo_electronico', 'numero_contacto']
+
+    list_filter = [
+        'colegio',
+    ]
+
+    search_fields = (
+        'usuario__first_name',
+        'usuario__last_name',
+        'correo_electronico',
+        'colegio_nombre_institucion',
+    )
+
+   # form = PerfilInstitucionalAdminForm
+
+    actions = [export_to_csv, export_to_excel]
+
+    formfield_overrides = {
+        models.TextField: {
+            'widget': forms.Textarea(attrs={'rows': 4, 'cols': 60}),
+        },
+    }
+
+    readonly_preprocess_fields = {
+        "correo_electronico": html.unescape,
+        "numero_contacto": lambda content: content.strip(),
+    }
+
+    def get_full_name(self, obj):
+        return obj.usuario.get_full_name() if obj.usuario else "Sin usuario"
+    get_full_name.short_description = 'Nombre Completo'
+
+    def get_colegio(self, obj):
+        return obj.colegio.nombre_institucion if obj.colegio else "Sin colegio"
+    get_colegio.short_description = 'Colegio'
+    
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+
+
 @register_component
 class ValoracionExtraComponent(BaseComponent):
     template_name = "admin/profile_card.html"
@@ -335,31 +494,62 @@ class ValoracionExtraComponent(BaseComponent):
 
 @admin.register(ValoracionTerapia)
 class ValoracionTerapiaAdmin(ModelAdmin):
-    form= ValoracionTerapiaAdminForm
-    list_display = ['get_perfil_terapeuta_full_name','nombre', 'fecha_valoracion','recibe_asesoria','necesita_terapia','toma_terapia', 'proceso_terapia' ]
+    form = ValoracionTerapiaAdminForm
+
+    list_display = [
+        'get_perfil_terapeuta_full_name',
+        'Insitucional_a_cargo',
+        'nombre',
+        'fecha_valoracion',
+        'recibe_asesoria',
+        'necesita_terapia',
+        'toma_terapia',
+        'proceso_terapia'
+    ]
+
     exclude = ('perfil_terapeuta',)
-    search_fields = ['nombre', 'perfil_terapeuta__first_name', 'perfil_terapeuta__last_name']
-    list_editable = ['proceso_terapia', 'recibe_asesoria','necesita_terapia','toma_terapia' ]
+    search_fields = ['nombre', 'perfil_terapeuta__user__first_name', 'perfil_terapeuta__user__last_name']
+    list_editable = ['proceso_terapia', 'recibe_asesoria', 'necesita_terapia', 'toma_terapia']
     readonly_fields = ['edad']
-    list_sections = [ValoracionComponent,ValoracionExtraComponent]
-    #exclude = ('edad',)
-    list_filter = ("sucursal",'recibe_asesoria', 'proceso_terapia','es_particular','es_convenio')
+    list_sections = [ValoracionComponent, ValoracionExtraComponent]
+    list_filter = ("sucursal", 'recibe_asesoria', 'proceso_terapia', 'es_particular', 'es_convenio')
     order_by = ('-fecha_valoracion',)
     actions = [export_to_csv, export_to_excel]
 
-
-
+    @admin.display(description="Terapeuta a Cargo", ordering='perfil_terapeuta__user__first_name')
     def get_perfil_terapeuta_full_name(self, obj):
         return obj.perfil_terapeuta.get_full_name() if obj.perfil_terapeuta else "—"
-    get_perfil_terapeuta_full_name.short_description = "Terapeuta a Cargo"
-    get_perfil_terapeuta_full_name.admin_order_field = 'perfil_terapeuta__first_name'
 
     def save_model(self, request, obj, form, change):
         if not obj.pk:
-            obj.perfil_terapeuta = request.user
+            obj.perfil_terapeuta = request.user  # Esto depende si perfil_terapeuta apunta a User o PerfilTerapeuta
         super().save_model(request, obj, form, change)
-    
 
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        user = request.user
+
+        if user.is_superuser:
+            return qs  # 🔓 Superusuarios ven todo
+
+        # 👥 Grupo Coordinadores ve todo
+        if user.groups.filter(name='administrativo').exists():
+            return qs
+
+        # 🧑‍⚕️ Si el usuario es terapeuta (perfil_terapeuta vinculado a él)
+        try:
+            return qs.filter(perfil_terapeuta__user=user)
+        except:
+            pass
+
+        # 🏫 Si el usuario es institucional (institucional_a_cargo vinculado a él)
+        try:
+            perfil_institucional = PerfilInstitucional.objects.get(usuario=user)
+            return qs.filter(Insitucional_a_cargo=perfil_institucional)
+        except PerfilInstitucional.DoesNotExist:
+            return qs.none()  # ❌ No puede ver nada
+
+        return qs.none()
 
 
 from django.contrib.admin.filters import ChoicesFieldListFilter
@@ -556,6 +746,10 @@ class Perfil_TerapeutaAdmin(ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
+
+
+
+
 
 
 
@@ -805,85 +999,107 @@ class TareasComponent(BaseComponent):
     def render(self):
         return render_to_string(self.template_name, self.get_context_data())
 
+
 @admin.register(tareas)
 class tareasAdmin(ModelAdmin):
-    inlines = [TareasComentariosInline] 
-        # Display fields in changeform in compressed mode
-    compressed_fields = True  # Default: False
+    inlines = [TareasComentariosInline]
+    compressed_fields = True
+    warn_unsaved_form = True
 
-    # Warn before leaving unsaved changes in changeform
-    warn_unsaved_form = True  # Default: False
-
-    # Preprocess content of readonly fields before render
     readonly_preprocess_fields = {
-        "model_field_name": "html.unescape",
+        "model_field_name": html.unescape,
         "other_field_name": lambda content: content.strip(),
     }
 
-    # Display submit button in filters
     list_filter_submit = False
-
-    # Display changelist in fullwidth
     list_fullwidth = False
-
-    # Set to False, to enable filter as "sidebar"
     list_filter_sheet = True
-
-    # Position horizontal scrollbar in changelist at the top
     list_horizontal_scrollbar_top = False
-
-    # Dsable select all action in changelist
     list_disable_select_all = False
 
-    # Custom actions
-    actions_list = []  # Displayed above the results list
-    actions_row = []  # Displayed in a table row in results list
-    actions_detail = []  # Displayed at the top of for in object detail
-    actions_submit_line = []  # Displayed near save in object detail
+    actions_list = []
+    actions_row = []
+    actions_detail = []
+    actions_submit_line = []
 
-    # Changeform templates (located inside the form)
-    #change_form_before_template = "some/template.html"
-    #change_form_after_template = "some/template.html"
-
-    # Located outside of the form
-    #change_form_outer_before_template = "some/template.html"
-    #change_form_outer_after_template = "some/template.html"
-
-    # Display cancel button in submit line in changeform
-    change_form_show_cancel_button = True # show/hide cancel button in changeform, default: False
-
-
+    change_form_show_cancel_button = True
 
     search_fields = [
-    'profile__nombre_paciente',
-    'profile__apellidos_paciente',
-    'terapeuta__first_name',
-    'terapeuta__last_name',
-    'titulo',
-    'descripcion_actividad',
-    'descripcion_tarea',
+        'profile__nombre_paciente',
+        'profile__apellidos_paciente',
+        'terapeuta__first_name',
+        'terapeuta__last_name',
+        'titulo',
+        'descripcion_actividad',
+        'descripcion_tarea',
     ]
-    list_filter = (
-        'fecha_envio',
-        'fecha_entrega',)
-    list_editable = ['asistire','actividad_realizada','tarea_realizada']
+
+    list_filter = ('fecha_envio', 'fecha_entrega',)
+    list_editable = ['asistire', 'actividad_realizada', 'tarea_realizada']
     list_sections = [TareasComponent]
 
-    list_display = ['get_terapeuta_full_name','profile', 'fecha_envio','fecha_entrega', 'asistire','actividad_realizada','tarea_realizada']
+    list_display = [
+        'get_terapeuta_full_name',
+        'profile',
+        'fecha_envio',
+        'fecha_entrega',
+        'asistire',
+        'actividad_realizada',
+        'tarea_realizada'
+    ]
+
     exclude = ('terapeuta',)
-    actions = [ export_to_csv, export_to_excel]
+    actions = [export_to_csv, export_to_excel]
+
     verbose_name = "Registro Administrativo / Tarea Terapéutica"
     verbose_name_plural = "Administrativo / Tareas Terapéuticas"
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        user = request.user
+
+        if user.is_superuser or user.groups.filter(name='administrativo').exists():
+            return qs
+
+        # Tareas asignadas al terapeuta actual
+        terapeuta_qs = qs.filter(terapeuta=user)
+
+        # Tareas asignadas a la institución del usuario institucional
+        try:
+            perfil_institucional = PerfilInstitucional.objects.get(usuario=user)
+            institucional_qs = qs.filter(profile__instirucional=perfil_institucional)
+        except PerfilInstitucional.DoesNotExist:
+            institucional_qs = qs.none()
+
+        return terapeuta_qs | institucional_qs
+
+    def has_view_permission(self, request, obj=None):
+        if request.user.is_superuser:
+            return True
+        if obj is None:
+            return True
+        return (
+            obj.terapeuta == request.user or
+            (hasattr(obj.profile, 'institucional_a_cargo') and
+             getattr(obj.profile.institucional_a_cargo, 'usuario', None) == request.user)
+        )
+
+    def has_change_permission(self, request, obj=None):
+        return self.has_view_permission(request, obj)
+
+    def has_delete_permission(self, request, obj=None):
+        return self.has_view_permission(request, obj)
+
+    def save_model(self, request, obj, form, change):
+        if not obj.pk:
+            obj.terapeuta = request.user
+        super().save_model(request, obj, form, change)
 
     def get_terapeuta_full_name(self, obj):
         return obj.terapeuta.get_full_name() if obj.terapeuta else "—"
     get_terapeuta_full_name.short_description = "Terapeuta a Cargo"
     get_terapeuta_full_name.admin_order_field = 'terapeuta__first_name'
 
-    def save_model(self, request, obj, form, change):
-        if not obj.pk:
-            obj.terapeuta = request.user
-        super().save_model(request, obj, form, change)
 
 
 
@@ -1063,34 +1279,35 @@ class prospecion_administrativaAdmin(ModelAdmin):
     conditional_fields = {
         "fecha_activo": "es_activo == true",
     }
+
     inlines = [DocenteCapacitadoInline]
-    list_sections = [CustomTableSection]  # Agregar la sección personalizada
+    list_sections = [CustomTableSection]
 
-    # Mostrar campos clave
     list_display = [
-        'nombre','responsable_institucional_1','mail_responsable_1','telefono_responsable_1', 'es_en_cita','es_convenio_firmado', 'es_valoracion','es_inactivo', 'es_finalizado'
+        'nombre', 'responsable_institucional_1',
+        'es_en_cita', 'es_convenio_firmado', 'es_valoracion', 'es_inactivo', 'es_finalizado'
     ]
-    #list_editable = ('pendiente','confirmada','cancelada',)
+
     list_filter = (
-        'sucursal',  # Filtro por sucursal
+        'sucursal',
         'es_en_cita', 'es_valoracion', 'es_finalizado',
-        
-       
     )
-    list_editable = ['es_en_cita','es_convenio_firmado','es_inactivo', 'es_valoracion', 'es_finalizado']
 
-    search_fields = ['nombre', 'ciudad', 'responsable_institucional_1']
+    list_editable = [
+        'es_en_cita', 'es_convenio_firmado', 
+        'es_inactivo', 'es_valoracion', 'es_finalizado'
+    ]
 
+    search_fields = ['nombre', 'ciudad', 'responsable_institucional_1__username']
     actions = [export_to_csv, export_to_excel]
-
-    # Mostrar botón cancelar en formularios
     change_form_show_cancel_button = True
 
     formfield_overrides = {
         models.TextField: {"widget": WysiwygWidget},
-        # Si usas campos tipo ArrayField (de PostgreSQL)
-        # ArrayField: {"widget": ArrayWidget},
     }
+
+    verbose_name = "Perfil Institución"
+    verbose_name_plural = "Perfiles de Instituciones"
 
     class Media:
         css = {
@@ -1098,8 +1315,27 @@ class prospecion_administrativaAdmin(ModelAdmin):
         }
         js = ('admin/js/custom_admin.js',)
 
-    verbose_name = "Perfil Institución"
-    verbose_name_plural = "Perfiles de Instituciones"
+    # ✅ FILTRAR REGISTROS SEGÚN EL USUARIO RESPONSABLE
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        user = request.user
+
+        # 👑 Superusuarios ven todo
+        if user.is_superuser:
+            return qs
+
+        # 👥 Coordinadores ven todo
+        if user.groups.filter(name='administrativo').exists():
+            return qs
+
+        # 🔎 Usuarios normales solo ven sus propias instituciones
+        from .models import PerfilInstitucional  # Asegúrate que este modelo esté importado
+
+        try:
+            perfil_institucional = PerfilInstitucional.objects.get(usuario=user)
+            return qs.filter(responsable_institucional_1=perfil_institucional)
+        except PerfilInstitucional.DoesNotExist:
+            return qs.none()
 
 
 @admin.action(description="Duplicar mensajes seleccionados")
@@ -1896,9 +2132,29 @@ class ProfileAdmin(ModelAdmin):
 
     list_display = ['get_full_name','fecha_inicio','fecha_alta','es_retirado','es_en_terapia','es_pausa', 'es_alta']
 
+
     @admin.display(description='Paciente')
     def get_full_name(self, obj):
-        return obj.user.get_full_name()
+        return obj.user.get_full_name() if obj.user else "Sin usuario"
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        user = request.user
+
+        # 👑 Superusuarios ven todo
+        if user.is_superuser:
+            return qs
+
+        # 👥 Coordinadores ven todo
+        if user.groups.filter(name='Coordinadores').exists():
+            return qs
+
+        # 🏫 Usuarios institucionales ven solo lo suyo
+        try:
+            perfil_institucional = PerfilInstitucional.objects.get(usuario=user)
+            return qs.filter(instirucional=perfil_institucional)
+        except PerfilInstitucional.DoesNotExist:
+            return qs.none()  # 🔒 Sin perfil institucional → sin acceso
 
 
 
@@ -1947,6 +2203,7 @@ class ProfileAdmin(ModelAdmin):
     }),
     ('Ingresar Información Terapéutica', {
         'fields': (
+            'instirucional',
             'valorizacion_terapeutica',
             'user_terapeutas',            
             'tipos',
