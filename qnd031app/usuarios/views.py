@@ -15,7 +15,7 @@ import weasyprint
 from django.conf import settings
 from pathlib import Path
 from django.core.cache import cache
-from .models import Dashboard, Mensaje
+from .models import Dashboard, Mensaje, InformesTerapeuticos
 from django.shortcuts import render
 from .models import Cita,tareas, pagos  # Asegúrate de usar la ruta correcta
 from django.http import HttpResponseForbidden
@@ -87,33 +87,41 @@ def dashboard_callback(request, context):
 
     return context
 
+
+
 @login_required
 def user_logout(request):
     logout(request)
-    return redirect('usuarios:login')  
+    return redirect('usuarios:login')
 
 def user_login(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
             cd = form.cleaned_data
-            try:
-                user_obj = User.objects.get(email=cd['email'])
-                user = authenticate(request, username=user_obj.username, password=cd['password'])
-            except User.DoesNotExist:
-                user = None
+            email = cd['email']
+            password = cd['password']
+            
+            # Buscar todos los usuarios con ese email
+            user_qs = User.objects.filter(email=email)
 
-            if user is not None:
-                if user.is_active:
+            if not user_qs.exists():
+                return render(request, 'registration/editorial_literario/login_fail.html', {'form': form, 'error': 'Email no registrado'})
+
+            # Autenticar al primer usuario válido
+            for user_obj in user_qs:
+                user = authenticate(request, username=user_obj.username, password=password)
+                if user is not None and user.is_active:
                     login(request, user)
                     return redirect('usuarios:perfil')
-                else:
-                    return HttpResponse('Cuenta desactivada.')
-            else:
-                return render(request, 'registration/editorial_literario/login_fail.html', {'form': form})
+
+            # Si ninguno coincidió con la contraseña
+            return render(request, 'registration/editorial_literario/login_fail.html', {'form': form, 'error': 'Contraseña incorrecta'})
     else:
         form = LoginForm()
+
     return render(request, 'registration/editorial_literario/login.html', {'form': form})
+
 
 @login_required
 def dashboard(request):
@@ -683,34 +691,17 @@ def vista_certificados(request):
     else:
         form = AutorizacionForm(instance=profile)
 
-    mensajes = Mensaje.objects.filter(receptor=request.user).order_by('-fecha_envio')  # Para usarlo con tus cards
+    mensajes = Mensaje.objects.filter(receptor=request.user).order_by('-fecha_envio')
+
+    # 📂 Obtener archivos adjuntos del perfil del usuario
+    archivos = InformesTerapeuticos.objects.filter(profile=profile).order_by('-fecha_creado')
 
     return render(request, 'usuarios/certificados/certificados_total.html', {
         'form': form,
         'profile': profile,
-        'mensajes': mensajes
+        'mensajes': mensajes,
+        'archivos': archivos  # ← Archivos adjuntos disponibles en el template
     })
-
-
-@login_required
-def certificado_inicial(request):
-    perfil = Profile.objects.get(user=request.user)
-    return render(request, 'usuarios/documentos/certificado_inicial.html', {'perfil': perfil})
-
-@login_required
-def informe_inicial(request):
-    perfil = Profile.objects.get(user=request.user)
-    return render(request, 'usuarios/documentos/informe_inicial.html', {'perfil': perfil})
-
-@login_required
-def informes_seguimiento(request):
-    perfil = Profile.objects.get(user=request.user)
-    return render(request, 'usuarios/documentos/informes_seguimiento.html', {'perfil': perfil})
-
-@login_required
-def certificado_alta(request):
-    perfil = Profile.objects.get(user=request.user)
-    return render(request, 'usuarios/documentos/certificado_alta.html', {'perfil': perfil})
 
 
 

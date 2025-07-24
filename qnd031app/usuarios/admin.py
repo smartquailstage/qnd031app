@@ -2,7 +2,7 @@ import csv
 import xlsxwriter
 from django.contrib import admin
 from django.http import HttpResponse
-from .models import Profile, BitacoraDesarrollo, PerfilInstitucional ,Perfil_Terapeuta, Mensaje, Sucursal , ValoracionTerapia ,DocenteCapacitado, Cita,ComentarioCita, TareaComentario ,AsistenciaTerapeuta,prospecion_administrativa,Prospeccion, tareas, pagos
+from .models import Profile,InformesTerapeuticos, BitacoraDesarrollo, PerfilInstitucional ,Perfil_Terapeuta, Mensaje, Sucursal , ValoracionTerapia ,DocenteCapacitado, Cita,ComentarioCita, TareaComentario ,AsistenciaTerapeuta,prospecion_administrativa,Prospeccion, tareas, pagos
 from django.contrib.postgres.fields import ArrayField
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -706,7 +706,7 @@ class Perfil_TerapeutaAdmin(ModelAdmin):
 
     list_display = [
         'get_full_name', 'especialidad', 'activo', 
-        'servicio_domicilio', 'servicio_institucion','servicio_consulta'
+        'servicio_domicilio', 'servicio_institucion', 'servicio_consulta'
     ]
     list_editable = ['activo', 'servicio_domicilio', 'servicio_institucion', 'servicio_consulta']
 
@@ -722,10 +722,12 @@ class Perfil_TerapeutaAdmin(ModelAdmin):
         'user__last_name',
         'nombres_completos',
         'correo',
-        'sucursal__nombre',  # Asegúrate de que 'nombre' esté en Sucursal
+        'sucursal__nombre',
     )
 
-    form = PerfilTerapeutaAdminForm  # Preferible usar un solo form coherente
+
+
+    form = PerfilTerapeutaAdminForm
 
     actions = [export_to_csv, export_to_excel]
 
@@ -736,8 +738,8 @@ class Perfil_TerapeutaAdmin(ModelAdmin):
     }
 
     readonly_preprocess_fields = {
-        "model_field_name": "html.unescape",  # Este campo debería existir
-        "other_field_name": lambda content: content.strip(),  # Igual, verificar que existan
+        "model_field_name": "html.unescape",
+        "other_field_name": lambda content: content.strip(),
     }
 
     def get_full_name(self, obj):
@@ -746,8 +748,6 @@ class Perfil_TerapeutaAdmin(ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
-
-
 
 
 
@@ -2071,7 +2071,11 @@ class ProfileCardSection(TemplateSection):
     verbose_name = "Perfil"
 
 
-
+class InformesTerapeuticosInline(TabularInline):
+    model = InformesTerapeuticos
+    extra = 1
+    fields = ('titulo', 'archivo', 'fecha_creado')
+    readonly_fields = ('fecha_creado',)
 
 
 @admin.register(Profile)
@@ -2079,7 +2083,7 @@ class ProfileAdmin(ModelAdmin):
     autocomplete_fields = ['user','sucursales']
             # Display fields in changeform in compressed mode
     compressed_fields = True  # Default: False
-    inlines = [TareaItemInline,CitaItemInline,PagosItemInline,]
+    inlines = [TareaItemInline,CitaItemInline,PagosItemInline,InformesTerapeuticosInline]
     search_fields = ['user__username', 'user__first_name', 'user__last_name']
     list_sections = [ProfileComponent,ProfileComponentRepresentante,ProfileComponentTerapeutico,ProfileComponentInformes]  # Agregar sección personalizada
     form = ProfileAdminForm
@@ -2146,7 +2150,7 @@ class ProfileAdmin(ModelAdmin):
             return qs
 
         # 👥 Coordinadores ven todo
-        if user.groups.filter(name='Coordinadores').exists():
+        if user.groups.filter(name='administrativo').exists():
             return qs
 
         # 🏫 Usuarios institucionales ven solo lo suyo

@@ -443,13 +443,37 @@ class Perfil_Terapeuta(models.Model):
     numero_cuenta = models.CharField("Número de cuenta", max_length=30, blank=True, null=True)
    # cedula_titular = models.CharField("Cédula del Terapeuta", max_length=20, blank=True, null=True)
     #nombre_titular = models.CharField("Nombre del titular", max_length=100, blank=True, null=True)
+
+    servicio_domicilio = models.BooleanField(default=False, null=True, blank=True,verbose_name="Domicilio")
+
     pago_por_hora = MoneyField(
         max_digits=10,
         decimal_places=2,
         default_currency='USD',  # o 'PEN', 'ARS', etc.
         blank=True,
         null=True,
-        verbose_name="Costo por hora de terapia",
+        verbose_name="Costo por hora Domicilio",
+        )
+    servicio_institucion = models.BooleanField(default=True, null=True, blank=True,verbose_name="Institución")
+
+    pago_por_hora_institucion = MoneyField(
+        max_digits=10,
+        decimal_places=2,
+        default_currency='USD',  # o 'PEN', 'ARS', etc.
+        blank=True,
+        null=True,
+        verbose_name="Costo por hora Institución",
+        )
+
+    servicio_consulta = models.BooleanField(default=True, null=True, blank=True)
+
+    pago_por_hora_consulta = MoneyField(
+        max_digits=10,
+        decimal_places=2,
+        default_currency='USD',  # o 'PEN', 'ARS', etc.
+        blank=True,
+        null=True,
+        verbose_name="Costo por hora Consulta",
         )
     TIPO_SERVICIO = [
         ('TERAPIA DE LENGUAJE', 'Terapia de Lenguaje'),
@@ -457,6 +481,7 @@ class Perfil_Terapeuta(models.Model):
         ('PSICOLOGÍA', 'Psicología'),
         ('ESTIMULACIÓN TEMPRANA', 'Estimulación Temprana'),
         ('VALORACIÓN', 'Valoración'),
+        ('TERAPIA_OCUPACIONAL', 'Terapia Ocupacional'),
     ]
         
     tipos = models.JSONField(
@@ -465,9 +490,9 @@ class Perfil_Terapeuta(models.Model):
         help_text="Selecciona uno o más tipos"
     )
 
-    servicio_domicilio = models.BooleanField(default=False, null=True, blank=True,verbose_name="Domicilio")
-    servicio_institucion = models.BooleanField(default=True, null=True, blank=True,verbose_name="Institución")
-    servicio_consulta = models.BooleanField(default=True, null=True, blank=True,verbose_name="Consulta")
+    
+    
+    
 
     activo = models.BooleanField(default=True, verbose_name="¿Terapeuta activo?")
     class Meta:
@@ -595,6 +620,20 @@ class ValoracionTerapia(models.Model):
             months += 12
 
         return f"{years} año{'s' if years != 1 else ''} y {months} mes{'es' if months != 1 else ''}"
+
+
+class InformesTerapeuticos(models.Model):
+    profile = models.ForeignKey('Profile', on_delete=models.CASCADE, related_name='archivos_adjuntos')
+    titulo = models.CharField(max_length=255, verbose_name="Título del archivo")
+    archivo = models.FileField(upload_to='documentos/pacientes/', verbose_name="Archivo")
+    fecha_creado = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de creación")
+
+    class Meta:
+        verbose_name = "Informe Terapéutico"
+        verbose_name_plural = "Informes Terapéuticos"
+
+    def __str__(self):
+        return self.titulo
 
 
 

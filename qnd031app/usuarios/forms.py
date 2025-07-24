@@ -214,19 +214,26 @@ class PerfilTerapeutaAdminForm(forms.ModelForm):
 
     class Meta:
         model = Perfil_Terapeuta
-        fields = '__all__'
+        fields = [
+            'user', 'especialidad', 'nombres_completos', 'sexo', 'fecha_nacimiento', 'cedula',
+            'fecha_ingreso', 'sucursal', 'correo', 'telefonos_contacto',
+            'titulo_universitario', 'antecedentes_penales', 'certificados',
+            'banco', 'tipo_cuenta', 'numero_cuenta',
+            'servicio_domicilio', 'pago_por_hora',
+            'servicio_institucion', 'pago_por_hora_institucion',
+            'servicio_consulta', 'pago_por_hora_consulta',
+            'tipos', 'activo'
+        ]
         widgets = {
             'fecha_nacimiento': CustomDatePickerWidget(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Convertir JSONField a MultipleChoiceField
         if self.instance and self.instance.pk:
             self.initial['tipos'] = self.instance.tipos
 
     def clean_tipos(self):
-        # Guardar como lista en JSONField
         return self.cleaned_data['tipos']
 
     def save(self, commit=True):
@@ -236,6 +243,7 @@ class PerfilTerapeutaAdminForm(forms.ModelForm):
             instance.save()
             self.save_m2m()
         return instance
+
 
         
 class PerfilPacientesForm(forms.ModelForm):

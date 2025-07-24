@@ -1,7 +1,7 @@
 from datetime import timedelta, date
 from django.utils import timezone
 from django.db.models import Count
-from .models import pagos, tareas, Cita, Mensaje, Profile
+from .models import pagos, tareas, Cita, Mensaje, Profile,  InformesTerapeuticos
 from django.db.models import Q
 from collections import defaultdict
 from datetime import datetime
@@ -305,25 +305,32 @@ def pagos_context(request):
 
 
 
+
 def get_upload_fields(profile_instance):
     upload_fields = {}
+
+    # Archivos del modelo Profile (campos FileField / ImageField)
     for field in profile_instance._meta.get_fields():
         if isinstance(field, (FileField, ImageField)):
             value = getattr(profile_instance, field.name)
-            if value and hasattr(value, 'url'):  # Asegura que tiene un archivo subido
-                upload_fields[field.verbose_name or field.name] = value.url
+            if value and hasattr(value, 'url'):
+                label = field.verbose_name or field.name.replace('_', ' ').capitalize()
+                upload_fields[label] = value.url
+
+    # Archivos del modelo relacionado InformesTerapeuticos
+    for informe in profile_instance.archivos_adjuntos.all().order_by('-fecha_creado'):
+        upload_fields[f"🗂 {informe.titulo}"] = informe.archivo.url if informe.archivo else None
+
     return upload_fields
 
 def profile_uploads_context(request):
     if request.user.is_authenticated:
-        try:
-            profile = Profile.objects.get(user=request.user)
-            uploads = get_upload_fields(profile)
-            if uploads:  # Solo devolver si hay archivos subidos
-                return {
-                    'upload_fields': uploads
-                }
-            return {}  # No mostrar nada si no hay archivos
-        except Profile.DoesNotExist:
+        profiles = Profile.objects.filter(user=request.user)
+        if not profiles.exists():
             return {}
+
+        profile = profiles.first()
+        uploads = get_upload_fields(profile)
+        if uploads:
+            return {'upload_fields': uploads}
     return {}
