@@ -1734,11 +1734,12 @@ class CardSection(TemplateSection):
 
 
 from .widgets import CustomDatePickerWidget, CustomTimePickerWidget
+from unfold.contrib.filters.admin import RangeDateFilter, RangeDateTimeFilter
 # Asegúrate de importar: export_to_csv, export_to_excel, duplicar_citas, WysiwygWidget, ArrayWidget
 @admin.register(Cita)
-class CitaAdmin(ModelAdmin):
-    form = CitaForm  # Asegúrate de que CitaForm esté definido en tu forms.py
-    #form = CitaForm 
+class CitaAdmin(ModelAdmin):  # Asumo que ModelAdmin es de django.contrib.admin
+    form = CitaForm  # Asegúrate que esté definido en forms.py
+    
     formfield_overrides = {
         models.DateField: {'widget': CustomDatePickerWidget()},
         models.TimeField: {'widget': CustomTimePickerWidget()},
@@ -1748,62 +1749,86 @@ class CitaAdmin(ModelAdmin):
     list_sections_layout = "horizontal"
     
     conditional_fields = {
-    # Campos exclusivos de tipo 'terapeutica'
-    "profile": "tipo_cita == 'terapeutica'",
-    "perfil_terapeuta": "tipo_cita == 'terapeutica'",
-    "fecha_final": "tipo_cita == 'terapeutica'",
-    "dias_recurrentes"  : "tipo_cita == 'terapeutica'",
+        # Campos exclusivos de tipo 'terapeutica'
+        "profile": "tipo_cita == 'terapeutica'",
+        "perfil_terapeuta": "tipo_cita == 'terapeutica'",
+        "fecha": "tipo_cita == 'terapeutica'",
+        "fecha_fin": "tipo_cita == 'terapeutica'",
+        "dias_recurrentes": "tipo_cita == 'terapeutica'",
 
-    # Campos exclusivos de tipo 'particular'
-    "nombre_paciente": "tipo_cita == 'particular'",
+        # Campos exclusivos de tipo 'particular'
+        "nombre_paciente": "tipo_cita == 'particular'",
+        "fecha": "tipo_cita == 'particular'",
 
-    # Campos compartidos entre 'administrativa' y 'particular'
-    "destinatario": "tipo_cita == 'administrativa' ",
+        # Campos compartidos entre 'administrativa' y 'particular'
+        "destinatario": "tipo_cita == 'administrativa'",
 
-    # Campos comunes a todos los tipos
-    "fecha": "tipo_cita == 'terapeutica' or tipo_cita == 'administrativa' or tipo_cita == 'particular'",
-    "hora": "tipo_cita == 'terapeutica' or tipo_cita == 'administrativa' or tipo_cita == 'particular'",
-    "motivo": "tipo_cita == 'terapeutica' or tipo_cita == 'administrativa' or tipo_cita == 'particular'",
-    "notas": "tipo_cita == 'terapeutica' or tipo_cita == 'administrativa' or tipo_cita == 'particular'",
+        # Campos comunes a todos los tipos
+       # "fecha": "tipo_cita in ['terapeutica', 'administrativa', 'particular']",
+       # "hora": "tipo_cita in ['terapeutica', 'administrativa', 'particular']",
+        "motivo": "tipo_cita in ['terapeutica', 'administrativa', 'particular']",
+        "notas": "tipo_cita in ['terapeutica', 'administrativa', 'particular']",
     }
 
     list_per_page = 20
     compressed_fields = True
     list_horizontal_scrollbar_top = True
+
     list_display = (
-         "tipo_cita", "fecha", 'hora', "motivo",
-        'pendiente', 'cancelada', 'confirmada'
+        "tipo_cita", "nombre_asociado", "fecha", "hora", "hora_fin", "motivo",
+        "pendiente", "cancelada", "confirmada"
     )
-    list_editable = ('pendiente', 'confirmada', 'cancelada',)
+
+    list_editable = ("pendiente", "confirmada", "cancelada")
+
     search_fields = (
-        "motivo", "notas", "creador__first_name", "destinatario__first_name","profile__nombre_paciente",
+        "motivo", "notas", "creador__first_name", "destinatario__first_name", "profile__nombre_paciente",
     )
-    list_filter = ('sucursal', 'pendiente', 'confirmada', 'cancelada', "fecha",)
+
+    list_filter = (
+        "sucursal",
+        "pendiente",
+        "confirmada",
+        "cancelada",
+        ("fecha", RangeDateFilter),
+        ("hora", RangeDateTimeFilter),
+        ("hora_fin", RangeDateTimeFilter),
+    )
+
     change_form_show_cancel_button = True
-    exclude = ('creador',)
-    ordering = ['fecha']
+    exclude = ("creador",)
+    ordering = ["fecha"]
 
     actions = [export_to_csv, export_to_excel, duplicar_citas]
     actions_list = []
     actions_row = []
     actions_submit_line = []
 
+    @admin.display(description="Nombre asociado")
+    def nombre_asociado(self, obj):
+        if obj.tipo_cita == "terapeutica":
+            return str(obj.profile) if obj.profile else "—"
+        elif obj.tipo_cita == "administrativa":
+            return obj.destinatario.get_full_name() if obj.destinatario else "—"
+        elif obj.tipo_cita == "particular":
+            return obj.nombre_paciente or "—"
+        return "—"
+
     def get_destinatario_full_name(self, obj):
         return obj.destinatario.get_full_name() if obj.destinatario else "—"
     get_destinatario_full_name.short_description = "Cita para"
-    get_destinatario_full_name.admin_order_field = 'destinatario__first_name'
+    get_destinatario_full_name.admin_order_field = "destinatario__first_name"
 
     def get_admin_changelist_url(self):
         app_label = self.model._meta.app_label
         model_name = self.model._meta.model_name
         return reverse_lazy(f"admin:{app_label}_{model_name}_changelist")
 
-    @action
+    @admin.action(description="Volver a Registros")
     def changelist_action(self, request: HttpRequest, object_id=None):
         url = self.get_admin_changelist_url()
         return redirect(url)
 
-    changelist_action.short_description = "Volver a Registros"
     actions_detail = ["changelist_action"]
 
     def has_changelist_action_permission(self, request, object_id=None):
@@ -1817,12 +1842,6 @@ class CitaAdmin(ModelAdmin):
     @admin.display(description="Calendario")
     def ver_en_calendario(self, obj):
         return format_html('<a href="{}">Ver</a>', obj.get_calendar_url())
-
-        # Override sólo el campo dias_recurrentes para que use checkbox múltiple
-
-    
-
-
 
 
 

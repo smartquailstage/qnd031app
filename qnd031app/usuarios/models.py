@@ -1085,6 +1085,7 @@ class Cita(models.Model):
 
     fecha = models.DateField(null=True, blank=True, verbose_name="Fecha de la cita")
     hora = models.TimeField(null=True, blank=True, verbose_name="Hora de la cita")
+    hora_fin = models.TimeField(null=True, blank=True, verbose_name="Hora de finalización la cita")
     fecha_fin = models.DateField(
         null=True,
         blank=True,
