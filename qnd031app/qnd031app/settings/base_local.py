@@ -237,11 +237,20 @@ def is_administrativo(request):
 def is_financiero(request):
     return request.user.groups.filter(name="financiero").exists()
 
+def is_institucional(request):
+    return request.user.groups.filter(name="institucional").exists()
+
+def is_institucional_o_terapeuta_o_administrativo(request):
+    return is_institucional(request) or is_terapeuta(request)  or is_administrativo(request)
+
+def is_institucional_o_administrativo(request):
+    return is_institucional(request)   or is_administrativo(request)
+
 def is_admin_o_terapeuta(request):
     return is_administrativo(request) or is_terapeuta(request)
 
 def is_admin_o_financiero(request):
-    return is_administrativo(request) or is_financiero(request)
+    return is_administrativo(request) or is_financiero(request) 
 
 
 UNFOLD = {
@@ -377,7 +386,7 @@ UNFOLD = {
                 "link": reverse_lazy("admin:usuarios_prospecion_administrativa_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_prospeccion",
                 "badge_color": "custom-green-success",
-                "permission": is_administrativo,
+                "permission": is_institucional_o_administrativo,
             },
             {
                 "title": _("Terapéutas"),
@@ -393,7 +402,7 @@ UNFOLD = {
                 "link": reverse_lazy("admin:usuarios_profile_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_terapeutico",
                 "badge_color": "success",
-                "permission": is_admin_o_terapeuta,
+                "permission":  is_institucional_o_terapeuta_o_administrativo,
             },
             {
                 "title": _("Agenda"),
@@ -401,7 +410,7 @@ UNFOLD = {
                 "link": reverse_lazy("admin:usuarios_cita_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_citas",
                 "badge_color": "font-subtle-light",
-                "permission": is_admin_o_terapeuta,
+                "permission": is_administrativo,
             },
             {
                 "title": _("Pagos"),
@@ -424,7 +433,7 @@ UNFOLD = {
                 "link": reverse_lazy("admin:usuarios_valoracionterapia_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_valoracion",
                 "badge_color": "custom-red-alert",
-                "permission": is_admin_o_terapeuta,
+                "permission": is_institucional_o_terapeuta_o_administrativo,
             },
             {
                 "title": _("Terapias"),
@@ -432,7 +441,7 @@ UNFOLD = {
                 "link": reverse_lazy("admin:usuarios_tareas_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_tareas",
                 "badge_color": "custom-red-alert",
-                "permission": is_admin_o_terapeuta,
+                "permission": is_institucional_o_terapeuta_o_administrativo,
             },
         ],
     },
@@ -447,7 +456,7 @@ UNFOLD = {
                 "link": reverse_lazy("admin:usuarios_mensaje_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_notificaciones",
                 "badge_color": "custom-red-alert",
-                "permission": is_admin_o_terapeuta,
+                "permission": is_administrativo,
             },
         ],
     },

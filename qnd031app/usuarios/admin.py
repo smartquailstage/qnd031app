@@ -1694,7 +1694,7 @@ class CitasCohortComponent(BaseComponent):
 
             agenda[dia_str][hora_str].append({
                "nombre_paciente": cita.nombre_paciente or "Sin nombre",
-               "paciente": cita.profile.nombre_paciente + " " + cita.profile.apellidos_paciente  if cita.profile else "",
+              # "paciente": cita.profile.nombre_paciente + " " + cita.profile.apellidos_paciente  if cita.profile else "",
                "tipo_cita": cita.tipo_cita,
                 "motivo": cita.motivo or "Sin motivo",
                 "creador": cita.creador.get_full_name() if cita.creador else "Sin creador",
@@ -1739,6 +1739,16 @@ from unfold.contrib.filters.admin import RangeDateFilter, RangeDateTimeFilter
 @admin.register(Cita)
 class CitaAdmin(ModelAdmin):  # Asumo que ModelAdmin es de django.contrib.admin
     form = CitaForm  # Asegúrate que esté definido en forms.py
+
+    @admin.display(description="Paciente")
+    def nombre_asociado(self, obj):
+        if obj.tipo_cita == "terapeutica":
+            return str(obj.profile) if obj.profile else "—"
+        elif obj.tipo_cita == "administrativa":
+            return obj.destinatario.get_full_name() if obj.destinatario else "—"
+        elif obj.tipo_cita == "particular":
+            return obj.nombre_paciente or "—"
+        return "—"
     
     formfield_overrides = {
         models.DateField: {'widget': CustomDatePickerWidget()},
@@ -1748,34 +1758,13 @@ class CitaAdmin(ModelAdmin):  # Asumo que ModelAdmin es de django.contrib.admin
     list_sections = [CitasComponent, CitasCohortComponent]
     list_sections_layout = "horizontal"
     
-    conditional_fields = {
-        # Campos exclusivos de tipo 'terapeutica'
-        "profile": "tipo_cita == 'terapeutica'",
-        "perfil_terapeuta": "tipo_cita == 'terapeutica'",
-        "fecha": "tipo_cita == 'terapeutica'",
-        "fecha_fin": "tipo_cita == 'terapeutica'",
-        "dias_recurrentes": "tipo_cita == 'terapeutica'",
-
-        # Campos exclusivos de tipo 'particular'
-        "nombre_paciente": "tipo_cita == 'particular'",
-        "fecha": "tipo_cita == 'particular'",
-
-        # Campos compartidos entre 'administrativa' y 'particular'
-        "destinatario": "tipo_cita == 'administrativa'",
-
-        # Campos comunes a todos los tipos
-       # "fecha": "tipo_cita in ['terapeutica', 'administrativa', 'particular']",
-       # "hora": "tipo_cita in ['terapeutica', 'administrativa', 'particular']",
-        "motivo": "tipo_cita in ['terapeutica', 'administrativa', 'particular']",
-        "notas": "tipo_cita in ['terapeutica', 'administrativa', 'particular']",
-    }
 
     list_per_page = 20
     compressed_fields = True
     list_horizontal_scrollbar_top = True
 
     list_display = (
-        "tipo_cita", "nombre_asociado", "fecha", "hora", "hora_fin", "motivo",
+        "nombre_asociado","tipo_cita", "fecha", "hora", "hora_fin", "motivo",
         "pendiente", "cancelada", "confirmada"
     )
 
@@ -1791,8 +1780,8 @@ class CitaAdmin(ModelAdmin):  # Asumo que ModelAdmin es de django.contrib.admin
         "confirmada",
         "cancelada",
         ("fecha", RangeDateFilter),
-        ("hora", RangeDateTimeFilter),
-        ("hora_fin", RangeDateTimeFilter),
+        #("hora", RangeDateTimeFilter),
+        #("hora_fin", RangeDateTimeFilter),
     )
 
     change_form_show_cancel_button = True
@@ -1804,15 +1793,7 @@ class CitaAdmin(ModelAdmin):  # Asumo que ModelAdmin es de django.contrib.admin
     actions_row = []
     actions_submit_line = []
 
-    @admin.display(description="Nombre asociado")
-    def nombre_asociado(self, obj):
-        if obj.tipo_cita == "terapeutica":
-            return str(obj.profile) if obj.profile else "—"
-        elif obj.tipo_cita == "administrativa":
-            return obj.destinatario.get_full_name() if obj.destinatario else "—"
-        elif obj.tipo_cita == "particular":
-            return obj.nombre_paciente or "—"
-        return "—"
+
 
     def get_destinatario_full_name(self, obj):
         return obj.destinatario.get_full_name() if obj.destinatario else "—"
