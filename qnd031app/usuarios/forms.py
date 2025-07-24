@@ -287,7 +287,7 @@ class CitaAdminForm(forms.ModelForm):
     class Meta:
         model = Cita
         fields = [  # No incluimos `fecha` directamente
-            'destinatario', 'sucursal', 'tipo_cita', 'motivo', 'notas',
+            'destinatario','fecha','hora' ,'sucursal', 'tipo_cita', 'motivo', 'notas',
             'profile', 'profile_terapeuta',
             'pendiente', 'confirmada', 'cancelada'
         ]

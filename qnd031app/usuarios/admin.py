@@ -174,14 +174,16 @@ custom_admin_site = CustomAdminSite(name="custom_admin_site")
 def export_to_csv(modeladmin, request, queryset): 
     opts = modeladmin.model._meta 
     response = HttpResponse(content_type='text/csv') 
-    response['Content-Disposition'] = 'attachment;' \
-        'filename={}.csv'.format(opts.verbose_name) 
+    response['Content-Disposition'] = f'attachment; filename={opts.verbose_name}.csv' 
     writer = csv.writer(response) 
      
-    fields = [field for field in opts.get_fields() if not field.many_to_many and not field.one_to_many] 
-    # Write a first row with header information 
+    # Solo campos concretos del modelo
+    fields = [field for field in opts.fields if not field.many_to_many and not field.one_to_many] 
+
+    # Escribir encabezados
     writer.writerow([field.verbose_name for field in fields]) 
-    # Write data rows 
+
+    # Escribir datos
     for obj in queryset: 
         data_row = [] 
         for field in fields: 
@@ -190,20 +192,25 @@ def export_to_csv(modeladmin, request, queryset):
                 value = value.strftime('%d/%m/%Y') 
             data_row.append(value) 
         writer.writerow(data_row) 
+
     return response 
-export_to_csv.short_description = 'Export to CSV' 
+
+export_to_csv.short_description = 'Exportar a CSV'
 
 
 def export_to_excel(modeladmin, request, queryset):
     opts = modeladmin.model._meta
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename="{}.xlsx"'.format(opts.verbose_name_plural)
+    response['Content-Disposition'] = f'attachment; filename={opts.verbose_name_plural}.xlsx'
 
-    workbook = xlsxwriter.Workbook(response)
+    # xlsxwriter requiere un objeto tipo archivo (BytesIO)
+    import io
+    output = io.BytesIO()
+    workbook = xlsxwriter.Workbook(output)
     worksheet = workbook.add_worksheet()
 
-    # Obtener los campos del modelo
-    fields = [field for field in opts.get_fields() if not field.many_to_many and not field.one_to_many]
+    # Solo campos concretos del modelo
+    fields = [field for field in opts.fields if not field.many_to_many and not field.one_to_many]
 
     # Escribir encabezados
     for i, field in enumerate(fields):
@@ -215,9 +222,12 @@ def export_to_excel(modeladmin, request, queryset):
             value = getattr(obj, field.name)
             if isinstance(value, datetime):
                 value = value.strftime('%d/%m/%Y')
-            worksheet.write(row_num, col_num, str(value))  # Convertir a cadena de texto
+            worksheet.write(row_num, col_num, str(value))  # Convertir a string
 
     workbook.close()
+    output.seek(0)
+    response.write(output.read())
+
     return response
 
 export_to_excel.short_description = 'Exportar a Excel'
@@ -936,6 +946,7 @@ class TareasComentariosInline(TabularInline):
     
 
 
+
 @register_component
 class TareasComponent(BaseComponent):
     template_name = "admin/profile_card.html"
@@ -1016,6 +1027,18 @@ class tareasAdmin(ModelAdmin):
     list_filter_sheet = True
     list_horizontal_scrollbar_top = False
     list_disable_select_all = False
+
+    fieldsets = (
+        ('Información General', {
+            'fields': ('profile', 'fecha_envio', 'fecha_entrega')
+        }),
+        ('Actividad Terapéutica', {
+            'fields': ('titulo', 'descripcion_actividad', 'media_terapia')
+        }),
+        ('Entrega y Evaluación', {
+            'fields': ('actividad_realizada', 'tarea_realizada', 'material_adjunto')
+        }),
+    )
 
     actions_list = []
     actions_row = []
@@ -1693,7 +1716,12 @@ class CitasCohortComponent(BaseComponent):
             hora_str = cita_dt.strftime("%H:%M")
 
             agenda[dia_str][hora_str].append({
-               "nombre_paciente": cita.nombre_paciente or "Sin nombre",
+               "nombre_paciente": (
+                cita.profile.nombre_paciente if cita.tipo_cita == "terapeutica" and cita.profile else
+                cita.destinatario.get_full_name() if cita.tipo_cita == "administrativa" and cita.destinatario else
+                cita.nombre_paciente if cita.tipo_cita == "particular" else
+                "Sin nombre"
+                ),
               # "paciente": cita.profile.nombre_paciente + " " + cita.profile.apellidos_paciente  if cita.profile else "",
                "tipo_cita": cita.tipo_cita,
                 "motivo": cita.motivo or "Sin motivo",
@@ -1739,8 +1767,31 @@ from unfold.contrib.filters.admin import RangeDateFilter, RangeDateTimeFilter
 @admin.register(Cita)
 class CitaAdmin(ModelAdmin):  # Asumo que ModelAdmin es de django.contrib.admin
     form = CitaForm  # Asegúrate que esté definido en forms.py
+    conditional_fields = {
+        # Mostrar en todos los tipos
+        "fecha": "tipo_cita != null",
+        "hora": "tipo_cita != null",
+        "hora_fin": "tipo_cita != null",
+        "fecha_fin": "tipo_cita != null",
+        "dias_recurrentes": "tipo_cita != null",
+        "motivo": "tipo_cita != null",
+        "notas": "tipo_cita != null",
 
-    @admin.display(description="Paciente")
+        # Condicionales específicos
+        "profile": "tipo_cita == 'terapeutica'",
+        "nombre_paciente": "tipo_cita == 'particular'",
+        "destinatario": "tipo_cita == 'administrativa'",
+    }
+
+    @admin.display(description="Duración")
+    def duracion(self, obj):
+        return obj.get_duracion()
+
+    @admin.display(description="Fecha relativa")
+    def fecha_relativa(self, obj):
+        return obj.get_fecha_relativa()
+
+    @admin.display(description="Cita con:")
     def nombre_asociado(self, obj):
         if obj.tipo_cita == "terapeutica":
             return str(obj.profile) if obj.profile else "—"
@@ -1764,7 +1815,7 @@ class CitaAdmin(ModelAdmin):  # Asumo que ModelAdmin es de django.contrib.admin
     list_horizontal_scrollbar_top = True
 
     list_display = (
-        "nombre_asociado","tipo_cita", "fecha", "hora", "hora_fin", "motivo",
+        "nombre_asociado","tipo_cita", "fecha_relativa", "hora", "hora_fin", "duracion",
         "pendiente", "cancelada", "confirmada"
     )
 
@@ -1810,7 +1861,6 @@ class CitaAdmin(ModelAdmin):  # Asumo que ModelAdmin es de django.contrib.admin
         url = self.get_admin_changelist_url()
         return redirect(url)
 
-    actions_detail = ["changelist_action"]
 
     def has_changelist_action_permission(self, request, object_id=None):
         return True
@@ -1823,6 +1873,8 @@ class CitaAdmin(ModelAdmin):  # Asumo que ModelAdmin es de django.contrib.admin
     @admin.display(description="Calendario")
     def ver_en_calendario(self, obj):
         return format_html('<a href="{}">Ver</a>', obj.get_calendar_url())
+
+    
 
 
 

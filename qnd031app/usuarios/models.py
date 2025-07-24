@@ -348,7 +348,7 @@ class DocenteCapacitado(models.Model):
     ]
 
     institucion = models.ForeignKey(
-        prospecion_administrativa,
+        prospecion_administrativa,  # Asegúrate de que esta clase esté importada correctamente
         on_delete=models.CASCADE,
         related_name="docentes_capacitados"
     )
@@ -367,6 +367,8 @@ class DocenteCapacitado(models.Model):
 
     def __str__(self):
         return f"{self.nombres} {self.apellidos} - {self.institucion.nombre}"
+
+
 
 
 
@@ -850,7 +852,7 @@ class Profile(models.Model):
 
     @property
     def nombre_completo(self):
-        return f"{self.nombre_paciente} -  {self.institucion} -  {self.apellidos_paciente}".strip()
+        return f" {self.institucion} / {self.nombre_paciente} {self.apellidos_paciente}  ".strip()
 
     def __str__(self):
         return self.nombre_completo
@@ -1084,8 +1086,8 @@ class Cita(models.Model):
     )
 
     fecha = models.DateField(null=True, blank=True, verbose_name="Fecha de la cita")
-    hora = models.TimeField(null=True, blank=True, verbose_name="Hora de la cita")
-    hora_fin = models.TimeField(null=True, blank=True, verbose_name="Hora de finalización la cita")
+    hora = models.TimeField(null=True, blank=True, verbose_name="Tiempo inicial")
+    hora_fin = models.TimeField(null=True, blank=True, verbose_name="Tiempo Final")
     fecha_fin = models.DateField(
         null=True,
         blank=True,
@@ -1121,6 +1123,50 @@ class Cita(models.Model):
     pendiente = models.BooleanField(default=True, verbose_name="Pendiente")
     confirmada = models.BooleanField(default=False, verbose_name="Confirmada")
     cancelada = models.BooleanField(default=False, verbose_name="Cancelada")
+
+    def get_duracion(self):
+        if self.hora and self.hora_fin:
+            # Combinar con una fecha base para poder restar
+            base_date = datetime(2000, 1, 1)
+            hora_inicio = datetime.combine(base_date, self.hora)
+            hora_final = datetime.combine(base_date, self.hora_fin)
+
+            if hora_final < hora_inicio:
+                hora_final += timedelta(days=1)  # Para casos de paso de medianoche
+
+            duracion = hora_final - hora_inicio
+            horas, resto = divmod(duracion.seconds, 3600)
+            minutos = resto // 60
+
+            return f"{horas}h {minutos}m"
+        return "—"
+
+    def get_fecha_relativa(self):
+        if not self.fecha:
+            return "Sin fecha"
+
+        hoy = date.today()
+        manana = hoy + timedelta(days=1)
+        diferencia = (self.fecha - hoy).days
+
+        if self.fecha == hoy:
+            return "Hoy"
+        elif self.fecha == manana:
+            return "Mañana"
+        elif 2 <= diferencia <= 7:
+            return "Esta semana"
+        elif 8 <= diferencia <= 14:
+            return "Próxima semana"
+        elif self.fecha.month == hoy.month and self.fecha.year == hoy.year:
+            return "Este mes"
+        elif self.fecha.month == (hoy.month % 12) + 1 and self.fecha.year == hoy.year:
+            return "Próximo mes"
+        elif self.fecha.year == hoy.year + 1:
+            return "Próximo año"
+        elif self.fecha < hoy:
+            return "Fecha pasada"
+        else:
+            return self.fecha.strftime("%d/%m/%Y") 
 
     def __str__(self):
         fecha_str = self.fecha.strftime('%d/%m/%Y') if self.fecha else 'Sin fecha'
@@ -1163,7 +1209,10 @@ class tareas(models.Model):
         verbose_name="Institución a cargo"
     )
 
-    cita_terapeutica_asignada = models.OneToOneField(Cita, on_delete=models.CASCADE, verbose_name="Elija la cita correspondiente a esta sesion de terapia", null=True, blank=True)
+    cita_terapeutica_asignada = models.DateField(null=True, blank=True, verbose_name="Fecha Sesion de Terapia")
+    hora = models.TimeField(null=True, blank=True, verbose_name="hora de inicio")
+    hora_fin = models.TimeField(null=True, blank=True, verbose_name="Hora de finalización")
+
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE, verbose_name="Asignar perfil de paciente", related_name='Asignar_perfil_de_paciente2')
     fecha_envio = models.DateField(blank=True, null=True, verbose_name="Fecha de envio de tarea")
     terapeuta = models.ForeignKey(
@@ -1213,7 +1262,7 @@ class TareaComentario(models.Model):
     class Meta:
         ordering = ['fecha']
         verbose_name = "Revisar Tarea Terapeutica"
-        verbose_name_plural = "Tareas Terapeuticas"
+        verbose_name_plural = "Corregir Tareas Terapeuticas"
 
     def __str__(self):
         return f"Corregir Tarea  {self.autor.username} - {self.tarea.titulo}"
