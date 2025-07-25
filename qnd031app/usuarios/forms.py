@@ -329,6 +329,7 @@ class ProfileAdminForm(forms.ModelForm):
         ('PSICOLOGÍA', 'Psicología'),
         ('ESTIMULACIÓN TEMPRANA', 'Estimulación Temprana'),
         ('VALORACIÓN', 'Valoración'),
+        ('TERAPIA OCUPACIONAL', 'Terápia Ocupacional'),
     ]
 
     tipos = forms.MultipleChoiceField(

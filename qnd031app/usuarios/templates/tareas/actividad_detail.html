@@ -1,0 +1,68 @@
+{% extends "base_dash.html" %}
+{% load static %}
+
+{% block content %}
+<div class="page-content-wrapper">
+    <div class="page-content">
+        <div class="row justify-content-center">
+            <div class="col-md-10 col-lg-8">
+                <div class="col">
+                    <div class="card radius-10 bg-primary text-white h-100">
+                        <div class="card-body text-left">
+                            <div class="d-flex align-items-center mb-3 justify-content-center">
+                                <div class="service-box bg-white text-white me-2">
+                                    <div class="font-22">
+                                        <ion-icon name="pulse-outline"></ion-icon>
+                                    </div>
+                                </div>
+                                <h6 class="mb-0 border-bottom">Actividad Terapéutica</h6>
+                            </div>
+
+                            {% if actividad.media_terapia %}
+                                <div class="position-relative d-inline-block">
+                                    <a href="{{ actividad.media_terapia.url }}" target="_blank">
+                                        <img id="thumbnailPreview"
+                                             src="{% static 'img/default_video_thumb.jpg' %}"
+                                             alt="Previsualización del video"
+                                             class="img-fluid rounded-circle shadow"
+                                             style="width: 160px; height: 160px; object-fit: cover;">
+
+                                        <div class="position-absolute top-50 start-50 translate-middle">
+                                            <span class="bg-white text-secondary rounded-circle p-2 shadow" style="font-size: 1.5rem;">
+                                                <i class="bi bi-play-fill"></i>
+                                            </span>
+                                        </div>
+                                    </a>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-light text-dark mt-3">
+                                    <strong>ℹ️ No hay video disponible para esta actividad.</strong>
+                                </div>
+                            {% endif %}
+
+                            <div class="mt-3 pt-2 border-top">
+                                <p class="mb-0">
+                                    <strong>Realizado:</strong> {{ actividad.fecha_actividad|date:"d/m/Y H:i" }}
+                                </p>
+                                <p class="mb-0">
+                                    <strong>Terapeuta Responsable:</strong> Dr. {{ actividad.terapeuta.get_full_name }}
+                                </p>
+                                <p class="mb-0">
+                                    <strong>Lugar:</strong> {{ actividad.sucursal }}
+                                </p>
+                                <p class="mb-0">
+                                    <strong>Actividad:</strong> {{ actividad.descripcion_actividad|safe }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if actividad.media_terapia %}
+                        <video id="hiddenVideo" src="{{ actividad.media_terapia.url }}" style="display: none;"></video>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

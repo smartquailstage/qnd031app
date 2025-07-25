@@ -479,6 +479,22 @@ class Perfil_Terapeuta(models.Model):
         null=True,
         verbose_name="Costo por hora Consulta",
         )
+
+    institucional_a_domicilio = models.BooleanField(default=True, null=True, blank=True)
+
+    pago_por_hora_institucional_a_domicilio = MoneyField(
+        max_digits=10,
+        decimal_places=2,
+        default_currency='USD',  # o 'PEN', 'ARS', etc.
+        blank=True,
+        null=True,
+        verbose_name="Institucional a Domicilio",
+        )
+
+
+
+
+
     TIPO_SERVICIO = [
         ('TERAPIA DE LENGUAJE', 'Terapia de Lenguaje'),
         ('ESTIMULACIÓN COGNITIVA', 'Estimulación Cognitiva'),
@@ -767,6 +783,7 @@ class Profile(models.Model):
         ('PSICOLOGÍA', 'Psicología'),
         ('ESTIMULACIÓN TEMPRANA', 'Estimulación Temprana'),
         ('VALORACIÓN', 'Valoración'),
+        ('TERAPIA OCUPACIONAL', 'Terápia Ocupacional'),
     ]
         
     tipos = models.JSONField(

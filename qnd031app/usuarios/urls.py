@@ -59,6 +59,16 @@ urlpatterns = [
     path('nuevo_mensaje/', views.enviar_mensaje, name='enviar_mensaje'),
     path('Confirmacion/', views.msj_success, name='success'),
     path('configuracion_de_usuario/', views.config_view , name='configuraciones'),
+
+    path('tareas/', views.TareaListView.as_view(), name='tarea_list'),
+    path('tareas/<int:pk>/', views.TareaDetailView.as_view(), name='tarea_detail'),
+
+    path('actividades/', views.ActividadListView.as_view(), name='actividad_list'),
+    path('actividades/<int:pk>/', views.ActividadDetailView.as_view(), name='actividad_detail'),
+
+    path('terapias/', views.TerapiaListView.as_view(), name='terapia_list'),
+    path('terapias/<int:pk>/', views.TerapiaDetailView.as_view(), name='terapia_detail'),
+
    # path('actividades_espacio_publico/', views.user_activity_login, name='login_activity'),
    # path('Reserva_de_espacio_publico/', views.user_activity_login, name='login_activity'),
   

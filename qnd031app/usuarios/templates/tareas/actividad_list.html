@@ -1,0 +1,44 @@
+{% extends "base_dash.html" %}
+{% load static %}
+
+{% block content %}
+<div class="page-content-wrapper">
+    <div class="page-content">
+        <div class="row">
+            {% include 'usuarios/logo.html' %}
+        </div>
+
+        <div class="row">
+            <div class="col-12 col-lg-8 col-xl-9">
+                <h4 class="mb-4">Actividades Asignadas</h4>
+
+                {% if actividades %}
+                    <div class="row row-cols-1 row-cols-lg-3">
+                        {% for actividad in actividades %}
+                            <div class="col mb-3">
+                                <a href="{% url 'usuarios:actividad_detail' actividad.pk %}">
+                                    <div class="card radius-10 bg-info text-white">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ actividad.titulo|default:"(Sin título)"|truncatechars:40 }}</h5>
+                                            <p class="card-text">
+                                                <strong>Fecha:</strong> {{ actividad.fecha_actividad|date:"d M Y H:i" }}<br>
+                                                <strong>Terapeuta:</strong> {{ actividad.terapeuta.get_full_name }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        No tienes actividades asignadas.
+                    </div>
+                {% endif %}
+            </div>
+
+            {% include 'usuarios/panel_usuario.html' %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -19,6 +19,8 @@ from .models import Dashboard, Mensaje, InformesTerapeuticos
 from django.shortcuts import render
 from .models import Cita,tareas, pagos  # Asegúrate de usar la ruta correcta
 from django.http import HttpResponseForbidden
+from django.views.generic import ListView, DetailView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 @login_required
@@ -720,3 +722,98 @@ class DashboardPrincipalView(UnfoldModelAdminViewMixin, TemplateView):
     title = "Dashboard Principal"  # Esto aparece como título en la página
     permission_required = ()       # Asegúrate de configurar esto para tu seguridad
     template_name = "usuarios/dashboard_principal.html"
+
+
+
+
+
+
+
+class TareaListView(ListView):
+    model = tareas
+    template_name = 'tareas/tarea_list.html'
+    context_object_name = 'tareas'
+
+    def get_queryset(self):
+        return tareas.objects.filter(
+            profile__user=self.request.user,
+            envio_tarea=True  # ⬅️ Solo tareas enviadas
+        ).order_by('-fecha_envio')
+
+
+class TareaDetailView(LoginRequiredMixin, DetailView):
+    model = tareas
+    template_name = 'usuarios/tareas/tarea.html'
+    context_object_name = 'tarea'
+
+    def get_object(self, queryset=None):
+        # Garantizar que la tarea pertenece al usuario autenticado
+        return get_object_or_404(tareas, pk=self.kwargs['pk'], profile__user=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['comentarios'] = self.object.comentarios.all()
+        context['form'] = TareaComentarioForm()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()  # Define self.object para el template
+        form = TareaComentarioForm(request.POST, request.FILES)
+        
+        if form.is_valid():
+            comentario = form.save(commit=False)
+            comentario.autor = request.user
+            comentario.tarea = self.object
+            comentario.save()
+
+            # Marcar tarea como realizada
+            self.object.actividad_realizada = True  # O tarea.realizada, si ese es el campo correcto
+            self.object.save()
+
+            return redirect('usuarios:ver_tarea', pk=self.object.pk)
+
+        # Si el formulario es inválido, volver a renderizar con errores
+        context = self.get_context_data()
+        context['form'] = form
+        return self.render_to_response(context)
+
+
+class ActividadListView(LoginRequiredMixin, ListView):
+    model = tareas
+    template_name = 'tareas/actividad_list.html'
+    context_object_name = 'actividades'
+
+    def get_queryset(self):
+        # Solo mostrar actividades enviadas, del usuario actual
+        return tareas.objects.filter(
+            envio_tarea=True,
+            profile__user=self.request.user
+        ).order_by('-fecha_envio')
+
+
+class ActividadDetailView(LoginRequiredMixin, DetailView):
+    model = tareas
+    template_name = 'tareas/actividad_detail.html'
+    context_object_name = 'actividad'
+
+    def get_object(self, queryset=None):
+        # Solo permite ver actividades propias que han sido enviadas
+        return get_object_or_404(
+            tareas,
+            pk=self.kwargs['pk'],
+            profile__user=self.request.user,
+            envio_tarea=True
+        )
+
+class TerapiaListView(ListView):
+    model = tareas
+    template_name = 'tareas/terapia_list.html'
+    context_object_name = 'terapias'
+
+    def get_queryset(self):
+        return tareas.objects.filter(cita_terapeutica_asignada__isnull=False, profile__user=self.request.user).order_by('-cita_terapeutica_asignada')
+
+class TerapiaDetailView(DetailView):
+    model = tareas
+    template_name = 'tareas/terapia_detail.html'
+    context_object_name = 'terapia'

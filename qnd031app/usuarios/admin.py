@@ -2152,6 +2152,9 @@ class DatosTerapiaSection(TableSection):
     ]
 
 
+
+
+
 @register_component
 class ProfileComponent(BaseComponent):
     template_name = "admin/profile_card.html"
@@ -2337,6 +2340,12 @@ class InformesTerapeuticosInline(TabularInline):
     extra = 1
     fields = ('titulo', 'archivo', 'fecha_creado')
     readonly_fields = ('fecha_creado',)
+
+class ValoracionsInline(TabularInline):
+    model = ValoracionTerapia
+    extra = 1
+    fields = ('diagnostico','fecha_valoracion','Insitucional_a_cargo')
+    readonly_fields = ('diagnostico',)
 
 
 @admin.register(Profile)
