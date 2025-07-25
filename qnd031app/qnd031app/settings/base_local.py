@@ -258,6 +258,9 @@ def is_admin_o_terapeuta(request):
 def is_admin_o_financiero(request):
     return is_administrativo(request) or is_financiero(request) or is_superuser(request)
 
+def is_all(request):
+    return is_administrativo(request) or is_financiero(request) or is_superuser(request) or is_terapeuta(request) or is_institucional(request)
+
 
 
 
@@ -376,6 +379,23 @@ UNFOLD = {
         "show_search": False,
         "show_all_applications": False,
 "navigation": [
+
+    {
+        "title": _("Comunicaciones"),
+        "separator": True,
+        "collapsible": True,
+        "items": [
+            {
+                "title": _("Bandeja de Entrada"),
+                "icon": "inbox",
+                "link": reverse_lazy("admin:usuarios_mensaje_changelist"),
+                "badge": "usuarios.unfold_config.badge_callback_notificaciones",
+                "badge_color": "custom-red-alert",
+                "permission": is_all,
+            },
+        ],
+    },
+
     {
         "title": _("Registros Administrativos"),
         "separator": True,
@@ -446,21 +466,7 @@ UNFOLD = {
             },
         ],
     },
-    {
-        "title": _("Comunicaciones"),
-        "separator": True,
-        "collapsible": True,
-        "items": [
-            {
-                "title": _("Bandeja de Entrada"),
-                "icon": "inbox",
-                "link": reverse_lazy("admin:usuarios_mensaje_changelist"),
-                "badge": "usuarios.unfold_config.badge_callback_notificaciones",
-                "badge_color": "custom-red-alert",
-                "permission": is_administrativo_o_isuperuser,
-            },
-        ],
-    },
+
 ],
 
     },

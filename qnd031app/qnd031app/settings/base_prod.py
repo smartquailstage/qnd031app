@@ -209,6 +209,9 @@ def is_admin_o_terapeuta(request):
 def is_admin_o_financiero(request):
     return is_administrativo(request) or is_financiero(request) or is_superuser(request)
 
+def is_all(request):
+    return is_administrativo(request) or is_financiero(request) or is_superuser(request) or is_terapeuta(request) or is_institucional(request)
+
 
 
 
@@ -229,8 +232,8 @@ UNFOLD = {
         {"icon": "medical_services", "title": _("Servicios"), "link": reverse_lazy("admin:serviceapp_servicioterapeutico_changelist")},
         
         {"icon": "map", "title": _("Sucursales"), "link": reverse_lazy("admin:usuarios_sucursal_changelist")},
-        {"icon": "edit", "title": _("Soporte"), "link": reverse_lazy("admin:usuarios_bitacoradesarrollo_changelist")},
         {"icon": "circle", "title": _("Monitoreo"), "link": reverse_lazy("admin:django_celery_results_taskresult_changelist")},
+         {"icon": "support", "title": _("Soporte"), "link": reverse_lazy("admin:usuarios_cliente_changelist")},
     ],
     "SITE_URL": "https://www.meddes.com.ec/",
     "SITE_ICON": {"light": lambda request: static("img/BA-LOGOS/loro.png"), "dark": lambda request: static("img/BA-LOGOS/loro.png")},
@@ -327,6 +330,23 @@ UNFOLD = {
         "show_search": False,
         "show_all_applications": False,
 "navigation": [
+
+    {
+        "title": _("Comunicaciones"),
+        "separator": True,
+        "collapsible": True,
+        "items": [
+            {
+                "title": _("Bandeja de Entrada"),
+                "icon": "inbox",
+                "link": reverse_lazy("admin:usuarios_mensaje_changelist"),
+                "badge": "usuarios.unfold_config.badge_callback_notificaciones",
+                "badge_color": "custom-red-alert",
+                "permission": is_all,
+            },
+        ],
+    },
+
     {
         "title": _("Registros Administrativos"),
         "separator": True,
@@ -397,21 +417,7 @@ UNFOLD = {
             },
         ],
     },
-    {
-        "title": _("Comunicaciones"),
-        "separator": True,
-        "collapsible": True,
-        "items": [
-            {
-                "title": _("Bandeja de Entrada"),
-                "icon": "inbox",
-                "link": reverse_lazy("admin:usuarios_mensaje_changelist"),
-                "badge": "usuarios.unfold_config.badge_callback_notificaciones",
-                "badge_color": "custom-red-alert",
-                "permission": is_administrativo_o_isuperuser,
-            },
-        ],
-    },
+
 ],
 
     },
@@ -425,6 +431,8 @@ UNFOLD = {
         },
     ],
 }
+
+
 
 
 
