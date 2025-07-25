@@ -1334,7 +1334,7 @@ class Mensaje(models.Model):
         null=True,
         blank=True,
         related_name='mensajes_perfil_paciente',
-        verbose_name="Asignar a perfil de paciente"
+        verbose_name="Destinatario Paciente"
     )
 
     perfil_terapeuta = models.ForeignKey(
