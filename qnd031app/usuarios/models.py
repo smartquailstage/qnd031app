@@ -1312,7 +1312,7 @@ class Mensaje(models.Model):
     null=True,
     blank=True,
     verbose_name="Administrador emisor"
-)
+    )
 
 
     asunto = models.CharField(max_length=50, choices=ASUNTOS_CHOICES, default='Consulta')  
@@ -1329,7 +1329,7 @@ class Mensaje(models.Model):
 
     # 🆕 Nuevos campos para asignaciones
     receptor  = models.ForeignKey(
-        'Profile',
+       'Profile',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,

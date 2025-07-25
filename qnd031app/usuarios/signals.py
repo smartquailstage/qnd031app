@@ -82,10 +82,10 @@ def manejar_mensaje(sender, instance, created, **kwargs):
         return
 
     asunto = instance.asunto
-    cuerpo = strip_tags(instance.cuerpo) if instance.cuerpo else "Sin contenido"
+    cuerpo = strip_tags(instance.cuerpo or "")
     emisor_username = instance.emisor.user.username if instance.emisor and instance.emisor.user else "Administrador"
 
-    # Mensajes dirigidos al receptor (paciente)
+    # 🎯 Casos dirigidos al receptor (paciente)
     if asunto in ["Consulta", "Solicitud de pago vencido", "Informativo"]:
         receptor = instance.receptor
         if receptor:
@@ -106,7 +106,7 @@ def manejar_mensaje(sender, instance, created, **kwargs):
                 if telefono:
                     enviar_whatsapp_async.delay(telefono, f"📢 Mensaje informativo:\n{cuerpo}")
 
-    # Mensajes dirigidos al terapeuta asignado
+    # 🧠 Casos dirigidos al terapeuta
     elif asunto == "Terapéutico":
         terapeuta = instance.perfil_terapeuta
         if terapeuta and terapeuta.user:
@@ -118,7 +118,7 @@ def manejar_mensaje(sender, instance, created, **kwargs):
             if telefono:
                 enviar_whatsapp_async.delay(telefono, f"📘 Tarea terapéutica:\n{cuerpo}")
 
-    # Mensajes dirigidos al perfil administrativo
+    # 🏛️ Casos administrativos
     elif asunto in [
         "Solicitud de Certificado Médico",
         "Reclamo del servicio Médico",
@@ -134,7 +134,16 @@ def manejar_mensaje(sender, instance, created, **kwargs):
             if telefono:
                 enviar_whatsapp_async.delay(telefono, f"📑 Notificación administrativa:\n{cuerpo}")
 
-    # Puedes agregar más condiciones aquí si luego decides incluir instituciones
+    # 🏫 Casos institucionales (extensible)
+    elif instance.institucion_a_cargo and instance.institucion_a_cargo.usuario:
+        institucion = instance.institucion_a_cargo
+        telefono = str(institucion.telefono) if institucion.telefono else None
+        email = institucion.usuario.email if institucion.usuario.email else None
+
+        if email:
+            enviar_correo_async.delay(emisor_username, email, asunto, cuerpo)
+        if telefono:
+            enviar_whatsapp_async.delay(telefono, f"🏛️ Mensaje institucional:\n{cuerpo}")
 
 
 
