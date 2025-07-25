@@ -2,7 +2,7 @@ import csv
 import xlsxwriter
 from django.contrib import admin
 from django.http import HttpResponse
-from .models import Profile,InformesTerapeuticos, BitacoraDesarrollo, PerfilInstitucional ,Perfil_Terapeuta, Mensaje, Sucursal , ValoracionTerapia ,DocenteCapacitado, Cita,ComentarioCita, TareaComentario ,AsistenciaTerapeuta,prospecion_administrativa,Prospeccion, tareas, pagos
+from .models import TicketSoporte, Cliente, ProblemaFrecuente, PreguntaFrecuente, Profile,InformesTerapeuticos, BitacoraDesarrollo, PerfilInstitucional ,Perfil_Terapeuta, Mensaje, Sucursal , ValoracionTerapia ,DocenteCapacitado, Cita,ComentarioCita, TareaComentario ,AsistenciaTerapeuta,prospecion_administrativa,Prospeccion, tareas, pagos
 from django.contrib.postgres.fields import ArrayField
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -61,6 +61,41 @@ from django.utils.timezone import localtime, is_naive, make_aware
 from datetime import timedelta, time, date
 from datetime import datetime
 from django.contrib.auth import get_user_model
+
+
+
+
+
+class ProblemaFrecuenteInline(TabularInline):
+    model = ProblemaFrecuente
+    extra = 1
+    show_change_link = False
+    tab = True
+
+
+class PreguntaFrecuenteInline(TabularInline):
+    model = PreguntaFrecuente
+    extra = 1
+    show_change_link = False
+    tab = True
+
+class TicketSoporte(TabularInline):
+    model = TicketSoporte
+    extra = 1
+    show_change_link = False
+    tab = True
+
+@admin.register(Cliente)
+class ClienteAdmin(ModelAdmin):
+    list_display = ('nombre',)
+    inlines = [ProblemaFrecuenteInline, PreguntaFrecuenteInline,TicketSoporte]
+
+    tabs_with_inlines = [
+        ("Información del Cliente", None),  # campos propios del modelo
+        ("Problemas Frecuentes", ProblemaFrecuenteInline),
+        ("Preguntas Frecuentes", PreguntaFrecuenteInline),
+    ]
+
 
 
 

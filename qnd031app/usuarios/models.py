@@ -1553,3 +1553,90 @@ class BitacoraDesarrollo(models.Model):
 
 
 
+
+
+
+
+
+# Cliente simplificado
+class Cliente(models.Model):
+    nombre = models.ForeignKey(
+        'AdministrativeProfile',
+        on_delete=models.CASCADE,
+        related_name='clientes',
+        verbose_name="Elija su usuario Administrativo en el sistema Sistema MEDDES™")
+
+
+    class Meta:
+        verbose_name = "ticket de soporte - SmartQuail, Inc."
+        verbose_name_plural = " ticket de soporte - SmartQuail, Inc"
+    
+
+    def __str__(self):
+        return f"{self.nombre} ({self.empresa})" if self.empresa else self.nombre
+
+
+# Problemas frecuentes conocidos
+class ProblemaFrecuente(models.Model):
+    cliente = models.ForeignKey('Cliente', on_delete=models.CASCADE, related_name='problemas_frecuentes')
+    titulo = models.CharField(max_length=200)
+    descripcion = models.TextField()
+    solucion_recomendada = models.TextField()
+    categoria = models.CharField(max_length=100, choices=[
+        ('conexion', 'Problemas de conexión'),
+        ('rendimiento', 'Rendimiento lento'),
+        ('seguridad', 'Incidentes de seguridad'),
+        ('backup', 'Errores de backup'),
+        ('acceso', 'Problemas de acceso'),
+        ('otros', 'Otros'),
+    ])
+
+    def __str__(self):
+        return self.titulo
+
+
+# Preguntas frecuentes
+class PreguntaFrecuente(models.Model):
+    cliente = models.ForeignKey('Cliente', on_delete=models.CASCADE, related_name='preguntas_frecuentes')
+    pregunta = models.CharField(max_length=255)
+    respuesta = models.TextField()
+    categoria = models.CharField(max_length=100, choices=[
+        ('cuenta', 'Cuenta y acceso'),
+        ('facturacion', 'Facturación'),
+        ('seguridad', 'Seguridad'),
+        ('soporte', 'Soporte técnico'),
+        ('general', 'General'),
+    ])
+
+    def __str__(self):
+        return self.pregunta
+
+
+# Ticket de soporte actualizado
+class TicketSoporte(models.Model):
+    
+    ESTADO_CHOICES = [
+        ('abierto', 'Abierto'),
+        ('en_proceso', 'En proceso'),
+        ('resuelto', 'Resuelto'),
+        ('cerrado', 'Cerrado'),
+    ]
+
+    PRIORIDAD_CHOICES = [
+        ('baja', 'Baja'),
+        ('media', 'Media'),
+        ('alta', 'Alta'),
+        ('critica', 'Crítica'),
+    ]
+
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
+    titulo = models.CharField(max_length=255)
+    descripcion = models.TextField()
+    problema_relacionado = models.ForeignKey(ProblemaFrecuente, null=True, blank=True, on_delete=models.SET_NULL)
+    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='abierto')
+    prioridad = models.CharField(max_length=10, choices=PRIORIDAD_CHOICES, default='media')
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_actualizacion = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"[#{self.id}] {self.titulo}"
