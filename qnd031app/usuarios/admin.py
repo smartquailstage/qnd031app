@@ -2571,7 +2571,7 @@ class ContactoAdministrativoComponent(BaseComponent):
         headers = ["Teléfono", "Correo electrónico", "Dirección", "Hoja de vida"]
 
         row = [
-            p.phone_number.as_national if p.phone_number else "Sin número",
+            p.telefono.as_national if p.telefono else "Sin número",
             p.email or "Sin correo",
             p.address or "Sin dirección",
             f'<a href="{p.resume.url}" target="_blank">Ver archivo</a>' if p.resume else "No disponible",
