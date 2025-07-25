@@ -45,7 +45,7 @@ class AdministrativeProfile(models.Model):
         regex=r'^\+?593?\d{9,15}$',
         message="El número de teléfono debe estar en formato internacional. Ejemplo: +593XXXXXXXXX."
     )
-    phone_number = PhoneNumberField(
+    telefono = PhoneNumberField(
         verbose_name="Teléfono de la Institución",
         validators=[phone_regex],
         default='+593'
@@ -190,7 +190,7 @@ class PerfilInstitucional(models.Model):
         regex=r'^\+?593?\d{9,15}$',
         message="El número de teléfono debe estar en formato internacional. Ejemplo: +593XXXXXXXXX."
     )
-    numero_contacto = PhoneNumberField(verbose_name="Teléfono convencional de contacto",validators=[phone_regex],default='+593')  # Puedes cambiar la región a la tuya
+    telefono = PhoneNumberField(verbose_name="Teléfono convencional de contacto",validators=[phone_regex],default='+593')  # Puedes cambiar la región a la tuya
     correo_electronico = models.EmailField()
 
     def __str__(self):
@@ -413,7 +413,7 @@ class Perfil_Terapeuta(models.Model):
         regex=r'^\+?593?\d{9,15}$',
         message="El número de teléfono debe estar en formato internacional. Ejemplo: +593XXXXXXXXX."
     )
-    telefonos_contacto = PhoneNumberField(verbose_name="Teléfono de persona a cargo",validators=[phone_regex],default='+593')
+    telefono = PhoneNumberField(verbose_name="Teléfono de persona a cargo",validators=[phone_regex],default='+593')
     TIPO_CUENTA_CHOICES = [
         ('ahorros', 'Ahorros'),
         ('corriente', 'Corriente'),

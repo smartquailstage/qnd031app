@@ -216,7 +216,7 @@ class PerfilTerapeutaAdminForm(forms.ModelForm):
         model = Perfil_Terapeuta
         fields = [
             'user', 'especialidad', 'nombres_completos', 'sexo', 'fecha_nacimiento', 'cedula',
-            'fecha_ingreso', 'sucursal', 'correo', 'telefonos_contacto',
+            'fecha_ingreso', 'sucursal', 'telefono',
             'titulo_universitario', 'antecedentes_penales', 'certificados',
             'banco', 'tipo_cuenta', 'numero_cuenta',
             'servicio_domicilio', 'pago_por_hora',

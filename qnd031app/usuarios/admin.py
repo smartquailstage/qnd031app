@@ -355,10 +355,10 @@ class InstitucionalContactoComponent(BaseComponent):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        headers = ["Correo electrónico", "Número de contacto"]
+        headers = ["Correo electrónico", "telefono"]
         row = [
             self.instance.correo_electronico or "No disponible",
-            str(self.instance.numero_contacto) or "No disponible",
+            str(self.instance.telefono) or "No disponible",
         ]
 
         context.update({
@@ -422,10 +422,10 @@ class PerfilInstitucionalAdmin(ModelAdmin):
     ]
 
     list_display = [
-        'get_full_name', 'correo_electronico', 'numero_contacto', 'get_colegio'
+        'get_full_name', 'correo_electronico', 'telefono', 'get_colegio'
     ]
 
-    list_editable = ['correo_electronico', 'numero_contacto']
+    list_editable = ['correo_electronico', 'telefono']
 
     list_filter = [
         'colegio',
@@ -633,7 +633,7 @@ class TerapeutaContactoComponent(BaseComponent):
 
         row = [
             p.correo,
-            p.telefonos_contacto,
+            p.telefono,
             p.sucursal,
             
         ]
