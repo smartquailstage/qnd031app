@@ -945,6 +945,92 @@ class TareasComentariosInline(TabularInline):
 
 
 @register_component
+class TareasCohortComponent(BaseComponent):
+    template_name = "admin/tareas_cohort.html"  # Crea esta plantilla
+
+    def __init__(self, request, instance=None):
+        super().__init__(request)
+        self.request = request
+        self.instance = instance
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        tarea_centrada = self.instance
+        base_date = (
+            localtime(make_aware(datetime.now())).date()
+            if not tarea_centrada or not tarea_centrada.cita_terapeutica_asignada
+            else tarea_centrada.cita_terapeutica_asignada
+        )
+
+        start_date = base_date - timedelta(days=2)
+        end_date = base_date + timedelta(days=2)
+        time_slots = [time(hour=h) for h in range(7, 23)]  # 07:00 a 22:00
+
+        agenda = defaultdict(lambda: defaultdict(list))
+        fechas_unicas = set()
+        horas_unicas = set()
+
+        for i in range((end_date - start_date).days + 1):
+            dia = start_date + timedelta(days=i)
+            dia_str = dia.strftime("%Y-%m-%d")
+            fechas_unicas.add(dia_str)
+
+            for t in time_slots:
+                hora_str = t.strftime("%H:%M")
+                agenda[dia_str][hora_str]
+                horas_unicas.add(hora_str)
+
+        tareas_qs = tareas.objects.filter(
+            cita_terapeutica_asignada__range=(start_date, end_date),
+            hora__range=(time(7, 0), time(22, 0))
+        ).select_related("profile", "terapeuta")
+
+        for tarea in tareas_qs:
+            if not tarea.cita_terapeutica_asignada or not tarea.hora:
+                continue
+
+            tarea_dt = datetime.combine(tarea.cita_terapeutica_asignada, tarea.hora)
+            if is_naive(tarea_dt):
+                tarea_dt = make_aware(tarea_dt)
+            tarea_dt = localtime(tarea_dt)
+
+            dia_str = tarea_dt.strftime("%Y-%m-%d")
+            hora_str = tarea_dt.strftime("%H:%M")
+
+            agenda[dia_str][hora_str].append({
+                "nombre_paciente": tarea.profile.nombre_paciente if tarea.profile else "—",
+                "titulo": tarea.titulo or "Sin título",
+                "terapeuta": tarea.terapeuta.get_full_name() if tarea.terapeuta else "—",
+                "asistio": "Sí" if tarea.asistire else "No",
+                "tarea_enviada": "Sí" if tarea.envio_tarea else "No",
+                "actividad_realizada": "Sí" if tarea.actividad_realizada else "No",
+                "hora": hora_str,
+                "duracion": tarea.get_duracion(),
+            })
+
+        dias_date = [datetime.strptime(d, "%Y-%m-%d").date() for d in fechas_unicas]
+
+        agenda_dias = []
+        for d in sorted(dias_date):
+            d_str = d.strftime("%Y-%m-%d")
+            agenda_dias.append({
+                "date": d,
+                "str": d_str,
+                "agenda": agenda[d_str],
+            })
+
+        context["agenda_dias"] = agenda_dias
+        context["horas"] = sorted(horas_unicas)
+
+        return context
+
+    def render(self):
+        context = self.get_context_data()
+        return render_to_string(self.template_name, context, request=self.request)
+
+
+@register_component
 class TareasComponent(BaseComponent):
     template_name = "admin/profile_card.html"
     name = "Actividades"
@@ -1093,7 +1179,7 @@ class tareasAdmin(ModelAdmin):
 
     list_filter = ('fecha_envio', 'fecha_entrega',)
     list_editable = ['asistire', 'actividad_realizada', 'tarea_realizada']
-    list_sections = [TareasComponent]
+    list_sections = [TareasComponent,TareasCohortComponent]
 
     list_display = [
         'get_terapeuta_full_name',
@@ -1531,6 +1617,32 @@ class MensajeAdmin(ModelAdmin):
         return "—"
     get_receptor_full_name.short_description = "Para"
     get_receptor_full_name.admin_order_field = 'receptor__user__first_name'
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        user = request.user
+
+        if user.is_superuser:
+            return qs  # 🔓 Superusuarios ven todo
+
+        # 👥 Grupo Coordinadores ve todo
+        if user.groups.filter(name='administrativo').exists():
+            return qs
+
+        # 🧑‍⚕️ Si el usuario es terapeuta (perfil_terapeuta vinculado a él)
+        try:
+            return qs.filter(perfil_terapeuta__user=user)
+        except:
+            pass
+
+        # 🏫 Si el usuario es institucional (institucional_a_cargo vinculado a él)
+        try:
+            perfil_institucional = PerfilInstitucional.objects.get(usuario=user)
+            return qs.filter(Insitucional_a_cargo=perfil_institucional)
+        except PerfilInstitucional.DoesNotExist:
+            return qs.none()  # ❌ No puede ver nada
+
+        return qs.none()
 
 
     def estado_tarea_coloreado(self, obj):
