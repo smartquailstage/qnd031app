@@ -81,21 +81,60 @@ def manejar_mensaje(sender, instance, created, **kwargs):
     if not created:
         return
 
-    receptor = instance.receptor
-    telefono = str(receptor.telefono)  
-    telefono_meddes = str(receptor.telefono)  
-    cuerpo = instance.cuerpo
     asunto = instance.asunto
+    cuerpo = strip_tags(instance.cuerpo) if instance.cuerpo else "Sin contenido"
+    emisor_username = instance.emisor.user.username if instance.emisor and instance.emisor.user else "Administrador"
 
-    if asunto == "Solicitud de pago vencido":
-        enviar_correo_async.delay(instance.emisor.username, receptor.email, asunto, cuerpo)
-        enviar_whatsapp_async.delay(telefono, f"⚠️ Solicitud de pago pendiente:\n{cuerpo}")
+    # Mensajes dirigidos al receptor (paciente)
+    if asunto in ["Consulta", "Solicitud de pago vencido", "Informativo"]:
+        receptor = instance.receptor
+        if receptor:
+            telefono = str(receptor.telefono) if receptor.telefono else None
+            email = receptor.email if receptor.email else None
 
-    elif asunto == "Consulta":
-        enviar_whatsapp_async.delay(telefono_meddes, f"📢 Mensaje informativo:\n{cuerpo}")
-    
-    elif asunto == "Informativo":
-        enviar_whatsapp_async.delay(telefono, f"📢 Mensaje informativo:\n{cuerpo}")
+            if asunto == "Solicitud de pago vencido":
+                if email:
+                    enviar_correo_async.delay(emisor_username, email, asunto, cuerpo)
+                if telefono:
+                    enviar_whatsapp_async.delay(telefono, f"⚠️ Solicitud de pago pendiente:\n{cuerpo}")
+
+            elif asunto == "Consulta":
+                if telefono:
+                    enviar_whatsapp_async.delay(telefono, f"❓ Consulta médica:\n{cuerpo}")
+
+            elif asunto == "Informativo":
+                if telefono:
+                    enviar_whatsapp_async.delay(telefono, f"📢 Mensaje informativo:\n{cuerpo}")
+
+    # Mensajes dirigidos al terapeuta asignado
+    elif asunto == "Terapéutico":
+        terapeuta = instance.perfil_terapeuta
+        if terapeuta and terapeuta.user:
+            telefono = str(terapeuta.telefono) if terapeuta.telefono else None
+            email = terapeuta.user.email if terapeuta.user.email else None
+
+            if email:
+                enviar_correo_async.delay(emisor_username, email, asunto, cuerpo)
+            if telefono:
+                enviar_whatsapp_async.delay(telefono, f"📘 Tarea terapéutica:\n{cuerpo}")
+
+    # Mensajes dirigidos al perfil administrativo
+    elif asunto in [
+        "Solicitud de Certificado Médico",
+        "Reclamo del servicio Médico",
+        "Cancelación del servicio Médico"
+    ]:
+        administrativo = instance.perfil_administrativo
+        if administrativo and administrativo.user:
+            telefono = str(administrativo.telefono) if administrativo.telefono else None
+            email = administrativo.user.email if administrativo.user.email else None
+
+            if email:
+                enviar_correo_async.delay(emisor_username, email, asunto, cuerpo)
+            if telefono:
+                enviar_whatsapp_async.delay(telefono, f"📑 Notificación administrativa:\n{cuerpo}")
+
+    # Puedes agregar más condiciones aquí si luego decides incluir instituciones
 
 
 

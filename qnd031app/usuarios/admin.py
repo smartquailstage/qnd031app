@@ -1212,7 +1212,7 @@ class tareasAdmin(ModelAdmin):
         'descripcion_tarea',
     ]
 
-    list_filter = ('fecha_envio', 'fecha_entrega',)
+    list_filter = ('asistire','envio_tarea','actividad_realizada', ("cita_terapeutica_asignada", RangeDateFilter),)
     list_editable = ['asistire', 'actividad_realizada', 'tarea_realizada']
     list_sections = [TareasComponent,TareasCohortComponent]
 
