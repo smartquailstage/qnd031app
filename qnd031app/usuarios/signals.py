@@ -82,8 +82,8 @@ def manejar_mensaje(sender, instance, created, **kwargs):
         return
 
     receptor = instance.receptor
-    telefono = str(receptor.profile.celular)  
-    telefono_meddes = str(receptor.profile.celular)  
+    telefono = str(receptor.telefono)  
+    telefono_meddes = str(receptor.telefono)  
     cuerpo = instance.cuerpo
     asunto = instance.asunto
 

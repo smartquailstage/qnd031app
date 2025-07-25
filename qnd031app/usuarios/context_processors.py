@@ -1,7 +1,7 @@
 from datetime import timedelta, date
 from django.utils import timezone
 from django.db.models import Count
-from .models import pagos, tareas, Cita, Mensaje, Profile,  InformesTerapeuticos
+from .models import pagos, tareas, Cita, Mensaje, Profile,  InformesTerapeuticos, AdministrativeProfile
 from django.db.models import Q
 from collections import defaultdict
 from datetime import datetime
@@ -113,18 +113,7 @@ def citas_context(request):
 
 
 
-def mensajes_leidos_processor(request):
-    if request.user.is_authenticated:
-        mensajes_leidos = Mensaje.objects.filter(
-            receptor=request.user,
-            leido=True
-        ).exclude(emisor=request.user).order_by('-fecha_envio')
-    else:
-        mensajes_leidos = []
 
-    return {
-        'mensajes_recibidos': mensajes_leidos
-    }
 
 
 def user_profile_data(request):
@@ -145,43 +134,62 @@ def user_profile_data(request):
     return {}
 
 
+def mensajes_leidos_processor(request):
+    mensajes_leidos = []
+    if request.user.is_authenticated:
+        try:
+            perfil = Profile.objects.get(user=request.user)
+            mensajes_leidos = Mensaje.objects.filter(
+                receptor=perfil,
+                leido=True
+            ).exclude(emisor__user=request.user).order_by('-fecha_envio')
+        except Profile.DoesNotExist:
+            # Si el perfil no existe, devolvemos lista vacía
+            mensajes_leidos = []
+
+    return {
+        'mensajes_recibidos': mensajes_leidos
+    }
+
+
 def mensajes_nuevos_processor(request):
+    count = 0
+    mensajes = []
+    conteo_por_emisor = []
+
     if request.user.is_authenticated:
         hoy = date.today()
         desde = hoy - timedelta(days=7)
 
-        # Filtra mensajes no leídos del usuario autenticado como receptor
-        mensajes_queryset = Mensaje.objects.filter(
-            receptor=request.user,
-            leido=False,
-            fecha_envio__date__gte=desde
-        ).order_by('-fecha_envio')
+        try:
+            perfil_admin = AdministrativeProfile.objects.get(user=request.user)
 
-        count = mensajes_queryset.count()
-        mensajes = mensajes_queryset[:6]
+            mensajes_queryset = Mensaje.objects.filter(
+                perfil_administrativo=perfil_admin,
+                leido=False,
+                fecha_envio__date__gte=desde
+            ).order_by('-fecha_envio')
 
-        # Agrupa por emisor y cuenta cuántos mensajes ha enviado cada uno
-        conteo_por_emisor = (
-            mensajes_queryset
-            .values('emisor__id', 'emisor__username')
-            .annotate(total=Count('id'))
-            .order_by('-total')
-        )
+            count = mensajes_queryset.count()
+            mensajes = mensajes_queryset[:6]
 
-    else:
-        count = 0
-        mensajes = []
-        conteo_por_emisor = []
+            conteo_por_emisor = (
+                mensajes_queryset
+                .values(
+                    'emisor__id',
+                    'emisor__user__username',
+                )
+                .annotate(total=Count('id'))
+                .order_by('-total')
+            )
+        except AdministrativeProfile.DoesNotExist:
+            pass
 
     return {
         'mensajes_nuevos': count,
         'mensajes_recientes': mensajes,
-        'conteo_por_emisor': conteo_por_emisor  # Lista de diccionarios con emisor y cantidad
+        'conteo_por_emisor': conteo_por_emisor
     }
-
-
-
-
 
 
 
@@ -212,8 +220,11 @@ def datos_panel_usuario(request):
     except pagos.DoesNotExist:
         estado_de_pago = "No disponible"
 
-    # Cantidad de mensajes recibidos
-    cantidad_mensajes_recibidos = Mensaje.objects.filter(receptor=user).count()
+    # Cantidad de mensajes recibidos — ahora filtrando por perfil, no por usuario
+    if profile:
+        cantidad_mensajes_recibidos = Mensaje.objects.filter(receptor=profile).count()
+    else:
+        cantidad_mensajes_recibidos = 0
 
     # Tareas realizadas por el paciente
     cantidad_terapias_realizadas = tareas.objects.filter(profile__user=user, tarea_realizada=True).count()

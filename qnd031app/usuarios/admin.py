@@ -237,12 +237,10 @@ export_to_excel.short_description = 'Exportar a Excel'
 # Inlines de mensajes
 class MensajesEnviadosInline(admin.TabularInline):
     model = Mensaje
-    fk_name = 'emisor'
     extra = 0
 
 class MensajesRecibidosInline(admin.TabularInline):
     model = Mensaje
-    fk_name = 'receptor'
     extra = 0
 
 class CitasCreadasInline(admin.TabularInline):
@@ -260,8 +258,7 @@ class CitasRecibidasInline(admin.TabularInline):
     verbose_name_plural = "Citas recibidas"
 
 class CustomUserAdmin(BaseUserAdmin):
-    inlines = [MensajesEnviadosInline, 
-               MensajesRecibidosInline,
+    inlines = [
                CitasCreadasInline,
                CitasRecibidasInline]
 
@@ -858,7 +855,7 @@ class AsistenciaTerapeutaAdmin(ModelAdmin):
 
 
 
-
+from django.utils.html import format_html
 @admin.register(BitacoraDesarrollo)
 class BitacoraDesarrolloAdmin(ModelAdmin):
 
@@ -954,12 +951,12 @@ class TareasComponent(BaseComponent):
 
     def __init__(self, request, instance=None):
         self.request = request
-        self.instance = instance  # Puede ser Profile o tareas
+        self.instance = instance
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Determinar si la instancia es Profile o tareas
+        # Determinar perfil asociado
         if isinstance(self.instance, Profile):
             profile = self.instance
         elif isinstance(self.instance, tareas):
@@ -969,7 +966,7 @@ class TareasComponent(BaseComponent):
 
         if profile is None:
             context.update({
-                "title": "Tareas asignadas",
+                "title": "Tareas & Actividades realizadas",
                 "table": {
                     "headers": ["Sin datos disponibles"],
                     "rows": [["No se pudo obtener un perfil válido."]],
@@ -980,21 +977,27 @@ class TareasComponent(BaseComponent):
         tareas_asignadas = tareas.objects.filter(profile=profile)
 
         headers = [
-            "Título", "Fecha de envío", "Fecha de entrega","Asisterá a la cita?",
-            "¿Realizó la Tarea?", "¿Culminó terapia?", "Archivo adjunto", "Multimedia"
+            "Título", "Fecha de envío", "Fecha de entrega", "Material Adjunto", "Media de Terapia"
         ]
 
         rows = []
         for tarea in tareas_asignadas:
+            material_link = format_html(
+                '<a href="{}" target="_blank">Ver Tarea</a>',
+                tarea.material_adjunto.url
+            ) if tarea.material_adjunto else "N/A"
+
+            media_link = format_html(
+                '<a href="{}" target="_blank">Ver Actividad</a>',
+                tarea.media_terapia.url
+            ) if tarea.media_terapia else "N/A"
+
             rows.append([
                 tarea.titulo or "Sin título",
                 tarea.fecha_envio.strftime("%d/%m/%Y") if tarea.fecha_envio else "Sin fecha",
                 tarea.fecha_entrega.strftime("%d/%m/%Y") if tarea.fecha_entrega else "Sin fecha",
-                "✅" if tarea.asistire  else "❌",
-                "✅" if tarea.actividad_realizada  else "❌",
-                "✅" if tarea.tarea_realizada else "❌",
-                tarea.material_adjunto.url if tarea.material_adjunto else "N/A",
-                tarea.media_terapia.url if tarea.media_terapia else "N/A",
+                material_link,
+                media_link,
             ])
 
         context.update({
@@ -1010,6 +1013,8 @@ class TareasComponent(BaseComponent):
     def render(self):
         return render_to_string(self.template_name, self.get_context_data())
 
+from .widgets import CustomDatePickerWidget, CustomTimePickerWidget
+from unfold.contrib.filters.admin import RangeDateFilter, RangeDateTimeFilter
 
 @admin.register(tareas)
 class tareasAdmin(ModelAdmin):
@@ -1030,15 +1035,39 @@ class tareasAdmin(ModelAdmin):
 
     fieldsets = (
         ('Información General', {
-            'fields': ('profile', 'fecha_envio', 'fecha_entrega')
+            'fields': ('sucursal','Insitucional_a_cargo','profile', 'cita_terapeutica_asignada', 'hora', 'asistire', 'hora_fin')
         }),
         ('Actividad Terapéutica', {
             'fields': ('titulo', 'descripcion_actividad', 'media_terapia')
         }),
+        ('Tareas', {
+            'fields': ('envio_tarea', 'fecha_envio', 'fecha_entrega', 'descripcion_tarea','material_adjunto','actividad_realizada')
+        }),
         ('Entrega y Evaluación', {
-            'fields': ('actividad_realizada', 'tarea_realizada', 'material_adjunto')
+            'fields': ('tarea_realizada',)
         }),
     )
+
+    conditional_fields = {
+        # Mostrar estos campos solo si asistió
+        "hora_fin": "asistire == true",
+        "titulo": "asistire == true",
+        "descripcion_actividad": "asistire == true",
+        "media_terapia": "asistire == true",
+        "envio_tarea": "asistire == true",
+        "tarea_realizada":  "asistire == true",
+        
+
+
+        # Mostrar estos campos solo si asistió Y también marcó que se envía tarea
+        "fecha_envio": "asistire == true && envio_tarea == true",
+        "fecha_entrega": "asistire == true && envio_tarea == true",
+        "descripcion_tarea": "asistire == true && envio_tarea == true",
+        
+        "actividad_realizada": "asistire == true && envio_tarea == true",
+        "material_adjunto": "asistire == true && envio_tarea == true",
+    }
+
 
     actions_list = []
     actions_row = []
@@ -1046,6 +1075,11 @@ class tareasAdmin(ModelAdmin):
     actions_submit_line = []
 
     change_form_show_cancel_button = True
+
+    @admin.display(description="Duración")
+    def duracion(self, obj):
+        return obj.get_duracion()
+
 
     search_fields = [
         'profile__nombre_paciente',
@@ -1064,12 +1098,16 @@ class tareasAdmin(ModelAdmin):
     list_display = [
         'get_terapeuta_full_name',
         'profile',
-        'fecha_envio',
-        'fecha_entrega',
+        'duracion',
         'asistire',
         'actividad_realizada',
         'tarea_realizada'
     ]
+
+    formfield_overrides = {
+        models.DateField: {'widget': CustomDatePickerWidget()},
+        models.TimeField: {'widget': CustomTimePickerWidget()},
+    }
 
     exclude = ('terapeuta',)
     actions = [export_to_csv, export_to_excel]
@@ -1421,19 +1459,65 @@ class MensajeComponent(BaseComponent):
     def render(self):
         return render_to_string(self.template_name, self.get_context_data())
 
+
+
+from django.utils.html import format_html
+from unfold.contrib.filters.admin import RangeDateTimeFilter
+from .models import Mensaje
+from usuarios.models import Profile
 @admin.register(Mensaje)
 class MensajeAdmin(ModelAdmin):
-    list_display = ['get_emisor_full_name', 'get_receptor_full_name', 'asunto', 'fecha_envio', 'leido']
-    list_filter = ['leido', 'asunto', 'sucursal']
-    list_sections = [MensajeComponent]
-    exclude= ('emisor','creado')
-    list_editable = ['leido']
-    search_fields = ['emisor__username', 'receptor__username', 'cuerpo']
-    actions = [duplicar_mensajes]
-
-    list_filter_submit = True  # Submit button at the bottom of the filter
-    list_filter = (
+    list_display = [
+        'emisor',
+        'receptor',
+        'asunto',
+        'fecha_envio',
+        'leido'
+    ]
+    list_filter_submit = True
+    list_filter = [
+        'leido',
+        'asunto',
+        'sucursal',
         ("fecha_envio", RangeDateTimeFilter),
+    ]
+    list_editable = ['leido']
+    list_sections = [MensajeComponent]
+    exclude = ('emisor', 'creado')
+    #search_fields = ['emisor__username', 'receptor__user__username', 'cuerpo']
+    actions = [duplicar_mensajes]
+    readonly_fields = ('fecha_envio', 'task_id', 'task_status')
+
+    # ✅ Campos condicionales con Unfold
+    conditional_fields = {
+        "perfil_terapeuta": "asunto == 'Terapéutico'",
+        "receptor": "asunto == 'Consulta' || asunto == 'Informativo'",
+        "perfil_administrativo": (
+            "asunto == 'Solicitud de pago vencido' || "
+            "asunto == 'Solicitud de Certificado Médico' || "
+            "asunto == 'Reclamo del servicio Médico' || "
+            "asunto == 'Cancelación del servicio Médico'"
+        )
+    }
+
+    # ✅ Fieldsets organizados
+    fieldsets = (
+        ('Destinatario', {
+            'fields': (
+                'asunto',
+                'receptor',
+                'perfil_terapeuta',
+                'perfil_administrativo',
+                'institucion_a_cargo',
+            )
+        }),
+        ('Datos del mensaje', {
+            'fields': ('sucursal', 'cuerpo','adjunto', 'leido'),
+        }),
+        ('Información del sistema', {
+            'fields': ('task_id', 'task_status', 'fecha_envio'),
+            'classes': ('collapse',),
+        }),
     )
 
     def get_emisor_full_name(self, obj):
@@ -1442,19 +1526,15 @@ class MensajeAdmin(ModelAdmin):
     get_emisor_full_name.admin_order_field = 'emisor__first_name'
 
     def get_receptor_full_name(self, obj):
-        return obj.receptor.get_full_name() if obj.receptor else "—"
+        if obj.receptor and obj.receptor.user:
+            return obj.receptor.user.get_full_name()
+        return "—"
     get_receptor_full_name.short_description = "Para"
-    get_emisor_full_name.admin_order_field = 'receptor__first_name'           
+    get_receptor_full_name.admin_order_field = 'receptor__user__first_name'
 
-    def save_model(self, request, obj, form, change):
-        if not obj.pk:
-            obj.emisor = request.user
-        super().save_model(request, obj, form, change)
-    
 
     def estado_tarea_coloreado(self, obj):
         estado = obj.estado_tarea
-
         colores = {
             'PENDING': 'gray',
             'RECEIVED': 'gray',
@@ -1463,16 +1543,13 @@ class MensajeAdmin(ModelAdmin):
             'SUCCESS': 'green',
             'FAILURE': 'red',
         }
-
         color = colores.get(estado.upper(), 'black')
-
         return format_html(
             '<span style="padding:2px 6px; background-color:{}; color:white; border-radius:4px;">{}</span>',
             color, estado
         )
-
     estado_tarea_coloreado.short_description = "Estado de la tarea"
-    estado_tarea_coloreado.admin_order_field = 'task_id'
+    estado_tarea_coloreado.admin_order_field = 'task_status'
 
 
 @register_component

@@ -398,8 +398,8 @@ UNFOLD = {
                 "permission": is_institucional_o_administrativo,
             },
             {
-                "title": _("Pacientes"),
-                "icon": "person",
+                "title": _("Historiales"),
+                "icon": "book",
                 "link": reverse_lazy("admin:usuarios_profile_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_terapeutico",
                 "badge_color": "success",
@@ -452,8 +452,8 @@ UNFOLD = {
         "collapsible": True,
         "items": [
             {
-                "title": _("Notificaciones"),
-                "icon": "notifications",
+                "title": _("Bandeja de Entrada"),
+                "icon": "inbox",
                 "link": reverse_lazy("admin:usuarios_mensaje_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_notificaciones",
                 "badge_color": "custom-red-alert",
