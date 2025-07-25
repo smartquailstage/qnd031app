@@ -1144,7 +1144,7 @@ class tareasAdmin(ModelAdmin):
 
     fieldsets = (
         ('Información General', {
-            'fields': ('sucursal', 'Insitucional_a_cargo', 'profile', 'cita_terapeutica_asignada', 'hora', 'asistire', 'hora_fin')
+            'fields': ('sucursal', 'Insitucional_a_cargo', 'profile',  'asistire','cita_terapeutica_asignada','hora',  'hora_fin')
         }),
         ('Actividad Terapéutica', {
             'fields': ('titulo', 'descripcion_actividad', 'media_terapia')
@@ -1158,8 +1158,11 @@ class tareasAdmin(ModelAdmin):
     )
 
     conditional_fields = {
-        # Mostrar estos campos solo si asistió
+        # Mostrar estos campos solo si asistió'
+        "cita_terapeutica_asignada": "asistire == true",
+        "fecha_envio": "asistire == true",
         "hora_fin": "asistire == true",
+        "hora": "asistire == true",
         "titulo": "asistire == true",
         "descripcion_actividad": "asistire == true",
         "media_terapia": "asistire == true",
@@ -1167,7 +1170,7 @@ class tareasAdmin(ModelAdmin):
         "tarea_realizada":  "asistire == true",
 
         # Mostrar estos campos solo si asistió Y también marcó que se envía tarea
-        "fecha_envio": "asistire == true && envio_tarea == true",
+        
         "fecha_entrega": "asistire == true && envio_tarea == true",
         "descripcion_tarea": "asistire == true && envio_tarea == true",
         "actividad_realizada": "asistire == true && envio_tarea == true",
