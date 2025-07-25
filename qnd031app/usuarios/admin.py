@@ -1144,13 +1144,13 @@ class tareasAdmin(ModelAdmin):
 
     fieldsets = (
         ('Información General', {
-            'fields': ('sucursal','Insitucional_a_cargo','profile', 'cita_terapeutica_asignada', 'hora', 'asistire', 'hora_fin')
+            'fields': ('sucursal', 'Insitucional_a_cargo', 'profile', 'cita_terapeutica_asignada', 'hora', 'asistire', 'hora_fin')
         }),
         ('Actividad Terapéutica', {
             'fields': ('titulo', 'descripcion_actividad', 'media_terapia')
         }),
         ('Tareas', {
-            'fields': ('envio_tarea', 'fecha_envio', 'fecha_entrega', 'descripcion_tarea','material_adjunto','actividad_realizada')
+            'fields': ('envio_tarea', 'fecha_envio', 'fecha_entrega', 'descripcion_tarea', 'material_adjunto', 'actividad_realizada')
         }),
         ('Entrega y Evaluación', {
             'fields': ('tarea_realizada',)
@@ -1165,18 +1165,14 @@ class tareasAdmin(ModelAdmin):
         "media_terapia": "asistire == true",
         "envio_tarea": "asistire == true",
         "tarea_realizada":  "asistire == true",
-        
-
 
         # Mostrar estos campos solo si asistió Y también marcó que se envía tarea
         "fecha_envio": "asistire == true && envio_tarea == true",
         "fecha_entrega": "asistire == true && envio_tarea == true",
         "descripcion_tarea": "asistire == true && envio_tarea == true",
-        
         "actividad_realizada": "asistire == true && envio_tarea == true",
         "material_adjunto": "asistire == true && envio_tarea == true",
     }
-
 
     actions_list = []
     actions_row = []
@@ -1189,7 +1185,6 @@ class tareasAdmin(ModelAdmin):
     def duracion(self, obj):
         return obj.get_duracion()
 
-
     search_fields = [
         'profile__nombre_paciente',
         'profile__apellidos_paciente',
@@ -1200,9 +1195,9 @@ class tareasAdmin(ModelAdmin):
         'descripcion_tarea',
     ]
 
-    list_filter = ('asistire','envio_tarea','actividad_realizada', ("cita_terapeutica_asignada", RangeDateFilter),)
+    list_filter = ('asistire', 'envio_tarea', 'actividad_realizada', ("cita_terapeutica_asignada", RangeDateFilter),)
     list_editable = ['asistire', 'actividad_realizada', 'tarea_realizada']
-    list_sections = [TareasComponent,TareasCohortComponent]
+    list_sections = [TareasComponent, TareasCohortComponent]
 
     list_display = [
         'get_terapeuta_full_name',
@@ -1231,17 +1226,19 @@ class tareasAdmin(ModelAdmin):
         if user.is_superuser or user.groups.filter(name='administrativo').exists():
             return qs
 
-        # Tareas asignadas al terapeuta actual
-        terapeuta_qs = qs.filter(terapeuta=user)
+        # Filtrar tareas asignadas al terapeuta
+        if qs.model.objects.filter(terapeuta=user).exists():
+            return qs.filter(terapeuta=user)
 
-        # Tareas asignadas a la institución del usuario institucional
+        # Filtrar tareas asignadas a la institución del usuario institucional
         try:
             perfil_institucional = PerfilInstitucional.objects.get(usuario=user)
-            institucional_qs = qs.filter(profile__instirucional=perfil_institucional)
+            if qs.model.objects.filter(Insitucional_a_cargo=perfil_institucional).exists():
+                return qs.filter(Insitucional_a_cargo=perfil_institucional)
         except PerfilInstitucional.DoesNotExist:
-            institucional_qs = qs.none()
+            pass
 
-        return terapeuta_qs | institucional_qs
+        return qs.none()
 
     def has_view_permission(self, request, obj=None):
         if request.user.is_superuser:
@@ -1250,8 +1247,8 @@ class tareasAdmin(ModelAdmin):
             return True
         return (
             obj.terapeuta == request.user or
-            (hasattr(obj.profile, 'institucional_a_cargo') and
-             getattr(obj.profile.institucional_a_cargo, 'usuario', None) == request.user)
+            (obj.Insitucional_a_cargo and
+             obj.Insitucional_a_cargo.usuario == request.user)
         )
 
     def has_change_permission(self, request, obj=None):

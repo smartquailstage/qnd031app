@@ -5,6 +5,7 @@ from .models import Mensaje,ValoracionTerapia
 from .tasks import enviar_correo_async, enviar_whatsapp_async, enviar_correo_valoracion_async
 from django.core.mail import send_mail
 from django.conf import settings
+from django.utils.html import strip_tags
 
 from .models import Cita
 from datetime import timedelta
