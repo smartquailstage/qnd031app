@@ -1574,7 +1574,6 @@ from usuarios.models import Profile
 @admin.register(Mensaje)
 class MensajeAdmin(ModelAdmin):
     list_display = [
-        'emisor',
         'receptor',
         'asunto',
         'fecha_envio',
@@ -1587,6 +1586,7 @@ class MensajeAdmin(ModelAdmin):
         'sucursal',
         ("fecha_envio", RangeDateTimeFilter),
     ]
+    list_search = ('receptor__user__username', 'asunto')
     list_editable = ['leido']
     list_sections = [MensajeComponent]
     exclude = ('emisor', 'creado')
