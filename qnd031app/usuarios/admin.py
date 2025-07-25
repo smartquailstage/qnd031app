@@ -558,41 +558,30 @@ class ValoracionTerapiaAdmin(ModelAdmin):
     order_by = ('-fecha_valoracion',)
     actions = [export_to_csv, export_to_excel]
 
-    @admin.display(description="Terapeuta a Cargo", ordering='perfil_terapeuta__user__first_name')
+    @admin.display(description="Terapeuta a Cargo", ordering='perfil_terapeuta__first_name')
     def get_perfil_terapeuta_full_name(self, obj):
         return obj.perfil_terapeuta.get_full_name() if obj.perfil_terapeuta else "—"
 
     def save_model(self, request, obj, form, change):
-        if not obj.pk:
-            obj.perfil_terapeuta = request.user  # Esto depende si perfil_terapeuta apunta a User o PerfilTerapeuta
+        if not obj.pk and not obj.perfil_terapeuta:
+            obj.perfil_terapeuta = request.user
         super().save_model(request, obj, form, change)
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         user = request.user
 
-        if user.is_superuser:
-            return qs  # 🔓 Superusuarios ven todo
-
-        # 👥 Grupo Coordinadores ve todo
-        if user.groups.filter(name='administrativo').exists():
+        if user.is_superuser or user.groups.filter(name='administrativo').exists():
             return qs
 
-        # 🧑‍⚕️ Si el usuario es terapeuta (perfil_terapeuta vinculado a él)
-        try:
-            perfil_institucional = AdministrativeProfile.objects.get(usuario=user)
-            return qs.filter(user=user)
-        except AdministrativeProfile.DoesNotExist:
-            return qs.none()  # ❌ No puede ver nada
+        if qs.model.objects.filter(perfil_terapeuta=user).exists():
+            return qs.filter(perfil_terapeuta=user)
 
-        # 🏫 Si el usuario es institucional (institucional_a_cargo vinculado a él)
         try:
             perfil_institucional = PerfilInstitucional.objects.get(usuario=user)
-            return qs.filter(Insitucional_a_cargo=perfil_institucional)
+            return qs.filter(institucion_a_cargo=perfil_institucional)
         except PerfilInstitucional.DoesNotExist:
-            return qs.none()  # ❌ No puede ver nada
-
-        return qs.none()
+            return qs.none()
 
 
 from django.contrib.admin.filters import ChoicesFieldListFilter
