@@ -570,18 +570,16 @@ class ValoracionTerapiaAdmin(ModelAdmin):
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         user = request.user
-
         if user.is_superuser or user.groups.filter(name='administrativo').exists():
             return qs
-
+            
         if qs.model.objects.filter(perfil_terapeuta=user).exists():
             return qs.filter(perfil_terapeuta=user)
-
-        try:
-            perfil_institucional = PerfilInstitucional.objects.get(usuario=user)
-            return qs.filter(institucion_a_cargo=perfil_institucional)
-        except PerfilInstitucional.DoesNotExist:
-            return qs.none()
+            
+        if qs.model.objects.filter(Insitucional_a_cargo__usuario=user).exists():
+            return qs.filter(Insitucional_a_cargo__usuario=user)
+            
+        return qs.none()
 
 
 from django.contrib.admin.filters import ChoicesFieldListFilter
