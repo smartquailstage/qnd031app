@@ -580,7 +580,8 @@ class ValoracionTerapiaAdmin(ModelAdmin):
 
         # 🧑‍⚕️ Si el usuario es terapeuta (perfil_terapeuta vinculado a él)
         try:
-            return qs.filter(perfil_terapeuta__user=user)
+            perfil_institucional = AdministrativeProfile.objects.get(usuario=user)
+            return qs.filter(user=user)
         except:
             pass
 
