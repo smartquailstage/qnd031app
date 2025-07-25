@@ -160,8 +160,8 @@ def admin_cita_detail(request, cita_id):
 def profile_view(request):
     profile = Profile.objects.get(user=request.user)
 
-    cantidad_mensajes_recibidos = Mensaje.objects.filter(receptor=request.user).count()
-    cantidad_mensajes_enviados = Mensaje.objects.filter(emisor=request.user).count()
+    cantidad_mensajes_recibidos = Mensaje.objects.filter(receptor=profile).count()
+    cantidad_mensajes_enviados = Mensaje.objects.filter(emisor__user=request.user).count()
     cantidad_terapias_realizadas = tareas.objects.filter(profile__user=request.user, actividad_realizada=True).count()
     citas_realizadas = Cita.objects.filter(profile=profile).count()
 
