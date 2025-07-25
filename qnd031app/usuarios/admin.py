@@ -582,8 +582,8 @@ class ValoracionTerapiaAdmin(ModelAdmin):
         try:
             perfil_institucional = AdministrativeProfile.objects.get(usuario=user)
             return qs.filter(user=user)
-        except:
-            pass
+        except AdministrativeProfile.DoesNotExist:
+            return qs.none()  # ❌ No puede ver nada
 
         # 🏫 Si el usuario es institucional (institucional_a_cargo vinculado a él)
         try:
