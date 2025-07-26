@@ -1644,28 +1644,22 @@ class MensajeAdmin(ModelAdmin):
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         user = request.user
-
-        if user.is_superuser:
-            return qs  # 🔓 Superusuarios ven todo
-
-        # 👥 Grupo Coordinadores ve todo
-        if user.groups.filter(name='administrativo').exists():
-            return qs
-
-        # 🧑‍⚕️ Si el usuario es terapeuta (perfil_terapeuta vinculado a él)
-        try:
+        
+        if user.is_superuser or user.groups.filter(name='administrativo').exists():
+            return qs  # Admins y superusers ven todo
+            
+        if hasattr(user, 'perfil_terapeuta'):
             return qs.filter(perfil_terapeuta__user=user)
-        except:
-            pass
+            
+        if hasattr(user, 'perfilinstitucional'):
+            return qs.filter(institucion_a_cargo__usuario=user)
+            
+        if hasattr(user, 'profile'):
+            return qs.filter(receptor__user=user)
+            
+        return qs.none()  # Ningún perfil asociado → acceso denegado
 
-        # 🏫 Si el usuario es institucional (institucional_a_cargo vinculado a él)
-        try:
-            perfil_institucional = PerfilInstitucional.objects.get(usuario=user)
-            return qs.filter(Insitucional_a_cargo=perfil_institucional)
-        except PerfilInstitucional.DoesNotExist:
-            return qs.none()  # ❌ No puede ver nada
-
-        return qs.none()
+    
 
 
     def estado_tarea_coloreado(self, obj):
