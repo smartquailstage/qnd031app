@@ -6,7 +6,6 @@
 <div class="page-content-wrapper">
     <div class="page-content">
         <div class="row">
-            {% include 'usuarios/citas/barra_herramientas.html' %}
             {% include 'usuarios/logo.html' %}
         </div>
 
@@ -17,78 +16,40 @@
                     <div class="card-body">
                         <h5 class="card-title text-primary">Autorización Terapéutica y Certificados</h5>
 
-                        <!-- Formulario de autorización -->
-                        <form method="POST" enctype="multipart/form-data">
-                            {% csrf_token %}
-                            <div class="mb-3">
-                                {{ form.adjunto_autorizacion.label_tag }}
-                                {{ form.adjunto_autorizacion|add_class:"form-control" }}
+                        <!-- Mostrar formulario solo si no hay archivos -->
+                        {% if not archivos %}
+                            <form method="POST" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    {{ form.adjunto_autorizacion.label_tag }}
+                                    {{ form.adjunto_autorizacion|add_class:"form-control" }}
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <ion-icon name="cloud-upload-outline"></ion-icon> Subir Autorización
+                                </button>
+                            </form>
+                        {% else %}
+                            <div class="alert alert-success mt-3">
+                                <ion-icon name="checkmark-done-circle-outline"></ion-icon>
+                                Ya se ha subido una autorización terapéutica. No es necesario cargar otra.
                             </div>
-                            <button type="submit" class="btn btn-primary">
-                                <ion-icon name="cloud-upload-outline"></ion-icon> Subir Autorización
-                            </button>
-                        </form>
+                        {% endif %}
 
-                        <hr>
-
-                        <!-- Documentos fijos (por campos del modelo Profile) -->
-                        <h6 class="mt-4">Documentos predefinidos:</h6>
-                        <ul class="list-group list-group-flush">
-                            {% if profile.certificado_inicio %}
-                                <li class="list-group-item">
-                                    <ion-icon name="document-text-outline"></ion-icon>
-                                    <a href="{{ profile.certificado_inicio.url }}" target="_blank">Certificado de Inicio</a>
-                                </li>
-                            {% endif %}
-                            {% if profile.informe_inicial %}
-                                <li class="list-group-item">
-                                    <ion-icon name="document-text-outline"></ion-icon>
-                                    <a href="{{ profile.informe_inicial.url }}" target="_blank">Informe Inicial</a>
-                                </li>
-                            {% endif %}
-                            {% if profile.informe_segimiento %}
-                                <li class="list-group-item">
-                                    <ion-icon name="document-text-outline"></ion-icon>
-                                    <a href="{{ profile.informe_segimiento.url }}" target="_blank">Informe 3M</a>
-                                </li>
-                            {% endif %}
-                            {% if profile.informe_segimiento_2 %}
-                                <li class="list-group-item">
-                                    <ion-icon name="document-text-outline"></ion-icon>
-                                    <a href="{{ profile.informe_segimiento_2.url }}" target="_blank">Informe 6M</a>
-                                </li>
-                            {% endif %}
-                            {% if profile.certificado_final %}
-                                <li class="list-group-item">
-                                    <ion-icon name="document-text-outline"></ion-icon>
-                                    <a href="{{ profile.certificado_final.url }}" target="_blank">Certificado Final</a>
-                                </li>
-                            {% endif %}
-
-                            {% if not profile.certificado_inicio and not profile.informe_inicial and not profile.informe_segimiento and not profile.informe_segimiento_2 and not profile.certificado_final %}
-                                <li class="list-group-item text-muted">
-                                    <ion-icon name="close-circle-outline"></ion-icon>
-                                    No hay documentos aún disponibles.
-                                </li>
-                            {% endif %}
-                        </ul>
-
-                        <!-- Archivos adjuntos dinámicos (modelo InformesTerapeuticos) -->
+                        <!-- Archivos adjuntos dinámicos -->
                         {% if archivos %}
                             <hr>
                             <h6 class="mt-4">Archivos adjuntos:</h6>
                             <ul class="list-group list-group-flush">
                                 {% for archivo in archivos %}
+                                <a class="btn btn-sm btn-outline-primary" href="{{ archivo.archivo.url }}" target="_blank">
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <div>
                                             <ion-icon name="document-outline"></ion-icon>
                                             <strong>{{ archivo.titulo }}</strong>
                                             <small class="text-muted">({{ archivo.fecha_creado|date:"d M Y" }})</small>
                                         </div>
-                                        <a class="btn btn-sm btn-outline-primary" href="{{ archivo.archivo.url }}" target="_blank">
-                                            Ver
-                                        </a>
                                     </li>
+                                </a>
                                 {% endfor %}
                             </ul>
                         {% endif %}

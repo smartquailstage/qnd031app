@@ -59,50 +59,56 @@
 
 <div class="row row-cols-1 row-cols-lg-3 g-3"> <!-- g-3 agrega espacio uniforme entre tarjetas -->
 
-    {% if ultima_tarea and ultima_tarea.media_terapia %}
-    <div class="col">
-        <div class="card radius-10 bg-primary text-white h-100">
-            <div class="card-body text-left">
-                <div class="d-flex align-items-center mb-3 justify-content-center">
-                    <div class="service-box bg-white text-white  me-2">
-                        <div class="font-22">
-                            <ion-icon name="pulse-outline"></ion-icon>
-                        </div>
+{% if ultima_tarea_enviada and ultima_tarea_enviada.media_terapia %}
+<div class="col">
+    <div class="card radius-10 bg-primary text-white h-100">
+        <div class="card-body text-left">
+            <div class="d-flex align-items-center mb-3 justify-content-center">
+                <div class="service-box bg-white text-white me-2">
+                    <div class="font-22">
+                        <ion-icon name="pulse-outline"></ion-icon>
                     </div>
-                    <h6 class="mb-0 border-bottom" >Actividad Terapéutica</h6>
                 </div>
-
-                <div class="position-relative d-inline-block">
-                    <a href="{{ ultima_tarea.media_terapia.url }}" target="_blank">
-                        <img id="thumbnailPreview"
-                             src="{{ ultima_tarea.thumbnail_url }}"
-                             alt="Previsualización del video"
-                             class="img-fluid rounded-circle shadow"
-                             style="width: 160px; height: 160px; object-fit: cover;">
-
-                        <div class="position-absolute top-50 start-50 translate-middle">
-                            <span class="bg-white text-secondary rounded-circle p-2 shadow" style="font-size: 1.5rem;">
-                                <i class="bi bi-play-fill"></i>
-                            </span>
-                        </div>
-                    </a>
-                </div>
-                  <div class="mt-3 pt-2 border-top">
-                    <p class="mb-0">Realizado:
-  <strong>{{ ultima_tarea.fecha_actividad |date:"d/m/Y H:i" }}</strong>
-</p>
-                    <p class="mb-0"><strong>Terapéuta Responsable:</strong> Dr. {{ ultima_cita.tareas.terapeuta.get_full_name }}  </p>
-                    <p class="mb-0"><strong>Lugar:</strong>  {{ ultima_cita.sucursal }}</p>
-                     <p class="mb-0"><strong>Actividad:</strong> {{ ultima_cita.tareas.descripcion_actividad  }}</p>
-                </div>
+                <h6 class="mb-0 border-bottom">Actividad Terapéutica</h6>
             </div>
-            
-        </div>
-        <video id="hiddenVideo" src="{{ ultima_tarea.media_terapia.url }}" style="display: none;"></video>
 
-        
+            <div class="position-relative d-inline-block">
+                <a href="{{ ultima_tarea_enviada.media_terapia.url }}" target="_blank">
+                    <img id="thumbnailPreview"
+                         src="{{ ultima_tarea_enviada.thumbnail_url|default:'https://via.placeholder.com/160x160.png?text=Video' }}"
+                         alt="Previsualización del video"
+                         class="img-fluid rounded-circle shadow"
+                         style="width: 160px; height: 160px; object-fit: cover;">
+
+                    <div class="position-absolute top-50 start-50 translate-middle">
+                        <span class="bg-white text-secondary rounded-circle p-2 shadow" style="font-size: 1.5rem;">
+                            <i class="bi bi-play-fill"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="mt-3 pt-2 border-top">
+                <p class="mb-0">Realizado:
+                    <strong>{{ ultima_tarea_enviada.fecha_actividad|date:"d/m/Y H:i" }}</strong>
+                </p>
+                <p class="mb-0"><strong>Terapeuta Responsable:</strong>
+                    Dr. {{ ultima_tarea_enviada.terapeuta.get_full_name|default:"No asignado" }}
+                </p>
+                <p class="mb-0"><strong>Lugar:</strong>
+                    {{ ultima_tarea_enviada.sucursal|default:"No especificado" }}
+                </p>
+                <p class="mb-0"><strong>Actividad:</strong>
+                    {{ ultima_tarea_enviada.descripcion_actividad|safe }}
+                </p>
+            </div>
+        </div>
     </div>
-    {% endif %}
+    <video id="hiddenVideo" src="{{ ultima_tarea_enviada.media_terapia.url }}" style="display: none;"></video>
+</div>
+{% endif %}
+
+
     {% if ultima_cita.pendiente %}
    
     <div class="col">
