@@ -615,12 +615,17 @@ WSGI_APPLICATION = os.environ.get('WSGI_APPLICATION')
 
 
 
-# Configuración de sesiones usando Redis
-#SESSION_ENGINE = "django.contrib.sessions.backends.cache"
-#SESSION_CACHE_ALIAS = "default"
-#REDIS_HOST = os.environ.get('REDIS_HOST')  # Cambia esto según tu configuración
-#REDIS_PORT  = os.environ.get('REDIS_PORT')        # Puerto por defecto de Redis
-#REDIS_DB  = os.environ.get('REDIS_DB')
+REDIS_HOST=os.environ.get('REDIS_HOST')
+REDIS_PORT=os.environ.get('REDIS_PORT')
+REDIS_DB =os.environ.get('REDIS_DB')  
+
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60 
 
 
 

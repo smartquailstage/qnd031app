@@ -27,7 +27,11 @@
                     <div class="card-body text-white">
                         <div class="d-flex align-items-center mb-2">
                             <div class="service-box bg-white text-white me-2">
-                                {% if mensaje.asunto == 'Terapéutico' %}
+                                {% if mensaje.asunto == 'Informativo' %}
+                                    <ion-icon name="chatbubbles-outline"></ion-icon>
+                      
+
+                                {% elif mensaje.asunto == 'Terapéutico' %}
                                     <ion-icon name="pulse"></ion-icon>
                                 {% elif mensaje.asunto == 'Solicitud de pago vencido' %}
                                     <ion-icon name="card"></ion-icon>

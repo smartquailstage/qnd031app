@@ -16,8 +16,13 @@
                     <div class="row row-cols-1 row-cols-lg-3">
                         {% for tarea in tareas %}
                             <div class="col mb-3">
-                                <a href="{% url 'usuarios:tarea_detail' tarea.id %}">
-                                    <div class="card radius-10 bg-warning text-dark">
+                                <a href="{% url 'usuarios:tarea_detail' tarea.id %}" class="text-decoration-none">
+                                    <div class="card radius-10 
+                                        {% if tarea.actividad_realizada %}
+                                            bg-success text-white
+                                        {% else %}
+                                            bg-danger text-white
+                                        {% endif %}">
                                         <div class="card-body">
                                             <div class="d-flex align-items-center mb-2">
                                                 <div class="service-box bg-white text-white me-2">
@@ -26,7 +31,7 @@
                                                 <h5 class="mb-0">{{ tarea.terapeuta.get_full_name }}</h5>
                                             </div>
                                             <h6>{{ tarea.fecha_entrega|date:"d M Y" }}</h6>
-                                            <p>{{ tarea.titulo|default:"(Sin título)"|truncatechars:40 }}</p>
+                                            <p class="mb-0">{{ tarea.titulo|default:"(Sin título)"|truncatechars:40 }}</p>
                                         </div>
                                     </div>
                                 </a>

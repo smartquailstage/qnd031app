@@ -234,7 +234,7 @@ def enviar_mensaje(request):
 @login_required
 def inbox_view(request):
     profile = Profile.objects.get(user=request.user)
-    mensajes = request.user.mensajes_recibidos.all()
+    mensajes = Mensaje.objects.filter(receptor=profile)
 
     leidos = mensajes.filter(leido=True).count()
     no_leidos = mensajes.filter(leido=False).count()
@@ -250,15 +250,14 @@ def inbox_view(request):
 
 @login_required
 def inbox_record(request):
-    profile = Profile.objects.get(user=request.user)
+    profile = get_object_or_404(Profile, user=request.user)
 
-    # Todos los mensajes recibidos (leídos y no leídos)
-    mensajes = request.user.mensajes_recibidos.all()
-    mensajes_recibidos = Mensaje.objects.filter(receptor=request.user)
+    # Todos los mensajes recibidos asignados al perfil del usuario
+    mensajes = Mensaje.objects.filter(receptor=profile)
 
-    leidos = mensajes_recibidos.filter(leido=True).count()
-    no_leidos = mensajes_recibidos.filter(leido=False).count()
-    total = mensajes_recibidos.count()
+    leidos = mensajes.filter(leido=True).count()
+    no_leidos = mensajes.filter(leido=False).count()
+    total = mensajes.count()
 
     return render(request, 'usuarios/inbox_total.html', {
         'mensajes': mensajes,
@@ -817,3 +816,37 @@ class TerapiaDetailView(DetailView):
     model = tareas
     template_name = 'tareas/terapia_detail.html'
     context_object_name = 'terapia'
+
+
+
+class CitasAsistidasListView(LoginRequiredMixin, ListView):
+    model = Cita
+    template_name = 'citas/citas_asistidas.html'
+    context_object_name = 'citas'
+
+    def get_queryset(self):
+        return Cita.objects.filter(profile__user=self.request.user, confirmada=True)
+
+class CitasNoAsistidasListView(LoginRequiredMixin, ListView):
+    model = Cita
+    template_name = 'citas/citas_no_asistidas.html'
+    context_object_name = 'citas'
+
+    def get_queryset(self):
+        return Cita.objects.filter(profile__user=self.request.user, cancelada=True)
+
+class CitasPendientesListView(LoginRequiredMixin, ListView):
+    model = Cita
+    template_name = 'citas/citas_pendientes.html'
+    context_object_name = 'citas'
+
+    def get_queryset(self):
+        return Cita.objects.filter(profile__user=self.request.user, pendiente=True)
+
+class CitaDetailView(LoginRequiredMixin, DetailView):
+    model = Cita
+    template_name = 'citas/cita_detalle.html'
+    context_object_name = 'cita'
+
+    def get_queryset(self):
+        return Cita.objects.filter(profile__user=self.request.user)

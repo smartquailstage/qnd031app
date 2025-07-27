@@ -69,6 +69,11 @@ urlpatterns = [
     path('terapias/', views.TerapiaListView.as_view(), name='terapia_list'),
     path('terapias/<int:pk>/', views.TerapiaDetailView.as_view(), name='terapia_detail'),
 
+    path('asistidas/', views.CitasAsistidasListView.as_view(), name='citas_asistidas'),
+    path('no-asistidas/', views.CitasNoAsistidasListView.as_view(), name='citas_no_asistidas'),
+    path('pendientes/', views.CitasPendientesListView.as_view(), name='citas_pendientes'),
+    path('<int:pk>/', views.CitaDetailView.as_view(), name='detalle'),
+
    # path('actividades_espacio_publico/', views.user_activity_login, name='login_activity'),
    # path('Reserva_de_espacio_publico/', views.user_activity_login, name='login_activity'),
   

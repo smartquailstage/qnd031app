@@ -279,17 +279,45 @@ def citas_context(request):
 
 def tareas_context(request):
     if request.user.is_authenticated:
+        # Tareas asignadas al usuario
         tareas_nuevas_qs = tareas.objects.filter(
             profile__user=request.user,
-            tarea_realizada=False
+            actividad_realizada=False
         ).order_by('-fecha_envio')
 
         tareas_count = tareas_nuevas_qs.count()
-        tareas_detalle = tareas_nuevas_qs[:5]  # Limita si es para dropdown, o todos si lo necesitas completo
+        tareas_detalle = tareas_nuevas_qs[:5]  # Para usar en notificaciones o sidebar
+
+        # Estadísticas adicionales
+        actividades_nuevas = tareas.objects.filter(
+            profile__user=request.user,
+            envio_tarea=True,
+            actividad_realizada=False
+        ).count()
+
+        actividades_realizadas = tareas.objects.filter(
+            profile__user=request.user,
+            envio_tarea=True,
+            actividad_realizada=True
+        ).count()
+
+        tareas_sin_alta = tareas.objects.filter(
+            profile__user=request.user,
+            actividad_realizada=False
+        ).count()
+
+        tareas_con_alta = tareas.objects.filter(
+            profile__user=request.user,
+            actividad_realizada=True
+        ).count()
 
         return {
             'tareas_nuevas_count': tareas_count,
-            'tareas_detalle': tareas_detalle
+            'tareas_detalle': tareas_detalle,
+            'actividades_nuevas': actividades_nuevas,
+            'actividades_realizadas': actividades_realizadas,
+            'tareas_nuevas': tareas_sin_alta,
+            'tareas_con_alta': tareas_con_alta,
         }
 
     return {}
