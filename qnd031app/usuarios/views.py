@@ -682,7 +682,8 @@ def subir_comprobante_pago(request, pk):
 
 @login_required
 def vista_certificados(request):
-    profile = Profile.objects.get(user=request.user)
+    # Obtener el perfil del usuario logueado
+    profile = get_object_or_404(Profile, user=request.user)
 
     if request.method == 'POST':
         form = AutorizacionForm(request.POST, request.FILES, instance=profile)
@@ -692,26 +693,18 @@ def vista_certificados(request):
     else:
         form = AutorizacionForm(instance=profile)
 
-    mensajes = Mensaje.objects.filter(receptor=request.user).order_by('-fecha_envio')
+    # ✅ Usar el perfil para filtrar los mensajes
+    mensajes = Mensaje.objects.filter(receptor=profile).order_by('-fecha_envio')
 
-    # 📂 Obtener archivos adjuntos del perfil del usuario
+    # Archivos adjuntos del perfil del usuario
     archivos = InformesTerapeuticos.objects.filter(profile=profile).order_by('-fecha_creado')
 
     return render(request, 'usuarios/certificados/certificados_total.html', {
         'form': form,
         'profile': profile,
         'mensajes': mensajes,
-        'archivos': archivos  # ← Archivos adjuntos disponibles en el template
+        'archivos': archivos
     })
-
-
-
-def dashboard_callback(request, context):
-    context.update({
-        "custom_variable": "value",
-    })
-
-    return context
 
 
 from django.views.generic import TemplateView
