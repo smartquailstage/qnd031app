@@ -267,7 +267,7 @@ def is_all(request):
 UNFOLD = {
     "SITE_TITLE": "Sistema de Administración Terapéutica MEDDES® (I+D)+A",
     "SITE_HEADER": "MEDDES",
-    "SHOW_LANGUAGES": True,
+    "SHOW_LANGUAGES": False,
     "SITE_SUBHEADER": "Eterprises Research & Development",
     "SITE_DESCRIPTION": "Sistema de Administración Terapéutica MEDDES® (I+D)+A",
     "SITE_COPYRIGHT": "Copyright © 2025 SmartQuail S.A.S Todos los derechos reservados.",
@@ -354,15 +354,7 @@ UNFOLD = {
             "important-dark": "var(--color-base-100)",
         },
     },
-    "EXTENSIONS": {
-        "modeltranslation": {
-            "flags": {
-                "en": "🇬🇧",
-                "fr": "🇫🇷",
-                "nl": "🇧🇪",
-            },
-        },
-    },
+
     "TABS": [
         {
             "models": [{"name": "usuarios.prospecion_administrativa", "detail": True}],
