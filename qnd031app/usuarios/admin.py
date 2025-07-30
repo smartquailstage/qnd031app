@@ -1958,10 +1958,11 @@ class CardSection(TemplateSection):
 from .widgets import CustomDatePickerWidget, CustomTimePickerWidget
 from unfold.contrib.filters.admin import RangeDateFilter, RangeDateTimeFilter
 # Asegúrate de importar: export_to_csv, export_to_excel, duplicar_citas, WysiwygWidget, ArrayWidget
+    
 @admin.register(Cita)
 class CitaAdmin(ModelAdmin):
     autocomplete_fields = ['profile', 'profile_terapeuta', 'destinatario']
-    form = CitaForm  # Asegúrate de que CitaForm está bien definido
+    form = CitaForm
 
     conditional_fields = {
         "fecha": "tipo_cita != null",
@@ -2026,6 +2027,17 @@ class CitaAdmin(ModelAdmin):
     actions_row = []
     actions_submit_line = []
 
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        user = request.user
+
+        # 👑 Permitir ver todo a superusuarios y grupo administrativo
+        if user.is_superuser or user.groups.filter(name='administrativo').exists():
+            return qs
+
+        # 👨‍⚕️ Mostrar solo citas donde el terapeuta es el usuario actual
+        return qs.filter(profile_terapeuta__user=user)
+
     @admin.display(description="Duración")
     def duracion(self, obj):
         return obj.get_duracion()
@@ -2066,6 +2078,7 @@ class CitaAdmin(ModelAdmin):
         if not obj.pk:
             obj.creador = request.user
         super().save_model(request, obj, form, change)
+
 
     @admin.display(description="Calendario")
     def ver_en_calendario(self, obj):

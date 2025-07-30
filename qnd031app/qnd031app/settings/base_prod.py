@@ -305,15 +305,7 @@ UNFOLD = {
             "important-dark": "var(--color-base-100)",
         },
     },
-    "EXTENSIONS": {
-        "modeltranslation": {
-            "flags": {
-                "en": "🇬🇧",
-                "fr": "🇫🇷",
-                "nl": "🇧🇪",
-            },
-        },
-    },
+
     "TABS": [
         {
             "models": [{"name": "usuarios.prospecion_administrativa", "detail": True}],
@@ -342,7 +334,7 @@ UNFOLD = {
                 "link": reverse_lazy("admin:usuarios_mensaje_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_notificaciones",
                 "badge_color": "custom-red-alert",
-                "permission": is_all,
+                "permission": is_administrativo_o_isuperuser,
             },
         ],
     },
@@ -369,7 +361,7 @@ UNFOLD = {
                 "permission": is_institucional_o_administrativo,
             },
             {
-                "title": _("Historiales"),
+                "title": _("Pacientes"),
                 "icon": "book",
                 "link": reverse_lazy("admin:usuarios_profile_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_terapeutico",
@@ -382,16 +374,16 @@ UNFOLD = {
                 "link": reverse_lazy("admin:usuarios_cita_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_citas",
                 "badge_color": "font-subtle-light",
-                "permission": is_administrativo_o_isuperuser,
+                "permission": is_admin_o_terapeuta,
             },
-            {
-                "title": _("Pagos"),
-                "icon": "payment",
-                "link": reverse_lazy("admin:usuarios_pagos_changelist"),
-                "badge": "usuarios.unfold_config.badge_callback_pagos",
-                "badge_color": "custom-red-alert",
-                "permission": is_admin_o_financiero,
-            },
+#            {
+#                "title": _("Pagos"),
+#                "icon": "payment",
+#                "link": reverse_lazy("admin:usuarios_pagos_changelist"),
+#                "badge": "usuarios.unfold_config.badge_callback_pagos",
+#                "badge_color": "custom-red-alert",
+#                "permission": is_admin_o_financiero,
+#            },
         ],
     },
     {
@@ -431,6 +423,8 @@ UNFOLD = {
         },
     ],
 }
+
+
 
 
 

@@ -383,7 +383,7 @@ UNFOLD = {
                 "link": reverse_lazy("admin:usuarios_mensaje_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_notificaciones",
                 "badge_color": "custom-red-alert",
-                "permission": is_all,
+                "permission": is_administrativo_o_isuperuser,
             },
         ],
     },
@@ -423,7 +423,7 @@ UNFOLD = {
                 "link": reverse_lazy("admin:usuarios_cita_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_citas",
                 "badge_color": "font-subtle-light",
-                "permission": is_administrativo_o_isuperuser,
+                "permission": is_admin_o_terapeuta,
             },
 #            {
 #                "title": _("Pagos"),
