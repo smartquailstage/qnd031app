@@ -828,12 +828,31 @@ class Profile(models.Model):
         verbose_name="Responsable Institucional"
     )
 
-    user_terapeutas = models.ManyToManyField(
+    user_terapeutas = models.ForeignKey(
         'Perfil_Terapeuta',  # Asegúrate de que este modelo esté bien importado
-        verbose_name="Elegir Terapéutas Asignados",
-        related_name='asignaciones',  # Este nombre puede ser cualquiera y se usa para acceder desde el otro lado
-        blank=True  # Permite que el campo sea opcional
+        verbose_name="Asignar primer terapéuta",
+        on_delete=models.CASCADE,
+        related_name='primer_terapeuta',  # Este nombre puede ser cualquiera y se usa para acceder desde el otro lado
+        blank=True,  # Permite que el campo sea opcional
+        null=True,  # Permite que el campo sea opcional
         )
+    user_terapeutas_1 = models.ForeignKey(
+        'Perfil_Terapeuta',  # Asegúrate de que este modelo esté bien importado
+        verbose_name="Asignar segundo terapéuta",
+        on_delete=models.CASCADE,
+        related_name='segundo_terapeuta',  # Este nombre puede ser cualquiera y se usa para acceder desde el otro lado
+        blank=True,  # Permite que el campo sea opcional
+        null=True,  # Permite que el campo sea opcional
+        )
+    user_terapeutas_3 = models.ForeignKey(
+        'Perfil_Terapeuta',  # Asegúrate de que este modelo esté bien importado
+        verbose_name="Asignar tercer terapéuta",
+        on_delete=models.CASCADE,
+        related_name='tercer_terapeuta',  # Este nombre puede ser cualquiera y se usa para acceder desde el otro lado
+        blank=True,  # Permite que el campo sea opcional
+        null=True,  # Permite que el campo sea opcional
+        )
+
     TIPO_SERVICIO = [
         ('TERAPIA DE LENGUAJE', 'Terapia de Lenguaje'),
         ('ESTIMULACIÓN COGNITIVA', 'Estimulación Cognitiva'),
@@ -1121,8 +1140,7 @@ class Cita(models.Model):
     )
 
     destinatario = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        related_name='citas_recibidas',
+        'AdministrativeProfile',
         null=True, blank=True,
         on_delete=models.CASCADE,
         verbose_name="Asignar cita a Administrativo"

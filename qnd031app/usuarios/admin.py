@@ -287,7 +287,7 @@ class CitasCreadasInline(admin.TabularInline):
 
 class CitasRecibidasInline(admin.TabularInline):
     model = Cita
-    fk_name = 'destinatario'
+   # fk_name = 'destinatario'
     extra = 0
     verbose_name = "Cita recibida"
     verbose_name_plural = "Citas recibidas"
@@ -1960,6 +1960,7 @@ from unfold.contrib.filters.admin import RangeDateFilter, RangeDateTimeFilter
 # Asegúrate de importar: export_to_csv, export_to_excel, duplicar_citas, WysiwygWidget, ArrayWidget
 @admin.register(Cita)
 class CitaAdmin(ModelAdmin):
+    autocomplete_fields = ['profile', 'profile_terapeuta', 'destinatario']
     form = CitaForm  # Asegúrate de que CitaForm está bien definido
 
     conditional_fields = {
@@ -2239,10 +2240,11 @@ class ProfileComponentTerapeutico(BaseComponent):
         p = self.instance  # Instancia actual
 
         # Renderizar los terapeutas como una lista de nombres
-        terapeutas = ", ".join([
-            str(t.user.get_full_name()) if t.user else "Sin usuario"
-            for t in p.user_terapeutas.all()
-        ]) or "Sin terapeutas asignados"
+        terapeutas = ", ".join(filter(None, [
+            str(p.user_terapeutas.user.get_full_name()) if p.user_terapeutas and p.user_terapeutas.user else None,
+            str(p.user_terapeutas_1.user.get_full_name()) if p.user_terapeutas_1 and p.user_terapeutas_1.user else None,
+            str(p.user_terapeutas_3.user.get_full_name()) if p.user_terapeutas_3 and p.user_terapeutas_3.user else None,
+        ])) or "Sin terapeutas asignados"
 
         headers = [
             "Terapeuta Asignado", "Valorización Terapéutica",
@@ -2337,7 +2339,7 @@ class ValoracionsInline(TabularInline):
 
 @admin.register(Profile)
 class ProfileAdmin(ModelAdmin):
-    autocomplete_fields = ['user','sucursales']
+    autocomplete_fields = ['user','sucursales', 'user_terapeutas', 'user_terapeutas_1','user_terapeutas_3','instirucional','valorizacion_terapeutica']
             # Display fields in changeform in compressed mode
     compressed_fields = True  # Default: False
     inlines = [TareaItemInline,CitaItemInline,PagosItemInline,InformesTerapeuticosInline]
@@ -2401,21 +2403,29 @@ class ProfileAdmin(ModelAdmin):
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         user = request.user
-
-        # 👑 Superusuarios ven todo
+        
         if user.is_superuser:
             return qs
 
-        # 👥 Coordinadores ven todo
+  
         if user.groups.filter(name='administrativo').exists():
             return qs
 
-        # 🏫 Usuarios institucionales ven solo lo suyo
+    
         try:
             perfil_institucional = PerfilInstitucional.objects.get(usuario=user)
             return qs.filter(instirucional=perfil_institucional)
         except PerfilInstitucional.DoesNotExist:
-            return qs.none()  # 🔒 Sin perfil institucional → sin acceso
+            pass  # No salir aún, porque puede ser terapeuta permitido
+        
+        if user.id in [1, 2, 3]:
+            return qs.filter(
+                models.Q(user_terapeutas=user) |
+                models.Q(user_terapeutas_1=user) |
+                models.Q(user_terapeutas_3=user)
+                )
+                
+        return qs.none()
 
     def get_inline_instances(self, request, obj=None):
         inline_instances = []
@@ -2481,8 +2491,11 @@ class ProfileAdmin(ModelAdmin):
         'fields': (
             'instirucional',
             'valorizacion_terapeutica',
-            'user_terapeutas',            
+            
             'tipos',
+            'user_terapeutas',  
+            'user_terapeutas_1',
+            'user_terapeutas_3',  
             'fecha_inicio',
             'fecha_pausa',
             'fecha_re_inicio',            
