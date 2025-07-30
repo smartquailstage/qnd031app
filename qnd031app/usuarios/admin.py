@@ -2446,6 +2446,9 @@ class ProfileAdmin(ModelAdmin):
                 }),
             )
 
+        # Si es superuser u otro grupo, muestra todo
+        return super().get_fieldsets(request, obj)
+
     def get_inline_instances(self, request, obj=None):
         inline_instances = []
         user = request.user
