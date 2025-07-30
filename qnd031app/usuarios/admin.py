@@ -2159,7 +2159,7 @@ class ProfileComponent(BaseComponent):
         p = self.instance  # Instancia del perfil
 
         headers = [
-            "Foto", "Nombre Completo", "Edad", "Sexo", "Institución", "Teléfono",
+            "Foto", "Nombre Completo", "Edad", "Sexo", "Institución",
         ]
 
         row = [
@@ -2168,7 +2168,7 @@ class ProfileComponent(BaseComponent):
             p.edad_detallada if hasattr(p, "edad_detallada") else p.edad or "Desconocida",
             p.sexo or "No especificado",
             str(p.institucion) if p.institucion else "N/A",
-            str(p.telefono) if p.telefono else "N/A",
+           # str(p.telefono) if p.telefono else "N/A",
         ]
 
         context.update({
@@ -2199,16 +2199,15 @@ class ProfileComponentRepresentante(BaseComponent):
         p = self.instance  # Solo la instancia actual
 
         headers = [
-            "Representante","Correo Electrónico",
-            "Teléfono", "Celular", "Dirección", "Relación",
+            "Representante", "Relación",
         ]
 
         row = [
             f"{p.nombres_representante_legal} {p.apellidos_representante_legal}",
-            p.email,
-            p.telefono,
-            p.celular,
-            p.direccion,
+            #p.email,
+           # p.telefono,
+          #  p.celular,
+            #p.direccion,
             p.relacion_del_representante,    
         ]
 
@@ -2337,64 +2336,51 @@ class ValoracionsInline(TabularInline):
     readonly_fields = ('diagnostico',)
 
 
+from unfold.contrib.filters.admin import RangeDateFilter, RangeDateTimeFilter
+from django.db.models import Q
 @admin.register(Profile)
 class ProfileAdmin(ModelAdmin):
-    autocomplete_fields = ['user','sucursales', 'user_terapeutas', 'user_terapeutas_1','user_terapeutas_3','instirucional','valorizacion_terapeutica']
-            # Display fields in changeform in compressed mode
-    compressed_fields = True  # Default: False
-    inlines = [TareaItemInline,CitaItemInline,PagosItemInline,InformesTerapeuticosInline]
-    search_fields = ['user__username', 'user__first_name', 'user__last_name']
-    list_sections = [ProfileComponent,ProfileComponentRepresentante,ProfileComponentTerapeutico]  # Agregar sección personalizada
-    form = ProfileAdminForm
-    # Warn before leaving unsaved changes in changeform
-    warn_unsaved_form = True  # Default: False
+    autocomplete_fields = [
+        'user', 'sucursales',
+        'user_terapeutas', 'user_terapeutas_1', 'user_terapeutas_3',
+        'instirucional', 'valorizacion_terapeutica'
+    ]
 
-    # Preprocess content of readonly fields before render
+    compressed_fields = True
+    inlines = [TareaItemInline, CitaItemInline, PagosItemInline, InformesTerapeuticosInline]
+    search_fields = ['user__username', 'user__first_name', 'user__last_name']
+    list_sections = [ProfileComponent, ProfileComponentRepresentante, ProfileComponentTerapeutico]
+    form = ProfileAdminForm
+    warn_unsaved_form = True
+
     readonly_preprocess_fields = {
         "model_field_name": "html.unescape",
         "other_field_name": lambda content: content.strip(),
     }
 
-    # Display submit button in filters
     list_filter_submit = True
-
-    # Display changelist in fullwidth
     list_fullwidth = True
-
-    # Set to False, to enable filter as "sidebar"
     list_filter_sheet = True
-
-    # Position horizontal scrollbar in changelist at the top
     list_horizontal_scrollbar_top = False
-
-    # Dsable select all action in changelist
     list_disable_select_all = False
 
-    # Custom actions
-    actions_list = []  # Displayed above the results list
-    actions_row = []  # Displayed in a table row in results list
-    actions_detail = []  # Displayed at the top of for in object detail
-    actions_submit_line = []  # Displayed near save in object detail
+    actions_list = []
+    actions_row = []
+    actions_detail = []
+    actions_submit_line = []
 
-    # Changeform templates (located inside the form)
-    #change_form_before_template = "some/template.html"
-    #change_form_after_template = "some/template.html"
-
-    # Located outside of the form
-    #change_form_outer_before_template = "some/template.html"
-    #change_form_outer_after_template = "some/template.html"
-
-    # Display cancel button in submit line in changeform
-    change_form_show_cancel_button = True # show/hide cancel button in changeform, default: False
+    change_form_show_cancel_button = True
 
     formfield_overrides = {
-    models.DateField: {
-        "widget": CustomDatePickerWidget(),  # ← Paréntesis: instancia
-    },
-}
+        models.DateField: {
+            "widget": CustomDatePickerWidget(),
+        },
+    }
 
-    list_display = ['get_full_name','fecha_inicio','fecha_alta','es_retirado','es_en_terapia','es_pausa', 'es_alta']
-
+    list_display = [
+        'get_full_name', 'fecha_inicio', 'fecha_alta',
+        'es_retirado', 'es_en_terapia', 'es_pausa', 'es_alta'
+    ]
 
     @admin.display(description='Paciente')
     def get_full_name(self, obj):
@@ -2403,114 +2389,129 @@ class ProfileAdmin(ModelAdmin):
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         user = request.user
-        
+
+        # 👑 Superusuarios ven todo
         if user.is_superuser:
             return qs
 
-  
+        # 👥 Coordinadores ven todo
         if user.groups.filter(name='administrativo').exists():
             return qs
 
-    
+        # 🏫 Usuarios institucionales ven solo lo suyo
         try:
             perfil_institucional = PerfilInstitucional.objects.get(usuario=user)
             return qs.filter(instirucional=perfil_institucional)
         except PerfilInstitucional.DoesNotExist:
-            pass  # No salir aún, porque puede ser terapeuta permitido
-        
+            pass  # Aún puede ser terapeuta
+
+        # 👨‍⚕️ Usuarios terapeutas específicos (IDs 1, 2, 3)
         if user.id in [1, 2, 3]:
-            return qs.filter(
-                models.Q(user_terapeutas=user) |
-                models.Q(user_terapeutas_1=user) |
-                models.Q(user_terapeutas_3=user)
+            try:
+                perfil_terapeuta = Perfil_Terapeuta.objects.get(user=user)
+                return qs.filter(
+                    Q(user_terapeutas=perfil_terapeuta) |
+                    Q(user_terapeutas_1=perfil_terapeuta) |
+                    Q(user_terapeutas_3=perfil_terapeuta)
                 )
-                
+            except Perfil_Terapeuta.DoesNotExist:
+                return qs.none()
+
+        # ❌ Todos los demás no tienen acceso
         return qs.none()
+
+    def get_fieldsets(self, request, obj=None):
+        user = request.user
+
+        # Mostrar fieldsets limitados a terapeutas e institucionales
+        if user.groups.filter(name__in=['terapeutico', 'institucional']).exists():
+            return (
+                ('Ingresar Información Personal del Paciente', {
+                    'fields': (
+                        'sucursales', 'photo',
+                        'ruc', 'nombre_paciente', 'apellidos_paciente',
+                        'nacionalidad', 'sexo', 'fecha_nacimiento', 'institucion',
+                    ),
+                    'classes': ('collapse',),
+                }),
+                ('Ingresar Información Terapéutica', {
+                    'fields': (
+                        'instirucional', 'valorizacion_terapeutica', 'tipos',
+                        'user_terapeutas', 'user_terapeutas_1', 'user_terapeutas_3',
+                        'fecha_inicio', 'fecha_pausa', 'fecha_re_inicio',
+                        'fecha_alta', 'certificado_inicio',
+                        'es_en_terapia', 'es_retirado', 'es_alta', 'es_pausa',
+                    ),
+                    'classes': ('collapse',),
+                }),
+            )
 
     def get_inline_instances(self, request, obj=None):
         inline_instances = []
         user = request.user
-        allowed_groups = ['terapeutico', 'institucional']  # ← solo estos grupos
+        allowed_groups = ['terapeutico', 'institucional']
         base_inlines = [TareaItemInline, CitaItemInline, PagosItemInline]
-        
+
         for inline_class in base_inlines:
             inline = inline_class(self.model, self.admin_site)
             inline_instances.append(inline)
-            
+
         if user.is_superuser or user.groups.filter(name__in=allowed_groups).exists():
             inline_instances.append(InformesTerapeuticosInline(self.model, self.admin_site))
-            
+
         return inline_instances
 
+    list_editable = ['es_retirado', 'es_en_terapia', 'es_pausa', 'es_alta']
 
-
-    list_editable  = ['es_retirado','es_en_terapia','es_pausa', 'es_alta']
-    list_filter= ['sucursales','es_retirado','es_en_terapia', 'es_alta',
-     ('fecha_inicio', RangeDateFilter), 
-     ('fecha_alta', RangeDateFilter), 
+    list_filter = [
+        'sucursales', 'es_retirado', 'es_en_terapia', 'es_alta',
+        ('fecha_inicio', RangeDateFilter),
+        ('fecha_alta', RangeDateFilter),
     ]
-    actions = [ export_to_csv, export_to_excel]
+
+    actions = [export_to_csv, export_to_excel]
+
     verbose_name = "Registro Administrativo / Ingreso de Paciente"
-    verbose_name_plural = "Registro Administrativo / Ingreso de Paciente"    
-   #inlines = [MensajesEnviadosInline, MensajesRecibidosInline]
+    verbose_name_plural = "Registro Administrativo / Ingreso de Paciente"
 
+    # Este fieldsets se usa como fallback si no se sobreescribe con get_fieldsets()
     fieldsets = (
-    ('Ingresar Información Personal del Paciente', {
-        'fields': (
-            'user',
-            'contrasena',
-            'sucursales',
-            'photo',
-            'ruc',
-            'nombre_paciente',
-            'apellidos_paciente',
-            'nacionalidad',
-            'sexo',
-            'fecha_nacimiento',
-            'institucion',
-        ),
-        'classes': ('collapse',),
-    }),
-    ('Ingresar Información del Representante Legal', {
-        'fields': (
-            'nombres_representante_legal',
-            'apellidos_representante_legal',
-            'relacion_del_representante',
-            'nacionalidad_representante',
-            'ruc_representante',
-            'actividad_economica',
-            'email',
-            'telefono',
-            'celular',
-            'provincia',
-            'direccion',
-        ),
-        'classes': ('collapse',),
-    }),
-    ('Ingresar Información Terapéutica', {
-        'fields': (
-            'instirucional',
-            'valorizacion_terapeutica',
-            
-            'tipos',
-            'user_terapeutas',  
-            'user_terapeutas_1',
-            'user_terapeutas_3',  
-            'fecha_inicio',
-            'fecha_pausa',
-            'fecha_re_inicio',            
-            'fecha_alta',
-            'certificado_inicio',
 
-            # Campos booleanos de estados terapéuticos
-            'es_en_terapia',
-            'es_retirado',
-            'es_alta',
-            'es_pausa',
-        ),
-        'classes': ('collapse',),
-    }),
-)
+        ('Información del Sistema ', {
+            'fields': (
+                'user', 'contrasena',
+            ),
+            'classes': ('collapse',),
+        }),
+
+        ('Ingresar Información Personal del Paciente', {
+            'fields': (
+                'sucursales', 'photo',
+                'ruc', 'nombre_paciente', 'apellidos_paciente',
+                'nacionalidad', 'sexo', 'fecha_nacimiento', 'institucion',
+            ),
+            'classes': ('collapse',),
+        }),
+        ('Ingresar Información del Representante Legal', {
+            'fields': (
+                'nombres_representante_legal', 'apellidos_representante_legal',
+                'relacion_del_representante', 'nacionalidad_representante',
+                'ruc_representante', 'actividad_economica', 'email',
+                'telefono', 'celular', 'provincia', 'direccion',
+            ),
+            'classes': ('collapse',),
+        }),
+        ('Ingresar Información Terapéutica', {
+            'fields': (
+                'instirucional', 'valorizacion_terapeutica', 'tipos',
+                'user_terapeutas', 'user_terapeutas_1', 'user_terapeutas_3',
+                'fecha_inicio', 'fecha_pausa', 'fecha_re_inicio',
+                'fecha_alta', 'certificado_inicio',
+                'es_en_terapia', 'es_retirado', 'es_alta', 'es_pausa',
+            ),
+            'classes': ('collapse',),
+        }),
+    )
 
 
 
