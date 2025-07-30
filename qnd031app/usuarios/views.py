@@ -23,25 +23,32 @@ from django.views.generic import ListView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 
+
 @login_required
 def ultima_cita(request):
     profile = Profile.objects.filter(user=request.user).first()
 
     if not profile:
-        return render(request, 'usuarios/panel_usuario2.html', {'mensaje': 'No tienes citas registradas.'})
+        return render(request, 'usuarios/panel_usuario2.html', {
+            'mensaje': 'No se encontró el perfil del usuario.'
+        })
 
-    # Obtener la primera cita pendiente (no confirmada ni cancelada)
+    # Obtener la última tarea pendiente (envio_tarea=False)
     ultima_cita = (
-        Cita.objects
-        .filter(profile=profile, pendiente=True, confirmada=False, cancelada=False)
-        .order_by('fecha', 'hora')
+        tareas.objects
+        .filter(profile=profile, envio_tarea=False)
+        .order_by('cita_terapeutica_asignada', 'hora')
         .first()
     )
 
     if not ultima_cita:
-        return render(request, 'usuarios/panel_usuario2.html', {'mensaje': 'No tienes citas pendientes.'})
+        return render(request, 'usuarios/panel_usuario2.html', {
+            'mensaje': 'No tienes sesiones pendientes.'
+        })
 
-    return render(request, 'usuarios/panel_usuario2.html', {'ultima_cita': ultima_cita})
+    return render(request, 'usuarios/panel_usuario2.html', {
+        'ultima_cita': ultima_cita
+    })
 
 
 

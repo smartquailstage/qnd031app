@@ -159,27 +159,89 @@ class Sucursal(models.Model):
 
 
 class Prospeccion(models.Model):
-    provincia = models.CharField("Provincia", max_length=100)
+    PROVINCIAS_ECUADOR = [
+        ('Azuay', 'Azuay'),
+        ('Bolívar', 'Bolívar'),
+        ('Cañar', 'Cañar'),
+        ('Carchi', 'Carchi'),
+        ('Chimborazo', 'Chimborazo'),
+        ('Cotopaxi', 'Cotopaxi'),
+        ('El Oro', 'El Oro'),
+        ('Esmeraldas', 'Esmeraldas'),
+        ('Galápagos', 'Galápagos'),
+        ('Guayas', 'Guayas'),
+        ('Imbabura', 'Imbabura'),
+        ('Loja', 'Loja'),
+        ('Los Ríos', 'Los Ríos'),
+        ('Manabí', 'Manabí'),
+        ('Morona Santiago', 'Morona Santiago'),
+        ('Napo', 'Napo'),
+        ('Orellana', 'Orellana'),
+        ('Pastaza', 'Pastaza'),
+        ('Pichincha', 'Pichincha'),
+        ('Santa Elena', 'Santa Elena'),
+        ('Santo Domingo de los Tsáchilas', 'Santo Domingo de los Tsáchilas'),
+        ('Sucumbíos', 'Sucumbíos'),
+        ('Tungurahua', 'Tungurahua'),
+        ('Zamora Chinchipe', 'Zamora Chinchipe'),
+    ]
+
+    sucursal = models.ForeignKey(
+        'Sucursal',
+        on_delete=models.CASCADE,
+        related_name="sucursal_prospecion",
+        null=True,
+        blank=True
+    )
+    ejecutivo_meddes = models.ForeignKey(
+        AdministrativeProfile,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name="Ejecutivo Meddes"
+    )
+    cargo_ejecutivo_meddes = models.CharField(max_length=150, null=True, blank=True)
+
+    es_por_contactar = models.BooleanField(default=False, verbose_name="¿Se envío Mail?")
+    es_contactado = models.BooleanField(default=False, verbose_name="¿Se realizó Llamada?")
+    es_en_cita = models.BooleanField(default=False, verbose_name="¿Se tuvo Cita?")
+    es_convenio_firmado = models.BooleanField(default=False, verbose_name="¿Se firma convenio?")
+    es_capacitacion = models.BooleanField(default=False, verbose_name="¿Se realizó Capacitación?")
+    es_valoracion = models.BooleanField(default=False, verbose_name="¿Se realizaron valoraciones?")
+    es_rechazado = models.BooleanField(default=False, verbose_name="¿Fue rechazado?")
+    es_finalizado = models.BooleanField(default=False, verbose_name="¿Finalizó el proceso?")
+    es_inactivo = models.BooleanField(default=False, verbose_name="Activo/Inactivo")
+
+    provincia = models.CharField("Provincia", max_length=100, choices=PROVINCIAS_ECUADOR)
     nombre_institucion = models.CharField("Nombre de la Institución", max_length=255)
-    estado = models.CharField("Estado", max_length=100)
-    telefono = models.CharField("Teléfono", max_length=50, blank=True, null=True)
+    #estado = models.CharField("Estado", max_length=100)
+
+    phone_regex = RegexValidator(
+        regex=r'^\+?593?\d{9,15}$',
+        message="El número de teléfono debe estar en formato internacional. Ejemplo: +593XXXXXXXXX."
+    )
+    telefono = PhoneNumberField(
+        verbose_name="Teléfono de la Institución",
+        validators=[phone_regex],
+        default='+593'
+    )
     direccion = models.CharField("Dirección", max_length=500, blank=True, null=True)
     nombre_contacto = models.CharField("Nombre de Contacto", max_length=255, blank=True, null=True)
     cargo_contacto = models.CharField("Cargo del Contacto", max_length=255, blank=True, null=True)
-    email_contacto = models.CharField("Email de Contacto", max_length=255, blank=True, null=True)
-    proceso_realizado = models.CharField("Proceso Realizado", max_length=500, blank=True, null=True)
-    responsable = models.CharField("Responsable del contacto", max_length=255, blank=True, null=True)
-    fecha_contacto = models.CharField("Fecha de Contacto", max_length=20, blank=True, null=True)
-    observaciones = models.CharField("Observaciones", max_length=500, blank=True, null=True)
-    fecha_proximo_contacto = models.CharField("Fecha Próximo Contacto", max_length=20, blank=True, null=True)
+    email_contacto = models.EmailField("Email de Contacto", max_length=255, blank=True, null=True)
+    fecha_contacto = models.DateField("Fecha de Contacto", blank=True, null=True)
+    fecha_proximo_contacto = models.DateField("Fecha Próximo Contacto", blank=True, null=True)
+
+    observaciones = models.TextField("Observaciones", max_length=1000, blank=True, null=True)
 
     class Meta:
         ordering = ['-fecha_contacto']
-        verbose_name_plural = "Registros Administrativos / Prospección "
+        verbose_name_plural = "Registros Administrativos / Prospección"
         verbose_name = "Administrativo / Prospecciones"
 
     def __str__(self):
         return self.nombre_institucion
+
 
 
 class PerfilInstitucional(models.Model):
@@ -224,16 +286,7 @@ class prospecion_administrativa(models.Model):
         blank=True
     )
 
-    es_por_contactar = models.BooleanField(default=False, verbose_name="¿Se intentó contactar?")
-    es_contactado = models.BooleanField(default=False, verbose_name="¿Ya fue contactado?")
-    es_en_cita = models.BooleanField(default=False, verbose_name="¿Ya tuvo cita?")
-    es_convenio_firmado = models.BooleanField(default=False, verbose_name="¿Firmó convenio?")
-    es_capacitacion = models.BooleanField(default=False, verbose_name="¿Recibió capacitación?")
-    es_valoracion = models.BooleanField(default=False, verbose_name="¿Tuvo valoración?")
-    es_en_terapia = models.BooleanField(default=False, verbose_name="¿Recibe terapia?")
-    es_rechazado = models.BooleanField(default=False, verbose_name="¿Fue rechazado?")
-    es_finalizado = models.BooleanField(default=False, verbose_name="¿Finalizó el proceso?")
-    es_inactivo = models.BooleanField(default=False, verbose_name="Activo/Inactivo")
+
     fecha_activo = models.DateField(verbose_name="Fecha de Activación",null=True, blank=True)
     fecha_estado_actualizado = models.DateField(auto_now=True)
 
@@ -447,6 +500,7 @@ class Perfil_Terapeuta(models.Model):
     numero_cuenta = models.CharField("Número de cuenta", max_length=30, blank=True, null=True)
    # cedula_titular = models.CharField("Cédula del Terapeuta", max_length=20, blank=True, null=True)
     #nombre_titular = models.CharField("Nombre del titular", max_length=100, blank=True, null=True)
+    
 
     servicio_domicilio = models.BooleanField(default=False, null=True, blank=True,verbose_name="Domicilio")
 
@@ -488,7 +542,7 @@ class Perfil_Terapeuta(models.Model):
         default_currency='USD',  # o 'PEN', 'ARS', etc.
         blank=True,
         null=True,
-        verbose_name="Institucional a Domicilio",
+        verbose_name="Pago por hora institucional a domicilio",
         )
 
 
@@ -502,6 +556,7 @@ class Perfil_Terapeuta(models.Model):
         ('ESTIMULACIÓN TEMPRANA', 'Estimulación Temprana'),
         ('VALORACIÓN', 'Valoración'),
         ('TERAPIA_OCUPACIONAL', 'Terapia Ocupacional'),
+       # ('Institucional_a_Domicilio', 'Institucional a Domicilio'),
     ]
         
     tipos = models.JSONField(
@@ -536,6 +591,8 @@ class Perfil_Terapeuta(models.Model):
 
 class ValoracionTerapia(models.Model):
 
+    es_particular = models.BooleanField(default=False, verbose_name="Valoración Particular")
+    es_convenio = models.BooleanField(default=False, verbose_name="Valoración por Convenio")
 
     institucion = models.ForeignKey(
         'prospecion_administrativa',
@@ -551,11 +608,10 @@ class ValoracionTerapia(models.Model):
         null=True,
         blank=True,
         related_name='valoraciones_institucionales',
-        verbose_name="Institución a cargo"
+        verbose_name="Responsable institucional"
     )
 
-    es_particular = models.BooleanField(default=False, verbose_name="Valoración Particular")
-    es_convenio = models.BooleanField(default=False, verbose_name="Valoración por Convenio")
+
 
     perfil_terapeuta = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -593,13 +649,14 @@ class ValoracionTerapia(models.Model):
         blank=True
     )
 
-    proceso_terapia = models.BooleanField(default=False, verbose_name="Proceso de Terapia")
+    
     diagnostico = HTMLField(null=True, blank=True, verbose_name="Descripción del diagnóstico")
 
     fecha_asesoria = models.DateField(null=True, blank=True)
     recibe_asesoria = models.BooleanField(default=False)
     necesita_terapia = models.BooleanField(default=False)
     toma_terapia = models.BooleanField(default=False)
+    proceso_terapia = models.BooleanField(default=False, verbose_name="Proceso de Terapia")
 
     observaciones = HTMLField(null=True, blank=True, verbose_name="Observaciones de la valoración")
 
@@ -643,9 +700,9 @@ class ValoracionTerapia(models.Model):
 
 
 class InformesTerapeuticos(models.Model):
-    profile = models.ForeignKey('Profile', on_delete=models.CASCADE, related_name='archivos_adjuntos')
-    titulo = models.CharField(max_length=255, verbose_name="Título del archivo")
-    archivo = models.FileField(upload_to='documentos/pacientes/', verbose_name="Archivo")
+    profile = models.ForeignKey('Profile', on_delete=models.CASCADE, related_name='archivos_adjuntos', verbose_name="Informe Terapéutico")
+    titulo = models.CharField(max_length=255, verbose_name="Tema terapéutico")
+    archivo = models.FileField(upload_to='documentos/pacientes/', verbose_name="Subir informe Terapéutico")
     fecha_creado = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de creación")
 
     class Meta:
@@ -799,33 +856,6 @@ class Profile(models.Model):
         verbose_name="Autorización inicio Terapéutico",
     )
 
-    informe_inicial = models.FileField(
-        upload_to='informes/inicio/',
-        blank=True,
-        null=True,
-        verbose_name="Informe Terapéutico Inicial",
-    )
-
-    informe_segimiento = models.FileField(
-        upload_to='informes/seguimiento3M/',
-        blank=True,
-        null=True,
-        verbose_name="Informe de seguimiento Terapéutico 3 meses",
-    )
-
-    informe_segimiento_2 = models.FileField(
-        upload_to='informes/seguimiento6M/',
-        blank=True,
-        null=True,
-        verbose_name="Informe de seguimiento Terapéutico 6 meses",
-    )
-
-    certificado_final = models.FileField(
-        upload_to='certificados/final/',
-        blank=True,
-        null=True,
-        verbose_name="Certificado de alta terapeutica"
-    )
 
     fecha_inicio = models.DateField(blank=True, null=True, verbose_name="Fecha de inicio")
 
@@ -1044,6 +1074,8 @@ class MultipleChoicesField(models.CharField):
 
 
 class Cita(models.Model):
+
+
     sucursal = models.ForeignKey(
         'Sucursal',
         on_delete=models.CASCADE,
@@ -1064,6 +1096,21 @@ class Cita(models.Model):
         verbose_name="Categoría de Cita",
         blank=True,
         null=True,
+    )
+
+
+    AREA_CHOICES = [
+    ('psicologia', 'Psicología'),
+    ('terapia_lenguaje', 'Terapia de Lenguaje'),
+    ('ocupacional', 'Terapia Ocupacional'),
+    ]
+    
+    area = models.CharField(
+    max_length=50,
+    choices=AREA_CHOICES,
+    null=True,
+    blank=True,
+    verbose_name="Área Terapéutica"
     )
 
     creador = models.ForeignKey(
@@ -1103,6 +1150,7 @@ class Cita(models.Model):
         null=True,
         verbose_name="Nombre del Paciente Particular"
     )
+    fecha_nacimiento = models.DateField(null=True, blank=True, verbose_name="Fecha de Nacimiento")
 
     fecha = models.DateField(null=True, blank=True, verbose_name="Fecha de la cita")
     hora = models.TimeField(null=True, blank=True, verbose_name="Tiempo inicial")
@@ -1192,20 +1240,32 @@ class Cita(models.Model):
         hora_str = self.hora.strftime('%H:%M') if self.hora else 'Sin hora'
         return f"{self.creador} → {self.profile} ({fecha_str} {hora_str})"
 
-    def clean(self):
-        super().clean()
+def clean(self):
+    super().clean()
 
-        estados = ['pendiente', 'confirmada', 'cancelada']
-        seleccionados = [estado for estado in estados if getattr(self, estado)]
+    # Estado válido
+    estados = ['pendiente', 'confirmada', 'cancelada']
+    seleccionados = [estado for estado in estados if getattr(self, estado)]
 
-        if len(seleccionados) > 1:
-            raise ValidationError("Solo un estado puede estar activo a la vez: pendiente, confirmada o cancelada.")
+    if len(seleccionados) > 1:
+        raise ValidationError("Solo un estado puede estar activo a la vez.")
+    if len(seleccionados) == 0:
+        raise ValidationError("Debe seleccionarse al menos un estado.")
 
-        if len(seleccionados) == 0:
-            raise ValidationError("Debe seleccionarse al menos un estado.")
+    # Fecha final válida
+    if self.fecha_fin and self.fecha and self.fecha_fin < self.fecha:
+        raise ValidationError("La fecha de finalización no puede ser anterior a la fecha de inicio.")
 
-        if self.fecha_fin and self.fecha and self.fecha_fin < self.fecha:
-            raise ValidationError("La fecha de finalización no puede ser anterior a la fecha de inicio.")
+    # Verificar solapamiento de citas
+    if self.profile_terapeuta and self.fecha and self.hora and self.hora_fin:
+        citas_conflictivas = Cita.objects.filter(
+            profile_terapeuta=self.profile_terapeuta,
+            fecha=self.fecha
+        ).exclude(pk=self.pk).filter(
+            Q(hora__lt=self.hora_fin, hora_fin__gt=self.hora)
+        )
+        if citas_conflictivas.exists():
+            raise ValidationError("Ya existe una cita agendada con este terapeuta en ese horario.")
 
     class Meta:
         ordering = ['-fecha', '-hora']
@@ -1225,7 +1285,7 @@ class tareas(models.Model):
         null=True,
         blank=True,
         related_name='tareas_institucionales',
-        verbose_name="Institución a cargo"
+        verbose_name="Responsable institucional"
     )
 
     cita_terapeutica_asignada = models.DateField(null=True, blank=True, verbose_name="Fecha Sesion de Terapia")
@@ -1332,7 +1392,8 @@ class Mensaje(models.Model):
     )
 
 
-    asunto = models.CharField(max_length=50, choices=ASUNTOS_CHOICES, default='Consulta')  
+    asunto = models.CharField(max_length=50, choices=ASUNTOS_CHOICES, default='Consulta',verbose_name="Elija el tipo de Notificación")  
+    asunto_2 = models.CharField(max_length=500, verbose_name="Escriba el Asunto del mensaje", blank=True, null=True)  
     cuerpo = HTMLField(null=True, blank=True, verbose_name="Cuerpo del mensaje")
     adjunto = models.FileField(
         upload_to='mensajes_adjuntos/', 
@@ -1378,7 +1439,7 @@ class Mensaje(models.Model):
         null=True,
         blank=True,
         related_name='mensajes_institucional',
-        verbose_name="Asignar institución a cargo"
+        verbose_name="Asignar responsable institucional"
     )
 
     # ➕ Campo para vincular con Celery

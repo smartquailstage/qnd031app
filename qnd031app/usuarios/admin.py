@@ -549,12 +549,21 @@ class ValoracionTerapiaAdmin(ModelAdmin):
         'proceso_terapia'
     ]
 
+    conditional_fields = {
+        # Si es particular, ocultar campos institucionales
+        "institucion": "es_particular != true",
+        "Insitucional_a_cargo": "es_particular != true",
+
+        # Podrías agregar lógica adicional aquí para mostrar/ocultar campos según convenio si lo necesitas
+    }
+
+
     exclude = ('perfil_terapeuta',)
     search_fields = ['nombre', 'perfil_terapeuta__user__first_name', 'perfil_terapeuta__user__last_name']
     list_editable = ['proceso_terapia', 'recibe_asesoria', 'necesita_terapia', 'toma_terapia']
     readonly_fields = ['edad']
     list_sections = [ValoracionComponent, ValoracionExtraComponent]
-    list_filter = ("sucursal", 'recibe_asesoria', 'proceso_terapia', 'es_particular', 'es_convenio')
+    list_filter = ("sucursal", 'institucion','recibe_asesoria', 'proceso_terapia', 'es_particular', 'es_convenio')
     order_by = ('-fecha_valoracion',)
     actions = [export_to_csv, export_to_excel]
 
@@ -727,6 +736,8 @@ class Perfil_TerapeutaAdmin(ModelAdmin):
     list_horizontal_scrollbar_top = False
     list_disable_select_all = False
     change_form_show_cancel_button = True
+    autocomplete_fields = ['user',]
+
 
     list_sections = [
         TerapeutaComponent,
@@ -736,9 +747,9 @@ class Perfil_TerapeutaAdmin(ModelAdmin):
 
     list_display = [
         'get_full_name', 'especialidad', 'activo', 
-        'servicio_domicilio', 'servicio_institucion', 'servicio_consulta'
+        'servicio_domicilio', 'servicio_institucion', 'servicio_consulta','institucional_a_domicilio'
     ]
-    list_editable = ['activo', 'servicio_domicilio', 'servicio_institucion', 'servicio_consulta']
+    list_editable = ['activo', 'servicio_domicilio', 'servicio_institucion', 'servicio_consulta','institucional_a_domicilio']
 
     list_filter = [
         'sucursal',
@@ -755,8 +766,7 @@ class Perfil_TerapeutaAdmin(ModelAdmin):
         'sucursal__nombre',
     )
 
-
-
+    formfield_overrides = True
     form = PerfilTerapeutaAdminForm
 
     actions = [export_to_csv, export_to_excel]
@@ -1290,7 +1300,7 @@ class ProspeccionComponent(BaseComponent):
         headers = [
             "Provincia",
             "Nombre de la Institución",
-            "Estado",
+           # "Estado",
             "Teléfono",
             "Dirección",
             "Nombre de Contacto",
@@ -1306,14 +1316,14 @@ class ProspeccionComponent(BaseComponent):
         row = [
             p.provincia,
             p.nombre_institucion,
-            p.estado,
+           # p.estado,
             p.telefono or "",
             p.direccion or "",
             p.nombre_contacto or "",
             p.cargo_contacto or "",
             p.email_contacto or "",
-            p.proceso_realizado or "",
-            p.responsable or "",
+            #p.proceso_realizado or "",
+          #  p.responsable or "",
             p.fecha_contacto or "",
             p.observaciones or "",
             p.fecha_proximo_contacto or "",
@@ -1336,88 +1346,67 @@ class ProspeccionComponent(BaseComponent):
 
 @admin.register(Prospeccion)
 class ProspeccionAdmin(ModelAdmin):
-    # Campos comprimidos en el formulario
     compressed_fields = True
-
-    # Advertencia de cambios no guardados
     warn_unsaved_form = True
-
-    # Procesamiento previo de campos de solo lectura
     readonly_preprocess_fields = {
         "model_field_name": "html.unescape",
         "other_field_name": lambda content: content.strip(),
     }
 
-    # Ocultar botón de envío en filtros
     list_filter_submit = False
-
-    # Listado no en modo full width
     list_fullwidth = False
-
-    # Filtros como hoja lateral (no sidebar)
     list_filter_sheet = True
-
-    # No mostrar scrollbar arriba en el listado
     list_horizontal_scrollbar_top = False
-
-    # No seleccionar todos por defecto
     list_disable_select_all = False
-
-    # Desactivar acciones
     actions_list = []
     actions_row = []
     actions_detail = []
     actions_submit_line = []
-
-    # Mostrar botón de cancelar
     change_form_show_cancel_button = True
 
-    # Personaliza los widgets de campos
-    formfield_overrides = {
-        models.TextField: {
-            "widget": admin.widgets.AdminTextareaWidget(attrs={'rows': 3}),
-        },
-    }
-
-    # Campos que se muestran en la lista del admin
     list_display = [
         'nombre_institucion',
-        'provincia',
-        'estado',
         'telefono',
-        'responsable',
-        'fecha_contacto',
-        'fecha_proximo_contacto',
+        'es_en_cita', 'es_convenio_firmado', 'es_valoracion', 'es_finalizado'
     ]
 
-    # Campos que se pueden buscar
     search_fields = [
         'nombre_institucion',
         'provincia',
-        'estado',
         'nombre_contacto',
         'email_contacto',
-        'responsable__first_name',
-        'responsable__last_name',
     ]
 
-    # Filtros laterales
+    list_editable = ['es_en_cita', 'es_convenio_firmado', 'es_valoracion', 'es_finalizado']
+   # form = ProspeccionAdminForm
+
     list_filter = [
-        'provincia',
-        'estado',
-        'responsable',
+        'sucursal',
         'fecha_contacto',
         'fecha_proximo_contacto',
+        'es_en_cita', 'es_convenio_firmado', 'es_valoracion', 'es_inactivo', 'es_finalizado'
     ]
 
-    list_sections = [ProspeccionComponent]  # Agregar la sección personalizada
-
-    # Orden predeterminado
+    list_sections = [ProspeccionComponent]
     ordering = ['-fecha_contacto']
-
-    # Etiquetas personalizadas para el admin
     verbose_name = "Administrativo / Prospecciones"
     verbose_name_plural = "Registros Administrativos / Prospección"
+
+    def get_queryset(self, request):
+        """
+        Restringe los registros visibles según el usuario actual:
+        - Si es superusuario: ve todo.
+        - Si pertenece al grupo administrativo o terapeutico: ve todo.
+        - Si es el ejecutivo_meddes asignado en algún registro: ve solo esos.
+        """
+        qs = super().get_queryset(request)
+        user = request.user
+
+        if user.is_superuser or user.groups.filter(name__in=["administrativo", "terapeutico"]).exists():
+            return qs
+
+        return qs.filter(ejecutivo_meddes__user=user)  # Mostrar solo si es el ejecutivo asignado
+
 
 class DocenteCapacitadoInline(TabularInline):
     model = DocenteCapacitado
@@ -1446,27 +1435,26 @@ class CustomTableSection(TableSection):
 
 @admin.register(prospecion_administrativa)
 class prospecion_administrativaAdmin(ModelAdmin):
-    conditional_fields = {
-        "fecha_activo": "es_activo == true",
-    }
+   # conditional_fields = {
+    #    "fecha_activo": "es_activo == true",
+   # }
 
     inlines = [DocenteCapacitadoInline]
     list_sections = [CustomTableSection]
 
     list_display = [
-        'nombre', 'responsable_institucional_1',
-        'es_en_cita', 'es_convenio_firmado', 'es_valoracion', 'es_inactivo', 'es_finalizado'
+        'nombre', 'responsable_institucional_1'
     ]
 
     list_filter = (
         'sucursal',
-        'es_en_cita', 'es_valoracion', 'es_finalizado',
+       # 'es_en_cita', 'es_valoracion', 'es_finalizado',
     )
 
-    list_editable = [
-        'es_en_cita', 'es_convenio_firmado', 
-        'es_inactivo', 'es_valoracion', 'es_finalizado'
-    ]
+  #  list_editable = [
+ #       'es_en_cita', 'es_convenio_firmado', 
+  #      'es_inactivo', 'es_valoracion', 'es_finalizado'
+  #  ]
 
     search_fields = ['nombre', 'ciudad', 'responsable_institucional_1__username']
     actions = [export_to_csv, export_to_excel]
@@ -1599,14 +1587,15 @@ class MensajeAdmin(ModelAdmin):
 
     # ✅ Campos condicionales con Unfold
     conditional_fields = {
-        "perfil_terapeuta": "asunto == 'Terapéutico'",
-        "receptor": "asunto == 'Consulta' || asunto == 'Informativo'",
-        "perfil_administrativo": (
-            "asunto == 'Solicitud de pago vencido' || "
-            "asunto == 'Solicitud de Certificado Médico' || "
-            "asunto == 'Reclamo del servicio Médico' || "
-            "asunto == 'Cancelación del servicio Médico'"
-        )
+    "perfil_terapeuta": "asunto == 'Terapéutico'",
+    "receptor": "asunto == 'Consulta' || asunto == 'Informativo'",
+    "perfil_administrativo": (
+        "asunto == 'Solicitud de pago vencido' || "
+        "asunto == 'Solicitud de Certificado Médico' || "
+        "asunto == 'Reclamo del servicio Médico' || "
+        "asunto == 'Cancelación del servicio Médico'"
+    ),
+    "asunto_2": "asunto != ''"  # ← Se mostrará mientras 'asunto' tenga cualquier valor
     }
 
     # ✅ Fieldsets organizados
@@ -1621,7 +1610,7 @@ class MensajeAdmin(ModelAdmin):
             )
         }),
         ('Datos del mensaje', {
-            'fields': ('sucursal', 'cuerpo','adjunto', 'leido'),
+            'fields': ('sucursal','asunto_2' ,'cuerpo','adjunto', 'leido'),
         }),
         ('Información del sistema', {
             'fields': ('task_id', 'task_status', 'fecha_envio'),
@@ -1862,7 +1851,6 @@ class CitasComponent(BaseComponent):
     def render(self):
         return render_to_string(self.template_name, self.get_context_data())
 
-
 @register_component
 class CitasCohortComponent(BaseComponent):
     template_name = "admin/test.html"
@@ -1931,6 +1919,7 @@ class CitasCohortComponent(BaseComponent):
               # "paciente": cita.profile.nombre_paciente + " " + cita.profile.apellidos_paciente  if cita.profile else "",
                "tipo_cita": cita.tipo_cita,
                 "motivo": cita.motivo or "Sin motivo",
+                "area": cita.area or "Sin area",
                 "creador": cita.creador.get_full_name() if cita.creador else "Sin creador",
                 "estado": (
                     "Confirmada" if cita.confirmada
@@ -1960,8 +1949,7 @@ class CitasCohortComponent(BaseComponent):
         context = self.get_context_data()
         return render_to_string(self.template_name, context, request=self.request)
 
-        
-
+       
 class CardSection(TemplateSection):
     template_name = "admin/test2.html"
 
@@ -1971,23 +1959,71 @@ from .widgets import CustomDatePickerWidget, CustomTimePickerWidget
 from unfold.contrib.filters.admin import RangeDateFilter, RangeDateTimeFilter
 # Asegúrate de importar: export_to_csv, export_to_excel, duplicar_citas, WysiwygWidget, ArrayWidget
 @admin.register(Cita)
-class CitaAdmin(ModelAdmin):  # Asumo que ModelAdmin es de django.contrib.admin
-    form = CitaForm  # Asegúrate que esté definido en forms.py
+class CitaAdmin(ModelAdmin):
+    form = CitaForm  # Asegúrate de que CitaForm está bien definido
+
     conditional_fields = {
-        # Mostrar en todos los tipos
         "fecha": "tipo_cita != null",
         "hora": "tipo_cita != null",
         "hora_fin": "tipo_cita != null",
-        "fecha_fin": "tipo_cita != null",
-        "dias_recurrentes": "tipo_cita != null",
         "motivo": "tipo_cita != null",
         "notas": "tipo_cita != null",
-
-        # Condicionales específicos
+        "pendiente": "tipo_cita != null",
+        "confirmada": "tipo_cita != null",
+        "cancelada": "tipo_cita != null",
         "profile": "tipo_cita == 'terapeutica'",
+        "profile_terapeuta": "tipo_cita == 'terapeutica'",
+        "dias_recurrentes": "tipo_cita == 'terapeutica'",
+        "fecha_fin": "tipo_cita == 'terapeutica'",
+        "area": "tipo_cita == 'terapeutica'",
         "nombre_paciente": "tipo_cita == 'particular'",
+        "echa_nacimiento": "tipo_cita == 'particular'",
         "destinatario": "tipo_cita == 'administrativa'",
     }
+
+    formfield_overrides = {
+        models.DateField: {'widget': CustomDatePickerWidget()},
+        models.TimeField: {'widget': CustomTimePickerWidget()},
+    }
+
+    list_sections = [CitasComponent, CitasCohortComponent]
+    list_sections_layout = "horizontal"
+
+    list_display = (
+        'profile', 'profile_terapeuta', 'fecha', 'hora', 'sucursal', 'area',
+        'tipo_cita', 'confirmada', 'pendiente', 'cancelada'
+    )
+
+    list_editable = ("pendiente", "confirmada", "cancelada")
+
+    list_filter = (
+        ('fecha', RangeDateFilter),
+        'profile_terapeuta',
+        'sucursal',
+        'area',
+    )
+
+    search_fields = (
+        'profile__user__first_name',
+        'profile__user__last_name',
+        'profile_terapeuta__user__first_name',
+        'profile_terapeuta__user__last_name',
+        'sucursal__nombre',
+        'area',
+    )
+
+    list_per_page = 20
+    compressed_fields = True
+    list_horizontal_scrollbar_top = True
+
+    change_form_show_cancel_button = True
+    exclude = ("creador",)
+    ordering = ["fecha"]
+
+    actions = [export_to_csv, export_to_excel, duplicar_citas]
+    actions_list = []
+    actions_row = []
+    actions_submit_line = []
 
     @admin.display(description="Duración")
     def duracion(self, obj):
@@ -2006,51 +2042,6 @@ class CitaAdmin(ModelAdmin):  # Asumo que ModelAdmin es de django.contrib.admin
         elif obj.tipo_cita == "particular":
             return obj.nombre_paciente or "—"
         return "—"
-    
-    formfield_overrides = {
-        models.DateField: {'widget': CustomDatePickerWidget()},
-        models.TimeField: {'widget': CustomTimePickerWidget()},
-    }
-
-    list_sections = [CitasComponent, CitasCohortComponent]
-    list_sections_layout = "horizontal"
-    
-
-    list_per_page = 20
-    compressed_fields = True
-    list_horizontal_scrollbar_top = True
-
-    list_display = (
-        "nombre_asociado","tipo_cita", "fecha_relativa", "hora", "hora_fin", "duracion",
-        "pendiente", "cancelada", "confirmada"
-    )
-
-    list_editable = ("pendiente", "confirmada", "cancelada")
-
-    search_fields = (
-        "motivo", "notas", "creador__first_name", "destinatario__first_name", "profile__nombre_paciente",
-    )
-
-    list_filter = (
-        "sucursal",
-        "pendiente",
-        "confirmada",
-        "cancelada",
-        ("fecha", RangeDateFilter),
-        #("hora", RangeDateTimeFilter),
-        #("hora_fin", RangeDateTimeFilter),
-    )
-
-    change_form_show_cancel_button = True
-    exclude = ("creador",)
-    ordering = ["fecha"]
-
-    actions = [export_to_csv, export_to_excel, duplicar_citas]
-    actions_list = []
-    actions_row = []
-    actions_submit_line = []
-
-
 
     def get_destinatario_full_name(self, obj):
         return obj.destinatario.get_full_name() if obj.destinatario else "—"
@@ -2066,7 +2057,6 @@ class CitaAdmin(ModelAdmin):  # Asumo que ModelAdmin es de django.contrib.admin
     def changelist_action(self, request: HttpRequest, object_id=None):
         url = self.get_admin_changelist_url()
         return redirect(url)
-
 
     def has_changelist_action_permission(self, request, object_id=None):
         return True
@@ -2352,7 +2342,7 @@ class ProfileAdmin(ModelAdmin):
     compressed_fields = True  # Default: False
     inlines = [TareaItemInline,CitaItemInline,PagosItemInline,InformesTerapeuticosInline]
     search_fields = ['user__username', 'user__first_name', 'user__last_name']
-    list_sections = [ProfileComponent,ProfileComponentRepresentante,ProfileComponentTerapeutico,ProfileComponentInformes]  # Agregar sección personalizada
+    list_sections = [ProfileComponent,ProfileComponentRepresentante,ProfileComponentTerapeutico]  # Agregar sección personalizada
     form = ProfileAdminForm
     # Warn before leaving unsaved changes in changeform
     warn_unsaved_form = True  # Default: False
@@ -2364,7 +2354,7 @@ class ProfileAdmin(ModelAdmin):
     }
 
     # Display submit button in filters
-    list_filter_submit = False
+    list_filter_submit = True
 
     # Display changelist in fullwidth
     list_fullwidth = True
@@ -2427,6 +2417,21 @@ class ProfileAdmin(ModelAdmin):
         except PerfilInstitucional.DoesNotExist:
             return qs.none()  # 🔒 Sin perfil institucional → sin acceso
 
+    def get_inline_instances(self, request, obj=None):
+        inline_instances = []
+        user = request.user
+        allowed_groups = ['terapeutico', 'institucional']  # ← solo estos grupos
+        base_inlines = [TareaItemInline, CitaItemInline, PagosItemInline]
+        
+        for inline_class in base_inlines:
+            inline = inline_class(self.model, self.admin_site)
+            inline_instances.append(inline)
+            
+        if user.is_superuser or user.groups.filter(name__in=allowed_groups).exists():
+            inline_instances.append(InformesTerapeuticosInline(self.model, self.admin_site))
+            
+        return inline_instances
+
 
 
     list_editable  = ['es_retirado','es_en_terapia','es_pausa', 'es_alta']
@@ -2483,10 +2488,6 @@ class ProfileAdmin(ModelAdmin):
             'fecha_re_inicio',            
             'fecha_alta',
             'certificado_inicio',
-            'informe_inicial',
-            'informe_segimiento',
-            'informe_segimiento_2',
-            'certificado_final',
 
             # Campos booleanos de estados terapéuticos
             'es_en_terapia',

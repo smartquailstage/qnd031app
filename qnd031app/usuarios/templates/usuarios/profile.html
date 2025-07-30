@@ -59,7 +59,7 @@
 
 <div class="row row-cols-1 row-cols-lg-3 g-3"> <!-- g-3 agrega espacio uniforme entre tarjetas -->
 
-{% if ultima_tarea_endiente and ultima_tarea_enviada.media_terapia %}
+{% if ultima_tarea_pendiente and ultima_tarea_enviada.media_terapia %}
 <div class="col">
     <div class="card radius-10 bg-primary text-white h-100">
         <div class="card-body text-left">
@@ -109,97 +109,79 @@
 {% endif %}
 
 
-    {% if ultima_cita.pendiente %}
-   
-    <div class="col">
-        <div class="card radius-10 bg-primary text-white h-100">
-         
-            <div class="card-body">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="service-box bg-white text-white me-2">
-                        <div class="font-22">
-                            <i class="lni lni-checkmark"></i>
-                        </div>
-                    </div>
-                    <h6 class="mb-0 border-bottom">Asistencia Terapéutica</h6>
-                </div>
-
-                <div class="d-flex align-items-center justify-content-start mb-3">
-                    <!-- Fecha -->
-                    <div class="text-center bg-white text-primary p-2 rounded shadow-sm me-3" style="width: 70px;">
-                        <div class="fw-bold" style="font-size: 1.5rem;">
-                            {{ ultima_cita.fecha|date:"d" }}
-                        </div>
-                        <div style="text-transform: uppercase; font-size: 0.8rem;">
-                            {{ ultima_cita.fecha|date:"b" }}
-                        </div>
-                    </div>
-
-                    <!-- Hora -->
-                    <div class="text-center bg-white text-primary p-2 rounded shadow-sm me-3" style="width: 70px;">
-                        <div class="fw-bold" style="font-size: 1.5rem;">
-                            <i class="lni lni-alarm-clock"></i>
-                        </div>
-                        <div style="text-transform: uppercase; font-size: 0.8rem;">
-                            {{ ultima_cita.hora }}
-                        </div>
-                    </div>
-
-                    <!-- Lugar -->
-                    <div class="text-center bg-white text-primary p-2 rounded shadow-sm me-3" style="width: 70px;">
-                        <div class="fw-bold" style="font-size: 1.5rem;">
-                            <i class="lni lni-map"></i>
-                        </div>
-                        <div style="text-transform: uppercase; font-size: 0.8rem;">
-                            {{ ultima_cita.sucursal }}
-                        </div>
+    {% if ultima_cita %}
+<div class="col">
+    <div class="card radius-10 bg-primary text-white h-100">
+        <div class="card-body">
+            <div class="d-flex align-items-center mb-3">
+                <div class="service-box bg-white text-white me-2">
+                    <div class="font-22">
+                        <i class="lni lni-checkmark"></i>
                     </div>
                 </div>
-
-
-<div>
-  <span class="badge p-2
-    {% if ultima_cita.confirmada  %}
-      bg-success
-    {% elif ultima_cita.cancelada %}
-      bg-danger
-    {% else %}
-      bg-warning text-dark
-    {% endif %}
-  ">
-    {% if ultima_cita.confirmada %}
-      <i class="fadeIn animated bx bx-check-double"></i> Asistencia Confirmada
-    {% elif ultima_cita.cancelada  %}
-      ✖ Asistencia Cancelada
-    {% else %}
-        <i class="lni lni-checkmark"></i> Asistencia Pendiente
-    {% endif %}
-  </span>
-</div>
-
-                  <a href="{% url 'usuarios:ver_cita' pk=ultima_cita.pk %}">
-                    <div class="d-flex align-items-center theme-icons shadow-sm p-2 cursor-pointer rounded mt-3">
-                        <div class="font-22">	<i class="lni lni-calendar"></i>
-                </div>
-                        <div class="ms-2">Cita Terapéutica</div>
-                    </div>
-                </a>
-
-
-                <div class="mt-3 pt-2 border-top">
-                    <p class="mb-0"><strong>Nueva Cita {{ ultima_cita.get_tipo_cita_display }} </strong></p>
-                    <p class="mb-0"><strong>Motivo:</strong> {{ ultima_cita.motivo }}</p>
-                </div>
-
-              
+                <h6 class="mb-0 border-bottom">Asistencia Terapéutica</h6>
             </div>
 
+            <div class="d-flex align-items-center justify-content-start mb-3">
+                <!-- Fecha -->
+                <div class="text-center bg-white text-primary p-2 rounded shadow-sm me-3" style="width: 70px;">
+                    <div class="fw-bold" style="font-size: 1.5rem;">
+                        {{ ultima_cita.cita_terapeutica_asignada|date:"d" }}
+                    </div>
+                    <div style="text-transform: uppercase; font-size: 0.8rem;">
+                        {{ ultima_cita.cita_terapeutica_asignada|date:"b" }}
+                    </div>
+                </div>
+
+                <!-- Hora -->
+                <div class="text-center bg-white text-primary p-2 rounded shadow-sm me-3" style="width: 70px;">
+                    <div class="fw-bold" style="font-size: 1.5rem;">
+                        <i class="lni lni-alarm-clock"></i>
+                    </div>
+                    <div style="text-transform: uppercase; font-size: 0.8rem;">
+                        {{ ultima_cita.hora|default:"—" }}
+                    </div>
+                </div>
+
+                <!-- Lugar -->
+                <div class="text-center bg-white text-primary p-2 rounded shadow-sm me-3" style="width: 70px;">
+                    <div class="fw-bold" style="font-size: 1.5rem;">
+                        <i class="lni lni-map"></i>
+                    </div>
+                    <div style="text-transform: uppercase; font-size: 0.8rem;">
+                        {{ ultima_cita.sucursal|default:"Sin asignar" }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estado -->
+            <div>
+                <span class="badge p-2
+                    {% if ultima_cita.asistire %}
+                        bg-success
+                    {% else %}
+                        bg-warning text-dark
+                    {% endif %}
+                ">
+                    {% if ultima_cita.asistire %}
+                        <i class="fadeIn animated bx bx-check-double"></i> Asistencia Confirmada
+                    {% else %}
+                        <i class="lni lni-checkmark"></i> Asistencia Pendiente
+                    {% endif %}
+                </span>
+            </div>
+
+
+
+            <div class="mt-3 pt-2 border-top">
+                <p class="mb-0"><strong>Terapéuta:</strong> {{ ultima_cita.terapeuta.get_full_name }}</p>
+                <p class="mb-0"><strong>Actividad:</strong> {{ ultima_cita.titulo|default:"Sin título" }}</p>
+            </div>
         </div>
     </div>
+</div>
+{% endif %}
 
-    {% else %}
-
-    {% endif %}
             
 {% if ultima_tarea %}
     <div class="col">

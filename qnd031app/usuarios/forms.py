@@ -214,16 +214,7 @@ class PerfilTerapeutaAdminForm(forms.ModelForm):
 
     class Meta:
         model = Perfil_Terapeuta
-        fields = [
-            'user', 'especialidad', 'nombres_completos', 'sexo', 'fecha_nacimiento', 'cedula',
-            'fecha_ingreso', 'sucursal', 'telefono',
-            'titulo_universitario', 'antecedentes_penales', 'certificados',
-            'banco', 'tipo_cuenta', 'numero_cuenta',
-            'servicio_domicilio', 'pago_por_hora',
-            'servicio_institucion', 'pago_por_hora_institucion',
-            'servicio_consulta', 'pago_por_hora_consulta',
-            'tipos', 'activo'
-        ]
+        fields = '__all__'
         widgets = {
             'fecha_nacimiento': CustomDatePickerWidget(attrs={'class': 'form-control'}),
         }
@@ -243,7 +234,6 @@ class PerfilTerapeutaAdminForm(forms.ModelForm):
             instance.save()
             self.save_m2m()
         return instance
-
 
         
 class PerfilPacientesForm(forms.ModelForm):

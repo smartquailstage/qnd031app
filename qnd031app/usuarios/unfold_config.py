@@ -16,10 +16,18 @@ from usuarios.models import Prospeccion
 
 def badge_callback_meddes(request):
     try:
-        total = Prospeccion.objects.count()
-        return f"{total}"
+        conteos = {
+            "Por contactar": Prospeccion.objects.filter(es_en_cita=True).count(),
+            "Contactados": Prospeccion.objects.filter(es_convenio_firmado =True).count(),
+            "En cita": Prospeccion.objects.filter(es_valoracion=True).count(),
+            "Finalizados": Prospeccion.objects.filter(es_finalizado=True).count(),
+        }
+
+        return " | ".join(f"{value}" for key, value in conteos.items())
+
     except Exception:
         return "0"
+
 
 def badge_callback_notificaciones(request):
     try:
@@ -69,15 +77,17 @@ def badge_callback_tareas(request):
 def badge_callback_valoracion(request):
     try:
         valoraciones = {
-            "Convenio": ValoracionTerapia.objects.filter(recibe_asesoria=True).count(),
-            "Particular": ValoracionTerapia.objects.filter(proceso_terapia=True).count(),
-           
+            "Recibe asesoría": ValoracionTerapia.objects.filter(recibe_asesoria=True).count(),
+            "Necesita terapia": ValoracionTerapia.objects.filter(necesita_terapia=True).count(),
+            "Toma terapia": ValoracionTerapia.objects.filter(toma_terapia=True).count(),
+            "Proceso terapia": ValoracionTerapia.objects.filter(proceso_terapia=True).count(),
         }
 
         return " | ".join(f"{value}" for key, value in valoraciones.items())
 
     except Exception:
         return "0"
+
 
 
 

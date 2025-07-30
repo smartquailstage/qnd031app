@@ -410,7 +410,7 @@ UNFOLD = {
                 "permission": is_institucional_o_administrativo,
             },
             {
-                "title": _("Historiales"),
+                "title": _("Pacientes"),
                 "icon": "book",
                 "link": reverse_lazy("admin:usuarios_profile_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_terapeutico",
@@ -425,14 +425,14 @@ UNFOLD = {
                 "badge_color": "font-subtle-light",
                 "permission": is_administrativo_o_isuperuser,
             },
-            {
-                "title": _("Pagos"),
-                "icon": "payment",
-                "link": reverse_lazy("admin:usuarios_pagos_changelist"),
-                "badge": "usuarios.unfold_config.badge_callback_pagos",
-                "badge_color": "custom-red-alert",
-                "permission": is_admin_o_financiero,
-            },
+#            {
+#                "title": _("Pagos"),
+#                "icon": "payment",
+#                "link": reverse_lazy("admin:usuarios_pagos_changelist"),
+#                "badge": "usuarios.unfold_config.badge_callback_pagos",
+#                "badge_color": "custom-red-alert",
+#                "permission": is_admin_o_financiero,
+#            },
         ],
     },
     {
