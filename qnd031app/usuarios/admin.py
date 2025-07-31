@@ -1524,30 +1524,23 @@ class CustomTableSection(TableSection):
         return instance.nombres
 
 
-@admin.register(prospecion_administrativa)
-class prospecion_administrativaAdmin(ModelAdmin):
-   # conditional_fields = {
-    #    "fecha_activo": "es_activo == true",
-   # }
 
+@admin.register(prospecion_administrativa)
+class ProspeccionAdministrativaAdmin(ModelAdmin):
     inlines = [DocenteCapacitadoInline]
     list_sections = [CustomTableSection]
 
-    list_display = [
-        'nombre', 'responsable_institucional_1'
+    list_display = ['nombre', 'responsable_institucional_1']
+
+    list_filter = ['sucursal']
+
+    search_fields = [
+        'nombre',
+        'ciudad',
+        'responsable_institucional_1__usuario__first_name',
+        'responsable_institucional_1__usuario__last_name',
     ]
 
-    list_filter = (
-        'sucursal',
-       # 'es_en_cita', 'es_valoracion', 'es_finalizado',
-    )
-
-  #  list_editable = [
- #       'es_en_cita', 'es_convenio_firmado', 
-  #      'es_inactivo', 'es_valoracion', 'es_finalizado'
-  #  ]
-
-    search_fields = ['nombre', 'ciudad', 'responsable_institucional_1__usuario__first_name', 'responsable_institucional_1__usuario__last_name']
     actions = [export_to_csv, export_to_excel]
     change_form_show_cancel_button = True
 
@@ -1578,11 +1571,15 @@ class prospecion_administrativaAdmin(ModelAdmin):
             return qs
 
         # 🧑‍💼 Comerciales Meddes ven solo sus instituciones asignadas
-        try:
-            perfil_comercial = Perfil_Comercial.objects.get(user=user)
-            return qs.filter(comercial_meddes=perfil_comercial)
-        except Perfil_Comercial.DoesNotExist:
-            return qs.none()
+        if user.groups.filter(name='comercial').exists():
+            try:
+                perfil_comercial = Perfil_Comercial.objects.get(user=user)
+                return qs.filter(comercial_meddes=perfil_comercial)
+            except Perfil_Comercial.DoesNotExist:
+                return qs.none()
+
+        # ❌ Otros grupos no ven nada
+        return qs.none()
 
 
 @admin.action(description="Duplicar mensajes seleccionados")

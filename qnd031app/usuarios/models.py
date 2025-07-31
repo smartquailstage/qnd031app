@@ -343,15 +343,6 @@ class Prospeccion(models.Model):
         verbose_name="Comercial Meddes a Cargo"
     )
 
-    es_por_contactar = models.BooleanField(default=False, verbose_name="¿Se envío Mail?")
-    es_contactado = models.BooleanField(default=False, verbose_name="¿Se realizó Llamada?")
-    es_en_cita = models.BooleanField(default=False, verbose_name="¿Se tuvo Cita?")
-    es_convenio_firmado = models.BooleanField(default=False, verbose_name="¿Se firma convenio?")
-    es_capacitacion = models.BooleanField(default=False, verbose_name="¿Se realizó Capacitación?")
-    es_valoracion = models.BooleanField(default=False, verbose_name="¿Se realizaron valoraciones?")
-    es_rechazado = models.BooleanField(default=False, verbose_name="¿Fue rechazado?")
-    es_finalizado = models.BooleanField(default=False, verbose_name="¿Finalizó el proceso?")
-    es_inactivo = models.BooleanField(default=False, verbose_name="Activo/Inactivo")
 
     provincia = models.CharField("Provincia", max_length=100, choices=PROVINCIAS_ECUADOR)
     nombre_institucion = models.CharField("Nombre de la Institución", max_length=255)
@@ -374,6 +365,17 @@ class Prospeccion(models.Model):
     fecha_proximo_contacto = models.DateField("Fecha Próximo Contacto", blank=True, null=True)
 
     observaciones = models.TextField("Observaciones", max_length=1000, blank=True, null=True)
+
+
+    es_por_contactar = models.BooleanField(default=False, verbose_name="¿Se envío Mail?")
+    es_contactado = models.BooleanField(default=False, verbose_name="¿Se realizó Llamada?")
+    es_en_cita = models.BooleanField(default=False, verbose_name="¿Se tuvo Cita?")
+    es_convenio_firmado = models.BooleanField(default=False, verbose_name="¿Se firma convenio?")
+    es_capacitacion = models.BooleanField(default=False, verbose_name="¿Se realizó Capacitación?")
+    es_valoracion = models.BooleanField(default=False, verbose_name="¿Se realizaron valoraciones?")
+    es_rechazado = models.BooleanField(default=False, verbose_name="¿Fue rechazado?")
+    es_finalizado = models.BooleanField(default=False, verbose_name="¿Finalizó el proceso?")
+    es_inactivo = models.BooleanField(default=False, verbose_name="Activo/Inactivo")
 
     class Meta:
         ordering = ['-fecha_contacto']
