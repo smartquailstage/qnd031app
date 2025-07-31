@@ -31,6 +31,8 @@ from decimal import Decimal
 
 
 
+
+
 class AdministrativeProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='admin_profile')
     date_of_birth = models.DateField("Fecha de nacimiento")
@@ -158,6 +160,125 @@ class Sucursal(models.Model):
 
 
 
+
+class Perfil_Comercial(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Elegir nombre de usuario en el sistema")
+    especialidad = models.CharField(max_length=255, blank=True, null=True, verbose_name="Especialidad")
+
+    SEXO_OPCIONES = [
+        ('M', 'Masculino'),
+        ('F', 'Femenino'),
+        ('O', 'Otro'),
+    ]
+
+    nombres_completos = models.CharField(max_length=200, null=True, blank=True)
+    
+    sucursal = models.ForeignKey(
+        Sucursal,
+        on_delete=models.CASCADE,
+        related_name="sucursal100",null=True, blank=True
+    )
+    correo = models.EmailField(verbose_name="Correo Electrónico", null=True, blank=True)
+
+    #edad = models.PositiveIntegerField(null=True, blank=True)
+    sexo = models.CharField(max_length=1, choices=SEXO_OPCIONES, null=True, blank=True)
+    fecha_nacimiento = models.DateField(null=True, blank=True)
+    cedula = models.CharField(max_length=20, null=True, blank=True)
+    fecha_ingreso = models.DateField(null=True, blank=True)
+
+    titulo_universitario = models.FileField(upload_to='documentos/terapeutas/titulo/', blank=True, null=True)
+    antecedentes_penales = models.FileField(upload_to='documentos/terapeutas/antecedentes/', blank=True, null=True)
+    certificados = models.FileField(upload_to='documentos/terapeutas/certificados/', blank=True, null=True)
+
+    phone_regex = RegexValidator(
+        regex=r'^\+?593?\d{9,15}$',
+        message="El número de teléfono debe estar en formato internacional. Ejemplo: +593XXXXXXXXX."
+    )
+    telefono = PhoneNumberField(verbose_name="Teléfono de persona a cargo",validators=[phone_regex],default='+593')
+    TIPO_CUENTA_CHOICES = [
+        ('ahorros', 'Ahorros'),
+        ('corriente', 'Corriente'),
+    ]
+
+    BANCOS_ECUADOR_CHOICES = [
+        ('pichincha', 'Banco Pichincha'),
+        ('guayaquil', 'Banco Guayaquil'),
+        ('pacifico', 'Banco del Pacífico'),
+        ('produbanco', 'Produbanco'),
+        ('internacional', 'Banco Internacional'),
+        ('austro', 'Banco del Austro'),
+        ('machala', 'Banco de Machala'),
+        ('bolivariano', 'Banco Bolivariano'),
+        ('promerica', 'Banco Promerica'),
+        ('coopjep', 'Cooperativa JEP'),
+        ('cooperco', 'Cooperco'),
+        ('mutualista_pichincha', 'Mutualista Pichincha'),
+        ('', 'Otro'),  # Opción para otros bancos
+        # Agrega más si es necesario
+    ]
+
+    banco = models.CharField(
+        "Banco", max_length=50, choices=BANCOS_ECUADOR_CHOICES,
+        blank=True, null=True, help_text="Selecciona el banco"
+    )
+    tipo_cuenta = models.CharField(
+        "Tipo de cuenta", max_length=20, choices=TIPO_CUENTA_CHOICES,
+        blank=True, null=True
+    )
+    numero_cuenta = models.CharField("Número de cuenta", max_length=30, blank=True, null=True)
+   # cedula_titular = models.CharField("Cédula del Terapeuta", max_length=20, blank=True, null=True)
+    #nombre_titular = models.CharField("Nombre del titular", max_length=100, blank=True, null=True)
+    
+
+    servicio_domicilio = models.BooleanField(default=False, null=True, blank=True,verbose_name="Domicilio")
+
+    pago_por_hora = MoneyField(
+        max_digits=10,
+        decimal_places=2,
+        default_currency='USD',  # o 'PEN', 'ARS', etc.
+        blank=True,
+        null=True,
+        verbose_name="Costo por hora Domicilio",
+        )
+    servicio_institucion = models.BooleanField(default=True, null=True, blank=True,verbose_name="Institución")
+
+    pago_por_hora_institucion = MoneyField(
+        max_digits=10,
+        decimal_places=2,
+        default_currency='USD',  # o 'PEN', 'ARS', etc.
+        blank=True,
+        null=True,
+        verbose_name="Costo por hora Institución",
+        )
+
+    servicio_consulta = models.BooleanField(default=True, null=True, blank=True)
+
+    pago_por_hora_consulta = MoneyField(
+        max_digits=10,
+        decimal_places=2,
+        default_currency='USD',  # o 'PEN', 'ARS', etc.
+        blank=True,
+        null=True,
+        verbose_name="Costo por hora Consulta",
+        )
+
+    institucional_a_domicilio = models.BooleanField(default=True, null=True, blank=True)
+
+    pago_por_hora_institucional_a_domicilio = MoneyField(
+        max_digits=10,
+        decimal_places=2,
+        default_currency='USD',  # o 'PEN', 'ARS', etc.
+        blank=True,
+        null=True,
+        verbose_name="Pago por hora institucional a domicilio",
+        )
+
+
+
+
+
+
+
 class Prospeccion(models.Model):
     PROVINCIAS_ECUADOR = [
         ('Azuay', 'Azuay'),
@@ -201,6 +322,14 @@ class Prospeccion(models.Model):
         verbose_name="Ejecutivo Meddes"
     )
     cargo_ejecutivo_meddes = models.CharField(max_length=150, null=True, blank=True)
+
+    comercial_meddes = models.ForeignKey(
+       Perfil_Comercial,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name="Comercial Meddes a Cargo"
+    )
 
     es_por_contactar = models.BooleanField(default=False, verbose_name="¿Se envío Mail?")
     es_contactado = models.BooleanField(default=False, verbose_name="¿Se realizó Llamada?")
@@ -362,6 +491,7 @@ class prospecion_administrativa(models.Model):
     # Ejecutivo Meddes
     ejecutivo_meddes = models.ForeignKey(AdministrativeProfile, on_delete=models.CASCADE,null=True, blank=True, verbose_name="Ejecutivo Meddes")
     cargo_ejecutivo_meddes = models.CharField(max_length=150, null=True, blank=True)
+    comercial_meddes = models.ForeignKey(Perfil_Comercial, on_delete=models.CASCADE,null=True, blank=True, verbose_name="Comercial Meddes")
     telefono_ejecutivo_meddes = models.CharField(max_length=50, null=True, blank=True)
     mail_ejecutivo_meddes = models.EmailField(blank=True, null=True)
     obserciones = models.TextField(
@@ -422,10 +552,6 @@ class DocenteCapacitado(models.Model):
 
     def __str__(self):
         return f"{self.nombres} {self.apellidos} - {self.institucion.nombre}"
-
-
-
-
 
 
 
@@ -1106,7 +1232,7 @@ class Cita(models.Model):
         ('administrativa', 'Administrativa'),
         ('terapeutica', 'Terapéutica'),
         ('particular', 'Particular'),
-        ('urgente', 'Urgente'),
+        ('comercial', 'Comercial'),
     ]
     tipo_cita = models.CharField(
         max_length=20,
@@ -1168,6 +1294,16 @@ class Cita(models.Model):
         null=True,
         verbose_name="Nombre del Paciente Particular"
     )
+
+
+    comercial_meddes = models.ForeignKey(
+       Perfil_Comercial,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name="Comercial Meddes a Cargo"
+    ) 
+
     fecha_nacimiento = models.DateField(null=True, blank=True, verbose_name="Fecha de Nacimiento")
 
     fecha = models.DateField(null=True, blank=True, verbose_name="Fecha de la cita")

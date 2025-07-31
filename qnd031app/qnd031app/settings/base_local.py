@@ -104,103 +104,74 @@ SITE_DOMAIN = os.environ.get('SITE_DOMAIN', 'http://localhost:8000')  # Cambia e
 
 
 # Application definition
-
 INSTALLED_APPS = [
+    # Unfold debe ir ANTES que django.contrib.admin para que sobreescriba estilos y funcionalidades
+    "unfold",
 
-
-    
-    "unfold",  # before django.contrib.admin
-
-
+    # Unfold contrib apps (añade según lo que uses)
     "unfold.contrib.forms",
-    "unfold.contrib.filters",  # optional, if special filters are needed
-    "unfold.contrib.inlines",  # optional, if special inlines are needed
-    "unfold.contrib.import_export",  # optional, if django-import-export package is used
-    "unfold.contrib.guardian",  # optional, if django-guardian package is used
-    "unfold.contrib.simple_history",
+    "unfold.contrib.filters",          # opcional, si usas filtros especiales
+    "unfold.contrib.inlines",          # opcional, para inlines especiales
+    "unfold.contrib.import_export",    # opcional, si usas django-import-export
+    "unfold.contrib.guardian",          # opcional, si usas django-guardian
+    "unfold.contrib.simple_history",   # opcional, historial simple
 
-    #'webapp',
+    # Django core apps
     "django.contrib.admin",
     "django.contrib.auth",
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'serviceapp',
-    'rosetta',
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django.contrib.humanize",  # agregado en el lugar correcto
 
-    
-    #'citas_regulares',
+    # Apps propias o de terceros (ordena según lógica tuya)
+    "serviceapp",
+    "rosetta",
+    "django_extensions",
+    "django_celery_results",
+    "django_celery_beat",
+    "usuarios",
+    "core",
 
+    # Terceros varios
+    "django_social_share",
+    "widget_tweaks",
+    "django_forms_bootstrap",
+    "bootstrap4",
+    "social_django",
+    "sorl.thumbnail",
+    "embed_video",
+    "qr_code",
+    "storages",
+    "boto3",
+    "rest_framework",
+    "ckeditor",
+    "localflavor",
+    "jquery",
+    "phone_field",
+    "phonenumber_field",
+    "bootstrap5",
+    "bootstrap_datepicker_plus",
+    "djmoney",
+    "tinymce",
 
-   # 'appointment',
-    'django_extensions',
-    #'shop',
-    #'orders',
-    #'payment',
-    #'coupons',
-    'django_celery_results',
-    'django_celery_beat',
-
-
-
-    
-    
-
-
-    
-
-   
-    
-
-   # 'agenda',
-    #'schedule',
-    'usuarios',
-
-
-
-    #'parler',
-    'core',
-    'django.contrib.humanize',
-
-
-
-
-
-   
-    #'subscription',
-
-    'django_social_share',
-   # 'taggit',
-    'widget_tweaks',
-    'django_forms_bootstrap',
-    'bootstrap4',
-    'social_django',
-    'sorl.thumbnail',
-    'embed_video',
-    'qr_code',
-    'storages',
-    'boto3',
-    'rest_framework',
-    'ckeditor',
-    'localflavor',
-   
-    'jquery',
-    'phone_field',
-    'phonenumber_field',
-    'bootstrap5',
-
-    'bootstrap_datepicker_plus',
-    'djmoney',
-    'tinymce',
-   
-
-    #WEBAPP
-    #'wagtail_modeltranslation',
-    #'wagtail_modeltranslation.makemigrations',
-    #'wagtail_modeltranslation.migrate',
-
-  
+    # Comentados o no usados actualmente
+    # 'webapp',
+    # 'citas_regulares',
+    # 'appointment',
+    # 'shop',
+    # 'orders',
+    # 'payment',
+    # 'coupons',
+    # 'agenda',
+    # 'schedule',
+    # 'parler',
+    # 'subscription',
+    # 'taggit',
+    # 'wagtail_modeltranslation',
+    # 'wagtail_modeltranslation.makemigrations',
+    # 'wagtail_modeltranslation.migrate',
 ]
 
 #LOGINGS REDIRECT
@@ -232,6 +203,9 @@ def badge_color_callback(request):
 def is_terapeuta(request):
     return request.user.groups.filter(name="terapeutico").exists()
 
+def is_comercial(request):
+    return request.user.groups.filter(name="comercial").exists()
+
 def is_administrativo(request):
     return request.user.groups.filter(name="administrativo").exists()
 
@@ -244,6 +218,9 @@ def is_institucional(request):
 def is_superuser(request):
     return request.user.is_superuser
 
+def is_administrativo_o_isuperuser_o_is_comercial(request):
+    return is_administrativo(request) or is_superuser(request) or is_comercial(request)
+
 def is_administrativo_o_isuperuser(request):
     return is_administrativo(request) or is_superuser(request)
 
@@ -254,7 +231,7 @@ def is_institucional_o_administrativo(request):
     return is_institucional(request)   or is_administrativo(request) or is_superuser(request)
 
 def is_admin_o_terapeuta(request):
-    return is_administrativo(request) or is_terapeuta(request) or is_superuser(request)
+    return is_administrativo(request) or is_terapeuta(request) or is_superuser(request) or is_comercial(request)
 
 def is_admin_o_financiero(request):
     return is_administrativo(request) or is_financiero(request) or is_superuser(request)
@@ -277,6 +254,7 @@ UNFOLD = {
         {"icon": "person", "title": _("Usuarios(AUTH)"), "link": reverse_lazy("admin:auth_user_changelist")},
         {"icon": "key", "title": _("Roles(RBAC)"), "link": reverse_lazy("admin:auth_group_changelist")},
         {"icon": "people", "title": _("Administrativos"), "link": reverse_lazy("admin:usuarios_administrativeprofile_changelist")},
+        {"icon": "people", "title": _("Comerciales"), "link": reverse_lazy("admin:usuarios_perfil_comercial_changelist")},
         {"icon": "people", "title": _("Institucionales"), "link": reverse_lazy("admin:usuarios_perfilinstitucional_changelist")},
          {"icon": "people", "title": _("Terapeutas"), "link": reverse_lazy("admin:usuarios_perfil_terapeuta_changelist")},
         {"icon": "medical_services", "title": _("Servicios"), "link": reverse_lazy("admin:serviceapp_servicioterapeutico_changelist")},
@@ -400,7 +378,7 @@ UNFOLD = {
                 "link": reverse_lazy("admin:usuarios_prospeccion_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_meddes",
                 "badge_color": "colors-primary-500",
-                "permission": is_administrativo_o_isuperuser,
+                "permission": is_administrativo_o_isuperuser_o_is_comercial,
             },
             {
                 "title": _("Instituciones"),
@@ -408,7 +386,7 @@ UNFOLD = {
                 "link": reverse_lazy("admin:usuarios_prospecion_administrativa_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_prospeccion",
                 "badge_color": "custom-green-success",
-                "permission": is_institucional_o_administrativo,
+                "permission": is_administrativo_o_isuperuser_o_is_comercial,
             },
             {
                 "title": _("Pacientes"),

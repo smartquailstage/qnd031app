@@ -2,7 +2,7 @@ import csv
 import xlsxwriter
 from django.contrib import admin
 from django.http import HttpResponse
-from .models import TicketSoporte, Cliente, ProblemaFrecuente, PreguntaFrecuente, Profile,InformesTerapeuticos, BitacoraDesarrollo, PerfilInstitucional ,Perfil_Terapeuta, Mensaje, Sucursal , ValoracionTerapia ,DocenteCapacitado, Cita,ComentarioCita, TareaComentario ,AsistenciaTerapeuta,prospecion_administrativa,Prospeccion, tareas, pagos
+from .models import TicketSoporte, Cliente, ProblemaFrecuente,Perfil_Comercial, PreguntaFrecuente, Profile,InformesTerapeuticos, BitacoraDesarrollo, PerfilInstitucional ,Perfil_Terapeuta, Mensaje, Sucursal , ValoracionTerapia ,DocenteCapacitado, Cita,ComentarioCita, TareaComentario ,AsistenciaTerapeuta,prospecion_administrativa,Prospeccion, tareas, pagos
 from django.contrib.postgres.fields import ArrayField
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -70,20 +70,26 @@ from unfold.forms import AdminPasswordChangeForm, UserChangeForm, UserCreationFo
 
 
 
+
+# Primero desregistramos los admin por defecto
+# Primero desregistramos los admin por defecto
 admin.site.unregister(User)
 admin.site.unregister(Group)
 
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin, ModelAdmin):
-    pass
+    form = UserChangeForm                 # Formulario para editar usuario (estilo Unfold)
+    add_form = UserCreationForm           # Formulario para crear usuario (estilo Unfold)
+    change_password_form = AdminPasswordChangeForm  # Formulario para cambiar contraseña (estilo Unfold)
+
+    # Puedes agregar configuración extra aquí si quieres,
+    # como list_display, search_fields, fieldsets, tabs_with_inlines, etc.
 
 
 @admin.register(Group)
 class GroupAdmin(BaseGroupAdmin, ModelAdmin):
-    pass
-
-
+    pass  # Si quieres personalizar, agrega aquí, pero usualmente no hace falta
 
 
 class ProblemaFrecuenteInline(TabularInline):
@@ -746,6 +752,70 @@ class TerapeutaBancariaComponent(BaseComponent):
 
     def render(self):
         return render_to_string(self.template_name, self.get_context_data())
+
+
+
+@admin.register(Perfil_Comercial)
+class Perfil_TerapeutaAdmin(ModelAdmin):
+    compressed_fields = True
+    warn_unsaved_form = True
+    list_filter_sheet = True
+    list_fullwidth = False
+    list_horizontal_scrollbar_top = False
+    list_disable_select_all = False
+    change_form_show_cancel_button = True
+    autocomplete_fields = ['user',]
+
+
+    list_sections = [
+        TerapeutaComponent,
+        TerapeutaContactoComponent,
+        TerapeutaBancariaComponent
+    ]
+
+    list_display = [
+        'get_full_name', 'especialidad', 
+        'servicio_domicilio', 'servicio_institucion', 'servicio_consulta','institucional_a_domicilio'
+    ]
+    list_editable = ['servicio_domicilio', 'servicio_institucion', 'servicio_consulta','institucional_a_domicilio']
+
+    list_filter = [
+        'sucursal',
+        'servicio_institucion',
+        'servicio_domicilio',
+    ]
+
+    search_fields = (
+        'user__first_name', 
+        'user__last_name',
+        'nombres_completos',
+        'correo',
+        'sucursal__nombre',
+    )
+
+    formfield_overrides = True
+    form = PerfilTerapeutaAdminForm
+
+    actions = [export_to_csv, export_to_excel]
+
+    formfield_overrides = {
+        models.TextField: {
+            'widget': forms.Textarea(attrs={'rows': 4, 'cols': 60}),
+        },
+    }
+
+    readonly_preprocess_fields = {
+        "model_field_name": "html.unescape",
+        "other_field_name": lambda content: content.strip(),
+    }
+
+    def get_full_name(self, obj):
+        return obj.user.get_full_name() if obj.user else "Sin usuario"
+    get_full_name.short_description = 'Terapeuta Registrado'
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+
 
 @admin.register(Perfil_Terapeuta)
 class Perfil_TerapeutaAdmin(ModelAdmin):
@@ -1413,19 +1483,24 @@ class ProspeccionAdmin(ModelAdmin):
     verbose_name_plural = "Registros Administrativos / Prospección"
 
     def get_queryset(self, request):
-        """
-        Restringe los registros visibles según el usuario actual:
-        - Si es superusuario: ve todo.
-        - Si pertenece al grupo administrativo o terapeutico: ve todo.
-        - Si es el ejecutivo_meddes asignado en algún registro: ve solo esos.
-        """
         qs = super().get_queryset(request)
         user = request.user
 
         if user.is_superuser or user.groups.filter(name__in=["administrativo", "terapeutico"]).exists():
             return qs
 
-        return qs.filter(ejecutivo_meddes__user=user)  # Mostrar solo si es el ejecutivo asignado
+        # Filtro si el usuario es ejecutivo_meddes
+        ejecutivo_qs = qs.filter(ejecutivo_meddes__user=user)
+
+        # Filtro si el usuario es comercial_meddes
+        try:
+            perfil_comercial = Perfil_Comercial.objects.get(user=user)
+            comercial_qs = qs.filter(comercial_meddes=perfil_comercial)
+        except Perfil_Comercial.DoesNotExist:
+            comercial_qs = qs.none()
+
+        # Unir ambos querysets (si el usuario es ambos, verá ambos tipos de registros)
+        return ejecutivo_qs | comercial_qs
 
 
 class DocenteCapacitadoInline(TabularInline):
@@ -1502,17 +1577,15 @@ class prospecion_administrativaAdmin(ModelAdmin):
         if user.is_superuser:
             return qs
 
-        # 👥 Coordinadores ven todo
+        # 👥 Administrativos ven todo
         if user.groups.filter(name='administrativo').exists():
             return qs
 
-        # 🔎 Usuarios normales solo ven sus propias instituciones
-        from .models import PerfilInstitucional  # Asegúrate que este modelo esté importado
-
+        # 🧑‍💼 Comerciales Meddes ven solo sus instituciones asignadas
         try:
-            perfil_institucional = PerfilInstitucional.objects.get(usuario=user)
-            return qs.filter(responsable_institucional_1=perfil_institucional)
-        except PerfilInstitucional.DoesNotExist:
+            perfil_comercial = Perfil_Comercial.objects.get(user=user)
+            return qs.filter(comercial_meddes=perfil_comercial)
+        except Perfil_Comercial.DoesNotExist:
             return qs.none()
 
 
@@ -1985,22 +2058,23 @@ class CitaAdmin(ModelAdmin):
     form = CitaForm
 
     conditional_fields = {
-        "fecha": "tipo_cita != null",
-        "hora": "tipo_cita != null",
-        "hora_fin": "tipo_cita != null",
-        "motivo": "tipo_cita != null",
-        "notas": "tipo_cita != null",
-        "pendiente": "tipo_cita != null",
-        "confirmada": "tipo_cita != null",
-        "cancelada": "tipo_cita != null",
-        "profile": "tipo_cita == 'terapeutica'",
-        "profile_terapeuta": "tipo_cita == 'terapeutica'",
-        "dias_recurrentes": "tipo_cita == 'terapeutica'",
-        "fecha_fin": "tipo_cita == 'terapeutica'",
-        "area": "tipo_cita == 'terapeutica'",
-        "nombre_paciente": "tipo_cita == 'particular'",
-        "echa_nacimiento": "tipo_cita == 'particular'",
-        "destinatario": "tipo_cita == 'administrativa'",
+    "fecha": "tipo_cita != null",
+    "hora": "tipo_cita != null",
+    "hora_fin": "tipo_cita != null",
+    "motivo": "tipo_cita != null",
+    "notas": "tipo_cita != null",
+    "pendiente": "tipo_cita != null",
+    "confirmada": "tipo_cita != null",
+    "cancelada": "tipo_cita != null",
+    "profile": "tipo_cita == 'terapeutica'",
+    "profile_terapeuta": "tipo_cita == 'terapeutica'",
+    "dias_recurrentes": "tipo_cita == 'terapeutica'",
+    "fecha_fin": "tipo_cita == 'terapeutica'",
+    "area": "tipo_cita == 'terapeutica'",
+    "nombre_paciente": "tipo_cita == 'particular'",
+    "fecha_nacimiento": "tipo_cita == 'particular'",  # ✅ Solo se muestra si es 'particular'
+    "destinatario": "tipo_cita == 'administrativa'",
+    "comercial_meddes": "tipo_cita == 'comercial'",
     }
 
     formfield_overrides = {
@@ -2051,12 +2125,26 @@ class CitaAdmin(ModelAdmin):
         qs = super().get_queryset(request)
         user = request.user
 
-        # 👑 Permitir ver todo a superusuarios y grupo administrativo
+        # 👑 Superusuarios y administrativos ven todo
         if user.is_superuser or user.groups.filter(name='administrativo').exists():
             return qs
 
-        # 👨‍⚕️ Mostrar solo citas donde el terapeuta es el usuario actual
-        return qs.filter(profile_terapeuta__user=user)
+        # 👨‍⚕️ Terapeutas: solo sus citas
+        terapeuta_citas = qs.filter(profile_terapeuta__user=user)
+
+        # 🧑‍💼 Comerciales: citas relacionadas con instituciones donde son comercial_meddes
+        try:
+            perfil_comercial = Perfil_Comercial.objects.get(user=user)
+            instituciones_ids = prospecion_administrativa.objects.filter(
+                comercial_meddes=perfil_comercial
+            ).values_list('id', flat=True)
+
+            citas_comercial = qs.filter(profile__id__in=instituciones_ids)
+        except Perfil_Comercial.DoesNotExist:
+            citas_comercial = qs.none()
+
+        # Combinar ambos casos si el usuario es terapeuta y comercial
+        return terapeuta_citas | citas_comercial
 
     @admin.display(description="Duración")
     def duracion(self, obj):
