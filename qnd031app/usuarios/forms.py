@@ -19,7 +19,74 @@ from django.utils.timezone import localtime, is_naive, make_aware
 from datetime import date, datetime
 
 
+class ProfileWithUserForm(forms.ModelForm):
+    username = forms.CharField(
+        label="Nombre de usuario",
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    email = forms.EmailField(
+        required=False,
+        widget=forms.EmailInput(attrs={'class': 'form-control'})
+    )
+    password = forms.CharField(
+        required=False,
+        widget=forms.PasswordInput(attrs={'class': 'form-control'})
+    )
 
+    class Meta:
+        model = Profile
+        exclude = ['user']
+        widgets = {
+            'nombre_paciente': forms.TextInput(attrs={'class': 'form-control'}),
+            'apellidos_paciente': forms.TextInput(attrs={'class': 'form-control'}),
+            'ruc': forms.TextInput(attrs={'class': 'form-control'}),
+            'nacionalidad': forms.TextInput(attrs={'class': 'form-control'}),
+            'sexo': forms.Select(attrs={'class': 'form-select'}),
+            'fecha_nacimiento': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'telefono': forms.TextInput(attrs={'class': 'form-control'}),
+            'celular': forms.TextInput(attrs={'class': 'form-control'}),
+            'provincia': forms.Select(attrs={'class': 'form-select'}),
+            'direccion': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'nombres_representante_legal': forms.TextInput(attrs={'class': 'form-control'}),
+            'apellidos_representante_legal': forms.TextInput(attrs={'class': 'form-control'}),
+            'relacion_del_representante': forms.Select(attrs={'class': 'form-select'}),
+            'ruc_representante': forms.TextInput(attrs={'class': 'form-control'}),
+            'nacionalidad_representante': forms.TextInput(attrs={'class': 'form-control'}),
+            'actividad_economica': forms.TextInput(attrs={'class': 'form-control'}),
+            'fecha_inicio': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'fecha_alta': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'fecha_retiro': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'fecha_pausa': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'fecha_re_inicio': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'motivo_retiro': forms.Select(attrs={'class': 'form-select'}),
+            'motivo_otro': forms.TextInput(attrs={'class': 'form-control'}),
+            'tipos': forms.SelectMultiple(attrs={'class': 'form-select'}),
+            'certificado_inicio': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'adjunto_autorizacion': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        }
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+
+        if not instance.user_id:
+            username = self.cleaned_data.get('username')
+            email = self.cleaned_data.get('email')
+            raw_password = self.cleaned_data.get('password') or User.objects.make_random_password()
+
+            user = User.objects.create(
+                username=username,
+                email=email,
+                password=make_password(raw_password),
+            )
+            instance.user = user
+
+        if commit:
+            instance.save()
+            self.save_m2m()
+
+        return instance
+        
 
 class AdministrativeProfileForm(forms.ModelForm):
     class Meta:

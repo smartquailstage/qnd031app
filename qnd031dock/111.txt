@@ -1,167 +1,70 @@
 # Django
-django>=4.2,<5.0
+django==5.2.4
 
-# Django Baton
-#django-baton==2.6.2
-django-unfold
-
-
-
-psycopg
-
-# Django Social Share
-django-social-share
-
-
-
-# XlsxWriter
-XlsxWriter
-
-# Requests
-requests
-
-# Celery
-celery>=5.2.7,<6.0  # Compatible with Django 4.2
-
-# uWSGI
-uWSGI==2.0.28
-
-# Redis
-redis>=4.5.5
-
-# Django Dotenv
-django-dotenv
-
-# Psycopg2
-psycopg2-binary>=2.9.6  # Removed comment, using binary version
-
-# Django Storages
-django-storages
-
-# Django Contrib Comments
-django-contrib-comments
-
-# Django CORS Headers
-django-cors-headers
-
-# Django Countries
-django-countries
-
-# Django Social Auth
-django-social-auth
-
-# Social Auth App Django
-social-auth-app-django>=4.0.0
-
-# Sorl Thumbnail
-sorl-thumbnail
-
-# Django Redis
-django-redis
-
-# Django Widget Tweaks
-django-widget-tweaks
-
-# Django Phone Field
-django-phone-field
-
-# Django Phonenumber Field
-django-phonenumber-field[phonenumberslite]
-
-# Django Bootstrap Datepicker Plus
-django-bootstrap-datepicker-plus
-
-# Django Bootstrap V5
-django-bootstrap-v5
-
-# Django Bootstrap 4
-django-bootstrap4
-
-# Django JQuery
-django-jquery
-
+# Entorno y configuración
 python-decouple
-
-django-tinymce==4.1.0
-
-# Django Embed Video
-django-embed-video
-
-# Django CKEditor
-django-ckeditor
-
-# Django QR Code
-django-qr-code
-
-django-q
-
-django-scheduler
-django-extensions
-
-#Gestor ElastickSearch
-elastic-apm
-
-# Django Braces
-django-braces
-
-# Django Environ
 django-environ>=0.10.0
 
-# Kombu
+# Unfold (si existe django-unfold, si no especificar versión)
+django-unfold==0.63.0
+
+# Base de datos y Redis
+psycopg2-binary>=2.9.6
+redis>=4.5.5
+django-redis
+
+# Celery y Celery Resultados/Beat
+celery>=5.2.7,<6.0
 kombu>=5.3.4
+django-celery-beat
+django-celery-results
 
-# Django Parler
-django-parler
+# Autenticación social
+social-auth-app-django>=5.0.0  # versiones recientes que soportan Django 5
 
-# Django Localflavor
+# Funcionalidades comunes de Django
+#django-phonenumber-field==8.1.0
+phonenumberslite
+django-phonenumber-field==8.0.0
+django-phone-field
+django-widget-tweaks
+django-contrib-comments
+django-countries
 django-localflavor
-
-# Django Rosetta
+django-parler
 django-rosetta
 
-
-# Django Memcache Status
-django-memcache-status
-
-
-
-# Django Forms Bootstrap
+# UI y Widgets
+#django-bootstrap5
+django-bootstrap4
+django-bootstrap-datepicker-plus
+django-jquery
+django-unfold
+django-tinymce==4.1.0
+django-ckeditor
+django-embed-video
+django-qr-code
+sorl-thumbnail
+django-social-share
 django-forms-bootstrap
 
-# Django REST Framework
-djangorestframework>=3.14.0
-
-# Django Debug Toolbar
+# Utilidades de desarrollo
+django-extensions
 django-debug-toolbar>=4.0.1
-
-# Django Seed
 django-seed
 
-# Pymemcache
+# Caché / Memcache
+django-memcache-status
 pymemcache>=3.5.2
-django-money
-# Boto3
-boto3>=1.26.6
-
-# PyOpenSSL
-PyOpenSSL>=23.1.0
-
-# Python Dotenv
-python-dotenv==0.21.0
-
-# Python Memcached
 python-memcached
 
-# Ecommerce
-braintree>=4.29.0
-
-# Weasyprint
-weasyprint>=57.0
-
-qrcode
-
-twilio 
+# Otras dependencias
+XlsxWriter
 requests
-
-django-celery-beat 
-django-celery-results
+braintree>=4.29.0
+twilio
+weasyprint>=57.0
+qrcode
+boto3>=1.26.6
+PyOpenSSL>=23.1.0
+django-money

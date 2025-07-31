@@ -32,7 +32,7 @@ from django.utils import timezone
 from unfold.components import BaseComponent, register_component
 from unfold.sections import TableSection, TemplateSection
 from django.utils.timezone import now
-from .forms import  CitaForm,AdministrativeProfileForm,AsistenciaTerapeutaAdminForm,CitaAdminForm, ValoracionTerapiaAdminForm, ProfileAdminForm, PerfilTerapeutaAdminForm,PerfilTerapeutaForm, ServicioTerapeuticoForm, ProspecionAdministrativaForm,PerfilTerapeutaForm,PerfilPacientesForm
+from .forms import  CitaForm,AdministrativeProfileForm,ProfileWithUserForm,AsistenciaTerapeutaAdminForm,CitaAdminForm, ValoracionTerapiaAdminForm, ProfileAdminForm, PerfilTerapeutaAdminForm,PerfilTerapeutaForm, ServicioTerapeuticoForm, ProspecionAdministrativaForm,PerfilTerapeutaForm,PerfilPacientesForm
 from django.template.loader import render_to_string
 from unfold.decorators import action
 from django.http import HttpRequest
@@ -67,29 +67,30 @@ from django.contrib.auth.admin import GroupAdmin as BaseGroupAdmin
 from django.contrib.auth.models import User, Group
 
 from unfold.forms import AdminPasswordChangeForm, UserChangeForm, UserCreationForm
+from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.admin import UserAdmin as DefaultUserAdmin
 
 
 
 
-# Primero desregistramos los admin por defecto
-# Primero desregistramos los admin por defecto
+
 admin.site.unregister(User)
 admin.site.unregister(Group)
 
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin, ModelAdmin):
-    form = UserChangeForm                 # Formulario para editar usuario (estilo Unfold)
-    add_form = UserCreationForm           # Formulario para crear usuario (estilo Unfold)
-    change_password_form = AdminPasswordChangeForm  # Formulario para cambiar contraseña (estilo Unfold)
-
-    # Puedes agregar configuración extra aquí si quieres,
-    # como list_display, search_fields, fieldsets, tabs_with_inlines, etc.
+    # Forms loaded from `unfold.forms`
+    form = UserChangeForm
+    add_form = UserCreationForm
+    change_password_form = AdminPasswordChangeForm
 
 
 @admin.register(Group)
 class GroupAdmin(BaseGroupAdmin, ModelAdmin):
-    pass  # Si quieres personalizar, agrega aquí, pero usualmente no hace falta
+    pass
+
+
 
 
 class ProblemaFrecuenteInline(TabularInline):
@@ -2464,7 +2465,7 @@ class ProfileAdmin(ModelAdmin):
     inlines = [TareaItemInline, CitaItemInline, PagosItemInline, InformesTerapeuticosInline]
     search_fields = ['user__username', 'user__first_name', 'user__last_name']
     list_sections = [ProfileComponent, ProfileComponentRepresentante, ProfileComponentTerapeutico]
-    form = ProfileAdminForm
+  #  form = ProfileWithUserForm
     warn_unsaved_form = True
 
     readonly_preprocess_fields = {
@@ -2594,6 +2595,7 @@ class ProfileAdmin(ModelAdmin):
     # Este fieldsets se usa como fallback si no se sobreescribe con get_fieldsets()
     fieldsets = (
 
+        
         ('Información del Sistema ', {
             'fields': (
                 'user', 'contrasena',
