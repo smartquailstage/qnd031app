@@ -161,119 +161,131 @@ class Sucursal(models.Model):
 
 
 
-class Perfil_Comercial(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Elegir nombre de usuario en el sistema")
-    especialidad = models.CharField(max_length=255, blank=True, null=True, verbose_name="Especialidad")
 
-    SEXO_OPCIONES = [
+class Perfil_Comercial(models.Model):
+    user = models.OneToOneField(
+        User, 
+        on_delete=models.CASCADE, 
+        related_name='perfil_comercial'
+    )
+
+    date_of_birth = models.DateField("Fecha de nacimiento", null=True, blank=True)
+
+    gender_choices = [
         ('M', 'Masculino'),
         ('F', 'Femenino'),
         ('O', 'Otro'),
     ]
+    gender = models.CharField("Género", max_length=1, choices=gender_choices, null=True, blank=True)
 
-    nombres_completos = models.CharField(max_length=200, null=True, blank=True)
-    
-    sucursal = models.ForeignKey(
-        Sucursal,
-        on_delete=models.CASCADE,
-        related_name="sucursal100",null=True, blank=True
-    )
-    correo = models.EmailField(verbose_name="Correo Electrónico", null=True, blank=True)
-
-    #edad = models.PositiveIntegerField(null=True, blank=True)
-    sexo = models.CharField(max_length=1, choices=SEXO_OPCIONES, null=True, blank=True)
-    fecha_nacimiento = models.DateField(null=True, blank=True)
-    cedula = models.CharField(max_length=20, null=True, blank=True)
-    fecha_ingreso = models.DateField(null=True, blank=True)
-
-    titulo_universitario = models.FileField(upload_to='documentos/terapeutas/titulo/', blank=True, null=True)
-    antecedentes_penales = models.FileField(upload_to='documentos/terapeutas/antecedentes/', blank=True, null=True)
-    certificados = models.FileField(upload_to='documentos/terapeutas/certificados/', blank=True, null=True)
+    national_id = models.CharField("Cédula de identidad", max_length=20, unique=True, null=True, blank=True)
 
     phone_regex = RegexValidator(
         regex=r'^\+?593?\d{9,15}$',
         message="El número de teléfono debe estar en formato internacional. Ejemplo: +593XXXXXXXXX."
     )
-    telefono = PhoneNumberField(verbose_name="Teléfono de persona a cargo",validators=[phone_regex],default='+593')
-    TIPO_CUENTA_CHOICES = [
-        ('ahorros', 'Ahorros'),
-        ('corriente', 'Corriente'),
-    ]
-
-    BANCOS_ECUADOR_CHOICES = [
-        ('pichincha', 'Banco Pichincha'),
-        ('guayaquil', 'Banco Guayaquil'),
-        ('pacifico', 'Banco del Pacífico'),
-        ('produbanco', 'Produbanco'),
-        ('internacional', 'Banco Internacional'),
-        ('austro', 'Banco del Austro'),
-        ('machala', 'Banco de Machala'),
-        ('bolivariano', 'Banco Bolivariano'),
-        ('promerica', 'Banco Promerica'),
-        ('coopjep', 'Cooperativa JEP'),
-        ('cooperco', 'Cooperco'),
-        ('mutualista_pichincha', 'Mutualista Pichincha'),
-        ('', 'Otro'),  # Opción para otros bancos
-        # Agrega más si es necesario
-    ]
-
-    banco = models.CharField(
-        "Banco", max_length=50, choices=BANCOS_ECUADOR_CHOICES,
-        blank=True, null=True, help_text="Selecciona el banco"
+    telefono = PhoneNumberField(
+        verbose_name="Teléfono",
+        validators=[phone_regex],
+        default='+593',
+        null=True,
+        blank=True
     )
-    tipo_cuenta = models.CharField(
-        "Tipo de cuenta", max_length=20, choices=TIPO_CUENTA_CHOICES,
-        blank=True, null=True
+
+    email = models.EmailField("Correo electrónico", unique=True, null=True, blank=True)
+    address = models.CharField("Dirección de Domicilio", max_length=200, null=True, blank=True)
+
+    # Información administrativa
+    DEPARTMENT_CHOICES = [
+        ('gerencia', 'Gerencia'),
+        ('administracion', 'Administración'),
+        ('financiero', 'Financiero'),
+        ('operativo', 'Operativo'),
+    ]
+    department = models.CharField("Departamento", max_length=30, choices=DEPARTMENT_CHOICES, null=True, blank=True)
+
+    JOB_TITLE_CHOICES = [
+        ('gerente_general', 'Gerente General'),
+        ('gerente_comercial', 'Ejecutivo Comercial'),
+        ('tecnico_administrativo', 'Técnico Administrativo'),
+        ('asistente_administrativo', 'Asistente Administrativo'),
+        ('terapeuta', 'Terapéuta'),
+        ('contador', 'Contador'),
+        ('analista_financiero', 'Analista Financiero'),
+        ('jefe_finanzas', 'Jefe de Finanzas'),
+    ]
+    job_title = models.CharField("Cargo", max_length=50, choices=JOB_TITLE_CHOICES, null=True, blank=True)
+
+    date_joined = models.DateField("Fecha de ingreso", null=True, blank=True)
+
+    contract_type_choices = [
+        ('FT', 'Tiempo completo'),
+        ('PT', 'Medio tiempo'),
+        ('CT', 'Contrato temporal'),
+    ]
+    contract_type = models.CharField("Tipo de contrato", max_length=2, choices=contract_type_choices, null=True, blank=True)
+
+    salary = MoneyField(
+        max_digits=10,
+        decimal_places=2,
+        default_currency='USD',
+        blank=True,
+        null=True,
+        verbose_name="Valor base",
     )
-    numero_cuenta = models.CharField("Número de cuenta", max_length=30, blank=True, null=True)
-   # cedula_titular = models.CharField("Cédula del Terapeuta", max_length=20, blank=True, null=True)
-    #nombre_titular = models.CharField("Nombre del titular", max_length=100, blank=True, null=True)
-    
 
-    servicio_domicilio = models.BooleanField(default=False, null=True, blank=True,verbose_name="Domicilio")
+    is_active = models.BooleanField("Activo", default=True)
 
-    pago_por_hora = MoneyField(
+    num_pacientes_captados = models.PositiveIntegerField(
+        "Pacientes captados",
+        default=0,
+        null=True,
+        blank=True,
+        help_text="Número de pacientes adquiridos por este comercial"
+    )
+
+    valor_por_paciente = MoneyField(
+        "Valor por paciente",
         max_digits=10,
         decimal_places=2,
-        default_currency='USD',  # o 'PEN', 'ARS', etc.
-        blank=True,
+        default_currency='USD',
         null=True,
-        verbose_name="Costo por hora Domicilio",
-        )
-    servicio_institucion = models.BooleanField(default=True, null=True, blank=True,verbose_name="Institución")
-
-    pago_por_hora_institucion = MoneyField(
-        max_digits=10,
-        decimal_places=2,
-        default_currency='USD',  # o 'PEN', 'ARS', etc.
         blank=True,
-        null=True,
-        verbose_name="Costo por hora Institución",
-        )
+        help_text="Valor por paciente / Comisión"
+    )
 
-    servicio_consulta = models.BooleanField(default=True, null=True, blank=True)
+    resume = models.FileField("Hoja de vida", upload_to='resumes/', blank=True, null=True)
 
-    pago_por_hora_consulta = MoneyField(
-        max_digits=10,
-        decimal_places=2,
-        default_currency='USD',  # o 'PEN', 'ARS', etc.
-        blank=True,
-        null=True,
-        verbose_name="Costo por hora Consulta",
-        )
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
-    institucional_a_domicilio = models.BooleanField(default=True, null=True, blank=True)
+    class Meta:
+        verbose_name = "Perfil comercial"
+        verbose_name_plural = "Perfiles comerciales"
 
-    pago_por_hora_institucional_a_domicilio = MoneyField(
-        max_digits=10,
-        decimal_places=2,
-        default_currency='USD',  # o 'PEN', 'ARS', etc.
-        blank=True,
-        null=True,
-        verbose_name="Pago por hora institucional a domicilio",
-        )
+    def __str__(self):
+        nombre = self.user.get_full_name() or self.user.username
+        return f"{nombre} - {self.get_job_title_display()}" if self.job_title else nombre
 
+    @property
+    def comision_total_calculada(self):
+        if self.num_pacientes_captados is None or self.valor_por_paciente is None:
+            return Decimal('0.00')
+        return self.num_pacientes_captados * self.valor_por_paciente.amount
 
+    @property
+    def age(self):
+        if self.date_of_birth:
+            today = date.today()
+            return today.year - self.date_of_birth.year - (
+                (today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day)
+            )
+        return None
+
+    @property
+    def patients_count(self):
+        return getattr(self, 'pacientes', []).count()
 
 
 

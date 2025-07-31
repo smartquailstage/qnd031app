@@ -755,8 +755,9 @@ class TerapeutaBancariaComponent(BaseComponent):
 
 
 
+
 @admin.register(Perfil_Comercial)
-class Perfil_TerapeutaAdmin(ModelAdmin):
+class PerfilComercialAdmin(ModelAdmin):
     compressed_fields = True
     warn_unsaved_form = True
     list_filter_sheet = True
@@ -764,38 +765,33 @@ class Perfil_TerapeutaAdmin(ModelAdmin):
     list_horizontal_scrollbar_top = False
     list_disable_select_all = False
     change_form_show_cancel_button = True
-    autocomplete_fields = ['user',]
-
-
-    list_sections = [
-        TerapeutaComponent,
-        TerapeutaContactoComponent,
-        TerapeutaBancariaComponent
-    ]
+    autocomplete_fields = ['user']
 
     list_display = [
-        'get_full_name', 'especialidad', 
-        'servicio_domicilio', 'servicio_institucion', 'servicio_consulta','institucional_a_domicilio'
+        'get_full_name',
+        'email',
+        'telefono',
+        'department',
+        'job_title',
+        'is_active',
     ]
-    list_editable = ['servicio_domicilio', 'servicio_institucion', 'servicio_consulta','institucional_a_domicilio']
+
+    list_editable = ['is_active']
 
     list_filter = [
-        'sucursal',
-        'servicio_institucion',
-        'servicio_domicilio',
+        'department',
+        'job_title',
+        'is_active',
     ]
 
     search_fields = (
-        'user__first_name', 
+        'user__first_name',
         'user__last_name',
-        'nombres_completos',
-        'correo',
-        'sucursal__nombre',
+        'email',
+        'address',
     )
 
-    formfield_overrides = True
-    form = PerfilTerapeutaAdminForm
-
+    form = PerfilTerapeutaAdminForm  # Si este form está diseñado para comerciales
     actions = [export_to_csv, export_to_excel]
 
     formfield_overrides = {
@@ -811,7 +807,7 @@ class Perfil_TerapeutaAdmin(ModelAdmin):
 
     def get_full_name(self, obj):
         return obj.user.get_full_name() if obj.user else "Sin usuario"
-    get_full_name.short_description = 'Terapeuta Registrado'
+    get_full_name.short_description = 'Nombre completo'
 
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
@@ -2086,8 +2082,8 @@ class CitaAdmin(ModelAdmin):
     list_sections_layout = "horizontal"
 
     list_display = (
-        'profile', 'profile_terapeuta', 'fecha', 'hora', 'sucursal', 'area',
-        'tipo_cita', 'confirmada', 'pendiente', 'cancelada'
+        'tipo_cita','area','fecha', 'hora', 'sucursal', 
+        'confirmada', 'pendiente', 'cancelada'
     )
 
     list_editable = ("pendiente", "confirmada", "cancelada")
