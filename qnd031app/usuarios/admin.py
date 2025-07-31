@@ -559,7 +559,7 @@ class ValoracionTerapiaAdmin(ModelAdmin):
 
 
     exclude = ('perfil_terapeuta',)
-    search_fields = ['nombre', 'perfil_terapeuta__user__first_name', 'perfil_terapeuta__user__last_name']
+    search_fields = ['nombre', 'perfil_terapeuta__usuario__first_name', 'perfil_terapeuta__usuario__last_name']
     list_editable = ['proceso_terapia', 'recibe_asesoria', 'necesita_terapia', 'toma_terapia']
     readonly_fields = ['edad']
     list_sections = [ValoracionComponent, ValoracionExtraComponent]
@@ -1456,7 +1456,7 @@ class prospecion_administrativaAdmin(ModelAdmin):
   #      'es_inactivo', 'es_valoracion', 'es_finalizado'
   #  ]
 
-    search_fields = ['nombre', 'ciudad', 'responsable_institucional_1__username']
+    search_fields = ['nombre', 'ciudad', 'responsable_institucional_1__usuario__first_name', 'responsable_institucional_1__usuario__last_name']
     actions = [export_to_csv, export_to_excel]
     change_form_show_cancel_button = True
 
@@ -1958,7 +1958,7 @@ class CardSection(TemplateSection):
 from .widgets import CustomDatePickerWidget, CustomTimePickerWidget
 from unfold.contrib.filters.admin import RangeDateFilter, RangeDateTimeFilter
 # Asegúrate de importar: export_to_csv, export_to_excel, duplicar_citas, WysiwygWidget, ArrayWidget
-    
+
 @admin.register(Cita)
 class CitaAdmin(ModelAdmin):
     autocomplete_fields = ['profile', 'profile_terapeuta', 'destinatario']
