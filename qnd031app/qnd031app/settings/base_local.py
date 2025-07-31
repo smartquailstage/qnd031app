@@ -110,8 +110,7 @@ INSTALLED_APPS = [
 
     
     "unfold",  # before django.contrib.admin
-    "django.contrib.admin",
-    "django.contrib.auth",
+
 
     "unfold.contrib.forms",
     "unfold.contrib.filters",  # optional, if special filters are needed
@@ -121,6 +120,8 @@ INSTALLED_APPS = [
     "unfold.contrib.simple_history",
 
     #'webapp',
+    "django.contrib.admin",
+    "django.contrib.auth",
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
