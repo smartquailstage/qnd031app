@@ -169,7 +169,7 @@ class Perfil_Comercial(models.Model):
         related_name='perfil_comercial'
     )
 
-    date_of_birth = models.DateField("Fecha de nacimiento", null=True, blank=True)
+    #date_of_birth = models.DateField("Fecha de nacimiento", null=True, blank=True)
 
     gender_choices = [
         ('M', 'Masculino'),

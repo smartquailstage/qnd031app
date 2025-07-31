@@ -791,7 +791,7 @@ class PerfilComercialAdmin(ModelAdmin):
         'address',
     )
 
-    form = PerfilTerapeutaAdminForm  # Si este form está diseñado para comerciales
+    #form = PerfilTerapeutaAdminForm  # Si este form está diseñado para comerciales
     actions = [export_to_csv, export_to_excel]
 
     formfield_overrides = {
