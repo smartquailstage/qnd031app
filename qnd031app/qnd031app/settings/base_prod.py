@@ -69,22 +69,23 @@ from usuarios.utils import permission_callback
 
 
 
-# Application definition
 INSTALLED_APPS = [
     # Unfold debe ir ANTES que django.contrib.admin para que sobreescriba estilos y funcionalidades
     "unfold",
+        # Django core apps
+
 
     # Unfold contrib apps (añade según lo que uses)
     "unfold.contrib.forms",
+   
     "unfold.contrib.filters",          # opcional, si usas filtros especiales
     "unfold.contrib.inlines",          # opcional, para inlines especiales
     "unfold.contrib.import_export",    # opcional, si usas django-import-export
     "unfold.contrib.guardian",          # opcional, si usas django-guardian
     "unfold.contrib.simple_history",   # opcional, historial simple
-
-    # Django core apps
-    "django.contrib.admin",
+    "django.contrib.admin",  # required
     "django.contrib.auth",
+
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
@@ -117,14 +118,13 @@ INSTALLED_APPS = [
     "jquery",
     "phone_field",
     "phonenumber_field",
-    "bootstrap5",
     "bootstrap_datepicker_plus",
     "djmoney",
     "tinymce",
 
     # Comentados o no usados actualmente
     # 'webapp',
-    # 'citas_regulares',
+     'citas_regulares',
     # 'appointment',
     # 'shop',
     # 'orders',

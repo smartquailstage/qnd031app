@@ -70,3 +70,4 @@ qrcode
 boto3>=1.26.6
 PyOpenSSL>=23.1.0
 django-money
+        
