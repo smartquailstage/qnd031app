@@ -1,6 +1,7 @@
 from .base_prod import *
-
-
+from django.templatetags.static import static
+from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
 
 
 # Obtener las variables de entorno desde Kubernetes

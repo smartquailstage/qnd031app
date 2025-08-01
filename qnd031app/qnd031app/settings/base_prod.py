@@ -676,8 +676,8 @@ AWS_LOCATION = os.environ.get("AWS_LOCATION")  # 'static' o 'media'
 
 
 
-DEFAULT_FILE_STORAGE = os.environ.get('MEDIA_STORAGE', 'qnd031app.settings.cdn.backends.MediaRootS3BotoStorage')
-STATICFILES_STORAGE = os.environ.get('STATICFILES_STORAGE', 'qnd031app.settings.cdn.backends.StaticRootS3BotoStorage')
+DEFAULT_FILE_STORAGE = os.environ.get('MEDIA_STORAGE')
+STATICFILES_STORAGE = os.environ.get('STATICFILES_STORAGE')
 
 # Rutas públicas a los archivos
 MEDIA_URL = "https://qnd-static.sfo3.digitaloceanspaces.com/media/"
