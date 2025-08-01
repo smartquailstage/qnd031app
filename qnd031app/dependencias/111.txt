@@ -35,6 +35,7 @@ django-countries
 django-localflavor
 django-parler
 django-rosetta
+djangorestframework
 
 # UI y Widgets
 #django-bootstrap5
@@ -70,4 +71,3 @@ qrcode
 boto3>=1.26.6
 PyOpenSSL>=23.1.0
 django-money
-        
