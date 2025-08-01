@@ -656,7 +656,7 @@ USE_TZ = True
 
 
 
-STATIC_ROOT = STATIC_ROOT = BASE_DIR / "static"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 
 from .cdn.conf import * #noqa
@@ -680,8 +680,8 @@ DEFAULT_FILE_STORAGE = os.environ.get('MEDIA_STORAGE', 'qnd031app.settings.cdn.b
 STATICFILES_STORAGE = os.environ.get('STATICFILES_STORAGE', 'qnd031app.settings.cdn.backends.StaticRootS3BotoStorage')
 
 # Rutas públicas a los archivos
-MEDIA_URL = "https://www-static.sfo3.digitaloceanspaces.com/media/"
-STATIC_URL = "https://www-static.sfo3.digitaloceanspaces.com/static/"
+MEDIA_URL = "https://qnd-static.sfo3.digitaloceanspaces.com/media/"
+STATIC_URL = "https://qnd-static.sfo3.digitaloceanspaces.com/static/"
 
 
 
