@@ -647,43 +647,19 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
-
-from .cdn.conf import *  # No borrar esta línea si tiene configuraciones necesarias
-
 # Configuración de AWS
-AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
-AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
-AWS_S3_ENDPOINT_URL = os.environ.get("AWS_S3_ENDPOINT_URL", "https://www-static.sfo3.digitaloceanspaces.com")  # Usa SFO3 por defecto
-
-# Verificar que las configuraciones esenciales están presentes
-if not all([AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_STORAGE_BUCKET_NAME]):
-    raise ValueError("Faltan algunas configuraciones esenciales para AWS: ACCESS_KEY_ID, SECRET_ACCESS_KEY o STORAGE_BUCKET_NAME")
-
-# Configuración de almacenamiento en el Space
-AWS_S3_OBJECT_PARAMETERS = {
-    "CacheControl": "max-age=86400", 
-    "ACL": "public-read",  # Cambiar a 'private' si los archivos deben ser privados
-}
-
-# Definir la ubicación de los archivos
-AWS_LOCATION = os.environ.get("AWS_LOCATION", "static")  # 'static' o 'media'
 
 
 
-
-DEFAULT_FILE_STORAGE = os.environ.get('MEDIA_STORAGE', 'qnd031app.settings.cdn.backends.MediaRootS3BotoStorage')
-STATICFILES_STORAGE = os.environ.get('STATICFILES_STORAGE', 'qnd031app.settings.cdn.backends.StaticRootS3BotoStorage')
-
-# Rutas públicas a los archivos
-MEDIA_URL = "https://www-static.sfo3.digitaloceanspaces.com/media/"
-STATIC_URL = "https://www-static.sfo3.digitaloceanspaces.com/static/"
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 
-# STATIC_ROOT: El directorio donde collectstatic almacenará los archivos estáticos antes de subirlos al Space
-STATIC_ROOT = os.path.join(BASE_DIR, "static")  # Ruta local temporal para los archivos estáticos
+MEDIA_URL = "/media/"
+MEDIA_ROOT  = os.path.join(BASE_DIR, 'media')
+STATICFILES_DIRS = [BASE_DIR / "staticfiles"]  
+STATIC_URL = "/static/"
+STATIC_ROOT = STATIC_ROOT = BASE_DIR / "static"
 
-# Rutas de configuración estática adicionales
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),  # Directorios donde tus archivos estáticos locales son almacenados
-]
+
+
