@@ -662,26 +662,25 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 from .cdn.conf import * #noqa
 
 
-AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
-AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
-AWS_S3_ENDPOINT_URL = os.environ.get("AWS_S3_ENDPOINT_URL")  # Cambia si usas otro endpoint
-AWS_S3_OBJECT_PARAMETERS = {
-    "CacheControl": "max-age=86400", 
-    "ACL": "public-read"  # Cambia a 'private' si los archivos deben ser privados
-}
 
-# Configuración de almacenamiento
-AWS_LOCATION = os.environ.get("AWS_LOCATION")  # 'static' o 'media'
+# Configuración de archivos estáticos en DigitalOcean Spaces
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL')
+AWS_LOCATION = 'qnd-static/static' # Directorio donde se almacenan los archivos estáticos en el Space
+AWS_S3_REGION_NAME = 'sfo3'  # O la región que corresponda
+AWS_S3_SIGNATURE_VERSION = 's3v4'
+
+# Configuración del almacenamiento de archivos estáticos
+STATIC_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.{AWS_S3_ENDPOINT_URL}/{AWS_LOCATION}/'
 
 
+# Definir el almacenamiento de archivos estáticos
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
-DEFAULT_FILE_STORAGE = os.environ.get('MEDIA_STORAGE')
-STATICFILES_STORAGE = os.environ.get('STATICFILES_STORAGE')
-
-# Rutas públicas a los archivos
-MEDIA_URL = "https://qnd-static.sfo3.digitaloceanspaces.com/media/"
-STATIC_URL = "https://qnd-static.sfo3.digitaloceanspaces.com/static/"
-
+# Configuración de archivos multimedia (si corresponde)
+MEDIA_URL = f'{AWS_S3_ENDPOINT_URL}/media/'
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 
