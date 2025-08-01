@@ -19,3 +19,20 @@
   .h-8 {
     height: calc(var(--spacing)*12);
   }
+
+
+
+  @layer base {
+  button, input, select, optgroup, textarea {
+    font: inherit;
+    font-feature-settings: inherit;
+    font-variation-settings: inherit;
+    font-feature-settings: inherit;
+    font-variation-settings: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+    opacity: 1;
+    background-color: #a6e1aceb;
+    border-radius: 0;
+  }
+}

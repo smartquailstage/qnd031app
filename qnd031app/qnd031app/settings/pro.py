@@ -172,28 +172,3 @@ TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
 TWILIO_WHATSAPP_FROM = os.getenv("TWILIO_WHATSAPP_FROM")
 
 
-from .cdn.conf import * #noqa
-
-
-AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
-AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
-AWS_S3_ENDPOINT_URL = os.environ.get("AWS_S3_ENDPOINT_URL")  # Cambia si usas otro endpoint
-AWS_S3_OBJECT_PARAMETERS = {
-    "CacheControl": "max-age=86400", 
-    "ACL": "public-read"  # Cambia a 'private' si los archivos deben ser privados
-}
-
-# Configuración de almacenamiento
-AWS_LOCATION = os.environ.get("AWS_LOCATION")  # 'static' o 'media'
-
-
-
-DEFAULT_FILE_STORAGE = os.environ.get('MEDIA_STORAGE', 'qnd031app.settings.cdn.backends.MediaRootS3BotoStorage')
-STATICFILES_STORAGE = os.environ.get('STATICFILES_STORAGE', 'qnd031app.settings.cdn.backends.StaticRootS3BotoStorage')
-
-# Rutas públicas a los archivos
-MEDIA_URL = "https://www-static.sfo3.digitaloceanspaces.com/media/"
-STATIC_URL = "https://www-static.sfo3.digitaloceanspaces.com/static/"
-
-
