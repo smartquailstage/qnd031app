@@ -50,6 +50,7 @@ django-qr-code
 sorl-thumbnail
 django-social-share
 django-forms-bootstrap
+
 uWSGI==2.0.30
 
 # Utilidades de desarrollo

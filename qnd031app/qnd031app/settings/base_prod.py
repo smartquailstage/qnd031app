@@ -672,8 +672,8 @@ AWS_LOCATION = os.environ.get("AWS_LOCATION", "static")  # 'static' o 'media'
 
 
 
-DEFAULT_FILE_STORAGE = os.environ.get("MEDIA_STORAGE")
-STATICFILES_STORAGE =  os.environ.get("STATICFILES_STORAGE")
+DEFAULT_FILE_STORAGE = os.environ.get('MEDIA_STORAGE', 'qnd031app.settings.cdn.backends.MediaRootS3BotoStorage')
+STATICFILES_STORAGE = os.environ.get('STATICFILES_STORAGE', 'qnd031app.settings.cdn.backends.StaticRootS3BotoStorage')
 
 # Rutas públicas a los archivos
 MEDIA_URL = "https://www-static.sfo3.digitaloceanspaces.com/media/"
@@ -681,7 +681,7 @@ STATIC_URL = "https://www-static.sfo3.digitaloceanspaces.com/static/"
 
 
 # STATIC_ROOT: El directorio donde collectstatic almacenará los archivos estáticos antes de subirlos al Space
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")  # Ruta local temporal para los archivos estáticos
+STATIC_ROOT = os.path.join(BASE_DIR, "static")  # Ruta local temporal para los archivos estáticos
 
 # Rutas de configuración estática adicionales
 STATICFILES_DIRS = [
