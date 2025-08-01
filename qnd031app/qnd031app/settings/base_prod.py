@@ -655,3 +655,11 @@ STATICFILES_STORAGE =  os.environ.get("STATICFILES_STORAGE")
 # Rutas públicas a los archivos
 MEDIA_URL = "https://www-static.sfo3.digitaloceanspaces.com/media/"
 STATIC_URL = "https://www-static.sfo3.digitaloceanspaces.com/static/"
+
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/3.2/howto/static-files/
+
+MEDIA_ROOT  = os.path.join(BASE_DIR, 'media')
+STATICFILES_DIRS = [BASE_DIR / "staticfiles"]  
+STATIC_ROOT = STATIC_ROOT = BASE_DIR / "static"
