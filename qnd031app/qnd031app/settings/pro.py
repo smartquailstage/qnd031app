@@ -186,5 +186,7 @@ AWS_S3_OBJECT_PARAMETERS = {
 # Configuración de almacenamiento
 AWS_LOCATION = os.environ.get("AWS_LOCATION")  # 'static' o 'media'
 
-# Asegúrate de que la URL de los archivos estáticos esté correcta
-STATIC_URL = f'{AWS_S3_ENDPOINT_URL}/{AWS_LOCATION}/'
+
+# Rutas públicas a los archivos
+MEDIA_URL = "https://www-static.sfo3.digitaloceanspaces.com/media/"
+STATIC_URL = "https://www-static.sfo3.digitaloceanspaces.com/static/"
