@@ -346,18 +346,12 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.contrib.sites.middleware.CurrentSiteMiddleware',
-    'elasticapm.contrib.django.middleware.TracingMiddleware'
+   # 'elasticapm.contrib.django.middleware.TracingMiddleware'
     #'wagtail.core.middleware.site.SiteMiddleware',
     #'wagtail.contrib.redirects.middleware.RedirectMiddleware',
 ]
 
-ELASTIC_APM = {
-    'SERVICE_NAME': 'qnd031app',  # <-- Este es el nombre de tu app, no del APM server
-    'SECRET_TOKEN': '',  # déjalo vacío si no usas auth
-    'SERVER_URL': 'http://apm-server:8200',
-    'ENVIRONMENT': 'production',
-    'DEBUG': True,  # Puedes ponerlo en False para producción
-}
+
 
 
 
