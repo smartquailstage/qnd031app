@@ -23,77 +23,56 @@ if SECRET_KEY is None:
 
 # Application definition
 
-# Application definition
 INSTALLED_APPS = [
-    # Unfold debe ir ANTES que django.contrib.admin para que sobreescriba estilos y funcionalidades
-    "unfold",
-        # Django core apps
-
-
-    # Unfold contrib apps (añade según lo que uses)
-    "unfold.contrib.forms",
+    #'usuarios',
+    'baton',
+    #'editorial_literaria',
+    #'account',
+    #'courses',
+    #'courses_exams',
+    #'card_test',
+    #'thumbnails',
+    #'cart',
    
-    "unfold.contrib.filters",          # opcional, si usas filtros especiales
-    "unfold.contrib.inlines",          # opcional, para inlines especiales
-    "unfold.contrib.import_export",    # opcional, si usas django-import-export
-    "unfold.contrib.guardian",          # opcional, si usas django-guardian
-    "unfold.contrib.simple_history",   # opcional, historial simple
-    "django.contrib.admin",  # required
-    "django.contrib.auth",
+    'django.contrib.contenttypes',
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+   # 'django.contrib.sites',
+    #'django_comments',
+    #Wagtail Inicials
+    'core',
+    
+   
+    'rosetta',
+    #'wagtail.contrib.settings',
+    
 
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
-    "django.contrib.humanize",  # agregado en el lugar correcto
-
-    # Apps propias o de terceros (ordena según lógica tuya)
-    "serviceapp",
-    "rosetta",
-    "django_extensions",
-    "django_celery_results",
-    "django_celery_beat",
-    "usuarios",
-    "core",
-
-    # Terceros varios
-    "django_social_share",
-    "widget_tweaks",
-    "django_forms_bootstrap",
-    "bootstrap4",
-    "social_django",
-    "sorl.thumbnail",
-    "embed_video",
-    "qr_code",
-    "storages",
-    "boto3",
-    "rest_framework",
-    "ckeditor",
-    "localflavor",
-    "jquery",
-    "phone_field",
-    "phonenumber_field",
+    'bootstrap4',
+    'webapp',
+    'social_django',
+    'sorl.thumbnail',
+    #'students',
+    'embed_video',
+    'qr_code',
+    'storages',
+    #'actions',
+    'boto3',
+   
+    #'memcache_status',
+    'rest_framework',
+    #'ckeditor',
+   # 'js_blog_app',
+    'wagtail.contrib.settings',
+    
     "bootstrap_datepicker_plus",
-    "djmoney",
-    "tinymce",
-
-    # Comentados o no usados actualmente
-    # 'webapp',
-    # 'citas_regulares',
-    # 'appointment',
-    # 'shop',
-    # 'orders',
-    # 'payment',
-    # 'coupons',
-    # 'agenda',
-    # 'schedule',
-    # 'parler',
-    # 'subscription',
-    # 'taggit',
-    # 'wagtail_modeltranslation',
-    # 'wagtail_modeltranslation.makemigrations',
-    # 'wagtail_modeltranslation.migrate',
+    
+    'baton.autodiscover',
+   
 ]
+
 
 
 
