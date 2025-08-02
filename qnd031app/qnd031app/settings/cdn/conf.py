@@ -16,8 +16,8 @@ AWS_S3_OBJECT_PARAMETERS = {
 AWS_LOCATION = os.environ.get("AWS_LOCATION", "static")  # Valor por defecto 'static' si no se encuentra
 
 # Almacenamiento de archivos estáticos y medios usando las clases definidas en el proyecto
-STATICFILES_STORAGE = 'qnd031app.settings.cdn.backends.StaticRootS3BotoStorage'
-MEDIAFILES_STORAGE = 'qnd031app.settings.cdn.backends.MediaRootS3BotoStorage'
+STATICFILES_STORAGE = os.environ.get("STATICFILES_STORAGE", "qnd031app.settings.cdn.backends.StaticRootS3BotoStorage")
+MEDIA_STORAGE = os.environ.get("MEDIA_STORAGE", "qnd031app.settings.cdn.backends.MediaRootS3BotoStorage")
 
 # Configuración de URL de los archivos estáticos
 STATIC_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.{AWS_S3_ENDPOINT_URL}/{AWS_LOCATION}/'
