@@ -9,41 +9,17 @@ from django.urls import reverse_lazy
 import json
 import logging
 from datetime import datetime
-from django.urls import reverse_lazy
-from decouple import config, Csv
 
 #prueba
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-DEBUG = os.environ.get('DEBUG')
+
 # Load environment variables from the .env_local file.
 ENV_FILE_PATH = BASE_DIR / ".env_prod"
 load_dotenv(dotenv_path=ENV_FILE_PATH)
 
 # Retrieve the Django secret key from environment variables.
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
-
-
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='support@smartquail.io')
-SERVER_EMAIL = config('SERVER_EMAIL', default='support@smartquail.io')
-
-
-
-#DEBUG = config('DEBUG', default=False, cast=bool)
-
-#if DEBUG:
-#    ADMINS = []
-#else:
-    # Obtener como lista separada por comas
-#    raw_admins = config(
-#        'ADMINS',
-#        cast=Csv(),
-#        default='Soporte SmartQuail:support@smartquail.io'
-#    )
-
-    # Transformar cada valor tipo 'Nombre:correo' en una tupla
-#    ADMINS = [tuple(val.split(':')) for val in raw_admins]
-
 
 # Optionally, you can add a default value or raise an exception if SECRET_KEY is not set
 if SECRET_KEY is None:
@@ -60,12 +36,6 @@ class JSONLogFormatter(logging.Formatter):
             "message": record.getMessage(),
         }
         return json.dumps(log_record)
-
-SITE_DOMAIN = os.environ.get('SITE_DOMAIN', 'http://localhost:8000') 
-
-from usuarios.utils import permission_callback 
-
-
 
 
 
@@ -124,7 +94,7 @@ INSTALLED_APPS = [
 
     # Comentados o no usados actualmente
     # 'webapp',
-     'citas_regulares',
+    # 'citas_regulares',
     # 'appointment',
     # 'shop',
     # 'orders',
@@ -163,8 +133,6 @@ def badge_color_callback(request):
         return "info"  # si tienes una clase para warning
     else:
         return "info"
-
-
 
 
 
@@ -424,17 +392,6 @@ UNFOLD = {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 MIDDLEWARE = [
     #'django.contrib.sites.middleware.CurrentSiteMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -448,18 +405,19 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.contrib.sites.middleware.CurrentSiteMiddleware',
-    #'elasticapm.contrib.django.middleware.TracingMiddleware'
+    'elasticapm.contrib.django.middleware.TracingMiddleware'
     #'wagtail.core.middleware.site.SiteMiddleware',
     #'wagtail.contrib.redirects.middleware.RedirectMiddleware',
 ]
 
-#ELASTIC_APM = {
-    #'SERVICE_NAME': 'qnd031app',
-    #'SECRET_TOKEN': '',  # déjalo vacío si no usas auth
-    #'SERVER_URL': 'http://apm-server:8200',
-    #'ENVIRONMENT': 'production',
-    #'DEBUG': True,
-#}
+ELASTIC_APM = {
+    'SERVICE_NAME': 'qnd031app',  # <-- Este es el nombre de tu app, no del APM server
+    'SECRET_TOKEN': '',  # déjalo vacío si no usas auth
+    'SERVER_URL': 'http://apm-server:8200',
+    'ENVIRONMENT': 'production',
+    'DEBUG': True,  # Puedes ponerlo en False para producción
+}
+
 
 
 
@@ -499,28 +457,7 @@ REDIS_DB  = os.environ.get('REDIS_DB')
 
 #WEBAPP SETTINGS
 
-# Variable que define si estás en entorno local
-ENVIRONMENT = config("ENVIRONMENT", default="production")  # local, staging, production
-
-if ENVIRONMENT == "production":
-    EMAIL_BACKEND = config("EMAIL_BACKEND")
-    EMAIL_HOST = config("EMAIL_HOST")
-    EMAIL_PORT = config("EMAIL_PORT", cast=int)
-    EMAIL_USE_TLS = config("EMAIL_USE_TLS", cast=bool)
-    EMAIL_USE_SSL = config("EMAIL_USE_SSL", cast=bool)
-    EMAIL_HOST_USER = config("EMAIL_HOST_USER")
-    EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
-    DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-else:
-    # Configuración de producción u otros entornos
-    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-    EMAIL_HOST = "smtp.gmail.com"
-    EMAIL_PORT = 587
-    EMAIL_USE_TLS = True
-    EMAIL_USE_SSL = False
-    EMAIL_HOST_USER = "phys.mauiricio.silva@gmail.com"
-    EMAIL_HOST_PASSWORD = "secreto_produccion"
-    DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 CART_SESSION_ID = 'cart'
 SBLCART_SESSION_ID = 'cart'
@@ -557,10 +494,11 @@ AUTHENTICATION_BACKENDS = [
 
 
 
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        "DIRS": [BASE_DIR /  "qnd031app","templates"], 
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -568,22 +506,13 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                #'wagtailmenus.context_processors.wagtailmenus',
+                #'wagtail.contrib.settings.context_processors.settings',
                 'django.template.context_processors.i18n',
-                'usuarios.context_processors.mensajes_nuevos_processor',
-                'usuarios.context_processors.datos_panel_usuario', 
-                'usuarios.context_processors.user_profile_data',
-                'usuarios.context_processors.citas_context',
-                'usuarios.context_processors.tareas_context',
-                'usuarios.context_processors.pagos_context',  
-                'usuarios.context_processors.profile_uploads_context',
-                'usuarios.context_processors.ultima_cita',
-                'usuarios.context_processors.ultima_tarea',
-                
             ],
         },
     },
 ]
-
 
 WSGI_APPLICATION = os.environ.get('WSGI_APPLICATION')
 
@@ -634,55 +563,29 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = 'es'
+LANGUAGE_CODE = 'es-Ec'
+TIME_ZONE = 'America/Guayaquil'
 
-LOCALE_PATHS = [os.path.join(BASE_DIR, 'locale')]
 
-TIME_ZONE = 'America/Guayaquil'  # O 'America/Mexico_City', 'America/Argentina/Buenos_Aires', etc.
 
 USE_I18N = True
+
 USE_L10N = True
+
 USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
-# Configuración de AWS
 
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.2/howto/static-files/
-
-
-from .cdn.conf import * #noqa
-
-STATIC_ROOT = BASE_DIR / "static"
+MEDIA_URL = "/media/"
+MEDIA_ROOT  = os.path.join(BASE_DIR, 'media')
+STATICFILES_DIRS = [BASE_DIR / "staticfiles"]  
+STATIC_URL = "/static/"
+STATIC_ROOT = STATIC_ROOT = BASE_DIR / "static"
 
 
 
 
-# Accede a las variables de entorno para obtener las credenciales de AWS
-AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
-AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
-AWS_S3_ENDPOINT_URL = os.environ.get("AWS_S3_ENDPOINT_URL")  # Cambia si usas otro endpoint
 
-# Parámetros de objetos S3 (ajustar según tus necesidades)
-AWS_S3_OBJECT_PARAMETERS = {
-    "CacheControl": "max-age=86400", 
-    "ACL": "public-read"  # Cambia a 'private' si los archivos deben ser privados
-}
-
-# Establecer la ubicación de los archivos (asegurarse de que esté configurado en las variables de entorno)
-AWS_LOCATION = os.environ.get("AWS_LOCATION", "static")  # Valor por defecto 'static' si no se encuentra
-
-# Almacenamiento de archivos estáticos y medios usando las clases definidas en el proyecto
-STATICFILES_STORAGE = os.environ.get("STATICFILES_STORAGE", "qnd031app.settings.cdn.backends.StaticRootS3BotoStorage")
-MEDIA_STORAGE = os.environ.get("MEDIA_STORAGE", "qnd031app.settings.cdn.backends.MediaRootS3BotoStorage")
-
-# Configuración de URL de los archivos estáticos
-STATIC_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.{AWS_S3_ENDPOINT_URL}/{AWS_LOCATION}/'
-
-# Opcionalmente, también se puede configurar la URL para los medios
-MEDIA_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.{AWS_S3_ENDPOINT_URL}/media/'

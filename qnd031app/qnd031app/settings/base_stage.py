@@ -18,7 +18,6 @@ load_dotenv(dotenv_path=ENV_FILE_PATH)
 # Retrieve the Django secret key from environment variables.
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
-SITE_DOMAIN = os.environ.get('SITE_DOMAIN', 'http://localhost:8000') 
 # Optionally, you can add a default value or raise an exception if SECRET_KEY is not set
 if SECRET_KEY is None:
     raise ValueError("DJANGO_SECRET_KEY is not set in the environment variables.")
@@ -50,29 +49,19 @@ LOGGING = {
 # Application definition
 
 INSTALLED_APPS = [
-
-
-    
-    "unfold",  # before django.contrib.admin
    
+    "unfold",  # before django.contrib.admin
 
     #'webapp',
-    'django.contrib.contenttypes',
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
 
-    
-    'citas_regulares',
+
+
     "unfold.contrib.filters",  # optional, if special filters are needed
     "unfold.contrib.forms",  # optional, if special form elements are needed
     "unfold.contrib.inlines",  # optional, if special inlines are needed
     "unfold.contrib.import_export",  # optional, if django-import-export package is used
     "unfold.contrib.guardian",  # optional, if django-guardian package is used
     "unfold.contrib.simple_history",
-
    # 'appointment',
     'django_extensions',
     #'shop',
@@ -81,9 +70,9 @@ INSTALLED_APPS = [
     #'coupons',
     'django_celery_results',
     'django_celery_beat',
-
-
-
+    'schedule',
+    'usuarios',
+    'citas_regulares',
     
     
 
@@ -91,11 +80,12 @@ INSTALLED_APPS = [
     
 
    
-    
-
-    'agenda',
-    'schedule',
-    'usuarios',
+    'django.contrib.contenttypes',
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
 
 
 
@@ -149,24 +139,9 @@ LOGIN_REDIRECT_URL = 'usuarios:perfil'
 LOGIN_URL = 'login'
 LOGOUT_URL = 'logout'
 
-
-from usuarios.utils import permission_callback 
-from usuarios.models import Perfil_Terapeuta
-
-
-def badge_callback(request):
-    try:
-        return Perfil_Terapeuta.objects.count()
-    except:
-        return 0
-
-def permission_callback(request):
-    return request.user.has_perm("usuarios.change_perfil_terapeuta") 
-
 UNFOLD = {
     "SITE_TITLE": "Plataforma Administrativa MEDDES.S.A Cloud Native App+(I+D)+A",
     "SITE_HEADER": "MEDDES",
-    "SHOW_LANGUAGES": True,
     "SITE_SUBHEADER": "Eterprises Research & Development",
     "SITE_DESCRIPTION": "Plataforma Administrativa MEDDES.S.A Cloud Native App+(I+D)+A",
     "SITE_COPYRIGHT": "Copyright © 2025 SmartQuail S.A.S Todos los derechos reservados.",
@@ -176,7 +151,7 @@ UNFOLD = {
         {
             "icon": "people",
             "title": _("Rol de Usuarios"),
-            "link": "admin:auth_group_changelist",
+            "link": "admin:auth_group_changelis",
         },
 
         {
@@ -186,28 +161,13 @@ UNFOLD = {
         },
 
         {
-            "icon": "medical_services",
-            "title": _("Servicios Terapeuticos"),
-            "link": reverse_lazy("admin:usuarios_servicioterapeutico_changelist"), 
-        },
-
-
-
-        {
-            "icon": "map",
-            "title": _("Sucursales"),
-            "link": reverse_lazy("admin:usuarios_sucursal_changelist"), 
-        },
-
-
-        {
-            "icon": "edit",
+            "icon": "notes",
             "title": _("Bitacora DEV-V.QND.0.3.1.0.1"), 
             "link": reverse_lazy("admin:usuarios_bitacoradesarrollo_changelist"),
         },
         {
-            "icon": "circle",
-            "title": _("+ A (Automatización) "), 
+            "icon": "settings",
+            "title": _("Monitor Automatización"), 
             "link": reverse_lazy("admin:django_celery_results_taskresult_changelist"),
         },
     ],
@@ -244,10 +204,10 @@ UNFOLD = {
        # "redirect_after": lambda request: reverse_lazy("admin:usuarios_changelist"),
     },
     "STYLES": [
-        lambda request: static("unfold/css/style.css"),
+        lambda request: static("css/style.css"),
     ],
     "SCRIPTS": [
-        lambda request: static("unfold/js/script.js"),
+        lambda request: static("js/script.js"),
     ],
     "BORDER_RADIUS": "6px",
     "COLORS": {
@@ -295,28 +255,6 @@ UNFOLD = {
             },
         },
     },
-
-    "TABS": [
-    {
-        "models": [
-            {
-                "name": "usuarios.prospecion_administrativa",
-                "detail": True,
-            },
-        ],
-        "items": [
-            {
-                "title": _("Perfil Institucional"),
-                "link": reverse_lazy("admin:usuarios_prospecion_administrativa_changelist"),
-                "permission": permission_callback,  # ✅ Ya no es string, ahora es la función real
-            },
-
-
-
-        ],
-    },
-],
-
  "SIDEBAR": {
         "show_search": True,
         "show_all_applications": True,
@@ -327,27 +265,14 @@ UNFOLD = {
                 "collapsible": True,
                 "items": [
                     {
-                        "title": _("Prospecciones"),
-                        "icon": "edit",    
-                        "link": reverse_lazy("admin:usuarios_prospeccion_changelist"),
-                    },
-
-                    {
-                        "title": _("Perfil de Institución"),
-                        "icon": "school",    
-                        "link": reverse_lazy("admin:usuarios_prospecion_administrativa_changelist"),
+                        "title": _("Perfil de Pacientes"),
+                        "icon": "person",
+                        "link": reverse_lazy("admin:usuarios_profile_changelist"),
                     },
                     {
                         "title": _("Perfil de Terapistas"),
                         "icon": "medical_services",
                         "link": reverse_lazy("admin:usuarios_perfil_terapeuta_changelist"),
-                        "permission": permission_callback,
-                    },
-
-                    {
-                        "title": _("Perfil de Pacientes"),
-                        "icon": "person",
-                        "link": reverse_lazy("admin:usuarios_profile_changelist"),
                     },
 
                     {
@@ -356,8 +281,14 @@ UNFOLD = {
                         "link": reverse_lazy("admin:usuarios_cita_changelist"),
                     },
 
+
                     {
-                        "title": _("Ordenes de Pagos"),
+                        "title": _("Prospección Administrativa"),
+                        "icon": "edit",    
+                        "link": reverse_lazy("admin:usuarios_prospecion_administrativa_changelist"),
+                    },
+                    {
+                        "title": _("Pagos de servicios"),
                         "icon": "payment",
                         "link": reverse_lazy("admin:usuarios_pagos_changelist"),
                     },
@@ -368,13 +299,6 @@ UNFOLD = {
                 "separator": True,
                 "collapsible": True,
                 "items": [
-
-                    {
-                        "title": _("Valorizaciones"),
-                        "icon": "download",
-                        "link": reverse_lazy("admin:usuarios_valoracionterapia_changelist"),
-                    },
-
                     {
                         "title": _("Tareas & Actividades"),
                         "icon": "task",
@@ -426,6 +350,7 @@ UNFOLD = {
 
 
 
+
 def badge_callback(request):
     return 3
 
@@ -462,18 +387,8 @@ MIDDLEWARE = [
 ]
 
 
-LANGUAGE_CODE = 'es'
-
-USE_I18N = True
-USE_L10N = True
 
 
-from django.utils.translation import gettext_lazy as _
-
-LANGUAGES = [
-    ('es', _('Español')),
-    ('en', _('Inglés')),
-]
 
 ROOT_URLCONF = os.environ.get('ROOT_URLCONF')
 #SITE_ID = 1
@@ -506,7 +421,7 @@ AUTHENTICATION_BACKENDS = [
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        "DIRS": [BASE_DIR /  "qnd031app","templates"], 
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -515,12 +430,6 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',
-                'usuarios.context_processors.mensajes_nuevos_processor',
-                'usuarios.context_processors.datos_panel_usuario', 
-                'usuarios.context_processors.user_profile_data',
-                'usuarios.context_processors.citas_context',
-                'usuarios.context_processors.tareas_context',
-                'usuarios.context_processors.pagos_context', 
                 
             ],
         },

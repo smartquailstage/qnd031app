@@ -1,15 +1,15 @@
 from .base_prod import *
-from django.templatetags.static import static
-from django.urls import reverse_lazy
-from django.utils.translation import gettext_lazy as _
 
+
+
+DEBUG=True
 
 # Obtener las variables de entorno desde Kubernetes
 IP = os.environ.get("IP")
 DOMAIN = os.environ.get("DOMAIN")
 HOST = os.environ.get("HOST")
 
-ALLOWED_HOSTS='127.0.0.1',"localhost","https://qnd03101.smartquail.io", "qnd03101.smartquail.io","64.23.178.103"
+ALLOWED_HOSTS='127.0.0.1',"localhost","https://qnd03101.smartquail.io","qnd03101.smartquail.io","64.23.178.103"
 
 #import wagtail_ai
 
@@ -27,7 +27,7 @@ ALLOWED_HOSTS='127.0.0.1',"localhost","https://qnd03101.smartquail.io", "qnd0310
 #CSRF_COOKIE_SECURE = True
 #CSRF_TRUSTED_ORIGINS = ['https://qnd03101.smartquail.io','https://meddes.smartquail.io/','https://146.190.164.22']
 CORS_ALLOWED_ORIGINS = [
-    'https://qnd03101.smartquail.io','qnd03101.smartquail.io'
+    'https://qnd03101.smartquail.io','https://qnd03101.smartquail.io/ingresar'
     # Otros orígenes permitidos si los hay
 ]
 
@@ -78,7 +78,7 @@ if DB_IS_AVAILABLE:
 
 
 
-
+from .cdn.conf import * #noqa
 
 
 
@@ -90,6 +90,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 
+#Email setups
+EMAIL_HOST          = os.environ.get('EMAIL_HOST')
+EMAIL_PORT          =  os.environ.get('EMAIL_PORT')
+EMAIL_HOST_USER     = os.environ.get('EMAIL_HOST_USER ')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL  = os.environ.get('DEFAULT_FROM_EMAIL')
+EMAIL_BACKEND       = 'django.core.mail.backends.smtp.EmailBackend'
+#EMAIL_USE_TLS       = False
+#EMAIL_USE_SSL       = False
 
 
 REDIS_HOST=os.environ.get('REDIS_HOST')
@@ -165,6 +174,15 @@ result_serializer = 'json'  # Esto reemplaza 'CELERY_RESULT_SERIALIZER'
 #broker_connection_retry_on_startup = True
 
 
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+EMAIL_HOST = 'smtp.gmail.com'  # Para Gmail
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'phys.mauricio.silva@gmail.com'  # Tu correo de Gmail
+EMAIL_HOST_PASSWORD = '1719183830'  # La contraseña de tu cuenta de Gmail
+DEFAULT_FROM_EMAIL = 'phys.mauricio.silva@gmail.com'
+
 
 
 
@@ -173,3 +191,19 @@ TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
 TWILIO_WHATSAPP_FROM = os.getenv("TWILIO_WHATSAPP_FROM")
 
 
+
+# Configuración de AWS
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
+AWS_S3_ENDPOINT_URL = os.environ.get("AWS_S3_ENDPOINT_URL")  # Cambia si usas otro endpoint
+AWS_S3_OBJECT_PARAMETERS = {
+    "CacheControl": "max-age=86400", 
+    "ACL": "public-read"  # Cambia a 'private' si los archivos deben ser privados
+}
+
+# Configuración de almacenamiento
+AWS_LOCATION = os.environ.get("AWS_LOCATION")  # 'static' o 'media'
+
+# Asegúrate de que la URL de los archivos estáticos esté correcta
+STATIC_URL = f'{AWS_S3_ENDPOINT_URL}/{AWS_LOCATION}/'
