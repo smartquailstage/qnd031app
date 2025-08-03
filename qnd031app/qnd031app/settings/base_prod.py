@@ -201,14 +201,14 @@ UNFOLD = {
     ],
     "SITE_URL": "https://www.meddes.com.ec/",
     "SITE_ICON": {"light": lambda request: static("img/BA-LOGOS/loro.png"), "dark": lambda request: static("img/BA-LOGOS/loro.png")},
-    "SITE_LOGO": {"light": lambda request: static("img/SQLOGOS/smartbusinessanalytics.png"), "dark": lambda request: static("img/BA-LOGOS/logo.png")},
+    "SITE_LOGO": {"light": lambda request: static("img/BA-LOGOS/logoF.png"), "dark": lambda request: static("img/BA-LOGOS/logo.png")},
     "SITE_SYMBOL": "speed",
     "SITE_FAVICONS": [
         {
             "rel": "icon",
             "sizes": "32x28",
             "type": "image/svg+xml",
-            "href": lambda request: static("img/SQLOGOS/smartbusinessanalytics.png"),
+            "href": lambda request: static("img/BA-LOGOS/loro.png"),
         },
     ],
     "SHOW_HISTORY": True,
@@ -217,7 +217,7 @@ UNFOLD = {
     "DASHBOARD_CALLBACK": "usuarios.views.dashboard_callback",
     "ENVIRONMENT": "qnd041app.utils.environment.environment_callback",
     "THEME": "light",
-    "LOGIN": {  "image": lambda request: static("img/BA-BG/test2.jpg"),
+    "LOGIN": {  "image": lambda request: static("img/BA-BG/test.jpg"),
                "password_icon": lambda request: static("icons/eye-solid.svg"),
                 "username_icon": lambda request: static("icons/username-icon.svg")
                 },
