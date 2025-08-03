@@ -4,6 +4,14 @@
 
   $.fn.djangoCustomSelect2 = function () {
     $.each(this, function (i, element) {
+      if (element.id.match(/__prefix__/)) {
+        return;
+      }
+
+      if ($(element).hasClass("select2-hidden-accessible")) {
+        return;
+      }
+
       $(element).select2();
     });
 
