@@ -34,7 +34,7 @@ urlpatterns = [
     path('social-auth/', include('social_django.urls', namespace='social')),
     path('rosetta/', include('rosetta.urls')),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-    path('MEDDES/', include('usuarios.urls', namespace='usuarios')),
+    path('webapp/', include('usuarios.urls', namespace='usuarios')),
     path('password_change/', auth_views.PasswordChangeView.as_view(), name='password_change'),
     path('password_change/done/', auth_views.PasswordChangeDoneView.as_view(), name='password_change_done'),
     #path('calendario/', self.admin_site.admin_view(self.calendar_view), name='citas_calendar'),
