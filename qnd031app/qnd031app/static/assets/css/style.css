@@ -32,7 +32,7 @@ body {
     color: #4c5258;
     font-size: 14px;
     letter-spacing: .5px;
-    background-color: #e4eff3;
+    background-color: #36aa635e;
     overflow-x: hidden;
     font-family: Roboto, sans-serif;
 }
@@ -115,24 +115,22 @@ ion-icon {
     padding: 0 15px;
     z-index: 5;
     background-color: #ffffff;
-    border-right: 0px solid #e2e3e4;
+    border-right: 1px solid #e2e3e4;
     border-bottom: 0px solid #e4e4e4;
     transition: all .2s;
 }
 
 .sidebar-wrapper .sidebar-header .logo-icon {
-  width: 62px;
+    width: 30px;
 }
 
-.sidebar-wrapper .sidebar-header .logo-text {
-  font-size: 22px;
-  margin-left: 5px;
-  margin-bottom: 0;
-  letter-spacing: 1px;
-  color: #12a42d;
+.sidebar-wrapper .sidebar-header  .logo-text {
+    font-size: 22px;
+    margin-left: 10px;
+    margin-bottom: 0;
+    letter-spacing: 1px;
+    color: #923eb9;
 }
-
-
 
 .toggle-icon {
     display: flex;
@@ -250,7 +248,7 @@ ion-icon {
 .sidebar-wrapper .metismenu a:hover {
     color: #055c1f;
     text-decoration: none;
-    background-color: rgba(36, 151, 219, 0.41);
+    background-color: rgb(43 190 70 / 41%);
 }
 
 .menu-label {
@@ -342,7 +340,7 @@ ion-icon {
     border-bottom: 1px solid rgba(233, 236, 239, 0);
     background-clip: border-box;
     /* Gradiente en escala de verde con tres colores */
-    background: linear-gradient(to right, #fffafa, #079738, #2ea950);
+    background: linear-gradient(to right, #fff, #79d8c2, #2ea950);
     z-index: 5;
     transition: 0.3s all;
     box-shadow: none;
@@ -408,12 +406,12 @@ ion-icon {
     width: 35px;
     height: 35px;
     border-radius: 50%;
-    background-color:#1d874b00;
+    background-color:#3cae6b;
     margin: 0 2px;
 }
 
 .top-header .navbar .top-navbar-right .nav-item:hover {
-    background-color: #45a243;
+    background-color: #f5f5f5;
 }
 
 .top-header .navbar .top-navbar-right .nav-link {
@@ -458,19 +456,19 @@ ion-icon {
 }
 
 .top-header .navbar .nav-link .notify-badge {
-  position: absolute;
-  top: 0px;
-  right: -8px;
-  color: #011e09;
-  font-size: 12px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #eedf4b;
-  z-index: 1;
+    position: absolute;
+    top: 0px;
+    right: -8px;
+    color: #fff;
+    font-size: 12px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f50d0d;
+    z-index: 1;
 }
 
 .dropdown-user-setting .dropdown-menu {
@@ -511,7 +509,7 @@ ion-icon {
 .top-header .navbar .dropdown-item:hover,
 .top-header .navbar .dropdown-item:focus {
 	color: #1e2125;
-	background-color: #038191
+	background-color: #f5f5f5
 }
 
 
@@ -553,7 +551,7 @@ ion-icon {
 
 .dropdown-large .dropdown-menu {
 	width: 320px;
-	border: 0px solid #eedf4b;
+	border: 1px solid #e9ecef;
 	padding: 0 0;
 	border-radius: 10px;
 	box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15)
@@ -589,7 +587,7 @@ ion-icon {
 
 .dropdown-large .msg-header {
 	padding: .8rem 1rem;
-	border-bottom: 1px solid #2ca851;
+	border-bottom: 1px solid #ededed;
 	background-clip: border-box;
 	text-align: left;
 	display: flex;
@@ -598,7 +596,7 @@ ion-icon {
 
 .dropdown-large .msg-header .msg-header-title {
 	font-size: 15px;
-	color: #d8d8d8;
+	color: #1c1b1b;
 	margin-bottom: 0;
 	font-weight: 500
 }
@@ -610,13 +608,13 @@ ion-icon {
 }
 
 .dropdown-large .msg-footer {
-  padding: .8rem 1rem;
-  color: #ff0;
-  border-top: 1px solid #ededed;
-  background-clip: border-box;
-  background: 0% 0;
-  font-size: 14px;
-  font-weight: 500;
+	padding: .8rem 1rem;
+	color: #1c1b1b;
+	border-top: 1px solid #ededed;
+	background-clip: border-box;
+	background: 0% 0;
+	font-size: 14px;
+	font-weight: 500;
 }
 
 .dropdown-large .user-online {
@@ -643,7 +641,7 @@ ion-icon {
 .dropdown-large .msg-time {
 	font-size: 11px;
 	margin-bottom: 0;
-	color: #efe04b
+	color: #919191
 }
 
 .dropdown-large .user-online:after {
@@ -661,7 +659,7 @@ ion-icon {
 
 .dropdown-large .dropdown-menu .dropdown-item {
 	padding: .5rem 1.3rem;
-	border-bottom: 1px solid #f6efa5;
+	border-bottom: 1px solid #ededed
 }
 
 
@@ -701,9 +699,8 @@ ion-icon {
 
 .header-notifications-list {
 	position: relative;
-	height: 103px;
+	height: 332px;
 }
-
 
 
 .breadcrumb-title {
@@ -737,15 +734,14 @@ ion-icon {
     position: absolute;
     left: 260px;
     right: 0;
-    bottom: auto;
-  padding: 0.7rem;
-  color: #484444;
-  background-color: #98d2e852;
-  border-top: 0px solid #e9ecef;
-  text-align: center;
-  transition: .3s all;
+    bottom: 0;
+    padding: 0.7rem;
+    color: #484444;
+    background-color: #fff;
+    border-top: 1px solid #e9ecef;
+    text-align: center;
+    transition: .3s all;
 }
-
 
 .wrapper.toggled .footer {
     left: 0px;
@@ -796,7 +792,7 @@ ion-icon {
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    background-color: #23462370;
+    background-color: #e9ecef;
     margin-bottom: 1rem;
     display: flex;
     flex-direction: row;
@@ -833,8 +829,8 @@ ion-icon {
 }
 
 .theme-icons {
-  background-color: #318760;
-  color: #fff;
+    background-color: #fff;
+    color: #434547;
 }
 
 .back-to-top {
@@ -972,7 +968,6 @@ ion-icon {
     padding: 5px;
     border-radius: 50%;
 	margin-left: 6.5rem;
-    margin-top: 20px;
 }
 
 .user-profile-avatar img {
@@ -982,7 +977,7 @@ ion-icon {
 }
 
 .profile-cover {
-    background-image: url("../images/login_bg/1.png");
+    background-image: url("../images/login_bg/test2.jpg");
     background-size: cover;
     height: 10rem;
     background-position: center;
@@ -1010,7 +1005,7 @@ ion-icon {
 .widget-icon {
     width: 48px;
     height: 48px;
-    background-color: #078a78;
+    background-color: #fafafa;
     border-radius: 50%;
     font-size: 22px;
     display: flex;
@@ -1305,9 +1300,9 @@ ul.categories-list li {
 }
 
 .seperator-2 {
-  background-color: #18bb6b;
-  left: 45%;
-  padding: 0px 10px;
+    background-color: #56aa18;
+    left: 45%;
+    padding: 0px 10px;
 }
 
 
@@ -1381,7 +1376,7 @@ ul.categories-list li {
 }
 
 .au-reset-password-cover {
-    background-image: url("../images/login_bg/1.png");
+    background-image: url("../images/login_bg/test2.jpg");
     background-position: center;
     background-size: cover;
     width: 100%;

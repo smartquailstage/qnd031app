@@ -40,7 +40,7 @@ def next_month(d):
 
 
 class CalendarView(LoginRequiredMixin, generic.ListView):
-    login_url = "usuarios:login"
+    login_url = "accounts:signin"
     model = Event
     template_name = "calendar.html"
 
@@ -113,7 +113,7 @@ class EventMemberDeleteView(generic.DeleteView):
     success_url = reverse_lazy("citas_regulares:calendar")
 
 class CalendarViewNew(LoginRequiredMixin, generic.View):
-    login_url = "usuarios:login"
+    login_url = "accounts:signin"
     template_name = "citas_regulares/calendar.html"
     form_class = EventForm
 

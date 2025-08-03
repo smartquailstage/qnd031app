@@ -45,10 +45,84 @@ INSTALLED_APPS = [
     #Wagtail Inicials
     'core',
     
-   
+    #'wagtail',
+    'wagtail',
+    'wagtailmedia',
+    'wagtail.contrib.forms',
+    'wagtail.contrib.redirects',
+    'django.contrib.humanize',
+    'wagtail.embeds',
+    'wagtail.sites',
+    'wagtail.users',
+    'wagtail.snippets',
+    'wagtail.documents',
+    'wagtail.images',
+    'wagtail.search',
+    
+    'wagtail.locales',
     'rosetta',
     #'wagtail.contrib.settings',
     
+    'wagtail.admin',
+   # 'wagtail.core',
+   # 'wagtail.contrib.settings',
+    'wagtail.contrib.routable_page',
+    #'wagtail.contrib.modeladmin',
+    #'wagalytics',
+    #'wagtailfontawesome',
+    "wagtail_localize",
+    #"wagtail_localize.locales",
+    #'wagtail_ai',
+    'wagtailgmaps',
+    'wagtailmenus',
+    #'wagtail.contrib.modeladmin',
+    'django_social_share',
+    #'sbmshop',
+    #'sbmorders',
+    #'sbmcoupons',
+    #'sbmpayments',
+   
+    'taggit',
+    #'proyectos',
+   # 'students',
+  #  'webapp_0',
+   # 'actividades_espacio_publico',
+  #  'streams',
+    'widget_tweaks',
+    'django_forms_bootstrap',
+
+   # 'datetimewidget',
+   #SMARTQUAIL-BUSINESS-CONSULTING
+    #'shop',
+    #'coupons',
+    #'cart',
+    #'todo_en_orden',
+    #'coupons',
+    #'orders',
+    #'contracts',
+    #'services',
+    #'cart',
+    #'cart_c',
+    #'payment',
+    #'django_phonenumbers',
+    #'phonenumber_field',
+    #'shop',
+    #'cart',
+
+    'sblcart',
+    'sblshop',
+    'sblorders',
+
+    
+    'sbtcart',
+    'sbtshop',
+    'sbtorders',
+
+ 
+
+    'sbacart',
+    'sbashop',
+    'sbaorders',
 
     'bootstrap4',
     'webapp',
@@ -63,7 +137,7 @@ INSTALLED_APPS = [
    
     #'memcache_status',
     'rest_framework',
-    #'ckeditor',
+    'ckeditor',
    # 'js_blog_app',
     'wagtail.contrib.settings',
     
