@@ -27,8 +27,8 @@ ALLOWED_HOSTS='127.0.0.1',"localhost","https://qnd03101.smartquail.io","qnd03101
 #CSRF_COOKIE_SECURE = True
 #CSRF_TRUSTED_ORIGINS = ['https://qnd03101.smartquail.io','https://meddes.smartquail.io/','https://146.190.164.22']
 CORS_ALLOWED_ORIGINS = [
-    'https://qnd03101.smartquail.io','https://qnd03101.smartquail.io/ingresar'
-    # Otros orígenes permitidos si los hay
+    'https://qnd03101.smartquail.io',
+    'https://smartquail.io',    # Otros orígenes permitidos si los hay
 ]
 
 
