@@ -180,7 +180,7 @@ def is_all(request):
 
 
 UNFOLD = {
-    "SITE_TITLE": "SmartBusinessAnalytics® + AI +A +I+D     Enterprises Resource Planning",
+    "SITE_TITLE": "Sistema de Administración Terapéutica  Meddes® ",
     "SITE_HEADER": "MEDDES",
     "SHOW_LANGUAGES": False,
     "SITE_SUBHEADER": "Eterprises Research & Development",
