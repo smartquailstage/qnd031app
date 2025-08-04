@@ -311,7 +311,7 @@ UNFOLD = {
                 "link": reverse_lazy("admin:usuarios_mensaje_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_notificaciones",
                 "badge_color": "custom-red-alert",
-                "permission": is_all,
+                "permission": is_comercial_o_administrativo,
             },
         ],
     },
