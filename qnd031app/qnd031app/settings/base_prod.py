@@ -253,7 +253,7 @@ UNFOLD = {
             "200": "233 213 255",
             "300": "216 180 254",
             "400": "192 132 252",
-            "500": "229 234 231",
+            "500": "0 0 0",
             "600": "61 61 56",
             "700": "126 34 206",
             "800": "107 33 168",
@@ -340,14 +340,7 @@ UNFOLD = {
                 "badge_color": "font-subtle-light",
                 "permission": is_administrativo_o_isuperuser,
             },
-            {
-                "title": _("Pagos"),
-                "icon": "payment",
-                "link": reverse_lazy("admin:usuarios_pagos_changelist"),
-                "badge": "usuarios.unfold_config.badge_callback_pagos",
-                "badge_color": "custom-red-alert",
-                "permission": is_admin_o_financiero,
-            },
+
         ],
     },
     {
