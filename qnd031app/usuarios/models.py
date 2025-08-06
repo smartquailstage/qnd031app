@@ -66,7 +66,7 @@ class AdministrativeProfile(models.Model):
     JOB_TITLE_CHOICES = [
         # Gerencia
         ('gerente_general', 'Gerente General'),
-        ('gerente_comercial', 'Ejecutivo Comercial'),
+        ('gerente_comercial', 'Directivo Comercial'),
         
         # Administración
         ('tecnico_administrativo', 'Técnico Administrativo'),
@@ -330,7 +330,7 @@ class Prospeccion(models.Model):
         on_delete=models.CASCADE,
         null=True,
         blank=True,
-        verbose_name="Ejecutivo Meddes"
+        verbose_name="Directivo Meddes"
     )
     cargo_ejecutivo_meddes = models.CharField(max_length=150, null=True, blank=True)
 
@@ -339,7 +339,7 @@ class Prospeccion(models.Model):
         on_delete=models.CASCADE,
         null=True,
         blank=True,
-        verbose_name="Comercial Meddes a Cargo"
+        verbose_name="Ejecutivo Comercial Meddes a Cargo"
     )
 
 
@@ -502,9 +502,9 @@ class prospecion_administrativa(models.Model):
     )
 
     # Ejecutivo Meddes
-    ejecutivo_meddes = models.ForeignKey(AdministrativeProfile, on_delete=models.CASCADE,null=True, blank=True, verbose_name="Ejecutivo Meddes")
+    ejecutivo_meddes = models.ForeignKey(AdministrativeProfile, on_delete=models.CASCADE,null=True, blank=True, verbose_name="Directivo Meddes")
     cargo_ejecutivo_meddes = models.CharField(max_length=150, null=True, blank=True)
-    comercial_meddes = models.ForeignKey(Perfil_Comercial, on_delete=models.CASCADE,null=True, blank=True, verbose_name="Comercial Meddes")
+    comercial_meddes = models.ForeignKey(Perfil_Comercial, on_delete=models.CASCADE,null=True, blank=True, verbose_name="Ejecutivo Meddes")
     telefono_ejecutivo_meddes = models.CharField(max_length=50, null=True, blank=True)
     mail_ejecutivo_meddes = models.EmailField(blank=True, null=True)
     obserciones = models.TextField(
@@ -1314,7 +1314,7 @@ class Cita(models.Model):
         on_delete=models.CASCADE,
         null=True,
         blank=True,
-        verbose_name="Comercial Meddes a Cargo"
+        verbose_name="Ejecutivo Comercial Meddes a Cargo"
     ) 
 
     fecha_nacimiento = models.DateField(null=True, blank=True, verbose_name="Fecha de Nacimiento")
