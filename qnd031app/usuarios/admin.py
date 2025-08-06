@@ -2455,6 +2455,7 @@ from unfold.contrib.filters.admin import RangeDateFilter, RangeDateTimeFilter
 from django.db.models import Q
 @admin.register(Profile)
 class ProfileAdmin(ModelAdmin):
+    form = ProfileAdminForm
     autocomplete_fields = [
         'user', 'sucursales',
         'user_terapeutas', 'user_terapeutas_1', 'user_terapeutas_3',
