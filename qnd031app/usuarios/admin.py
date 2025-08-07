@@ -1999,7 +1999,7 @@ class CitasCohortComponent(BaseComponent):
             agenda[dia_str][hora_str].append({
                "nombre_paciente": (
                 cita.profile.nombre_paciente if cita.tipo_cita == "terapeutica" and cita.profile else
-                cita.destinatario.get_full_name() if cita.tipo_cita == "administrativa" and cita.destinatario else
+                cita.destinatario.user.get_full_name() if cita.tipo_cita == "administrativa" and cita.destinatario else 
                 cita.nombre_paciente if cita.tipo_cita == "particular" else
                 "Sin nombre"
                 ),
