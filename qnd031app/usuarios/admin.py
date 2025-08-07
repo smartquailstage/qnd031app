@@ -567,7 +567,6 @@ class ValoracionTerapiaAdmin(ModelAdmin):
 
     list_display = [
         'get_perfil_terapeuta_full_name',
-        'Insitucional_a_cargo',
         'nombre',
         'fecha_valoracion',
         'recibe_asesoria',
