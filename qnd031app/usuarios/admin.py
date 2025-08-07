@@ -1896,7 +1896,7 @@ class CitasComponent(BaseComponent):
                 "title": "Citas del paciente",
                 "table": {
                     "headers": ["Sin datos disponibles"],
-                    "rows": [["No se pudo obtener un perfil válido."]],
+                    "rows": [["MEDDES®"]],
                 }
             })
             return context
@@ -2080,7 +2080,7 @@ class CitaAdmin(ModelAdmin):
     list_sections_layout = "horizontal"
 
     list_display = (
-        'tipo_cita','area','fecha', 'hora', 'sucursal', 
+        'tipo_cita','fecha', 'hora', 'sucursal', 
         'confirmada', 'pendiente', 'cancelada'
     )
 
