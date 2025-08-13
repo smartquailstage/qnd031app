@@ -2509,19 +2509,20 @@ class ProfileAdmin(ModelAdmin):
         if user.is_superuser:
             return qs
 
-        # 👥 Coordinadores ven todo
+        # 👥 Coordinadores (grupo administrativo) ven todo
         if user.groups.filter(name='administrativo').exists():
             return qs
 
         # 🏫 Usuarios institucionales ven solo lo suyo
-        try:
-            perfil_institucional = PerfilInstitucional.objects.get(usuario=user)
-            return qs.filter(instirucional=perfil_institucional)
-        except PerfilInstitucional.DoesNotExist:
-            pass  # Aún puede ser terapeuta
+        if user.groups.filter(name='institucional').exists():
+            try:
+                perfil_institucional = PerfilInstitucional.objects.get(usuario=user)
+                return qs.filter(instirucional=perfil_institucional)
+            except PerfilInstitucional.DoesNotExist:
+                return qs.none()
 
-        # 👨‍⚕️ Usuarios terapeutas específicos (IDs 1, 2, 3)
-        if user.id in [1, 2, 3]:
+        # 👨‍⚕️ Terapeutas ven solo pacientes donde están asignados
+        if user.groups.filter(name='terapeutico').exists():
             try:
                 perfil_terapeuta = Perfil_Terapeuta.objects.get(user=user)
                 return qs.filter(
