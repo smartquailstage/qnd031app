@@ -575,6 +575,13 @@ class ValoracionTerapiaAdmin(ModelAdmin):
         'proceso_terapia'
     ]
 
+    search_fields = (
+        'institucion',
+    )
+
+    autocomplete_fields = ['institucion']
+
+
     conditional_fields = {
         # Si es particular, ocultar campos institucionales
         "institucion": "es_particular != true",
@@ -1232,6 +1239,8 @@ class tareasAdmin(ModelAdmin):
         "other_field_name": lambda content: content.strip(),
     }
 
+    autocomplete_fields = ['profile']
+
     list_filter_submit = False
     list_fullwidth = False
     list_filter_sheet = True
@@ -1294,7 +1303,7 @@ class tareasAdmin(ModelAdmin):
         'descripcion_tarea',
     ]
 
-    list_filter = ('asistire', 'envio_tarea', 'actividad_realizada', ("cita_terapeutica_asignada", RangeDateFilter),)
+    list_filter = ('sucursal','asistire', 'envio_tarea', 'actividad_realizada', ("cita_terapeutica_asignada", RangeDateFilter),)
     list_editable = ['asistire', 'actividad_realizada', 'tarea_realizada']
     list_sections = [TareasComponent, TareasCohortComponent]
 
@@ -1570,7 +1579,7 @@ class ProspeccionAdministrativaAdmin(ModelAdmin):
         if user.groups.filter(name='administrativo').exists():
             return qs
 
-        # 🧑‍💼 Comerciales Meddes ven solo sus instituciones asignadas
+        # 🧑‍💼 Comerciales ven solo sus instituciones asignadas
         if user.groups.filter(name='comercial').exists():
             try:
                 perfil_comercial = Perfil_Comercial.objects.get(user=user)
@@ -1578,8 +1587,45 @@ class ProspeccionAdministrativaAdmin(ModelAdmin):
             except Perfil_Comercial.DoesNotExist:
                 return qs.none()
 
-        # ❌ Otros grupos no ven nada
+        # 🏫 Institucionales ven registros donde son responsables (1 o 2)
+        if user.groups.filter(name='institucional').exists():
+            try:
+                perfil_institucional = PerfilInstitucional.objects.get(usuario=user)
+                return qs.filter(
+                    models.Q(responsable_institucional_1=perfil_institucional) |
+                    models.Q(responsable_institucional_2=perfil_institucional)
+                )
+            except PerfilInstitucional.DoesNotExist:
+                return qs.none()
+
+        # ❌ Otros no tienen acceso
         return qs.none()
+
+    def get_fieldsets(self, request, obj=None):
+        user = request.user
+
+        # Mostrar campos restringidos a institucionales
+        if user.groups.filter(name='institucional').exists():
+            return (
+                ('Información de Convenio', {
+                    'fields': (
+                        'nombre',
+                        'convenio_pdf',
+                    ),
+                }),
+            )
+
+        # Para otros grupos se usa el default (puedes personalizar si quieres más granularidad)
+        return super().get_fieldsets(request, obj)
+
+    def get_inline_instances(self, request, obj=None):
+        user = request.user
+
+        # Solo mostrar DocenteCapacitadoInline si es institucional
+        if user.groups.filter(name='institucional').exists():
+            return [inline(self.model, self.admin_site) for inline in [DocenteCapacitadoInline]]
+
+        return super().get_inline_instances(request, obj)
 
 
 @admin.action(description="Duplicar mensajes seleccionados")
@@ -2047,6 +2093,17 @@ from unfold.contrib.filters.admin import RangeDateFilter, RangeDateTimeFilter
 
 @admin.register(Cita)
 class CitaAdmin(ModelAdmin):
+
+    @admin.display(description="Responsable")
+    def responsable(self, obj):
+        if obj.tipo_cita == "terapeutica":
+            return str(obj.profile_terapeuta) if obj.profile_terapeuta else "—"
+        elif obj.tipo_cita == "administrativa":
+            return obj.destinatario.get_full_name() if obj.destinatario else "—"
+        elif obj.tipo_cita == "comercial":
+            return str(obj.comercial_meddes) if obj.comercial_meddes else "—"
+        return "—"
+
     autocomplete_fields = ['profile', 'profile_terapeuta', 'destinatario']
     form = CitaForm
 
@@ -2078,7 +2135,7 @@ class CitaAdmin(ModelAdmin):
     list_sections = [CitasComponent, CitasCohortComponent]
     list_sections_layout = "horizontal"
 
-    list_display = (
+    list_display = ('responsable',
         'tipo_cita','fecha', 'hora', 'sucursal', 
         'confirmada', 'pendiente', 'cancelada'
     )
@@ -2118,26 +2175,39 @@ class CitaAdmin(ModelAdmin):
         qs = super().get_queryset(request)
         user = request.user
 
-        # 👑 Superusuarios y administrativos ven todo
-        if user.is_superuser or user.groups.filter(name='administrativo').exists():
+        # Permitir solo usuarios de estos grupos
+        allowed_groups = {'administrativo', 'terapeutico', 'comercial', 'institucional'}
+        user_groups = set(user.groups.values_list("name", flat=True))
+
+        if not (user.is_superuser or user_groups & allowed_groups):
+            return qs.none()
+
+        if user.is_superuser or 'administrativo' in user_groups:
             return qs
 
-        # 👨‍⚕️ Terapeutas: solo sus citas
+        # Terapeuta
         terapeuta_citas = qs.filter(profile_terapeuta__user=user)
 
-        # 🧑‍💼 Comerciales: citas relacionadas con instituciones donde son comercial_meddes
+        # Comercial
         try:
             perfil_comercial = Perfil_Comercial.objects.get(user=user)
-            instituciones_ids = prospecion_administrativa.objects.filter(
-                comercial_meddes=perfil_comercial
-            ).values_list('id', flat=True)
-
-            citas_comercial = qs.filter(profile__id__in=instituciones_ids)
+            citas_comercial = qs.filter(comercial_meddes=perfil_comercial)
         except Perfil_Comercial.DoesNotExist:
             citas_comercial = qs.none()
 
-        # Combinar ambos casos si el usuario es terapeuta y comercial
-        return terapeuta_citas | citas_comercial
+        # Usuario tipo paciente (Profile)
+        try:
+            profile = Profile.objects.get(user=user)
+            citas_profile = qs.filter(profile=profile)
+        except Profile.DoesNotExist:
+            citas_profile = qs.none()
+
+        return terapeuta_citas | citas_comercial | citas_profile
+
+    def save_model(self, request, obj, form, change):
+        if not obj.pk:
+            obj.creador = request.user
+        super().save_model(request, obj, form, change)
 
     @admin.display(description="Duración")
     def duracion(self, obj):
@@ -2147,7 +2217,7 @@ class CitaAdmin(ModelAdmin):
     def fecha_relativa(self, obj):
         return obj.get_fecha_relativa()
 
-    @admin.display(description="Cita con:")
+    @admin.display(description="Cita con")
     def nombre_asociado(self, obj):
         if obj.tipo_cita == "terapeutica":
             return str(obj.profile) if obj.profile else "—"
@@ -2155,6 +2225,8 @@ class CitaAdmin(ModelAdmin):
             return obj.destinatario.get_full_name() if obj.destinatario else "—"
         elif obj.tipo_cita == "particular":
             return obj.nombre_paciente or "—"
+        elif obj.tipo_cita == "comercial":
+            return str(obj.comercial_meddes) if obj.comercial_meddes else "—"
         return "—"
 
     def get_destinatario_full_name(self, obj):
@@ -2174,11 +2246,6 @@ class CitaAdmin(ModelAdmin):
 
     def has_changelist_action_permission(self, request, object_id=None):
         return True
-
-    def save_model(self, request, obj, form, change):
-        if not obj.pk:
-            obj.creador = request.user
-        super().save_model(request, obj, form, change)
 
 
     @admin.display(description="Calendario")
