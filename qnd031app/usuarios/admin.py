@@ -1241,7 +1241,7 @@ class tareasAdmin(ModelAdmin):
 
     autocomplete_fields = ['profile']
 
-    list_filter_submit = False
+    list_filter_submit = True
     list_fullwidth = False
     list_filter_sheet = True
     list_horizontal_scrollbar_top = False
