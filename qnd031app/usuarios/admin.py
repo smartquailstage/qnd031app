@@ -2096,7 +2096,7 @@ from unfold.contrib.filters.admin import RangeDateFilter, RangeDateTimeFilter
 @admin.register(Cita)
 class CitaAdmin(ModelAdmin):
 
-    @admin.display(description="Responsable")
+    @admin.display(description="Cita agendada con:")
     def responsable(self, obj):
         if obj.tipo_cita == "terapeutica":
             return str(obj.profile_terapeuta) if obj.profile_terapeuta else "—"

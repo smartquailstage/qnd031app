@@ -28,33 +28,33 @@
                   {% with citas=dia_info.agenda|get_item:hora %}
                     {% if citas %}
                       {% for cita in citas %}
-                        <div class="flex flex-col justify-center px-2 py-2 mb-2 rounded-default
-  {% if cita.estado == 'Pendiente' %}
-    bg-blue-600
-  {% elif cita.estado == 'Confirmada' %}
-    bg-green-600
-  {% elif cita.estado == 'Cancelada' %}
-    bg-red-600
-  {% else %}
-    bg-gray-500
-  {% endif %}
+                       <div class="flex flex-col justify-center px-2 py-2 mb-2 rounded-default
+{% if cita.estado == 'Pendiente' %}
+  bg-blue-600
+{% elif cita.estado == 'Confirmada' %}
+  bg-green-600
+{% elif cita.estado == 'Cancelada' %}
+  bg-red-600
+{% else %}
+  bg-gray-500
+{% endif %}
 
-  {% if cita.tipo_cita == 'administrativa' %}
-    border-4 border-yellow-400
-  {% elif cita.tipo_cita == 'terapeutica' %}
-    border-4 border-purple-600
-  {% elif cita.tipo_cita == 'particular' %}
-    border-4 border-pink-600
-  {% elif cita.tipo_cita == 'urgente' %}
-    border-4 border-red-800
-  {% endif %}
-  
-  text-white dark:text-base-600">
-                          <span class="mt-0.5 truncate">{{ cita.paciente }} {{ cita.nombre_paciente }}</span>
-                          <span class="mt-0.5 text-xs italic truncate">{{ cita.tipo_cita }}</span>
-                          <span class="mt-0.5 text-xs italic">{{ cita.estado }}</span>
-                          <span class="mt-0.5 text-xs italic">{{ cita.area }}</span>
-                        </div>
+{% if cita.tipo_cita == 'administrativa' %}
+  border-4 border-yellow-400
+{% elif cita.tipo_cita == 'terapeutica' %}
+  border-4 border-purple-600
+{% elif cita.tipo_cita == 'particular' %}
+  border-4 border-pink-600
+{% elif cita.tipo_cita == 'urgente' %}
+  border-4 border-red-800
+{% endif %}
+
+text-white dark:text-base-600">
+  <span class="mt-0.5 truncate">{{ cita.nombre_responsable }}</span>
+  <span class="mt-0.5 text-xs italic truncate">{{ cita.tipo_cita }}</span>
+  <span class="mt-0.5 text-xs italic">{{ cita.estado }}</span>
+  <span class="mt-0.5 text-xs italic">{{ cita.area }}</span>
+</div>
                       {% endfor %}
                     {% else %}
                       <div class="text-gray-400 text-xs">–</div>
