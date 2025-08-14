@@ -170,6 +170,8 @@ def is_comercial_o_isuperuser(request):
 def is_comercial_o_administrativo(request):
     return is_comercial(request) or is_administrativo(request) or is_superuser(request)
 
+def is_comercial_o_administrativo_o_institucional(request):
+    return is_comercial(request) or is_administrativo(request) or is_superuser(request) or is_institucional(request)
 
 def is_administrativo_o_isuperuser(request):
     return is_administrativo(request) or is_superuser(request)
@@ -335,7 +337,7 @@ UNFOLD = {
                 "link": reverse_lazy("admin:usuarios_prospecion_administrativa_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_prospeccion",
                 "badge_color": "custom-green-success",
-                "permission": is_comercial_o_administrativo,
+                "permission": is_comercial_o_administrativo_o_institucional
             },
             {
                 "title": _("Pacientes"),
