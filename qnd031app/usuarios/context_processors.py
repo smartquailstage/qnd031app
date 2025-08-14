@@ -1,7 +1,7 @@
 from datetime import timedelta, date
 from django.utils import timezone
 from django.db.models import Count
-from .models import pagos, tareas, Cita, Mensaje, Profile,  InformesTerapeuticos, AdministrativeProfile
+from .models import pagos, tareas, Cita, Mensaje, Profile,  InformesTerapeuticos, AdministrativeProfile, Perfil_Terapeuta,Perfil_Comercial
 from django.db.models import Q
 from collections import defaultdict
 from datetime import datetime
@@ -13,26 +13,60 @@ from django.shortcuts import get_object_or_404
 
 
 def ultima_cita(request):
-    """
-    Procesador de contexto que obtiene la primera cita pendiente del usuario autenticado,
-    filtrando por su perfil, sin lanzar errores si no existe.
-    """
-    if request.user.is_authenticated:
-        profile = Profile.objects.filter(user=request.user).first()
-        if profile is None:
-            return {'ultima_cita': None}
+    if not request.user.is_authenticated:
+        return {'ultima_cita': None}
 
-        # Obtener la primera cita pendiente (no confirmada ni cancelada)
-        ultima_cita = (
-            Cita.objects
-            .filter(profile=profile, pendiente=True, confirmada=False, cancelada=False)
-            .order_by('fecha', 'hora')
-            .first()
-        )
+    user = request.user
 
-        return {'ultima_cita': ultima_cita}
+    # Caso 1: Usuario paciente
+    profile = Profile.objects.filter(user=user).first()
+    if profile:
+        return {
+            'ultima_cita': Cita.objects.filter(
+                profile=profile,
+                pendiente=True,
+                confirmada=False,
+                cancelada=False
+            ).order_by('fecha', 'hora').first()
+        }
 
-    return {}
+    # Caso 2: Usuario terapeuta
+    terapeuta = Perfil_Terapeuta.objects.filter(user=user).first()
+    if terapeuta:
+        return {
+            'ultima_cita': Cita.objects.filter(
+                profile_terapeuta=terapeuta,
+                pendiente=True,
+                confirmada=False,
+                cancelada=False
+            ).order_by('fecha', 'hora').first()
+        }
+
+    # Caso 3: Usuario administrativo
+    admin = AdministrativeProfile.objects.filter(user=user).first()
+    if admin:
+        return {
+            'ultima_cita': Cita.objects.filter(
+                destinatario=admin,
+                pendiente=True,
+                confirmada=False,
+                cancelada=False
+            ).order_by('fecha', 'hora').first()
+        }
+
+    # Caso 4: Usuario comercial
+    comercial = Perfil_Comercial.objects.filter(user=user).first()
+    if comercial:
+        return {
+            'ultima_cita': Cita.objects.filter(
+                comercial_meddes=comercial,
+                pendiente=True,
+                confirmada=False,
+                cancelada=False
+            ).order_by('fecha', 'hora').first()
+        }
+
+    return {'ultima_cita': None}
 
 
 def ultima_tarea(request):
@@ -50,7 +84,9 @@ def ultima_tarea(request):
 
 def citas_context(request):
     if request.user.is_authenticated:
-        citas = Cita.objects.filter(destinatario=request.user).select_related('creador', 'destinatario').order_by('-fecha')[:20]
+        citas = Cita.objects.filter(destinatario__user=request.user)\
+            .select_related('creador', 'destinatario', 'destinatario__user')\
+            .order_by('-fecha')[:20]
 
         agenda = defaultdict(lambda: defaultdict(list))
         fechas_unicas = set()
@@ -61,30 +97,24 @@ def citas_context(request):
                 continue
 
             fecha = cita.fecha
-            if is_naive(fecha):
-                fecha = make_aware(fecha)
+            if is_naive(datetime.combine(fecha, time(0, 0))):
+                fecha = make_aware(datetime.combine(fecha, time(0, 0)))
 
             fecha_local = localtime(fecha)
             dia_str = fecha_local.strftime("%Y-%m-%d")
             hora = fecha_local.strftime("%H:00")
 
-            if fecha_local.weekday() >= 5:
+            # Solo lunes a viernes, de 9:00 a 22:00
+            if fecha_local.weekday() >= 5 or not (9 <= fecha_local.hour <= 22):
                 continue
-
-            if not (9 <= fecha_local.hour <= 22):
-                continue
-
-            creador = cita.creador
-            destinatario = cita.destinatario
 
             creador_nombre = (
-                creador.get_full_name() if creador and hasattr(creador, 'get_full_name')
-                else getattr(creador, 'username', 'Sin creador')
+                cita.creador.get_full_name() if cita.creador and hasattr(cita.creador, 'get_full_name')
+                else getattr(cita.creador, 'username', 'Sin creador')
             )
 
             destinatario_nombre = (
-                destinatario.get_full_name() if destinatario and hasattr(destinatario, 'get_full_name')
-                else getattr(destinatario, 'username', 'Sin destinatario')
+                cita.destinatario.user.get_full_name() if cita.destinatario and cita.destinatario.user else 'Sin destinatario'
             )
 
             agenda[dia_str][hora].append({
@@ -92,7 +122,7 @@ def citas_context(request):
                 "motivo": cita.motivo or "Sin motivo",
                 "creador": creador_nombre,
                 "destinatario": destinatario_nombre,
-                "estado": cita.estado,  # usa la propiedad
+                "estado": cita.estado,  # Usa la propiedad `estado` de tu modelo si existe
                 "tipo_cita": cita.get_tipo_cita_display() if cita.tipo_cita else "Sin tipo"
             })
 
@@ -105,11 +135,10 @@ def citas_context(request):
             'agenda': agenda,
             'dias': sorted(dias_date),
             'horas': sorted(horas_unicas),
-            'dias_str_map': {datetime.strptime(d, "%Y-%m-%d").date(): d for d in fechas_unicas}
+            'dias_str_map': {d: d.strftime("%Y-%m-%d") for d in dias_date}
         }
 
     return {}
-
 
 
 

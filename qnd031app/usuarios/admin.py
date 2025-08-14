@@ -1927,6 +1927,7 @@ class CitasComponent(BaseComponent):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        
 
         # Obtener el perfil
         if isinstance(self.instance, Profile):
@@ -1978,6 +1979,7 @@ class CitasComponent(BaseComponent):
                 "rows": rows,
             }
         })
+        print("DEBUG agenda_dias:", context.get("agenda_dias"))
         return context
 
     def render(self):
