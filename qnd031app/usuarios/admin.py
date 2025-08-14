@@ -2099,7 +2099,7 @@ class CitaAdmin(ModelAdmin):
         if obj.tipo_cita == "terapeutica":
             return str(obj.profile_terapeuta) if obj.profile_terapeuta else "—"
         elif obj.tipo_cita == "administrativa":
-            return obj.destinatario.get_full_name() if obj.destinatario else "—"
+            return obj.destinatario.user.get_full_name() if obj.destinatario else "—"
         elif obj.tipo_cita == "comercial":
             return str(obj.comercial_meddes) if obj.comercial_meddes else "—"
         return "—"
