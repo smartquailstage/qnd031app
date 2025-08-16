@@ -1240,7 +1240,7 @@ class tareasAdmin(ModelAdmin):
         "other_field_name": lambda content: content.strip(),
     }
 
-    autocomplete_fields = ['profile']
+    autocomplete_fields = ['profile','Insitucional_a_cargo']
 
     list_filter_submit = True
     list_fullwidth = False
@@ -1543,7 +1543,7 @@ class CustomTableSection(TableSection):
 class ProspeccionAdministrativaAdmin(ModelAdmin):
     inlines = [DocenteCapacitadoInline]
     list_sections = [CustomTableSection]
-    autocomplete_fields = ['nombre','responsable_institucional_1','responsable_institucional_2', 'ejecutivo_meddes', 'comercial_meddes']
+    autocomplete_fields = ['responsable_institucional_1','responsable_institucional_2', 'ejecutivo_meddes', 'comercial_meddes']
 
     list_display = ['nombre', 'responsable_institucional_1']
 
@@ -1551,7 +1551,6 @@ class ProspeccionAdministrativaAdmin(ModelAdmin):
 
     search_fields = [
         'nombre',
-        'ciudad',
         'responsable_institucional_1__usuario__first_name',
         'responsable_institucional_1__usuario__last_name',
     ]
