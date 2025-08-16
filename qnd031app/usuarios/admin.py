@@ -578,9 +578,9 @@ class ValoracionTerapiaAdmin(ModelAdmin):
  
 
     
-    search_fields = ['nombre'] 
+    search_fields = ["institucion__nombre"] 
 
-    autocomplete_fields = ['institucion']
+    autocomplete_fields = ['institucion',]
 
 
     conditional_fields = {
@@ -593,7 +593,6 @@ class ValoracionTerapiaAdmin(ModelAdmin):
 
 
     exclude = ('perfil_terapeuta',)
-    search_fields = ['nombre', 'perfil_terapeuta__usuario__first_name', 'perfil_terapeuta__usuario__last_name']
     list_editable = ['proceso_terapia', 'recibe_asesoria', 'necesita_terapia', 'toma_terapia']
     readonly_fields = ['edad']
     list_sections = [ValoracionComponent, ValoracionExtraComponent]
@@ -1543,7 +1542,7 @@ class CustomTableSection(TableSection):
 class ProspeccionAdministrativaAdmin(ModelAdmin):
     inlines = [DocenteCapacitadoInline]
     list_sections = [CustomTableSection]
-    autocomplete_fields = ['responsable_institucional_1','responsable_institucional_2', 'ejecutivo_meddes', 'comercial_meddes']
+    autocomplete_fields = ['nombre','responsable_institucional_1','responsable_institucional_2', 'ejecutivo_meddes', 'comercial_meddes']
 
     list_display = ['nombre', 'responsable_institucional_1']
 
