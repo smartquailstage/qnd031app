@@ -139,22 +139,8 @@ def badge_callback_terapeutico(request):
 
 def badge_callback_prospeccion(request):
     try:
-        estados = {
-           # "PC": prospecion_administrativa.objects.filter(es_por_contactar=True).count(),
-           # "CT": prospecion_administrativa.objects.filter(es_contactado=True).count(),
-            "CIT": prospecion_administrativa.objects.filter(es_en_cita=True).count(),
-          #  "CNV": prospecion_administrativa.objects.filter(es_convenio_firmado=True).count(),
-          #  "CAP": prospecion_administrativa.objects.filter(es_capacitacion=True).count(),
-            "VAL": prospecion_administrativa.objects.filter(es_valoracion=True).count(),
-           # "TER": prospecion_administrativa.objects.filter(es_en_terapia=True).count(),
-          #  "REJ": prospecion_administrativa.objects.filter(es_rechazado=True).count(),
-            "FIN": prospecion_administrativa.objects.filter(es_finalizado=True).count(),
-           # "INA": prospecion_administrativa.objects.filter(es_inactivo=True).count(),
-        }
-
-        # Formato visual compacto
-        return " | ".join(f"{value}" for key, value in estados.items())
-
+        total = prospecion_administrativa.objects.count()
+        return str(total)
     except Exception:
         return "0"
 

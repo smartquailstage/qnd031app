@@ -387,7 +387,7 @@ class Prospeccion(models.Model):
 
 
 class PerfilInstitucional(models.Model):
-    usuario = models.OneToOneField(User, on_delete=models.CASCADE)
+    usuario = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Nombre de Usuario")
     colegio = models.ForeignKey(Prospeccion, on_delete=models.SET_NULL, null=True)
     cargo = models.CharField(max_length=100, null=True, blank=True, verbose_name="Cargo del Usuario en la Institución")
     phone_regex = RegexValidator(
@@ -952,7 +952,7 @@ class Profile(models.Model):
     
 
     valorizacion_terapeutica = models.ForeignKey(
-        ValoracionTerapia,
+        'ValoracionTerapia',
         on_delete=models.CASCADE,
         related_name="valoraciones_terapeuticas",
         verbose_name="Valoración Terapéutica", blank=True, null=True,
@@ -1037,6 +1037,8 @@ class Profile(models.Model):
         verbose_name = "Registro Administrativo / Historial de Paciente"
         verbose_name_plural = "Registro Administrativo / Historiales de Pacientes"   
 
+
+
     @property
     def edad_detallada(self):
         if not self.fecha_nacimiento:
@@ -1063,6 +1065,8 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.nombre_completo
+
+    
 
 
 class pagos(models.Model):

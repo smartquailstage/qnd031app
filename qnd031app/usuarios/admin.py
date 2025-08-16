@@ -84,6 +84,7 @@ class UserAdmin(BaseUserAdmin, ModelAdmin):
     form = UserChangeForm
     add_form = UserCreationForm
     change_password_form = AdminPasswordChangeForm
+    search_fields = ['username', 'first_name', 'last_name']
 
 
 @admin.register(Group)
@@ -497,7 +498,6 @@ class PerfilInstitucionalAdmin(ModelAdmin):
         'usuario__first_name',
         'usuario__last_name',
         'correo_electronico',
-        'colegio_nombre_institucion',
     )
 
    # form = PerfilInstitucionalAdminForm
@@ -575,9 +575,10 @@ class ValoracionTerapiaAdmin(ModelAdmin):
         'proceso_terapia'
     ]
 
-    search_fields = (
-        'institucion',
-    )
+ 
+
+    
+    search_fields = ['nombre'] 
 
     autocomplete_fields = ['institucion']
 
@@ -1448,6 +1449,10 @@ class ProspeccionAdmin(ModelAdmin):
         "other_field_name": lambda content: content.strip(),
     }
 
+    search_fields = ['nombre_institucion',
+
+    ]
+
     list_filter_submit = False
     list_fullwidth = False
     list_filter_sheet = True
@@ -1538,6 +1543,7 @@ class CustomTableSection(TableSection):
 class ProspeccionAdministrativaAdmin(ModelAdmin):
     inlines = [DocenteCapacitadoInline]
     list_sections = [CustomTableSection]
+    autocomplete_fields = ['nombre','responsable_institucional_1','responsable_institucional_2', 'ejecutivo_meddes', 'comercial_meddes']
 
     list_display = ['nombre', 'responsable_institucional_1']
 
@@ -2521,20 +2527,33 @@ class ValoracionsInline(TabularInline):
     readonly_fields = ('diagnostico',)
 
 
+
 from unfold.contrib.filters.admin import RangeDateFilter, RangeDateTimeFilter
 from django.db.models import Q
 @admin.register(Profile)
 class ProfileAdmin(ModelAdmin):
     form = ProfileAdminForm
+    # Campos de autocompletado
     autocomplete_fields = [
         'user', 'sucursales',
         'user_terapeutas', 'user_terapeutas_1', 'user_terapeutas_3',
-        'instirucional', 'valorizacion_terapeutica'
+        'institucion','instirucional','valorizacion_terapeutica'
     ]
 
+    # Búsqueda sobre el campo 'nombre' de ValoracionTerapia
+    search_fields = [
+        'user__username',  # Buscar por el nombre de usuario
+        'user__first_name',  # Buscar por el primer nombre del usuario
+        'user__last_name',   # Buscar por el apellido del usuario
+    ]
+
+    
+    
     compressed_fields = True
     inlines = [TareaItemInline, CitaItemInline, PagosItemInline, InformesTerapeuticosInline]
-    search_fields = ['user__username', 'user__first_name', 'user__last_name']
+
+
+    
     list_sections = [ProfileComponent, ProfileComponentRepresentante, ProfileComponentTerapeutico]
   #  form = ProfileWithUserForm
     warn_unsaved_form = True
@@ -2543,6 +2562,7 @@ class ProfileAdmin(ModelAdmin):
         "model_field_name": "html.unescape",
         "other_field_name": lambda content: content.strip(),
     }
+
 
     list_filter_submit = True
     list_fullwidth = True
@@ -2635,6 +2655,8 @@ class ProfileAdmin(ModelAdmin):
 
         # Si es superuser u otro grupo, muestra todo
         return super().get_fieldsets(request, obj)
+
+    
 
     def get_inline_instances(self, request, obj=None):
         inline_instances = []
@@ -2793,7 +2815,7 @@ class AdministrativeProfileAdmin(ModelAdmin):
     list_display = ('full_name', 'get_job_title_display', 'get_department_display','salary', 'is_active')
     list_filter = ('job_title', 'department', 'is_active')
     list_sections = [PerfilAdministrativoComponent,ContactoAdministrativoComponent ]  # Agregar sección personalizada
-    search_fields = ('first_name', 'last_name', 'email')
+    search_fields = ('user__first_name', 'user__last_name', 'user__email')
     list_editable = ('is_active',)
     list_per_page = 20
 
