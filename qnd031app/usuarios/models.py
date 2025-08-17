@@ -810,14 +810,7 @@ class ValoracionTerapia(models.Model):
         verbose_name_plural = "Valoraciones Terapéuticas"
         ordering = ['-fecha_valoracion']
 
-    def save(self, *args, **kwargs):
-        if self.es_particular and self.es_convenio:
-            raise ValueError("Solo una opción puede estar activa: 'particular' o 'convenio'")
-        super().save(*args, **kwargs)
 
-    def __str__(self):
-        tipo = "Particular" if self.es_particular else "Convenio" if self.es_convenio else "Sin especificar"
-        return f"{self.nombre}- {self.institucion} - {self.fecha_valoracion} ({tipo})"
 
     @property
     def edad(self):
@@ -836,6 +829,15 @@ class ValoracionTerapia(models.Model):
             months += 12
 
         return f"{years} año{'s' if years != 1 else ''} y {months} mes{'es' if months != 1 else ''}"
+
+    def save(self, *args, **kwargs):
+        if self.es_particular and self.es_convenio:
+            raise ValueError("Solo una opción puede estar activa: 'particular' o 'convenio'")
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        tipo = "Particular" if self.es_particular else "Convenio" if self.es_convenio else "Sin especificar"
+        return f"{self.nombre}- {self.institucion} - {self.fecha_valoracion} ({tipo})"
 
 
 class InformesTerapeuticos(models.Model):

@@ -580,7 +580,7 @@ class ValoracionTerapiaAdmin(ModelAdmin):
     
     search_fields = ["institucion__nombre"] 
 
-    autocomplete_fields = ['institucion',]
+    autocomplete_fields = ['perfil_terapeuta','Insitucional_a_cargo','institucion',]
 
 
     conditional_fields = {
