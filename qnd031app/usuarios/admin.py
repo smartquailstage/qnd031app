@@ -1548,10 +1548,10 @@ class ProspeccionAdministrativaAdmin(ModelAdmin):
 
     list_display = ['nombre', 'responsable_institucional_1']
 
-    list_filter = ['sucursal']
+    list_filter = ['sucursal','nombre']
 
     search_fields = [
-        'nombre',
+        'nombre__nombre_institucion',
         'responsable_institucional_1__usuario__first_name',
         'responsable_institucional_1__usuario__last_name',
     ]
@@ -2165,6 +2165,8 @@ class CitaAdmin(ModelAdmin):
         'profile_terapeuta__user__first_name',
         'profile_terapeuta__user__last_name',
         'sucursal__nombre',
+        'destinatario__user__first_name',
+        'comercial_meddes__user__first_name',
         'area',
     )
 
@@ -2633,14 +2635,7 @@ class ProfileAdmin(ModelAdmin):
         # Mostrar fieldsets limitados a terapeutas e institucionales
         if user.groups.filter(name__in=['terapeutico', 'institucional']).exists():
             return (
-                ('Ingresar Información Personal del Paciente', {
-                    'fields': (
-                        'sucursales', 'photo',
-                        'ruc', 'nombre_paciente', 'apellidos_paciente',
-                        'nacionalidad', 'sexo', 'fecha_nacimiento', 'institucion',
-                    ),
-                    'classes': ('collapse',),
-                }),
+
                 ('Ingresar Información Terapéutica', {
                     'fields': (
                         'instirucional', 'valorizacion_terapeutica', 'tipos',
