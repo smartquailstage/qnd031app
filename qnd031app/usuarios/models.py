@@ -734,7 +734,7 @@ class ValoracionTerapia(models.Model):
     es_convenio = models.BooleanField(default=False, verbose_name="Valoración por Convenio")
 
     institucion = models.ForeignKey(
-        'prospecion_administrativa',
+        Prospeccion,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,

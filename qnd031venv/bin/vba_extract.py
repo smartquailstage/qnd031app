@@ -1,4 +1,4 @@
-#!/Users/juansilva/Desktop/SMARTQUAIL/qnd031app/qnd031venv/bin/python3
+#!/Users/smartquail/Desktop/QNODES2025/QND0/qnd031app/qnd031venv/bin/python3.13
 
 ##############################################################################
 #
