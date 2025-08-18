@@ -2638,10 +2638,6 @@ class ProfileAdmin(ModelAdmin):
 
                 ('Ingresar Información Terapéutica', {
                     'fields': (
-                        'instirucional', 'valorizacion_terapeutica', 'tipos',
-                        'user_terapeutas', 'user_terapeutas_1', 'user_terapeutas_3',
-                        'fecha_inicio', 'fecha_pausa', 'fecha_re_inicio',
-                        'fecha_alta', 'certificado_inicio',
                         'es_en_terapia', 'es_retirado', 'es_alta', 'es_pausa',
                     ),
                     'classes': ('collapse',),
