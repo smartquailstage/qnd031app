@@ -1356,9 +1356,7 @@ class tareasAdmin(ModelAdmin):
         if obj is None:
             return True
         return (
-            obj.terapeuta == request.user or
-            (obj.Insitucional_a_cargo and
-             obj.Insitucional_a_cargo.usuario == request.user)
+            obj.terapeuta == request.user 
         )
 
     def has_change_permission(self, request, obj=None):
