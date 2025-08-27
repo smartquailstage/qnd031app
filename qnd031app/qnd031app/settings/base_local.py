@@ -302,7 +302,7 @@ UNFOLD = {
                 "link": reverse_lazy("admin:usuarios_mensaje_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_notificaciones",
                 "badge_color": "custom-red-alert",
-                "permission": is_all,
+                "permission": is_administrativo_o_isuperuser,
             },
         ],
     },
@@ -334,7 +334,7 @@ UNFOLD = {
                 "link": reverse_lazy("admin:usuarios_profile_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_terapeutico",
                 "badge_color": "success",
-                "permission":  is_comercial_o_administrativo_o_institucional,
+                "permission":  is_comercial_o_administrativo,
             },
             {
                 "title": _("Agenda"),

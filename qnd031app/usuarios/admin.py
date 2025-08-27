@@ -1425,20 +1425,6 @@ class tareasAdmin(ModelAdmin):
 
         return qs.none()
 
-    def has_view_permission(self, request, obj=None):
-        if request.user.is_superuser:
-            return True
-        if obj is None:
-            return True
-        return (
-            obj.terapeuta == request.user 
-        )
-
-    def has_change_permission(self, request, obj=None):
-        return self.has_view_permission(request, obj)
-
-    def has_delete_permission(self, request, obj=None):
-        return self.has_view_permission(request, obj)
 
     def save_model(self, request, obj, form, change):
         if not obj.pk:
@@ -2806,42 +2792,99 @@ class ProfileAdmin(ModelAdmin):
 
 @admin.register(InformesTerapeuticos)
 class InformesTerapeuticosAdmin(ModelAdmin):
-    list_display = ('profile', 'titulo', 'archivo', 'fecha_creado')
-    list_filter = ('fecha_creado', 'tipo_de_informe')
-    search_fields = (
+    compressed_fields = True
+    warn_unsaved_form = True
+
+    readonly_preprocess_fields = {
+        "titulo": lambda t: t.strip(),
+    }
+
+    autocomplete_fields = ['profile', 'Insitucional_a_cargo']
+
+    fieldsets = (
+        ('Información del Informe', {
+            'fields': ('profile', 'tipo_de_informe', 'titulo', 'archivo')
+        }),
+        ('Asignación y Control', {
+            'fields': ('Insitucional_a_cargo', 'terapeuta', 'creado_por', 'fecha_creado')
+        }),
+    )
+
+    readonly_fields = ('fecha_creado', 'creado_por')
+
+    actions_list = []
+    actions_row = []
+    actions_detail = []
+    actions_submit_line = []
+
+    change_form_show_cancel_button = True
+
+    list_filter_submit = True
+    list_fullwidth = False
+    list_filter_sheet = True
+    list_horizontal_scrollbar_top = False
+    list_disable_select_all = False
+
+    search_fields = [
         'titulo',
         'profile__user__first_name',
         'profile__user__last_name',
-        'profile__institucion__nombre'
+        'profile__institucion__nombre',
+    ]
+
+    list_filter = (
+        'tipo_de_informe',
+        'fecha_creado',
     )
-    autocomplete_fields = ('profile', 'Insitucional_a_cargo')
-    readonly_fields = ('fecha_creado', 'creado_por')
+
+    list_display = [
+        
+        'get_terapeuta_full_name',
+        'profile',
+        'tipo_de_informe',
+        'titulo',
+        'archivo',
+        'fecha_creado',
+    ]
+
+    exclude = ()
+    actions = []
+
+    verbose_name = "Informe Terapéutico"
+    verbose_name_plural = "Informes Terapéuticos"
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         user = request.user
 
-        if user.is_superuser:
+        if user.is_superuser or user.groups.filter(name='administrativo').exists():
             return qs
 
-        # Verificación de pertenencia a grupos
-        es_terapeuta = user.groups.filter(name__iexact='Terapeutas').exists()
-        es_institucional = user.groups.filter(name__iexact='Institucionales').exists()
+        # Filtrar informes asignados al terapeuta
+        if qs.model.objects.filter(terapeuta=user).exists():
+            return qs.filter(terapeuta=user)
 
-        # Usuarios que pueden ver informes:
-        # - Terapeutas ven lo que se les asigna
-        # - Institucionales ven lo que les corresponde
-        return qs.filter(
-            Q(terapeuta=user) |
-            Q(Insitucional_a_cargo__user=user) |
-            Q(terapeuta__groups__name__iexact='Terapeutas', terapeuta=user) |
-            Q(Insitucional_a_cargo__user__groups__name__iexact='Institucionales', Insitucional_a_cargo__user=user)
-        ).distinct()
+        # Filtrar informes asignados al institucional (PerfilInstitucional vinculado al usuario)
+        try:
+            perfil_institucional = PerfilInstitucional.objects.get(usuario=user)
+            if qs.model.objects.filter(Insitucional_a_cargo=perfil_institucional).exists():
+                return qs.filter(Insitucional_a_cargo=perfil_institucional)
+        except PerfilInstitucional.DoesNotExist:
+            pass
+
+        return qs.none()
+
+
 
     def save_model(self, request, obj, form, change):
         if not obj.pk:
             obj.creado_por = request.user
-        obj.save()
+        super().save_model(request, obj, form, change)
+
+    @admin.display(description="Terapeuta a Cargo", ordering='terapeuta__first_name')
+    def get_terapeuta_full_name(self, obj):
+        return obj.terapeuta.get_full_name() if obj.terapeuta else "—"
+
 
 
 @register_component
