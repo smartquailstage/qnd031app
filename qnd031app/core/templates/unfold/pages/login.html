@@ -1,0 +1,27 @@
+{% extends "unfold/layouts/auth.html" %}
+
+{% block title %}
+    Iniciar sesión personalizado
+{% endblock %}
+
+{% block content %}
+    <h1 class="text-2xl font-bold text-center">Bienvenido a QNODES</h1>
+    
+    <form method="post" class="space-y-4 mt-6">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        
+        <div>
+            {{ form.username.label_tag }}
+            {{ form.username }}
+        </div>
+        <div>
+            {{ form.password.label_tag }}
+            {{ form.password }}
+        </div>
+
+        <button type="submit" class="w-full py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700">
+            Entrar
+        </button>
+    </form>
+{% endblock %}

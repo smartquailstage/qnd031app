@@ -592,14 +592,16 @@ class ValoracionTerapiaAdmin(ModelAdmin):
 
         # Podrías agregar lógica adicional aquí para mostrar/ocultar campos según convenio si lo necesitas
     }
+    
 
 
     exclude = ('perfil_terapeuta',)
     list_editable = ['proceso_terapia', 'recibe_asesoria', 'necesita_terapia', 'toma_terapia']
     readonly_fields = ['edad']
     list_sections = [ValoracionComponent, ValoracionExtraComponent]
-    list_filter = ("sucursal", 'institucion','recibe_asesoria', 'proceso_terapia', 'es_particular', 'es_convenio')
-    order_by = ('-fecha_valoracion',)
+    ordering = ('-fecha_valoracion',)
+    list_filter_submit = True
+    list_filter = ("sucursal",'fecha_valoracion','recibe_asesoria', 'proceso_terapia', 'es_particular', 'es_convenio')
     actions = [export_to_csv, export_to_excel]
 
     @admin.display(description="Terapeuta a Cargo", ordering='perfil_terapeuta__first_name')
@@ -1191,7 +1193,7 @@ class TareasComponent(BaseComponent):
         tareas_asignadas = tareas.objects.filter(profile=profile)
 
         headers = [
-            "Título", "Fecha de envío", "Fecha de entrega", "Material Adjunto", "Media de Terapia"
+            "Título", "Fecha de Terapia", "Video de actividad Terapeútica"
         ]
 
         rows = []
@@ -1208,14 +1210,12 @@ class TareasComponent(BaseComponent):
 
             rows.append([
                 tarea.titulo or "Sin título",
-                tarea.fecha_envio.strftime("%d/%m/%Y") if tarea.fecha_envio else "Sin fecha",
-                tarea.fecha_entrega.strftime("%d/%m/%Y") if tarea.fecha_entrega else "Sin fecha",
-                material_link,
+                tarea.cita_terapeutica_asignada.strftime("%d/%m/%Y") if tarea.fecha_envio else "Sin fecha",
                 media_link,
             ])
 
         context.update({
-            "title": f"Tareas asignadas a {profile.nombre_completo}",
+            "title": f"Actividades realizadas por {profile.nombre_completo}",
             "table": {
                 "headers": headers,
                 "rows": rows,
@@ -1227,8 +1227,79 @@ class TareasComponent(BaseComponent):
     def render(self):
         return render_to_string(self.template_name, self.get_context_data())
 
+
+
+@register_component
+class actividadesComponent(BaseComponent):
+    template_name = "admin/profile_card.html"
+    name = "Actividades"
+
+    def __init__(self, request, instance=None):
+        self.request = request
+        self.instance = instance
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Determinar perfil asociado
+        if isinstance(self.instance, Profile):
+            profile = self.instance
+        elif isinstance(self.instance, tareas):
+            profile = self.instance.profile
+        else:
+            profile = None
+
+        if profile is None:
+            context.update({
+                "title": "Actividades realizadas",
+                "table": {
+                    "headers": ["Sin datos disponibles"],
+                    "rows": [["No se pudo obtener un perfil válido."]],
+                }
+            })
+            return context
+
+        tareas_asignadas = tareas.objects.filter(profile=profile)
+
+        headers = [
+            "Actividad"
+        ]
+
+        rows = []
+        for tarea in tareas_asignadas:
+            media_link = format_html(
+                '<a href="{}" target="_blank">Ver Actividad</a>',
+                tarea.media_terapia.url
+            ) if tarea.media_terapia else "N/A"
+
+            descripcion = tarea.descripcion_actividad.strip() if tarea.descripcion_actividad else None
+            descripcion_texto = format_html(
+                '<pre style="white-space: pre-wrap; word-wrap: break-word;">{}</pre>',
+                descripcion
+            ) if descripcion else "No registra actividad"
+
+            rows.append([
+                descripcion_texto
+            ])
+
+        context.update({
+            "title": f"Descripción de Actividades realizadas por {profile.nombre_completo}",
+            "table": {
+                "headers": headers,
+                "rows": rows,
+            }
+        })
+
+        return context
+
+    def render(self):
+        return render_to_string(self.template_name, self.get_context_data())
+
+
+
 from .widgets import CustomDatePickerWidget, CustomTimePickerWidget
 from unfold.contrib.filters.admin import RangeDateFilter, RangeDateTimeFilter
+from unfold.contrib.filters.admin import RangeDateFilter
 
 @admin.register(tareas)
 class tareasAdmin(ModelAdmin):
@@ -1251,7 +1322,7 @@ class tareasAdmin(ModelAdmin):
 
     fieldsets = (
         ('Información General', {
-            'fields': ('sucursal', 'Insitucional_a_cargo', 'profile',  'asistire','cita_terapeutica_asignada','hora',  'hora_fin')
+            'fields': ('sucursal', 'Insitucional_a_cargo', 'profile',  'asistire','cita_terapeutica_asignada',)
         }),
         ('Actividad Terapéutica', {
             'fields': ('titulo', 'descripcion_actividad', 'media_terapia')
@@ -1268,8 +1339,6 @@ class tareasAdmin(ModelAdmin):
         # Mostrar estos campos solo si asistió'
         "cita_terapeutica_asignada": "asistire == true",
         "fecha_envio": "asistire == true",
-        "hora_fin": "asistire == true",
-        "hora": "asistire == true",
         "titulo": "asistire == true",
         "descripcion_actividad": "asistire == true",
         "media_terapia": "asistire == true",
@@ -1303,25 +1372,31 @@ class tareasAdmin(ModelAdmin):
         'titulo',
         'descripcion_actividad',
         'descripcion_tarea',
+        'profile__institucion__nombre_institucion',
     ]
 
-    list_filter = ('sucursal','asistire', 'envio_tarea', 'actividad_realizada', ("cita_terapeutica_asignada", RangeDateFilter),)
+    list_filter_submit = True  # Botón "Submit" para filtrar
+    list_filter = (
+        'sucursal',
+        'cita_terapeutica_asignada',
+        'asistire',
+        'envio_tarea',
+        'actividad_realizada',
+    )
+
     list_editable = ['asistire', 'actividad_realizada', 'tarea_realizada']
-    list_sections = [TareasComponent, TareasCohortComponent]
+    list_sections = [TareasComponent,actividadesComponent]
 
     list_display = [
         'get_terapeuta_full_name',
         'profile',
-        'duracion',
+        'cita_terapeutica_asignada',
         'asistire',
         'actividad_realizada',
         'tarea_realizada'
     ]
 
-    formfield_overrides = {
-        models.DateField: {'widget': CustomDatePickerWidget()},
-        models.TimeField: {'widget': CustomTimePickerWidget()},
-    }
+
 
     exclude = ('terapeuta',)
     actions = [export_to_csv, export_to_excel]
@@ -1613,8 +1688,11 @@ class ProspeccionAdministrativaAdmin(ModelAdmin):
             return (
                 ('Información de Convenio', {
                     'fields': (
+                        'comercial_meddes',
+                        'telefono_ejecutivo_meddes',
                         'nombre',
                         'convenio_pdf',
+
                     ),
                 }),
             )
@@ -2151,12 +2229,11 @@ class CitaAdmin(ModelAdmin):
     list_editable = ("pendiente", "confirmada", "cancelada")
 
     list_filter = (
-        ('fecha', RangeDateFilter),
-        'profile_terapeuta',
         'sucursal',
-        'area',
+        'fecha',
+        'tipo_cita',
     )
-
+    list_filter_submit = True
     search_fields = (
         'profile__user__first_name',
         'profile__user__last_name',
@@ -2550,7 +2627,7 @@ class ProfileAdmin(ModelAdmin):
     
     
     compressed_fields = True
-    inlines = [TareaItemInline, CitaItemInline, PagosItemInline, InformesTerapeuticosInline]
+    inlines = [TareaItemInline, CitaItemInline, PagosItemInline]
 
 
     
@@ -2630,10 +2707,17 @@ class ProfileAdmin(ModelAdmin):
     def get_fieldsets(self, request, obj=None):
         user = request.user
 
-        # Mostrar fieldsets limitados a terapeutas e institucionales
+        # Mostrar fieldsets limitados si el usuario está en los grupos 'terapeutico' o 'institucional'
         if user.groups.filter(name__in=['terapeutico', 'institucional']).exists():
             return (
-
+                ('Ingresar Información Personal del Paciente', {
+                    'fields': (
+                        'sucursales', 'photo',
+                        'ruc', 'nombre_paciente', 'apellidos_paciente',
+                        'nacionalidad', 'sexo', 'fecha_nacimiento', 'institucion',
+                    ),
+                    'classes': ('collapse',),
+                }),
                 ('Ingresar Información Terapéutica', {
                     'fields': (
                         'es_en_terapia', 'es_retirado', 'es_alta', 'es_pausa',
@@ -2642,9 +2726,8 @@ class ProfileAdmin(ModelAdmin):
                 }),
             )
 
-        # Si es superuser u otro grupo, muestra todo
+        # Si es superusuario u otro grupo, usa la definición por defecto
         return super().get_fieldsets(request, obj)
-
     
 
     def get_inline_instances(self, request, obj=None):
@@ -2661,6 +2744,8 @@ class ProfileAdmin(ModelAdmin):
             inline_instances.append(InformesTerapeuticosInline(self.model, self.admin_site))
 
         return inline_instances
+
+        
 
     list_editable = ['es_retirado', 'es_en_terapia', 'es_pausa', 'es_alta']
 
@@ -2716,6 +2801,47 @@ class ProfileAdmin(ModelAdmin):
     )
 
 
+
+
+
+@admin.register(InformesTerapeuticos)
+class InformesTerapeuticosAdmin(ModelAdmin):
+    list_display = ('profile', 'titulo', 'archivo', 'fecha_creado')
+    list_filter = ('fecha_creado', 'tipo_de_informe')
+    search_fields = (
+        'titulo',
+        'profile__user__first_name',
+        'profile__user__last_name',
+        'profile__institucion__nombre'
+    )
+    autocomplete_fields = ('profile', 'Insitucional_a_cargo')
+    readonly_fields = ('fecha_creado', 'creado_por')
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        user = request.user
+
+        if user.is_superuser:
+            return qs
+
+        # Verificación de pertenencia a grupos
+        es_terapeuta = user.groups.filter(name__iexact='Terapeutas').exists()
+        es_institucional = user.groups.filter(name__iexact='Institucionales').exists()
+
+        # Usuarios que pueden ver informes:
+        # - Terapeutas ven lo que se les asigna
+        # - Institucionales ven lo que les corresponde
+        return qs.filter(
+            Q(terapeuta=user) |
+            Q(Insitucional_a_cargo__user=user) |
+            Q(terapeuta__groups__name__iexact='Terapeutas', terapeuta=user) |
+            Q(Insitucional_a_cargo__user__groups__name__iexact='Institucionales', Insitucional_a_cargo__user=user)
+        ).distinct()
+
+    def save_model(self, request, obj, form, change):
+        if not obj.pk:
+            obj.creado_por = request.user
+        obj.save()
 
 
 @register_component

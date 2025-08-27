@@ -72,7 +72,7 @@ INSTALLED_APPS = [
 
 
     #'parler',
-    'core',
+
     'django.contrib.humanize',
 
 
@@ -105,6 +105,7 @@ INSTALLED_APPS = [
 
     'bootstrap_datepicker_plus',
     'djmoney',
+    'core',
    
 
     #WEBAPP
@@ -114,6 +115,8 @@ INSTALLED_APPS = [
 
   
 ]
+
+
 
 
 from usuarios.utils import  permission_callback,permission_callback_prospecion
@@ -331,7 +334,7 @@ UNFOLD = {
                 "link": reverse_lazy("admin:usuarios_profile_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_terapeutico",
                 "badge_color": "success",
-                "permission":  is_institucional_o_terapeuta_o_administrativo,
+                "permission":  is_comercial_o_administrativo_o_institucional,
             },
             {
                 "title": _("Agenda"),
@@ -341,14 +344,7 @@ UNFOLD = {
                 "badge_color": "font-subtle-light",
                 "permission": is_administrativo_o_isuperuser,
             },
-            {
-                "title": _("Pagos"),
-                "icon": "payment",
-                "link": reverse_lazy("admin:usuarios_pagos_changelist"),
-                "badge": "usuarios.unfold_config.badge_callback_pagos",
-                "badge_color": "custom-red-alert",
-                "permission": is_admin_o_financiero,
-            },
+
         ],
     },
     {
@@ -364,11 +360,21 @@ UNFOLD = {
                 "badge_color": "custom-red-alert",
                 "permission": is_institucional_o_terapeuta_o_administrativo,
             },
+
             {
                 "title": _("Terapias"),
                 "icon": "task",
                 "link": reverse_lazy("admin:usuarios_tareas_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_tareas",
+                "badge_color": "custom-red-alert",
+                "permission": is_institucional_o_terapeuta_o_administrativo,
+            },
+
+            {
+                "title": _("Informes"),
+                "icon": "description",
+                "link": reverse_lazy("admin:usuarios_informesterapeuticos_changelist"),
+                "badge": "usuarios.unfold_config.badge_callback_informes",
                 "badge_color": "custom-red-alert",
                 "permission": is_institucional_o_terapeuta_o_administrativo,
             },

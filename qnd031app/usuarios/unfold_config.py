@@ -9,7 +9,7 @@ from usuarios.models import AsistenciaTerapeuta
 from django.utils import timezone
 from usuarios.models import Mensaje
 from usuarios.models import Prospeccion
-
+from .models import InformesTerapeuticos
 
 
 
@@ -119,6 +119,19 @@ def badge_callback_citas(request):
 
     except Exception:
         return "0"
+
+
+def badge_callback_informes(request):
+    try:
+        informes = {
+            "total": InformesTerapeuticos.objects.count(),
+        }
+
+        return " | ".join(str(value) for value in informes.values())
+
+    except Exception:
+        return "0"
+
 
 
 def badge_callback_terapeutico(request):

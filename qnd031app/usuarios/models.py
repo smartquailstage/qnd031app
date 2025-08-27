@@ -750,6 +750,15 @@ class ValoracionTerapia(models.Model):
         verbose_name="Responsable institucional"
     )
 
+    terapeuta = models.ForeignKey(
+        Perfil_Terapeuta,
+        related_name='terapeuta_asiganados',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name="Terapeuta que realiza la valoración"
+    )
+
 
 
     perfil_terapeuta = models.ForeignKey(
@@ -841,17 +850,65 @@ class ValoracionTerapia(models.Model):
 
 
 class InformesTerapeuticos(models.Model):
-    profile = models.ForeignKey('Profile', on_delete=models.CASCADE, related_name='archivos_adjuntos', verbose_name="Informe Terapéutico")
-    titulo = models.CharField(max_length=255, verbose_name="Tema terapéutico")
-    archivo = models.FileField(upload_to='documentos/pacientes/', verbose_name="Subir informe Terapéutico")
-    fecha_creado = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de creación")
+    CATEGORIA = [
+        ('INI', 'Inicial'),
+        ('PRO', 'Progreso'),
+        ('ALT', 'Alta'),
+    ]
+    profile = models.ForeignKey('Profile', on_delete=models.CASCADE, related_name='informes')
+    Insitucional_a_cargo = models.ForeignKey(
+        PerfilInstitucional,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='tareas_institucionale3',
+        verbose_name="Responsable institucional"
+    )
+    terapeuta = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name='terapeuta_responsable_informe',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
+ 
+    tipo_de_informe = models.CharField(max_length=3,blank=True, choices=CATEGORIA, verbose_name="Tipo de Informe")
+    titulo = models.CharField(max_length=200)
+    archivo = models.FileField(upload_to='informes/', verbose_name="Informe")
+    fecha_creado = models.DateTimeField(auto_now_add=True)
 
+    # Nuevo campo: quién lo creó (usuario logueado)
+    creado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='informes_creados'
+    )
+
+    # Nuevo campo: responsable institucional (asignable)
+    Insitucional_a_cargo = models.ForeignKey(
+        PerfilInstitucional,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='Institcuinal',
+        verbose_name="Responsable institucional"
+    )
     class Meta:
         verbose_name = "Informe Terapéutico"
         verbose_name_plural = "Informes Terapéuticos"
+        ordering = ['-fecha_creado']
+
+
+    def save(self, *args, **kwargs):
+        if not self.pk and not self.creado_por:
+            # Esto solo funciona desde el admin (ver abajo cómo pasarlo)
+            self.creado_por = getattr(self, '_usuario_actual', None)
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.titulo
+        return f"{self.titulo} ({self.fecha_creado.date()})"
 
 
 
@@ -1063,7 +1120,7 @@ class Profile(models.Model):
 
     @property
     def nombre_completo(self):
-        return f" {self.institucion} / {self.nombre_paciente} {self.apellidos_paciente}  ".strip()
+        return f" {self.institucion} / {self.nombre_paciente} {self.apellidos_paciente} / {self.edad_detallada}  ".strip()
 
     def __str__(self):
         return self.nombre_completo
@@ -1473,8 +1530,8 @@ class tareas(models.Model):
     )
 
     cita_terapeutica_asignada = models.DateField(null=True, blank=True, verbose_name="Fecha Sesion de Terapia")
-    hora = models.TimeField(null=True, blank=True, verbose_name="hora de inicio")
-    hora_fin = models.TimeField(null=True, blank=True, verbose_name="Hora de finalización")
+    #hora = models.TimeField(null=True, blank=True, verbose_name="hora de inicio")
+    #hora_fin = models.TimeField(null=True, blank=True, verbose_name="Hora de finalización")
 
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE,related_name='Asignar_perfil_de_paciente2',verbose_name="Paciente Asignado")
     fecha_envio = models.DateField(blank=True, null=True, verbose_name="Fecha de envio de tarea")
