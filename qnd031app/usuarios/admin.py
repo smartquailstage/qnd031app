@@ -1599,32 +1599,58 @@ class CustomTableSection(TableSection):
 
 
 
+
+
+
 @admin.register(prospecion_administrativa)
 class ProspeccionAdministrativaAdmin(ModelAdmin):
+    # Configuración de los inlines
     inlines = [DocenteCapacitadoInline]
-    list_sections = [CustomTableSection]
-    autocomplete_fields = ['nombre','responsable_institucional_1','responsable_institucional_2', 'ejecutivo_meddes', 'comercial_meddes']
 
+    # Sección de personalización de las vistas en el admin
+    list_sections = [CustomTableSection]
+    autocomplete_fields = [
+        'nombre',
+        'responsable_institucional_1',
+        'responsable_institucional_2', 
+        'terapeuta',
+        'terapeuta2',
+        'terapeuta3',
+        'terapeuta4',
+        'terapeuta5',
+        'ejecutivo_meddes', 
+        'comercial_meddes'
+    ]
+
+    # Campos a mostrar en la lista
     list_display = ['nombre', 'responsable_institucional_1']
 
-    list_filter = ['sucursal','nombre']
+    # Filtros disponibles en el panel de administración
+    list_filter = ['sucursal', 'nombre']
 
+    # Campos de búsqueda
     search_fields = [
         'nombre__nombre_institucion',
         'responsable_institucional_1__usuario__first_name',
         'responsable_institucional_1__usuario__last_name',
     ]
 
+    # Acciones personalizadas
     actions = [export_to_csv, export_to_excel]
+
+    # Mostrar el botón de cancelar en el formulario de cambio
     change_form_show_cancel_button = True
 
+    # Personalización de los widgets de los formularios
     formfield_overrides = {
         models.TextField: {"widget": WysiwygWidget},
     }
 
+    # Verbos y plural
     verbose_name = "Perfil Institución"
     verbose_name_plural = "Perfiles de Instituciones"
 
+    # Archivos estáticos (CSS y JS)
     class Media:
         css = {
             'all': ('admin/css/custom_admin.css',)
@@ -1666,6 +1692,7 @@ class ProspeccionAdministrativaAdmin(ModelAdmin):
         # ❌ Otros no tienen acceso
         return qs.none()
 
+    # ❓ Personalización de los fieldsets según el tipo de usuario
     def get_fieldsets(self, request, obj=None):
         user = request.user
 
@@ -1678,14 +1705,14 @@ class ProspeccionAdministrativaAdmin(ModelAdmin):
                         'telefono_ejecutivo_meddes',
                         'nombre',
                         'convenio_pdf',
-
                     ),
                 }),
             )
 
-        # Para otros grupos se usa el default (puedes personalizar si quieres más granularidad)
+        # Para otros grupos se usa el default (puedes personalizar más si lo deseas)
         return super().get_fieldsets(request, obj)
 
+    # ❓ Personalización de los inlines según el tipo de usuario
     def get_inline_instances(self, request, obj=None):
         user = request.user
 
@@ -1694,6 +1721,7 @@ class ProspeccionAdministrativaAdmin(ModelAdmin):
             return [inline(self.model, self.admin_site) for inline in [DocenteCapacitadoInline]]
 
         return super().get_inline_instances(request, obj)
+
 
 
 @admin.action(description="Duplicar mensajes seleccionados")

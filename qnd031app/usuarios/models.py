@@ -495,11 +495,47 @@ class prospecion_administrativa(models.Model):
 
 
     # Terapeutas
-    terapeutas_asignados = models.ManyToManyField(
+    terapeuta = models.ForeignKey(
         'Perfil_Terapeuta',
-        related_name='instituciones_asignadas_terapeuta',
-        verbose_name="Terapeutas Asignados"
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='mensajes_perfil_terapeuta1',
+        verbose_name="Terapeuta asiganado N.-1"
     )
+    terapeuta2 = models.ForeignKey(
+        'Perfil_Terapeuta',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='mensajes_perfil_terapeuta2',
+        verbose_name="Terapeuta asiganado N.-2"
+    )
+    terapeuta3 = models.ForeignKey(
+        'Perfil_Terapeuta',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='mensajes_perfil_terapeuta3',
+        verbose_name="Terapeuta asiganado N.-3"
+    )
+    terapeuta4 = models.ForeignKey(
+        'Perfil_Terapeuta',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='mensajes_perfil_terapeuta4',
+        verbose_name="Terapeuta asiganado N.-4"
+    )
+    terapeuta5 = models.ForeignKey(
+         'Perfil_Terapeuta',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='mensajes_perfil_terapeuta5',
+        verbose_name="Terapeuta asiganado N.-5"
+    )
+
 
     # Ejecutivo Meddes
     ejecutivo_meddes = models.ForeignKey(AdministrativeProfile, on_delete=models.CASCADE,null=True, blank=True, verbose_name="Directivo Meddes")
