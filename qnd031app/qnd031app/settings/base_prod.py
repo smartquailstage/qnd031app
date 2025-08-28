@@ -193,6 +193,7 @@ def is_all(request):
 
 
 
+
 UNFOLD = {
     "SITE_TITLE": "Sistema de Administración Terapéutica  Meddes® ",
     "SITE_HEADER": "MEDDES",
@@ -205,7 +206,6 @@ UNFOLD = {
         {"icon": "person", "title": _("Usuarios(AUTH)"), "link": reverse_lazy("admin:auth_user_changelist")},
         {"icon": "key", "title": _("Roles(RBAC)"), "link": reverse_lazy("admin:auth_group_changelist")},
         {"icon": "people", "title": _("Administrativos"), "link": reverse_lazy("admin:usuarios_administrativeprofile_changelist")},
-        {"icon": "people", "title": _("Comercial"), "link": reverse_lazy("admin:usuarios_perfil_comercial_changelist")},
         {"icon": "people", "title": _("Institucionales"), "link": reverse_lazy("admin:usuarios_perfilinstitucional_changelist")},
          {"icon": "people", "title": _("Terapeutas"), "link": reverse_lazy("admin:usuarios_perfil_terapeuta_changelist")},
         {"icon": "medical_services", "title": _("Servicios"), "link": reverse_lazy("admin:serviceapp_servicioterapeutico_changelist")},
@@ -268,7 +268,7 @@ UNFOLD = {
             "200": "233 213 255",
             "300": "216 180 254",
             "400": "192 132 252",
-            "500": "0 0 0",
+            "500": "229 234 231",
             "600": "61 61 56",
             "700": "126 34 206",
             "800": "107 33 168",
@@ -313,7 +313,7 @@ UNFOLD = {
                 "link": reverse_lazy("admin:usuarios_mensaje_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_notificaciones",
                 "badge_color": "custom-red-alert",
-                "permission": is_comercial_o_administrativo,
+                "permission": is_administrativo_o_isuperuser,
             },
         ],
     },
@@ -329,7 +329,7 @@ UNFOLD = {
                 "link": reverse_lazy("admin:usuarios_prospeccion_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_meddes",
                 "badge_color": "colors-primary-500",
-                "permission": is_comercial_o_administrativo,
+                "permission": is_administrativo_o_isuperuser,
             },
             {
                 "title": _("Instituciones"),
@@ -337,7 +337,7 @@ UNFOLD = {
                 "link": reverse_lazy("admin:usuarios_prospecion_administrativa_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_prospeccion",
                 "badge_color": "custom-green-success",
-                "permission": is_comercial_o_administrativo_o_institucional
+                "permission": is_institucional_o_administrativo,
             },
             {
                 "title": _("Pacientes"),
@@ -345,7 +345,7 @@ UNFOLD = {
                 "link": reverse_lazy("admin:usuarios_profile_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_terapeutico",
                 "badge_color": "success",
-                "permission":  is_institucional_o_terapeuta_o_administrativo,
+                "permission":  is_comercial_o_administrativo,
             },
             {
                 "title": _("Agenda"),
@@ -353,7 +353,7 @@ UNFOLD = {
                 "link": reverse_lazy("admin:usuarios_cita_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_citas",
                 "badge_color": "font-subtle-light",
-                "permission": is_comercial_o_administrativo,
+                "permission": is_administrativo_o_isuperuser,
             },
 
         ],
@@ -371,11 +371,21 @@ UNFOLD = {
                 "badge_color": "custom-red-alert",
                 "permission": is_institucional_o_terapeuta_o_administrativo,
             },
+
             {
                 "title": _("Terapias"),
                 "icon": "task",
                 "link": reverse_lazy("admin:usuarios_tareas_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_tareas",
+                "badge_color": "custom-red-alert",
+                "permission": is_institucional_o_terapeuta_o_administrativo,
+            },
+
+            {
+                "title": _("Informes"),
+                "icon": "description",
+                "link": reverse_lazy("admin:usuarios_informesterapeuticos_changelist"),
+                "badge": "usuarios.unfold_config.badge_callback_informes",
                 "badge_color": "custom-red-alert",
                 "permission": is_institucional_o_terapeuta_o_administrativo,
             },
@@ -395,6 +405,7 @@ UNFOLD = {
         },
     ],
 }
+
 
 
 
