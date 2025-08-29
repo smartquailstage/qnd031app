@@ -1301,6 +1301,8 @@ from .widgets import CustomDatePickerWidget, CustomTimePickerWidget
 from unfold.contrib.filters.admin import RangeDateFilter, RangeDateTimeFilter
 from unfold.contrib.filters.admin import RangeDateFilter
 
+
+
 @admin.register(tareas)
 class tareasAdmin(ModelAdmin):
     inlines = [TareasComentariosInline]
@@ -1398,17 +1400,39 @@ class tareasAdmin(ModelAdmin):
 
 
 
-    exclude = ('terapeuta',)
+    #exclude = ('terapeuta',)
     actions = [export_to_csv, export_to_excel]
 
     verbose_name = "Registro Administrativo / Tarea Terapéutica"
     verbose_name_plural = "Administrativo / Tareas Terapéuticas"
 
+    def get_inline_instances(self, request, obj=None):
+        inline_instances = []
+        user = request.user
+        user_groups = set(user.groups.values_list('name', flat=True))
+
+        if not obj:
+            return []
+
+        if user.is_superuser or user_groups.intersection({'administrativo', 'terapeutico'}):
+            return super().get_inline_instances(request, obj)
+
+        if 'institucional' in user_groups:
+            try:
+                perfil_institucional = PerfilInstitucional.objects.get(usuario=user)
+                if obj.Insitucional_a_cargo == perfil_institucional:
+                    return super().get_inline_instances(request, obj)
+            except PerfilInstitucional.DoesNotExist:
+                pass
+
+        return inline_instances
+
+
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         user = request.user
 
-        if user.is_superuser or user.groups.filter(name='administrativo').exists():
+        if user.is_superuser or user.groups.filter(name='administrativo').exists()  or user.groups.filter(name='terapeutico').exists():
             return qs
 
         # Filtrar tareas asignadas al terapeuta
@@ -1425,31 +1449,84 @@ class tareasAdmin(ModelAdmin):
 
         return qs.none()
 
-    fieldsets = (
-        ('Información General', {
-            'fields': ('sucursal', 'Insitucional_a_cargo', 'profile', 'asistire', 'cita_terapeutica_asignada',)
-        }),
-        ('Actividad Terapéutica', {
-            'fields': ('titulo', 'descripcion_actividad', 'media_terapia')
-        }),
-        ('Tareas', {
-            'fields': ('envio_tarea', 'fecha_envio', 'fecha_entrega', 'descripcion_tarea', 'material_adjunto', 'actividad_realizada')
-        }),
-        ('Entrega y Evaluación', {
-            'fields': ('tarea_realizada',)
-        }),
-    )
+
+    
 
     def get_fieldsets(self, request, obj=None):
         user = request.user
         user_groups = set(user.groups.values_list('name', flat=True))
 
-        # Mostrar todos los fieldsets si el usuario pertenece a uno de estos grupos
-        if user.is_superuser or user_groups.intersection({'institucional', 'administrativo', 'terapeutico'}):
-            return super().get_fieldsets(request, obj)
+        # Fieldsets base: solo Información General
+        base_fieldsets = (
+            ('Información General', {
+                'fields': ('sucursal', 'Insitucional_a_cargo', 'profile', 'asistire', 'cita_terapeutica_asignada',)
+            }),
+        )
 
-        # En otros casos, puedes mostrar solo algunos (si quieres). Aquí dejamos todos como default.
-        return super().get_fieldsets(request, obj)
+        # Fieldsets completos (incluye los que quieres mostrar)
+        full_fieldsets = (
+            ('Información General', {
+                'fields': ('sucursal', 'Insitucional_a_cargo', 'profile', 'asistire', 'cita_terapeutica_asignada',)
+            }),
+            ('Actividad Terapéutica', {
+                'fields': ('titulo', 'descripcion_actividad', 'media_terapia')
+            }),
+            ('Tareas', {
+                'fields': ('envio_tarea', 'fecha_envio', 'fecha_entrega', 'descripcion_tarea', 'material_adjunto', 'actividad_realizada')
+            }),
+            ('Entrega y Evaluación', {
+                'fields': ('tarea_realizada',)
+            }),
+        )
+
+        # Superuser, administrativo o terapéutico: mostrar todos
+        if user.is_superuser or user_groups.intersection({'administrativo', 'terapeutico'}):
+            return full_fieldsets
+
+        # Usuario institucional asignado: mostrar todos
+        if 'institucional' in user_groups:
+            try:
+                perfil_institucional = PerfilInstitucional.objects.get(usuario=user)
+                if obj and obj.Insitucional_a_cargo == perfil_institucional:
+                    return full_fieldsets
+            except PerfilInstitucional.DoesNotExist:
+                pass
+
+        # Todos los demás: solo información general
+        return base_fieldsets
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+
+        user = request.user
+        user_groups = set(user.groups.values_list('name', flat=True))
+
+        if 'institucional' in user_groups:
+            try:
+                perfil_institucional = PerfilInstitucional.objects.get(usuario=user)
+                if obj and obj.Insitucional_a_cargo == perfil_institucional:
+                    self.conditional_fields = {}  # Mostrar todos los campos sin condiciones
+            except PerfilInstitucional.DoesNotExist:
+                pass
+
+        return form
+
+        # Superuser, administrativo o terapéutico: mostrar todos
+        if user.is_superuser or user_groups.intersection({'administrativo', 'terapeutico'}):
+            return full_fieldsets
+
+        # Usuario institucional asignado: mostrar todos
+        if 'institucional' in user_groups:
+            try:
+                perfil_institucional = PerfilInstitucional.objects.get(usuario=user)
+                if obj and obj.Insitucional_a_cargo == perfil_institucional:
+                    return full_fieldsets
+            except PerfilInstitucional.DoesNotExist:
+                pass
+
+        # Todos los demás: solo información general
+        return base_fieldsets
+
 
 
     def save_model(self, request, obj, form, change):
@@ -2356,15 +2433,7 @@ class CitaAdmin(ModelAdmin):
             return str(obj.comercial_meddes) if obj.comercial_meddes else "—"
         return "—"
 
-    def get_destinatario_full_name(self, obj):
-        return obj.destinatario.get_full_name() if obj.destinatario else "—"
-    get_destinatario_full_name.short_description = "Cita para"
-    get_destinatario_full_name.admin_order_field = "destinatario__first_name"
 
-    def get_admin_changelist_url(self):
-        app_label = self.model._meta.app_label
-        model_name = self.model._meta.model_name
-        return reverse_lazy(f"admin:{app_label}_{model_name}_changelist")
 
  
 
