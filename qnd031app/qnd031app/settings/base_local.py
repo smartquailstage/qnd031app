@@ -135,6 +135,7 @@ def badge_color_callback(request):
 
 
 
+
 def is_terapeuta(request):
     return request.user.groups.filter(name="terapeutico").exists()
 
@@ -159,6 +160,9 @@ def is_comercial_o_isuperuser(request):
 def is_comercial_o_administrativo(request):
     return is_comercial(request) or is_administrativo(request) or is_superuser(request)
 
+def is_comercial_o_administrativo_o_terapeutico(request):
+    return is_comercial(request) or is_administrativo(request) or is_superuser(request) or is_terapeuta(request)
+
 def is_comercial_o_administrativo_o_institucional(request):
     return is_comercial(request) or is_administrativo(request) or is_superuser(request) or is_institucional(request)
 
@@ -179,9 +183,6 @@ def is_admin_o_financiero(request):
 
 def is_all(request):
     return is_administrativo(request) or is_financiero(request) or is_superuser(request) or is_terapeuta(request) or is_institucional(request)
-
-
-
 
 UNFOLD = {
     "SITE_TITLE": "Sistema de Administración Terapéutica  Meddes® ",
@@ -318,7 +319,7 @@ UNFOLD = {
                 "link": reverse_lazy("admin:usuarios_prospeccion_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_meddes",
                 "badge_color": "colors-primary-500",
-                "permission": is_administrativo_o_isuperuser,
+                "permission": is_comercial_o_administrativo,
             },
             {
                 "title": _("Instituciones"),
@@ -326,7 +327,8 @@ UNFOLD = {
                 "link": reverse_lazy("admin:usuarios_prospecion_administrativa_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_prospeccion",
                 "badge_color": "custom-green-success",
-                "permission": is_institucional_o_administrativo,
+                "permission": is_comercial_o_administrativo_o_institucional,
+                
             },
             {
                 "title": _("Pacientes"),
@@ -334,7 +336,7 @@ UNFOLD = {
                 "link": reverse_lazy("admin:usuarios_profile_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_terapeutico",
                 "badge_color": "success",
-                "permission":  is_comercial_o_administrativo,
+                "permission":  is_administrativo,
             },
             {
                 "title": _("Agenda"),
@@ -342,7 +344,7 @@ UNFOLD = {
                 "link": reverse_lazy("admin:usuarios_cita_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_citas",
                 "badge_color": "font-subtle-light",
-                "permission": is_administrativo_o_isuperuser,
+                "permission":  is_comercial_o_administrativo_o_terapeutico,
             },
 
         ],

@@ -2194,6 +2194,9 @@ class CitasCohortComponent(BaseComponent):
         self.instance = instance
 
     def get_context_data(self, **kwargs):
+        from collections import defaultdict
+        from datetime import timedelta, datetime, time
+
         context = super().get_context_data(**kwargs)
 
         cita_centrada = self.instance
@@ -2202,11 +2205,9 @@ class CitasCohortComponent(BaseComponent):
         else:
             base_date = cita_centrada.fecha
 
-        # Mostrar 2 días antes y 2 días después (lunes a domingo)
         start_date = base_date - timedelta(days=2)
         end_date = base_date + timedelta(days=2)
 
-        # Cambiado a 7:00 a 22:00
         time_slots = [time(hour=h) for h in range(7, 23)]
 
         agenda = defaultdict(lambda: defaultdict(list))
@@ -2215,7 +2216,6 @@ class CitasCohortComponent(BaseComponent):
 
         for i in range((end_date - start_date).days + 1):
             dia = start_date + timedelta(days=i)
-
             dia_str = dia.strftime("%Y-%m-%d")
             fechas_unicas.add(dia_str)
 
@@ -2224,11 +2224,28 @@ class CitasCohortComponent(BaseComponent):
                 agenda[dia_str][hora_str]
                 horas_unicas.add(hora_str)
 
-        # Filtrado ajustado a nueva franja horaria
-        citas = Cita.objects.filter(
+        # --- FILTRADO SEGÚN ROL DEL USUARIO ---
+        user = self.request.user
+        user_groups = set(user.groups.values_list("name", flat=True))
+
+        qs = Cita.objects.filter(
             fecha__range=(start_date, end_date),
             hora__range=(time(7, 0), time(22, 0))
-        ).select_related("creador", "destinatario")
+        ).select_related("creador", "destinatario", "profile_terapeuta", "comercial_meddes")
+
+        if user.is_superuser or 'administrativo' in user_groups:
+            citas = qs
+        elif 'terapeutico' in user_groups:
+            citas = qs.filter(profile_terapeuta__user=user)
+        elif 'comercial' in user_groups:
+            try:
+                perfil_comercial = Perfil_Comercial.objects.get(user=user)
+                citas = qs.filter(comercial_meddes=perfil_comercial)
+            except Perfil_Comercial.DoesNotExist:
+                citas = Cita.objects.none()
+        else:
+            citas = Cita.objects.none()
+        # --------------------------------------
 
         for cita in citas:
             if not cita.fecha or not cita.hora:
@@ -2250,11 +2267,9 @@ class CitasCohortComponent(BaseComponent):
                     cita.nombre_paciente if cita.tipo_cita == "particular" and cita.nombre_paciente else
                     "Sin nombre"
                 ),
-                # Puedes agregar aquí más campos si lo necesitas
-              # "paciente": cita.profile.nombre_paciente + " " + cita.profile.apellidos_paciente  if cita.profile else "",
-               "tipo_cita": cita.tipo_cita,
+                "tipo_cita": cita.tipo_cita,
                 "motivo": cita.motivo or "Sin motivo",
-                "area": cita.area or "Sin area",
+                "area": cita.area or "Sin área",
                 "creador": cita.creador.get_full_name() if cita.creador else "Sin creador",
                 "estado": (
                     "Confirmada" if cita.confirmada
@@ -2283,6 +2298,7 @@ class CitasCohortComponent(BaseComponent):
     def render(self):
         context = self.get_context_data()
         return render_to_string(self.template_name, context, request=self.request)
+
 
        
 class CardSection(TemplateSection):
