@@ -1425,6 +1425,32 @@ class tareasAdmin(ModelAdmin):
 
         return qs.none()
 
+    fieldsets = (
+        ('Información General', {
+            'fields': ('sucursal', 'Insitucional_a_cargo', 'profile', 'asistire', 'cita_terapeutica_asignada',)
+        }),
+        ('Actividad Terapéutica', {
+            'fields': ('titulo', 'descripcion_actividad', 'media_terapia')
+        }),
+        ('Tareas', {
+            'fields': ('envio_tarea', 'fecha_envio', 'fecha_entrega', 'descripcion_tarea', 'material_adjunto', 'actividad_realizada')
+        }),
+        ('Entrega y Evaluación', {
+            'fields': ('tarea_realizada',)
+        }),
+    )
+
+    def get_fieldsets(self, request, obj=None):
+        user = request.user
+        user_groups = set(user.groups.values_list('name', flat=True))
+
+        # Mostrar todos los fieldsets si el usuario pertenece a uno de estos grupos
+        if user.is_superuser or user_groups.intersection({'institucional', 'administrativo', 'terapeutico'}):
+            return super().get_fieldsets(request, obj)
+
+        # En otros casos, puedes mostrar solo algunos (si quieres). Aquí dejamos todos como default.
+        return super().get_fieldsets(request, obj)
+
 
     def save_model(self, request, obj, form, change):
         if not obj.pk:

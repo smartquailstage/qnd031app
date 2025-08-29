@@ -792,7 +792,8 @@ class ValoracionTerapia(models.Model):
         on_delete=models.CASCADE,
         null=True,
         blank=True,
-        verbose_name="Terapeuta que realiza la valoración"
+        verbose_name="Responsable Terapeutico",
+        help_text="Campo llenado por personal administrativo"
     )
 
 
@@ -1585,7 +1586,7 @@ class tareas(models.Model):
     media_terapia =  models.FileField(upload_to='Videos/%Y/%m/%d/', blank=True, verbose_name="Video Multimedia de actividad ")
     fecha_actividad = models.DateTimeField(auto_now=True, verbose_name="Fecha de Actividad")
 
-    actividad_realizada = models.BooleanField(default=False, verbose_name="¿Realizó la terea?")
+    actividad_realizada = models.BooleanField(default=False, verbose_name="¿Realizó la tarea?")
     descripcion_tarea =  HTMLField(null=True, blank=True, verbose_name="Describa la tarea a realizar")
    
     fecha_entrega = models.DateField(blank=True, null=True, verbose_name="Fecha de entrega de tarea")
