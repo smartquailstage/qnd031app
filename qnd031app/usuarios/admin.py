@@ -2366,13 +2366,7 @@ class CitaAdmin(ModelAdmin):
         model_name = self.model._meta.model_name
         return reverse_lazy(f"admin:{app_label}_{model_name}_changelist")
 
-    @admin.action(description="Volver a Registros")
-    def changelist_action(self, request: HttpRequest, object_id=None):
-        url = self.get_admin_changelist_url()
-        return redirect(url)
-
-    def has_changelist_action_permission(self, request, object_id=None):
-        return True
+ 
 
 
     @admin.display(description="Calendario")
