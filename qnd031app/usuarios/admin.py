@@ -2125,8 +2125,9 @@ class CitasComponent(BaseComponent):
         self.instance = instance  # Puede ser Profile o Cita
 
     def get_context_data(self, **kwargs):
+
+
         context = super().get_context_data(**kwargs)
-        
 
         # Obtener el perfil
         if isinstance(self.instance, Profile):
@@ -2146,11 +2147,31 @@ class CitasComponent(BaseComponent):
             })
             return context
 
-        citas = Cita.objects.filter(profile=profile).order_by('-fecha', '-hora')
+        # --- FILTRADO SEGÚN ROL DEL USUARIO ---
+        user = self.request.user
+        user_groups = set(user.groups.values_list("name", flat=True))
+
+        qs = Cita.objects.filter(profile=profile).order_by("-fecha", "-hora").select_related(
+            "creador", "destinatario", "profile_terapeuta", "comercial_meddes"
+        )
+
+        if user.is_superuser or "administrativo" in user_groups:
+            citas = qs
+        elif "terapeutico" in user_groups:
+            citas = qs.filter(profile_terapeuta__user=user)
+        elif "comercial" in user_groups:
+            try:
+                perfil_comercial = Perfil_Comercial.objects.get(user=user)
+                citas = qs.filter(comercial_meddes=perfil_comercial)
+            except Perfil_Comercial.DoesNotExist:
+                citas = Cita.objects.none()
+        else:
+            citas = Cita.objects.none()
+        # --------------------------------------
 
         headers = [
             "Fecha", "Hora", "Motivo",
-            "Sucursal", "Estado", "Terapeuta"
+            "Sucursal", "Estado", "Responsable"
         ]
 
         rows = []
@@ -2160,15 +2181,26 @@ class CitasComponent(BaseComponent):
                 "❌ Cancelada" if cita.cancelada else
                 "🕒 Pendiente"
             )
+
+            if cita.tipo_cita == "terapeutica" and cita.profile_terapeuta:
+                responsable = str(cita.profile_terapeuta)
+            elif cita.tipo_cita == "comercial" and cita.comercial_meddes:
+                responsable = str(cita.comercial_meddes)
+            elif cita.tipo_cita == "administrativa" and cita.destinatario:
+                responsable = (
+                    cita.destinatario.user.get_full_name()
+                    if cita.destinatario.user else "N/A"
+                )
+            else:
+                responsable = "N/A"
+
             rows.append([
                 cita.fecha.strftime("%d/%m/%Y") if cita.fecha else "Sin fecha",
                 cita.hora.strftime("%H:%M") if cita.hora else "Sin hora",
-               
                 (cita.notas[:50] + "...") if cita.notas else "Sin notas",
                 str(cita.sucursal) if cita.sucursal else "N/A",
-       
                 estado,
-                str(cita.profile_terapeuta) if cita.profile_terapeuta else "N/A",
+                responsable,
             ])
 
         context.update({
@@ -2178,11 +2210,12 @@ class CitasComponent(BaseComponent):
                 "rows": rows,
             }
         })
-        print("DEBUG agenda_dias:", context.get("agenda_dias"))
+
         return context
 
     def render(self):
         return render_to_string(self.template_name, self.get_context_data())
+
 
 @register_component
 class CitasCohortComponent(BaseComponent):
