@@ -374,6 +374,7 @@ def pagos_context(request):
 
 
 
+
 def get_upload_fields(profile_instance):
     upload_fields = {}
 
@@ -386,8 +387,9 @@ def get_upload_fields(profile_instance):
                 upload_fields[label] = value.url
 
     # Archivos del modelo relacionado InformesTerapeuticos
-    for informe in profile_instance.archivos_adjuntos.all().order_by('-fecha_creado'):
-        upload_fields[f"🗂 {informe.titulo}"] = informe.archivo.url if informe.archivo else None
+    for informe in profile_instance.informes.all().order_by('-fecha_creado'):
+        if informe.archivo:
+            upload_fields[f"🗂 {informe.titulo}"] = informe.archivo.url
 
     return upload_fields
 

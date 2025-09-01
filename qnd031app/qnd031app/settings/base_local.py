@@ -336,7 +336,7 @@ UNFOLD = {
                 "link": reverse_lazy("admin:usuarios_profile_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_terapeutico",
                 "badge_color": "success",
-                "permission":  is_administrativo,
+                "permission":  is_administrativo_o_isuperuser,
             },
             {
                 "title": _("Agenda"),
