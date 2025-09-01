@@ -629,6 +629,35 @@ class ValoracionTerapiaAdmin(ModelAdmin):
             return qs.filter(Insitucional_a_cargo__usuario=user)
             
         return qs.none()
+    
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        user = request.user
+
+        if user.is_superuser or user.groups.filter(name='administrativo').exists():
+            return qs
+
+        try:
+            perfil_terapeuta = Perfil_Terapeuta.objects.get(user=user)
+        except Perfil_Terapeuta.DoesNotExist:
+            perfil_terapeuta = None
+
+        if perfil_terapeuta:
+            if qs.model.objects.filter(perfil_terapeuta=perfil_terapeuta).exists():
+                return qs.filter(perfil_terapeuta=perfil_terapeuta)
+            if qs.model.objects.filter(terapeuta=perfil_terapeuta).exists():
+                return qs.filter(terapeuta=perfil_terapeuta)
+
+        try:
+            perfil_institucional = PerfilInstitucional.objects.get(usuario=user)
+        except PerfilInstitucional.DoesNotExist:
+            perfil_institucional = None
+
+        if perfil_institucional and qs.model.objects.filter(Insitucional_a_cargo=perfil_institucional).exists():
+            return qs.filter(Insitucional_a_cargo=perfil_institucional)
+
+        return qs.none()
+
 
 
 from django.contrib.admin.filters import ChoicesFieldListFilter

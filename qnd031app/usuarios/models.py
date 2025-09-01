@@ -740,6 +740,8 @@ class Perfil_Terapeuta(models.Model):
         help_text="Selecciona uno o más tipos"
     )
 
+
+
     
     
     
@@ -749,6 +751,9 @@ class Perfil_Terapeuta(models.Model):
         ordering = ['user']
         verbose_name = "Registro Administrativo / Ingreso de Terapista"
         verbose_name_plural = "Registro Administrativo / Ingreso de Terapista"
+
+    def get_full_name(self):
+        return self.user.get_full_name()
 
     @property
     def edad(self):
@@ -799,7 +804,7 @@ class ValoracionTerapia(models.Model):
 
 
     perfil_terapeuta = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        Perfil_Terapeuta,
         related_name='perfil_terapeuta_asignado',
         on_delete=models.CASCADE,
         verbose_name="Terapeuta Responsable",
