@@ -71,54 +71,7 @@
 
 
 
-<li class="nav-item dropdown dropdown-large">
-  <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" href="#" data-bs-toggle="dropdown">
-    <div class="position-relative">
-      {% if total_pagos_nuevos > 0 %}
-        <span class="notify-badge">{{ total_pagos_nuevos }}</span>
-      {% endif %}
-      <ion-icon name="wallet-outline"></ion-icon>
-    </div>
-  </a>
-  <div class="dropdown-menu dropdown-menu-end">
-    <a href="#">
-      <div class="msg-header">
-        <p class="msg-header-title">Pagos</p>
-        <p class="msg-header-clear ms-auto">Vistos</p>
-      </div>
-    </a>
 
-    <div class="header-notifications-list">
-      {% for pago in pagos_pendientes_notif %}
-        <a class="dropdown-item" href="{% url 'usuarios:ver_pago' pago.id %}">
-          <div class="d-flex align-items-center">
-            <div class="notify text-warning"><ion-icon name="alert-circle-outline"></ion-icon></div>
-            <div class="flex-grow-1">
-              <h6 class="msg-name">Pago Pendiente  - {{ pago.pago }} </h6>
-              <p class="msg-info">{{ pago.servicio }}</p>
-            </div>
-          </div>
-        </a>
-      {% endfor %}
-
-      {% for pago in pagos_vencidos_notif %}
-        <a class="dropdown-item" href="{% url 'usuarios:ver_pago' pago.id %}">
-          <div class="d-flex align-items-center">
-            <div class="notify text-danger"><ion-icon name="close-circle-outline"></ion-icon></div>
-            <div class="flex-grow-1">
-              <h6 class="msg-name">Pago Vencido</h6>
-              <p class="msg-info">{{ pago.servicio }} - {{ pago.pago }}</p>
-            </div>
-          </div>
-        </a>
-      {% endfor %}
-    </div>
-
-    <a href="{% url 'usuarios:lista_pagos' %}">
-      <div class="text-center msg-footer">Ver todos los pagos</div>
-    </a>
-  </div>
-</li>
 
 <li class="nav-item dropdown dropdown-large">
   <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" href="#" data-bs-toggle="dropdown">
