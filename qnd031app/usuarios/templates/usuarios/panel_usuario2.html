@@ -44,24 +44,36 @@
     </div>
 
 
-    <div class="card radius-10 bg-success">
-      <div class="card-body text-white">
-        <div class="d-flex align-items-center mb-2">
-          <div class="service-box bg-white text-white me-2">
-            <i class="lni lni-sthethoscope"></i>
-          </div>
-          <h6 class="mb-0">Mis terapeutas </h6>
-        </div>
-        <p class="mb-0"><ion-icon name="heart-circle-outline"></ion-icon>
-    <strong>
-    {% for terapeuta in profile.user_terapeutas.all %}
-      {{ terapeuta }}{% if not forloop.last %}, {% endif %}
-    {% empty %}
-      No hay terapeutas asignados.
-    {% endfor %}
-  </strong>
-</p>
- 
+<div class="card radius-10 bg-success">
+  <div class="card-body text-white">
+    <div class="d-flex align-items-center mb-2">
+      <div class="service-box bg-white text-white me-2">
+        <i class="lni lni-sthethoscope"></i>
+      </div>
+      <h6 class="mb-0">Mis terapeutas</h6>
+    </div>
+
+    <div class="mb-0">
+      <strong>
+        {% if profile.user_terapeutas or profile.user_terapeutas_1 or profile.user_terapeutas_3 %}
+          {% if profile.user_terapeutas %}
+            <div>{{ profile.user_terapeutas }}</div>
+          {% endif %}
+          {% if profile.user_terapeutas_1 %}
+            <div>{{ profile.user_terapeutas_1 }}</div>
+          {% endif %}
+          {% if profile.user_terapeutas_3 %}
+            <div>{{ profile.user_terapeutas_3 }}</div>
+          {% endif %}
+        {% else %}
+          <div>No hay terapeutas asignados.</div>
+        {% endif %}
+      </strong>
+    </div>
+  </div>
+</div>
+
+
 
 
 
