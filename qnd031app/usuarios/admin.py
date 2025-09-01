@@ -621,6 +621,9 @@ class ValoracionTerapiaAdmin(ModelAdmin):
             
         if qs.model.objects.filter(perfil_terapeuta=user).exists():
             return qs.filter(perfil_terapeuta=user)
+
+        if qs.model.objects.filter(terapeuta=user).exists():
+            return qs.filter(terapeuta=user)
             
         if qs.model.objects.filter(Insitucional_a_cargo__usuario=user).exists():
             return qs.filter(Insitucional_a_cargo__usuario=user)
