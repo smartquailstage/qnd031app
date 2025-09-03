@@ -182,6 +182,7 @@ def profile_view(request):
     cantidad_mensajes_enviados = Mensaje.objects.filter(emisor__user=request.user).count()
     cantidad_terapias_realizadas = tareas.objects.filter(profile__user=request.user, actividad_realizada=True).count()
     citas_realizadas = Cita.objects.filter(profile=profile).count()
+    archivos = InformesTerapeuticos.objects.filter(profile=profile).order_by('-fecha_creado')
 
     # Obtener estado de pago desde el modelo `pagos`
     try:
@@ -204,6 +205,7 @@ def profile_view(request):
         'cantidad_terapias_realizadas': cantidad_terapias_realizadas,
         'citas_realizadas': citas_realizadas,
         'estado_de_pago': estado_de_pago,
+        'archivos': archivos,
     })
 
 @login_required
