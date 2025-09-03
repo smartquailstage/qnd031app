@@ -604,32 +604,24 @@ class ValoracionTerapiaAdmin(ModelAdmin):
     list_filter = ("sucursal",'fecha_valoracion','recibe_asesoria', 'proceso_terapia', 'es_particular', 'es_convenio')
     actions = [export_to_csv, export_to_excel]
 
+   
     @admin.display(description="Terapeuta a Cargo", ordering='perfil_terapeuta__first_name')
     def get_perfil_terapeuta_full_name(self, obj):
         return obj.perfil_terapeuta.get_full_name() if obj.perfil_terapeuta else "—"
 
+    # ✅ AQUÍ VA LA SOLUCIÓN
     def save_model(self, request, obj, form, change):
         if not obj.pk and not obj.perfil_terapeuta:
-            obj.perfil_terapeuta = request.user
+            try:
+                obj.perfil_terapeuta = Perfil_Terapeuta.objects.get(user=request.user)
+            except Perfil_Terapeuta.DoesNotExist:
+                self.message_user(
+                    request,
+                    "No se pudo asignar el perfil del terapeuta porque no se encontró un Perfil_Terapeuta vinculado al usuario.",
+                    level='error'
+                )
         super().save_model(request, obj, form, change)
 
-    def get_queryset(self, request):
-        qs = super().get_queryset(request)
-        user = request.user
-        if user.is_superuser or user.groups.filter(name='administrativo').exists():
-            return qs
-            
-        if qs.model.objects.filter(perfil_terapeuta=user).exists():
-            return qs.filter(perfil_terapeuta=user)
-
-        if qs.model.objects.filter(terapeuta=user).exists():
-            return qs.filter(terapeuta=user)
-            
-        if qs.model.objects.filter(Insitucional_a_cargo__usuario=user).exists():
-            return qs.filter(Insitucional_a_cargo__usuario=user)
-            
-        return qs.none()
-    
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         user = request.user
@@ -657,7 +649,6 @@ class ValoracionTerapiaAdmin(ModelAdmin):
             return qs.filter(Insitucional_a_cargo=perfil_institucional)
 
         return qs.none()
-
 
 
 from django.contrib.admin.filters import ChoicesFieldListFilter
