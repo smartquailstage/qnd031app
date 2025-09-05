@@ -36,7 +36,7 @@ def ultima_cita(request):
     # Obtener la última tarea pendiente (envio_tarea=False)
     ultima_cita = (
         tareas.objects
-        .filter(profile=profile, envio_tarea=False)
+        .filter(profile=profile, envio_tarea=True)
         .order_by('cita_terapeutica_asignada', 'hora')
         .first()
     )
@@ -183,6 +183,10 @@ def profile_view(request):
     cantidad_terapias_realizadas = tareas.objects.filter(profile__user=request.user, actividad_realizada=True).count()
     citas_realizadas = Cita.objects.filter(profile=profile).count()
     archivos = InformesTerapeuticos.objects.filter(profile=profile).order_by('-fecha_creado')
+    ultima_tarea_multimedia = tareas.objects.filter(
+        profile__user=request.user,
+        media_terapia__isnull=False
+    ).order_by('-fecha_actividad').first()
 
     # Obtener estado de pago desde el modelo `pagos`
     try:
@@ -206,6 +210,7 @@ def profile_view(request):
         'citas_realizadas': citas_realizadas,
         'estado_de_pago': estado_de_pago,
         'archivos': archivos,
+        'ultima_tarea_multimedia': ultima_tarea_multimedia,
     })
 
 @login_required

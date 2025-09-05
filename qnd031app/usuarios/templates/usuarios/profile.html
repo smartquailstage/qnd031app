@@ -54,7 +54,7 @@
 
 
 
-</div>
+           </div>
 
 
 <div class="row row-cols-1 row-cols-lg-3 g-3"> <!-- g-3 agrega espacio uniforme entre tarjetas -->
@@ -76,22 +76,15 @@
                 <!-- Fecha -->
                 <div class="text-center bg-white text-primary p-2 rounded shadow-sm me-3" style="width: 70px;">
                     <div class="fw-bold" style="font-size: 1.5rem;">
-                        {{ ultima_cita.cita_terapeutica_asignada|date:"d" }}
+                        {{ ultima_cita.fecha|date:"d" }}
                     </div>
                     <div style="text-transform: uppercase; font-size: 0.8rem;">
-                        {{ ultima_cita.cita_terapeutica_asignada|date:"b" }}
+                        {{ ultima_cita.fecha|date:"b" }}
+
                     </div>
                 </div>
 
-                <!-- Hora -->
-                <div class="text-center bg-white text-primary p-2 rounded shadow-sm me-3" style="width: 70px;">
-                    <div class="fw-bold" style="font-size: 1.5rem;">
-                        <i class="lni lni-alarm-clock"></i>
-                    </div>
-                    <div style="text-transform: uppercase; font-size: 0.8rem;">
-                        {{ ultima_cita.hora|default:"—" }}
-                    </div>
-                </div>
+
 
                 <!-- Lugar -->
                 <div class="text-center bg-white text-primary p-2 rounded shadow-sm me-3" style="width: 70px;">
@@ -127,10 +120,10 @@
 </div>
 {% endif %}
 
-{% if ultima_tarea_pendiente and ultima_tarea_enviada.media_terapia %}
+{% if ultima_tarea_multimedia %}
 <div class="col">
     <div class="card radius-10 bg-primary text-white h-100">
-        <div class="card-body text-left">
+        <div class="card-body">
             <div class="d-flex align-items-center mb-3 justify-content-center">
                 <div class="service-box bg-white text-white me-2">
                     <div class="font-22">
@@ -141,9 +134,9 @@
             </div>
 
             <div class="position-relative d-inline-block">
-                <a href="{{ ultima_tarea_enviada.media_terapia.url }}" target="_blank">
+                <a href="{{ ultima_tarea_multimedia.media_terapia.url }}" target="_blank">
                     <img id="thumbnailPreview"
-                         src="{{ ultima_tarea_enviada.thumbnail_url|default:'https://via.placeholder.com/160x160.png?text=Video' }}"
+                         src="{{ ultima_tarea_multimedia.thumbnail_url|default:'https://via.placeholder.com/160x160.png?text=Video' }}"
                          alt="Previsualización del video"
                          class="img-fluid rounded-circle shadow"
                          style="width: 160px; height: 160px; object-fit: cover;">
@@ -158,85 +151,27 @@
 
             <div class="mt-3 pt-2 border-top">
                 <p class="mb-0">Realizado:
-                    <strong>{{ ultima_tarea_enviada.fecha_actividad|date:"d/m/Y H:i" }}</strong>
+                    <strong>{{ ultima_tarea_multimedia.fecha_actividad|date:"d/m/Y H:i" }}</strong>
                 </p>
                 <p class="mb-0"><strong>Terapeuta Responsable:</strong>
-                    Dr. {{ ultima_tarea_enviada.terapeuta.get_full_name|default:"No asignado" }}
+                    Dr. {{ ultima_tarea_multimedia.terapeuta.get_full_name|default:"No asignado" }}
                 </p>
                 <p class="mb-0"><strong>Lugar:</strong>
-                    {{ ultima_tarea_enviada.sucursal|default:"No especificado" }}
+                    {{ ultima_tarea_multimedia.sucursal|default:"No especificado" }}
                 </p>
                 <p class="mb-0"><strong>Actividad:</strong>
-                    {{ ultima_tarea_enviada.descripcion_actividad|safe }}
+                    {{ ultima_tarea_multimedia.descripcion_actividad|safe }}
                 </p>
             </div>
         </div>
     </div>
-    <video id="hiddenVideo" src="{{ ultima_tarea_enviada.media_terapia.url }}" style="display: none;"></video>
+    <video id="hiddenVideo" src="{{ ultima_tarea_multimedia.media_terapia.url }}" style="display: none;"></video>
 </div>
 {% endif %}
+
      
-{% if ultima_tarea %}
-    <div class="col">
-        <div class="card radius-10 bg-primary text-white h-100">
-            
-            <div class="card-body">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="service-box bg-white text-white me-2">
-                        <div class="font-22">
-                            <i class="lni lni-notepad"></i>
-                        </div>
-                    </div>
-                    <h6 class="mb-0">Mis actividades Terapéuticas </h6>
-                </div>
-
-                <div class="d-flex flex-wrap gap-3 mb-3">
-                    <div class="bg-white text-primary text-center p-2 rounded shadow-sm" style="width: 110px;">
-                        <small>Enviada</small>
-                        <div class="fw-bold">{{ ultima_tarea.fecha_envio|date:"d M Y" }}</div>
-                    </div>
-                    <div class="bg-white text-primary text-center p-2 rounded shadow-sm" style="width: 110px;">
-                        <small>Entrega</small>
-                        <div class="fw-bold">{{ ultima_tarea.fecha_entrega|date:"d M Y" }}</div>
-                    </div>
-                    <div>
-                        <span class="badge {% if ultima_tarea.actividad_realizada %}bg-success{% else %}bg-warning text-dark{% endif %} p-2">
-                            {% if ultima_tarea.actividad_realizada %}✔ Realizada{% else %}⏳ Pendiente{% endif %}
-                        </span>
-                    </div>
-                </div>
-
-                {% if ultima_tarea.material_adjunto %}
-                <p class="mt-3 mb-0">
-                    <strong>Material:</strong>
-                    <a class="text-white text-decoration-underline" href="{{ ultima_tarea.material_adjunto.url }}" download>Descargar</a>
-                </p>
-                {% endif %}
-
-                <a href="{% url 'usuarios:ver_tarea' pk=ultima_tarea.pk %}">
-                    <div class="d-flex align-items-center theme-icons shadow-sm p-2 cursor-pointer rounded mt-3">
-                        <div class="font-22"><ion-icon name="pencil"></ion-icon></div>
-                        <div class="ms-2">Realizar Actividad</div>
-                    </div>
-                </a>
-
-                  <div class="mt-3 pt-2 border-top">
-                    <p class="mb-0"><strong> {{ ultima_cita.descripcion_tarea  }} </strong></p>   
-                    
-                </div>
-
-
-            </div>
-
-        </div>
-    </div>
-    {% else %}
-{% endif %}
-
-
 
 {% if archivos %}
-
         {% for informe in archivos %}
             <div class="col">
                 <div class="card radius-10 bg-success text-white h-100 shadow-sm">
@@ -275,7 +210,7 @@
                 </div>
             </div>
         {% endfor %}
-    </div>
+ 
 {% else %}
     <div class="alert alert-warning">
         No hay informes terapéuticos disponibles.
@@ -287,15 +222,23 @@
 
 
 
+
+
+
+
+
     
 
 
         </div>
-        {% include 'usuarios/panel_usuario2.html' %} 
+       
+         </div>
+          {% include 'usuarios/panel_usuario2.html' %} 
     </div>
-</div>
 
 </div>
+</div>
+
 
 
 

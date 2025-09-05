@@ -32,7 +32,7 @@ body {
     color: #4c5258;
     font-size: 14px;
     letter-spacing: .5px;
-    background-color: #e4eff3;
+    background-color: #013f2e;
     overflow-x: hidden;
     font-family: Roboto, sans-serif;
 }
@@ -342,7 +342,7 @@ ion-icon {
     border-bottom: 1px solid rgba(233, 236, 239, 0);
     background-clip: border-box;
     /* Gradiente en escala de verde con tres colores */
-    background: linear-gradient(to right, #fffafa, #079738, #2ea950);
+    background: linear-gradient(to right, #013f2e, #013f2e, #013f2e);
     z-index: 5;
     transition: 0.3s all;
     box-shadow: none;
