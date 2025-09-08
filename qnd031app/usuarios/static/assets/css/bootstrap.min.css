@@ -3929,7 +3929,7 @@ textarea.form-control-lg {
 	--bs-card-cap-color: ;
 	--bs-card-height: ;
 	--bs-card-color: #ffff;
-	--bs-card-bg:#18bb6b;
+	--bs-card-bg:#085a32;
 	--bs-card-img-overlay-padding: 1rem;
 	--bs-card-group-margin: 0.75rem;
 	position: relative;
@@ -6731,7 +6731,7 @@ textarea.form-control-lg {
 	left: 0!important
 }
 .start-50 {
-	left: 50%!important
+	left: 68%!important
 }
 .start-100 {
 	left: 100%!important

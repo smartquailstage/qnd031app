@@ -37,15 +37,14 @@
 }
 
 .bg-primary {
-    background-color: #3eb991 !important;
+    background-color: #085b33 !important;
 }
-
 .bg-danger {
     background-color: #f73757!important;
 }
 
 .bg-success {
-    background-color: #18bb6b!important;
+    background-color: #0a5742!important;
 }
 
 .bg-info {
@@ -206,7 +205,7 @@
 }
 
 .text-success {
-    color: #18bb6b!important;
+    color: #0a5742 !important;
 }
 
 .text-info {

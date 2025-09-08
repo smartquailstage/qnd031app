@@ -69,7 +69,7 @@
                         <i class="lni lni-checkmark"></i>
                     </div>
                 </div>
-                <h6 class="mb-0 border-bottom">Mis Asistencia</h6>
+                <h6 class="mb-0 ">Mis Asistencia</h6>
             </div>
 
             <div class="d-flex align-items-center justify-content-start mb-3">
@@ -82,7 +82,11 @@
                         {{ ultima_cita.fecha|date:"b" }}
 
                     </div>
+
+               
                 </div>
+
+                
 
 
 
@@ -114,6 +118,11 @@
                 </span>
             </div>
 
+                 <div class="col">
+                      <button type="button" class="btn btn-primary px-5 radius-30">Primary</button>
+                    </div>
+                    
+
 
         </div>
     </div>
@@ -124,13 +133,13 @@
 <div class="col">
     <div class="card radius-10 bg-primary text-white h-100">
         <div class="card-body">
-            <div class="d-flex align-items-center mb-3 justify-content-center">
+            <div class="d-flex align-items-left mb-3 justify-content-left">
                 <div class="service-box bg-white text-white me-2">
                     <div class="font-22">
                         <ion-icon name="pulse-outline"></ion-icon>
                     </div>
                 </div>
-                <h6 class="mb-0 border-bottom">Mis Actividades</h6>
+                <h6 class="mb-0">Mis Actividades</h6>
             </div>
 
             <div class="position-relative d-inline-block">
@@ -139,7 +148,7 @@
                          src="{{ ultima_tarea_multimedia.thumbnail_url|default:'https://via.placeholder.com/160x160.png?text=Video' }}"
                          alt="Previsualización del video"
                          class="img-fluid rounded-circle shadow"
-                         style="width: 160px; height: 160px; object-fit: cover;">
+                         style="width: 131px; height: 131px; object-fit: cover;    margin-left: 81px;">
 
                     <div class="position-absolute top-50 start-50 translate-middle">
                         <span class="bg-white text-secondary rounded-circle p-2 shadow" style="font-size: 1.5rem;">
@@ -153,12 +162,6 @@
                 <p class="mb-0">Realizado:
                     <strong>{{ ultima_tarea_multimedia.fecha_actividad|date:"d/m/Y H:i" }}</strong>
                 </p>
-                <p class="mb-0"><strong>Terapeuta Responsable:</strong>
-                    Dr. {{ ultima_tarea_multimedia.terapeuta.get_full_name|default:"No asignado" }}
-                </p>
-                <p class="mb-0"><strong>Lugar:</strong>
-                    {{ ultima_tarea_multimedia.sucursal|default:"No especificado" }}
-                </p>
                 <p class="mb-0"><strong>Actividad:</strong>
                     {{ ultima_tarea_multimedia.descripcion_actividad|safe }}
                 </p>
@@ -166,6 +169,12 @@
         </div>
     </div>
     <video id="hiddenVideo" src="{{ ultima_tarea_multimedia.media_terapia.url }}" style="display: none;"></video>
+
+                     <div class="col">
+                      <button type="button" class="btn btn-primary px-5 radius-30">Primary</button>
+                    </div>
+                    
+
 </div>
 {% endif %}
 
@@ -174,7 +183,7 @@
 {% if archivos %}
         {% for informe in archivos %}
             <div class="col">
-                <div class="card radius-10 bg-success text-white h-100 shadow-sm">
+                <div class="card radius-10 bg-primary  text-white h-100 shadow-sm">
                     <div class="card-body">
                         <div class="d-flex align-items-center mb-3">
                             <div class="service-box bg-white text-success me-2">
@@ -208,6 +217,13 @@
                         {% endif %}
                     </div>
                 </div>
+
+                                 <div class="col">
+                      <button type="button" class="btn btn-primary px-5 radius-30">Primary</button>
+                    </div>
+                    
+
+                    
             </div>
         {% endfor %}
  
