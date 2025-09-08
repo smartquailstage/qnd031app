@@ -207,3 +207,5 @@ AWS_LOCATION = os.environ.get("AWS_LOCATION")  # 'static' o 'media'
 
 # Asegúrate de que la URL de los archivos estáticos esté correcta
 STATIC_URL = f'{AWS_S3_ENDPOINT_URL}/{AWS_LOCATION}/'
+MEDIA_URL =  f'{AWS_S3_ENDPOINT_URL}/media/'
+DEFAULT_FILE_STORAGE = os.environ.get("MEDIA_STORAGE")
