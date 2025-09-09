@@ -2,262 +2,240 @@
 {% load widget_tweaks %}
 {% load static %}
 
-
-
-
-
-
 {% block content %}
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
 <div class="page-content-wrapper">
-    <!-- start page content-->
-   <div class="page-content">
-    <div class="row">
-        <div class="col-12 col-lg-8 col-xl-9">
+    <!-- start page content -->
+    <div class="page-content">
+        <div class="row">
+            <div class="col-12 col-lg-8 col-xl-9">
+                <div class="card overflow-hidden radius-10">
+                    <div class="profile-cover bg-dark position-relative mb-4">
 
-            <div class="card overflow-hidden radius-10">
-<div class="profile-cover bg-dark position-relative mb-4">
-  
-  <!-- Logo arriba a la derecha -->
-  <div class="position-absolute top-0 end-0 m-3">
-    <img src="{% static 'img/BA-LOGOS/logoF.png' %}" alt="Logo" style="height: 60px;">
-      <h5 style="color: rgb(52, 132, 72);"><i class="bx bx-plus-medical"></i> Servicios Terapéuticos</h5>
-  </div>
+                        <!-- Logo arriba a la derecha -->
+                        <div class="position-absolute top-0 end-0 m-3">
+                            <img src="{% static 'img/BA-LOGOS/logoF.png' %}" alt="Logo" style="height: 60px;">
+                            <h5 style="color: rgb(52, 132, 72);">
+                                <i class="bx bx-plus-medical"></i> Servicios Terapéuticos
+                            </h5>
+                        </div>
 
-  <!-- Avatar centrado -->
-<div class="user-profile-avatar shadow position-absolute top-50 start-0 translate-middle-x">
-  {% if profile.photo and profile.photo.url %}
-    <img src="{{ profile.photo.url }}" alt="User Photo">
-  {% else %}
-    <img src="{% static 'img/BA-LOGOS/user.png' %}" style="width:150px;" alt="Default Photo">
-  {% endif %}
-
-</div>
-</div>
-            <div class="card-body">
-              <div class="mt-5 d-flex align-items-start justify-content-between">
-                <div class="">
-                  <h3 class="mb-2">{{ profile.nombre_paciente }}</h3>
-                  <p class="mb-2" style ="margin-top:-15px;">{{ profile.apellidos_paciente }}, {{ profile.edad_detallada }}</p>  
-                   <p class="mb-2" style ="margin-top:-5px;">Paciente - MEDDES®</p>   
-                   <p class="mb-1"><strong>{{ profile.institucion|default:"Particular" }}</strong></p>  
-                  <p class="mb-0"><strong>{{ profile.tipos|join:" + " }}</strong></p>            
-                </div>
-              </div>
-            </div>
-
-            
-
-            
-
-
-
-           </div>
-
-
-<div class="row row-cols-1 row-cols-lg-3 g-3"> <!-- g-3 agrega espacio uniforme entre tarjetas -->
-
-{% if ultima_cita %}
-<div class="col">
-    <div class="card radius-10 bg-primary text-white h-100">
-        <div class="card-body">
-            <div class="d-flex align-items-center mb-3">
-                <div class="service-box bg-white text-white me-2">
-                    <div class="font-22">
-                        <i class="lni lni-checkmark"></i>
-                    </div>
-                </div>
-                <h6 class="mb-0 ">Mis Asistencia</h6>
-            </div>
-
-            <div class="d-flex align-items-center justify-content-start mb-3">
-                <!-- Fecha -->
-                <div class="text-center bg-white text-primary p-2 rounded shadow-sm me-3" style="width: 70px;">
-                    <div class="fw-bold" style="font-size: 1.5rem;">
-                        {{ ultima_cita.fecha|date:"d" }}
-                    </div>
-                    <div style="text-transform: uppercase; font-size: 0.8rem;">
-                        {{ ultima_cita.fecha|date:"b" }}
-
+                        <!-- Avatar centrado -->
+                        <div class="user-profile-avatar shadow position-absolute top-50 start-0 translate-middle-x">
+                            {% if profile.photo and profile.photo.url %}
+                                <img src="{{ profile.photo.url }}" alt="User Photo">
+                            {% else %}
+                                <img src="{% static 'img/BA-LOGOS/user.png' %}" style="width:150px;" alt="Default Photo">
+                            {% endif %}
+                        </div>
                     </div>
 
-               
-                </div>
-
-                
-
-
-
-                <!-- Lugar -->
-                <div class="text-center bg-white text-primary p-2 rounded shadow-sm me-3" style="width: 70px;">
-                    <div class="fw-bold" style="font-size: 1.5rem;">
-                        <i class="lni lni-map"></i>
-                    </div>
-                    <div style="text-transform: uppercase; font-size: 0.8rem;">
-                        {{ ultima_cita.sucursal|default:"Sin asignar" }}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Estado -->
-            <div>
-                <span class="badge p-2
-                    {% if ultima_cita.asistire %}
-                        bg-success
-                    {% else %}
-                        bg-warning text-dark
-                    {% endif %}
-                ">
-                    {% if ultima_cita.asistire %}
-                        <i class="fadeIn animated bx bx-check-double"></i> Asistencia Confirmada
-                    {% else %}
-                        <i class="lni lni-checkmark"></i> Asistencia Pendiente
-                    {% endif %}
-                </span>
-            </div>
-
-                 <div class="col">
-                      <button type="button" class="btn btn-primary px-5 radius-30">Primary</button>
-                    </div>
-                    
-
-
-        </div>
-    </div>
-</div>
-{% endif %}
-
-{% if ultima_tarea_multimedia %}
-<div class="col">
-    <div class="card radius-10 bg-primary text-white h-100">
-        <div class="card-body">
-            <div class="d-flex align-items-left mb-3 justify-content-left">
-                <div class="service-box bg-white text-white me-2">
-                    <div class="font-22">
-                        <ion-icon name="pulse-outline"></ion-icon>
-                    </div>
-                </div>
-                <h6 class="mb-0">Mis Actividades</h6>
-            </div>
-
-            <div class="position-relative d-inline-block">
-                <a href="{{ ultima_tarea_multimedia.media_terapia.url }}" target="_blank">
-                    <img id="thumbnailPreview"
-                         src="{{ ultima_tarea_multimedia.thumbnail_url|default:'https://via.placeholder.com/160x160.png?text=Video' }}"
-                         alt="Previsualización del video"
-                         class="img-fluid rounded-circle shadow"
-                         style="width: 131px; height: 131px; object-fit: cover;    margin-left: 81px;">
-
-                    <div class="position-absolute top-50 start-50 translate-middle">
-                        <span class="bg-white text-secondary rounded-circle p-2 shadow" style="font-size: 1.5rem;">
-                            <i class="bi bi-play-fill"></i>
-                        </span>
-                    </div>
-                </a>
-            </div>
-
-            <div class="mt-3 pt-2 border-top">
-                <p class="mb-0">Realizado:
-                    <strong>{{ ultima_tarea_multimedia.fecha_actividad|date:"d/m/Y H:i" }}</strong>
-                </p>
-                <p class="mb-0"><strong>Actividad:</strong>
-                    {{ ultima_tarea_multimedia.descripcion_actividad|safe }}
-                </p>
-            </div>
-        </div>
-    </div>
-    <video id="hiddenVideo" src="{{ ultima_tarea_multimedia.media_terapia.url }}" style="display: none;"></video>
-
-                     <div class="col">
-                      <button type="button" class="btn btn-primary px-5 radius-30">Primary</button>
-                    </div>
-                    
-
-</div>
-{% endif %}
-
-     
-
-{% if archivos %}
-        {% for informe in archivos %}
-            <div class="col">
-                <div class="card radius-10 bg-primary  text-white h-100 shadow-sm">
                     <div class="card-body">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="service-box bg-white text-success me-2">
-                                <div class="font-22">
-                                    <i class="lni lni-folder"></i>
+                        <div class="mt-5 d-flex align-items-start justify-content-between">
+                            <div>
+                                <h3 class="mb-2">{{ profile.nombre_paciente }}</h3>
+                                <p class="mb-2" style="margin-top:-15px;">{{ profile.apellidos_paciente }}, {{ profile.edad_detallada }}</p>
+                                <p class="mb-2" style="margin-top:-5px;">Paciente - MEDDES®</p>
+                                <p class="mb-1"><strong>{{ profile.institucion|default:"Particular" }}</strong></p>
+                                <p class="mb-0"><strong>{{ profile.tipos|join:" + " }}</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tarjetas adicionales -->
+                <div class="row row-cols-1 row-cols-lg-3 g-3">
+                    {% if ultima_cita %}
+                    <div class="col">
+                        <div class="card radius-10 bg-primary text-white h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="service-box bg-white text-white me-2">
+                                        <div class="font-22">
+                                            <i class="lni lni-checkmark"></i>
+                                        </div>
+                                    </div>
+                                    <h6 class="mb-0">Mis Asistencia</h6>
+                                </div>
+
+                                <div class="d-flex align-items-center justify-content-start mb-3">
+                                    <!-- Fecha -->
+                                    <div class="text-center bg-white text-primary p-2 rounded shadow-sm me-3" style="width: 70px;">
+                                        <div class="fw-bold" style="font-size: 1.5rem;">
+                                            {{ ultima_cita.fecha|date:"d" }}
+                                        </div>
+                                        <div style="text-transform: uppercase; font-size: 0.8rem;">
+                                            {{ ultima_cita.fecha|date:"b" }}
+                                        </div>
+                                    </div>
+
+                                    <!-- Lugar -->
+                                    <div class="text-center bg-white text-primary p-2 rounded shadow-sm me-3" style="width: 70px;">
+                                        <div class="fw-bold" style="font-size: 1.5rem;">
+                                            <i class="lni lni-map"></i>
+                                        </div>
+                                        <div style="text-transform: uppercase; font-size: 0.8rem;">
+                                            {{ ultima_cita.sucursal|default:"Sin asignar" }}
+                                        </div>
+                                    </div>
+
+                                    <!-- Detalle -->
+                                    <div class="text-center bg-white text-primary p-2 rounded shadow-sm me-3" style="width: 70px;">
+                                        <div class="fw-bold" style="font-size: 1.5rem;">
+                                            <ion-icon name="eye-outline"></ion-icon>
+                                        </div>
+                                        <div style="text-transform: uppercase; font-size: 0.8rem;">
+                                            <small>Detalle</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Estado -->
+                                <div>
+                                    <span class="badge p-2 {% if ultima_cita.asistire %} bg-success {% else %} bg-warning text-dark {% endif %}">
+                                        {% if ultima_cita.asistire %}
+                                            <i class="fadeIn animated bx bx-check-double"></i> Asistencia Confirmada
+                                        {% else %}
+                                            <i class="lni lni-checkmark"></i> Asistencia Pendiente
+                                        {% endif %}
+                                    </span>
                                 </div>
                             </div>
-                            <h6 class="mb-0">Mis Informes</h6>
                         </div>
+                    </div>
+                    {% endif %}
 
-                        <div class="d-flex flex-wrap gap-3 mb-3">
-                            <div class="bg-white text-success text-center p-2 rounded shadow-sm" style="width: 110px;">
-                                <small>Fecha</small>
-                                <div class="fw-bold">{{ informe.fecha_creado|date:"d M Y" }}</div>
-                            </div>
-                            <div class="bg-white text-success text-center p-2 rounded shadow-sm" style="width: 110px;">
-                                <small>Tipo</small>
-                                <div class="fw-bold">{{ informe.get_tipo_de_informe_display }}</div>
+                    {% if ultima_tarea_multimedia %}
+                    <div class="col">
+                        <div class="card radius-10 bg-primary text-white h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-left mb-3 justify-content-left">
+                                    <div class="service-box bg-white text-white me-2">
+                                        <div class="font-22">
+                                            <ion-icon name="pulse-outline"></ion-icon>
+                                        </div>
+                                    </div>
+                                    <h6 class="mb-0">Mis Actividades</h6>
+                                </div>
+
+                                <div class="position-relative d-inline-block">
+                                    <a href="{{ ultima_tarea_multimedia.media_terapia.url }}" target="_blank">
+                                        <img id="thumbnailPreview"
+                                            src="{{ ultima_tarea_multimedia.thumbnail_url|default:'https://via.placeholder.com/160x160.png?text=Video' }}"
+                                            alt="Previsualización del video"
+                                            class="img-fluid rounded-circle shadow"
+                                            style="width: 131px; height: 131px; object-fit: cover; margin-left: 81px;">
+
+                                        <div class="position-absolute top-50 start-50 translate-middle">
+                                            <span class="bg-white text-secondary rounded-circle p-2 shadow" style="font-size: 1.5rem;">
+                                                <i class="bi bi-play-fill"></i>
+                                            </span>
+                                        </div>
+                                    </a>
+                                </div>
+
+                                <div class="mt-3 pt-2 border-top">
+                                    <p class="mb-0">Realizado: <strong>{{ ultima_tarea_multimedia.fecha_actividad|date:"d/m/Y H:i" }}</strong></p>
+                                    <p class="mb-0"><strong>Actividad:</strong> {{ ultima_tarea_multimedia.descripcion_actividad|safe }}</p>
+                                </div>
                             </div>
                         </div>
-
-                        <p class="mt-3 mb-1">
-                            <strong>Título:</strong> {{ informe.titulo }}
-                        </p>
-
-                        {% if informe.archivo %}
-                        <p class="mb-0">
-                            <strong>Archivo:</strong>
-                            <a class="text-white text-decoration-underline" href="{{ informe.archivo.url }}" download>Descargar</a>
-                        </p>
-                        {% endif %}
+                        <video id="hiddenVideo" src="{{ ultima_tarea_multimedia.media_terapia.url }}" style="display: none;"></video>
                     </div>
-                </div>
+                    {% endif %}
 
-                                 <div class="col">
-                      <button type="button" class="btn btn-primary px-5 radius-30">Primary</button>
-                    </div>
-                    
+                    {% if archivos %}
+                        {% for informe in archivos %}
+                        <div class="col">
+                            <div class="card radius-10 bg-primary text-white h-100 shadow-sm">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="service-box bg-white text-success me-2">
+                                            <div class="font-22">
+                                                <i class="lni lni-folder"></i>
+                                            </div>
+                                        </div>
+                                        <h6 class="mb-0">Mis Informes</h6>
+                                    </div>
 
-                    
-            </div>
-        {% endfor %}
+                                    <div class="d-flex align-items-center justify-content-start mb-3">
+                                        <!-- Fecha -->
+                                        <div class="text-center bg-white text-primary p-2 rounded shadow-sm me-3" style="width: 70px;">
+                                            <div class="fw-bold" style="font-size: 1.5rem;">
+                                                {{ informe.fecha_creado|date:"d" }}
+                                            </div>
+                                            <div style="text-transform: uppercase; font-size: 0.8rem;">
+                                                {{ informe.fecha_creado|date:"b" }}
+                                            </div>
+                                        </div>
+
+                                        <!-- Tipo -->
+                                        <div class="text-center bg-white text-primary p-2 rounded shadow-sm me-3" style="width: 70px;">
+                                            <div class="fw-bold" style="font-size: 1.5rem;">
+                                               <ion-icon name="document-text-outline"></ion-icon>
+                                            </div>
+                                            <div style="text-transform: uppercase; font-size: 0.8rem;">
+                                                {{ informe.get_tipo_de_informe_display }}
+                                            </div>
+                                        </div>
+
+                                        <!-- Descarga -->
+                                        <div class="text-center bg-white text-primary p-2 rounded shadow-sm me-3" style="width: 70px;">
+                                            <a class="text-primary text-decoration-none" href="{{ informe.archivo.url }}" target="_blank">
+                                                
+                                                <div class="fw-bold" style="font-size: 1.5rem;">
+                                                    <ion-icon name="download-outline"></ion-icon>
+                                                </div>
+                                                <div style="text-transform: uppercase; font-size: 0.8rem;">
+                                                Bajar
+                                                </div>
+                                            </a>
+                                        </div>
+                                        
+                                        
+                                                                                                                                          <!-- Estado -->
+
+
+
+
+                                    </div>
+
+
+
+
+          
+
+                                </div>
+                            </div>
+
+                           
+
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                </div> <!-- Fin de tarjetas -->
+
+                <!-- Inclusión de panel adicional -->
+              
+
+            </div> <!-- col -->
+
+               <div class="col-12 col-lg-4 col-xl-3">
+               {% include 'usuarios/panel_usuario2.html' %}
+               </div>
+
+
+
+        </div> <!-- row -->
+
  
-{% else %}
-    <div class="alert alert-warning">
-        No hay informes terapéuticos disponibles.
-    </div>
-{% endif %}
-
-
-
-
-
-
-
-
-
-
-
     
-
-
-        </div>
-       
-         </div>
-          {% include 'usuarios/panel_usuario2.html' %} 
-    </div>
-
-</div>
-</div>
-
-
-
-
-
+    </div> <!-- page-content -->
+</div> <!-- page-content-wrapper -->
 
 {% endblock %}
+
+
+              

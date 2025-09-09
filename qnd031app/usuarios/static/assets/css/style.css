@@ -330,24 +330,22 @@ ion-icon {
 /* Top Header */
 
 .top-header {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    position: fixed;
-    top: 0;
-    left: 260px;
-    right: 0;
-    height: 65px;
-    padding: 0 1.5rem;
-    border-bottom: 1px solid rgba(233, 236, 239, 0);
-    background-clip: border-box;
-    /* Gradiente en escala de verde con tres colores */
-    background: linear-gradient(to right, #013f2e, #013f2e, #013f2e);
-    z-index: 5;
-    transition: 0.3s all;
-    box-shadow: none;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 260px;
+  right: 0;
+  height: 65px;
+  padding: 0 1.5rem;
+  border-bottom: 1px solid rgb(143, 145, 147);
+  background-clip: border-box;
+  background: linear-gradient(to right, #013f2e, #013f2e, #013f2e);
+  z-index: 5;
+  transition: 0.3s all;
+  box-shadow: none;
 }
-
 
 .top-header .navbar {
     width: 100%;
