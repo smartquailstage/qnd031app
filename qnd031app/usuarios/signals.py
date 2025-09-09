@@ -12,6 +12,12 @@ from datetime import timedelta
 
 
 
+
+
+
+
+
+
 @receiver(post_save, sender=Cita)
 def crear_citas_recurrentes(sender, instance, created, **kwargs):
     if not created:

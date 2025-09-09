@@ -1555,6 +1555,11 @@ def clean(self):
         verbose_name = "Cita Agendada"
         verbose_name_plural = "Citas Agendadas"
 
+import os
+import subprocess
+from django.core.files import File
+from tempfile import NamedTemporaryFile
+
 
 class tareas(models.Model):
     sucursal = models.ForeignKey(
@@ -1589,6 +1594,7 @@ class tareas(models.Model):
     titulo = models.CharField(max_length=255, blank=True, null=True, verbose_name="Título de Actividad") 
     descripcion_actividad =  HTMLField(null=True, blank=True, verbose_name="Describa la actividad a realizar")
     media_terapia =  models.FileField(upload_to='Videos/%Y/%m/%d/', blank=True, verbose_name="Video Multimedia de actividad ")
+    thumbnail_media = models.ImageField(upload_to='thumbnails/', blank=True, null=True)
     fecha_actividad = models.DateTimeField(auto_now=True, verbose_name="Fecha de Actividad")
 
     actividad_realizada = models.BooleanField(default=False, verbose_name="¿Realizó la tarea?")
@@ -1618,10 +1624,43 @@ class tareas(models.Model):
 
 
 
+
+
+
     class Meta:
         ordering = ['profile__user__first_name']
         verbose_name_plural = "Tareas & Actividades Asignadas"
         verbose_name = "Paciente/ Tareas & Actividades Asignadas"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)  # Guarda el archivo primero
+
+        if self.media_terapia and not self.thumbnail_media:
+            # Generar thumbnail con ffmpeg
+            temp_thumb = NamedTemporaryFile(suffix='.jpg', delete=False)
+            video_path = self.media_terapia.path
+
+            try:
+                subprocess.run([
+                    'ffmpeg',
+                    '-i', video_path,
+                    '-ss', '00:00:01.000',
+                    '-vframes', '1',
+                    temp_thumb.name
+                ], check=True)
+
+                # Guarda el thumbnail en el modelo
+                with open(temp_thumb.name, 'rb') as f:
+                    self.thumbnail.save(
+                        os.path.basename(temp_thumb.name),
+                        File(f),
+                        save=False
+                    )
+
+                super().save(update_fields=['thumbnail'])  # Guarda el thumbnail
+
+            except subprocess.CalledProcessError:
+                print("Error al generar thumbnail con ffmpeg")
 
     def __str__(self):
         return f"Tareas terapéuticas de {self.profile.nombre_paciente} {self.profile.apellidos_paciente} - {self.titulo}"

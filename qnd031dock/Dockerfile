@@ -32,6 +32,7 @@ RUN python3.11 -m venv /py && \
     apk add --update --no-cache --virtual .tmp-deps && \
     apk add build-base curl postgresql-dev gcc musl-dev python3-dev linux-headers && \
     apk add libffi-dev py3-cffi py3-cryptography jpeg-dev go zlib-dev libjpeg wget && \
+    apk add ffmpeg && \
     apk --update --upgrade --no-cache add fontconfig ttf-freefont font-noto terminus-font && \
     apk add gtk+3.0 pango busybox-extras openssl-dev gettext && \
     /py/bin/pip install -r /${VERSION}.txt && \
