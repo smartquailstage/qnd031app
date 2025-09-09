@@ -1633,10 +1633,9 @@ class tareas(models.Model):
         verbose_name = "Paciente/ Tareas & Actividades Asignadas"
 
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)  # Guarda el archivo primero
+        super().save(*args, **kwargs)  # Guarda primero para que media_terapia tenga path
 
         if self.media_terapia and not self.thumbnail_media:
-            # Generar thumbnail con ffmpeg
             temp_thumb = NamedTemporaryFile(suffix='.jpg', delete=False)
             video_path = self.media_terapia.path
 
@@ -1649,19 +1648,23 @@ class tareas(models.Model):
                     temp_thumb.name
                 ], check=True)
 
-                # Guarda el thumbnail en el modelo
+                # Guarda el thumbnail (solo nombre, no ruta absoluta)
                 with open(temp_thumb.name, 'rb') as f:
-                    self.thumbnail.save(
+                    self.thumbnail_media.save(
                         os.path.basename(temp_thumb.name),
                         File(f),
                         save=False
                     )
 
-                super().save(update_fields=['thumbnail'])  # Guarda el thumbnail
+                super().save(update_fields=['thumbnail_media'])
 
-            except subprocess.CalledProcessError:
-                print("Error al generar thumbnail con ffmpeg")
-
+            except subprocess.CalledProcessError as e:
+                print("❌ Error al generar thumbnail con ffmpeg:", e)
+            finally:
+                # Limpia el archivo temporal
+                if os.path.exists(temp_thumb.name):
+                    os.remove(temp_thumb.name)
+                    
     def __str__(self):
         return f"Tareas terapéuticas de {self.profile.nombre_paciente} {self.profile.apellidos_paciente} - {self.titulo}"
 
