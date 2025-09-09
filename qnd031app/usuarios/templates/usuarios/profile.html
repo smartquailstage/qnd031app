@@ -253,28 +253,43 @@
 {% endblock %}
 
 {% block scripts %}
-
+<script>
 document.getElementById('videoInput').addEventListener('change', function (event) {
     const file = event.target.files[0];
+    if (!file) return;
+
     const video = document.getElementById('videoPreview');
     const canvas = document.getElementById('canvas');
+    const hiddenInput = document.getElementById('thumbnailData');
 
+    video.preload = "metadata";
     video.src = URL.createObjectURL(file);
-    video.currentTime = 1; // Fotograma en el segundo 1
+    video.load();
 
-    video.addEventListener('loadeddata', () => {
+    video.addEventListener('loadedmetadata', function () {
+        video.currentTime = 1;
+    }, { once: true });
+
+    video.addEventListener('seeked', function () {
         canvas.width = 160;
         canvas.height = 160;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         const dataURL = canvas.toDataURL('image/jpeg');
+        hiddenInput.value = dataURL;
 
-        // Pasamos esto a un input hidden o lo convertimos a blob luego
-        document.getElementById('thumbnailData').value = dataURL;
+        // ✅ Mostrar preview en el img existente
+        const thumbnail = document.getElementById('thumbnailPreview');
+        if (thumbnail) {
+            thumbnail.src = dataURL;
+        }
+
+        console.log("Miniatura generada y aplicada.");
     }, { once: true });
 });
-
+</script>
 {% endblock %}
+
 
 
               
