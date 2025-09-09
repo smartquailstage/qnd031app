@@ -20,6 +20,7 @@ XlsxWriter
 
 # Requests
 requests
+ffmpeg-python
 
 # Celery
 celery>=5.2.7,<6.0  # Compatible with Django 4.2

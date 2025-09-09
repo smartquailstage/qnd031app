@@ -4,6 +4,14 @@
 
 {% block content %}
 
+
+<input type="file" id="videoInput" name="media_terapia" accept="video/*">
+<input type="hidden" id="thumbnailData" name="thumbnail_data">
+
+<video id="videoPreview" style="display:none;"></video>
+<canvas id="canvas" style="display:none;"></canvas>
+
+
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
 <div class="page-content-wrapper">
@@ -119,22 +127,26 @@
                                     </div>
                                     <h6 class="mb-0">Mis Actividades</h6>
                                 </div>
+<div class="position-relative d-inline-block">
+    <a href="{{ ultima_tarea_multimedia.media_terapia.url }}" target="_blank">
+        <img id="thumbnailPreview"
+            src="{% if ultima_tarea_multimedia.thumbnail_media %}{{ ultima_tarea_multimedia.thumbnail_media.url }}{% else %}https://via.placeholder.com/160x160.png?text=Video{% endif %}"
+            alt="Previsualización del video"
+            class="img-fluid rounded-circle shadow"
+            style="width: 110px; height: 110px; object-fit: cover; margin-left: 81px;">
 
-                                <div class="position-relative d-inline-block">
-                                    <a href="{{ ultima_tarea_multimedia.media_terapia.url }}" target="_blank">
-                                        <img id="thumbnailPreview"
-                                            src="{{ ultima_tarea_multimedia.thumbnail.url|default:'https://via.placeholder.com/160x160.png?text=Video' }}"
-                                            alt="Previsualización del video"
-                                            class="img-fluid rounded-circle shadow"
-                                            style="width: 110px; height: 110px; object-fit: cover; margin-left: 81px;">
+        <!-- Ícono de reproducción centrado -->
+        <div class="position-absolute top-50 start-50 translate-middle">
+            <span class="bg-white text-secondary rounded-circle p-2 shadow" style="font-size: 1.5rem;">
+                <i class="bi bi-play-fill"></i>
+            </span>
+        </div>
+    </a>
 
-                                        <div class="position-absolute top-50 start-50 translate-middle">
-                                            <span class="bg-white text-secondary rounded-circle p-2 shadow" style="font-size: 1.5rem;">
-                                                <i class="bi bi-play-fill"></i>
-                                            </span>
-                                        </div>
-                                    </a>
-                                </div>
+</div>
+
+
+
 
                                 <div class="mt-3 pt-2 border-top">
                                     <p class="mb-0">Realizado: <strong>{{ ultima_tarea_multimedia.fecha_actividad|date:"d/m/Y H:i" }}</strong></p>
@@ -234,6 +246,30 @@
     
     </div> <!-- page-content -->
 </div> <!-- page-content-wrapper -->
+
+
+
+
+document.getElementById('videoInput').addEventListener('change', function (event) {
+    const file = event.target.files[0];
+    const video = document.getElementById('videoPreview');
+    const canvas = document.getElementById('canvas');
+
+    video.src = URL.createObjectURL(file);
+    video.currentTime = 1; // Fotograma en el segundo 1
+
+    video.addEventListener('loadeddata', () => {
+        canvas.width = 160;
+        canvas.height = 160;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const dataURL = canvas.toDataURL('image/jpeg');
+
+        // Pasamos esto a un input hidden o lo convertimos a blob luego
+        document.getElementById('thumbnailData').value = dataURL;
+    }, { once: true });
+});
+
 
 {% endblock %}
 

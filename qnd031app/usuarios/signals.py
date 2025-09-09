@@ -11,11 +11,21 @@ from .models import Cita
 from datetime import timedelta
 
 
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from .models import tareas
 
-
-
-
-
+@receiver(post_save, sender=tareas)
+def verificar_thumbnail_frontend(sender, instance, created, **kwargs):
+    """
+    Si el frontend envió un thumbnail junto con el video, ya estará en instance.thumbnail_media.
+    Este signal solo puede hacer validaciones adicionales si lo deseas.
+    """
+    if created:
+        if instance.thumbnail_media:
+            print(f"✅ Thumbnail recibido del frontend para tarea {instance.pk}")
+        else:
+            print(f"⚠️ No se recibió thumbnail desde el frontend para tarea {instance.pk}")
 
 
 @receiver(post_save, sender=Cita)
