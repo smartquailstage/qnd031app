@@ -250,6 +250,10 @@
 
 
 
+{% endblock %}
+
+{% block scripts %}
+
 document.getElementById('videoInput').addEventListener('change', function (event) {
     const file = event.target.files[0];
     const video = document.getElementById('videoPreview');
@@ -269,7 +273,6 @@ document.getElementById('videoInput').addEventListener('change', function (event
         document.getElementById('thumbnailData').value = dataURL;
     }, { once: true });
 });
-
 
 {% endblock %}
 
