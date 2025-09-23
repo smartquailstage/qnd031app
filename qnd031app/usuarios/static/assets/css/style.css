@@ -32,7 +32,7 @@ body {
     color: #4c5258;
     font-size: 14px;
     letter-spacing: .5px;
-    background-color: #013f2e;
+    background-color: #353836;
     overflow-x: hidden;
     font-family: Roboto, sans-serif;
 }
@@ -341,7 +341,7 @@ ion-icon {
   padding: 0 1.5rem;
   border-bottom: 1px solid rgb(143, 145, 147);
   background-clip: border-box;
-  background: linear-gradient(to right, #013f2e, #013f2e, #013f2e);
+  background: #45a851;
   z-index: 5;
   transition: 0.3s all;
   box-shadow: none;
@@ -416,11 +416,13 @@ ion-icon {
 
 .top-header .navbar .top-navbar-right .nav-link {
     color: #ffffff;
-    font-size: 18px;
-    font-weight: 500;
+    font-size: 28px;
+    font-weight: 200;
     padding-right: .7rem;
     padding-left: .7rem;
 }
+
+
 
 .top-header .navbar .searchbar .search-icon {
   
@@ -444,12 +446,20 @@ ion-icon {
     display: block;
 }
 
+
 .top-header .navbar .user-img {
-    width: 30px;
-    height: 30px;
-    padding: 0px;
-    border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  padding: 0px;
+  border-radius: 50%;
+  border: 4px solid #e9ecef;
+  margin-top: 66px;
 }
+
+
+
+
+
 
 .dropdown-toggle-nocaret:after {
 	display: none
@@ -753,7 +763,7 @@ ion-icon {
 /* Utilities */
 
 .radius-10 {
-	border-radius: 10px !important;
+	border-radius: 0px !important;
 }
 
 .icon-badge {
@@ -958,20 +968,21 @@ ion-icon {
 }
 
 .gmaps, .gmaps-panaroma {
-    height: 400px;
+    height: 900px;
     background: #eee;
     border-radius: 3px;
 }
 
 .user-profile-avatar {
     background-color: #ffffff;
-    width: 160px;
-    height: 160px;
-    padding: 5px;
+    width: 300px;
+    height: 300px;
+    padding: 18px;
     border-radius: 50%;
-	margin-left: 6.5rem;
-    margin-top: 20px;
+	margin-left: 12rem;
+    margin-top: 21px;
 }
+
 
 .user-profile-avatar img {
 	width: 100%;
@@ -979,11 +990,13 @@ ion-icon {
     border-radius: 50%;
 }
 
+
 .profile-cover {
-    background-image: url("../images/login_bg/1.png");
-    background-size: cover;
-    height: 10rem;
-    background-position: center;
+  background-image: url("../images/meddes/profile_bg.jpg");
+  background-size: cover;
+  height: 24rem;
+  background-position: center;
+  border-bottom: 20px solid #fff;
 }
 
 .user-change-photo {

@@ -18,7 +18,7 @@
     <!-- start page content -->
     <div class="page-content">
         <div class="row">
-            <div class="col-12 col-lg-8 col-xl-9">
+            <div class="col-12 col-lg-8 col-xl-12">
                 <div class="card overflow-hidden radius-10">
                     <div class="profile-cover bg-dark position-relative mb-4">
 
@@ -31,7 +31,7 @@
                         </div>
 
                         <!-- Avatar centrado -->
-                        <div class="user-profile-avatar shadow position-absolute top-50 start-0 translate-middle-x">
+                        <div class="user-profile-avatar position-absolute top-50 start-0 translate-middle-x">
                             {% if profile.photo and profile.photo.url %}
                                 <img src="{{ profile.photo.url }}" alt="User Photo">
                             {% else %}
@@ -40,205 +40,62 @@
                         </div>
                     </div>
 
-                    <div class="card-body">
-                        <div class="mt-5 d-flex align-items-start justify-content-between">
-                            <div>
-                                <h3 class="mb-2">{{ profile.nombre_paciente }}</h3>
-                                <p class="mb-2" style="margin-top:-15px;">{{ profile.apellidos_paciente }}, {{ profile.edad_detallada }}</p>
-                                <p class="mb-2" style="margin-top:-5px;">Paciente - MEDDES®</p>
-                                <p class="mb-1"><strong>{{ profile.institucion|default:"Particular" }}</strong></p>
-                                <p class="mb-0"><strong>{{ profile.tipos|join:" + " }}</strong></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                   <div class="card-body">
+    <div class="mt-5 d-flex align-items-start justify-content-between">
 
-                <!-- Tarjetas adicionales -->
-                <div class="row row-cols-1 row-cols-lg-3 g-3">
-                    {% if ultima_cita %}
-                    <div class="col">
-                        <div class="card radius-10 bg-primary text-white h-100">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center mb-3">
-                                    <div class="service-box bg-white text-white me-2">
-                                        <div class="font-22">
-                                            <i class="lni lni-checkmark"></i>
-                                        </div>
-                                    </div>
-                                    <h6 class="mb-0">Mis Asistencia</h6>
-                                </div>
 
-                                <div class="d-flex align-items-center justify-content-start mb-3">
-                                    <!-- Fecha -->
-                                    <div class="text-center bg-white text-primary p-2 rounded shadow-sm me-3" style="width: 70px;">
-                                        <div class="fw-bold" style="font-size: 1.5rem;">
-                                            {{ ultima_cita.fecha|date:"d" }}
+        <!-- Bloques rectangulares con fondo -->
+        <div class="d-flex align-items-start ">
+            <!-- Bloque verde -->
+<div class="p-3" style="background-color: #45a851;
+  color: white;
+  margin-right: 19px;
+  margin-top: -129px;
+  height: 519px;
+  width: 293px;
+  margin-left: 30px;
+  border-radius: 25px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;">
+
+    <!-- Primer párrafo con un margen más grande en la parte superior -->
+    <h2 class="mb-2" style="text-align: left;">{{ profile.nombre_paciente }} {{ profile.apellidos_paciente }}</h2>
+    <h3 class="mb-2" style="color:#353836;margin-top:10px;text-align:left;"> <strong>{{ profile.institucion|default:"Particular" }}</strong></h3>
+    <p lass="mb-2" style="font-size: 13pt; margin-top:32px; text-align: center;" ><i style="color: rgb(207, 250, 14);" class="bx bx-plus-medical"></i> {{ profile.edad_detallada }}</p>
+    <p lass="mb-2" style="font-size: 13pt; margin-top:-15px; text-align: center;" ><i style="color: rgb(207, 250, 14);" class="bx bx-plus-medical"></i> {{ profile.edad_detallada }}</p>
+    <p lass="mb-2" style="font-size: 13pt; margin-top:-15px; text-align: center;" ><i style="color: rgb(207, 250, 14);" class="bx bx-plus-medical"></i> {{ profile.edad_detallada }}</p>
+
+                                        <div class="text-center bg-white text-primary p-2 rounded shadow-sm me-3" style="width: 70px;">
+                                        <div class="fw-bold" style="font-size: 2.5rem;">
+                                            {{ profile.edad_detallada }}
                                         </div>
                                         <div style="text-transform: uppercase; font-size: 0.8rem;">
                                             {{ ultima_cita.fecha|date:"b" }}
                                         </div>
                                     </div>
 
-                                    <!-- Lugar -->
-                                    <div class="text-center bg-white text-primary p-2 rounded shadow-sm me-3" style="width: 70px;">
-                                        <div class="fw-bold" style="font-size: 1.5rem;">
-                                            <i class="lni lni-map"></i>
-                                        </div>
-                                        <div style="text-transform: uppercase; font-size: 0.8rem;">
-                                            {{ ultima_cita.sucursal|default:"Sin asignar" }}
-                                        </div>
-                                    </div>
-
-                                    <!-- Detalle -->
-                                     <a href="{% url 'usuarios:ver_cita' ultima_cita.id %}" class="text-decoration-none">
-                                    <div class="text-center bg-white text-primary p-2 rounded shadow-sm me-3" style="width: 70px;">
-                                        <div class="fw-bold" style="font-size: 1.5rem;">
-                                            <ion-icon name="eye-outline"></ion-icon>
-                                        </div>
-                                        <div style="text-transform: uppercase; font-size: 0.8rem;">
-                                            <small>Detalle</small>
-                                        </div>
-                                    </div>
-                                    </a>
-                                </div>
-
-                                <!-- Estado -->
-                                <div>
-                                    <span class="badge p-2 {% if ultima_cita.asistire %} bg-success {% else %} bg-warning text-dark {% endif %}">
-                                        {% if ultima_cita.asistire %}
-                                            <i class="fadeIn animated bx bx-check-double"></i> Asistencia Confirmada
-                                        {% else %}
-                                            <i class="lni lni-checkmark"></i> Asistencia Pendiente
-                                        {% endif %}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-
-                    {% if ultima_tarea_multimedia %}
-                    <div class="col">
-                        <div class="card radius-10 bg-primary text-white h-100">
-                            <div class="card-body">
-                                <div class="d-flex align-items-left mb-3 justify-content-left">
-                                    <div class="service-box bg-white text-white me-2">
-                                        <div class="font-22">
-                                            <ion-icon name="pulse-outline"></ion-icon>
-                                        </div>
-                                    </div>
-                                    <h6 class="mb-0">Mis Actividades</h6>
-                                </div>
-<div class="position-relative d-inline-block">
-    <a href="{{ ultima_tarea_multimedia.media_terapia.url }}" target="_blank">
-        <img id="thumbnailPreview"
-            src="{% if ultima_tarea_multimedia.thumbnail_media %}{{ ultima_tarea_multimedia.thumbnail_media.url }}{% else %}https://via.placeholder.com/160x160.png?text=Video{% endif %}"
-            alt="Previsualización del video"
-            class="img-fluid rounded-circle shadow"
-            style="width: 110px; height: 110px; object-fit: cover; margin-left: 81px;">
-
-        <!-- Ícono de reproducción centrado -->
-        <div class="position-absolute top-50 start-50 translate-middle">
-            <span class="bg-white text-secondary rounded-circle p-2 shadow" style="font-size: 1.5rem;">
-                <i class="bi bi-play-fill"></i>
-            </span>
-        </div>
-    </a>
-
 </div>
 
 
 
 
-                                <div class="mt-3 pt-2 border-top">
-                                    <p class="mb-0">Realizado: <strong>{{ ultima_tarea_multimedia.fecha_actividad|date:"d/m/Y H:i" }}</strong></p>
-                                    <p class="mb-0"><strong>Actividad:</strong> {{ ultima_tarea_multimedia.descripcion_actividad|safe }}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <video id="hiddenVideo" src="{{ ultima_tarea_multimedia.media_terapia.url }}" style="display: none;"></video>
-                    </div>
-                    {% endif %}
 
-                    {% if archivos %}
-                        {% for informe in archivos %}
-                        <div class="col">
-                            <div class="card radius-10 bg-primary text-white h-100 shadow-sm">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div class="service-box bg-white text-success me-2">
-                                            <div class="font-22">
-                                                <i class="lni lni-folder"></i>
-                                            </div>
-                                        </div>
-                                        <h6 class="mb-0">Mis Informes</h6>
-                                    </div>
+            <!-- Bloque de color alternativo (gris en este caso) -->
+            <div class="p-3" style="background-color: #6c757d; color: white; height: 100px; width: 120px;">
+                <p>Texto bloque gris</p>
+            </div>
+        </div>
+    </div>
+</div>
 
-                                    <div class="d-flex align-items-center justify-content-start mb-3">
-                                        <!-- Fecha -->
-                                        <div class="text-center bg-white text-primary p-2 rounded shadow-sm me-3" style="width: 70px;">
-                                            <div class="fw-bold" style="font-size: 1.5rem;">
-                                                {{ informe.fecha_creado|date:"d" }}
-                                            </div>
-                                            <div style="text-transform: uppercase; font-size: 0.8rem;">
-                                                {{ informe.fecha_creado|date:"b" }}
-                                            </div>
-                                        </div>
-
-                                        <!-- Tipo -->
-                                        <div class="text-center bg-white text-primary p-2 rounded shadow-sm me-3" style="width: 70px;">
-                                            <div class="fw-bold" style="font-size: 1.5rem;">
-                                               <ion-icon name="document-text-outline"></ion-icon>
-                                            </div>
-                                            <div style="text-transform: uppercase; font-size: 0.8rem;">
-                                                {{ informe.get_tipo_de_informe_display }}
-                                            </div>
-                                        </div>
-
-                                        <!-- Descarga -->
-                                        <div class="text-center bg-white text-primary p-2 rounded shadow-sm me-3" style="width: 70px;">
-                                            <a class="text-primary text-decoration-none" href="{{ informe.archivo.url }}" target="_blank">
-                                                
-                                                <div class="fw-bold" style="font-size: 1.5rem;">
-                                                    <ion-icon name="download-outline"></ion-icon>
-                                                </div>
-                                                <div style="text-transform: uppercase; font-size: 0.8rem;">
-                                                Bajar
-                                                </div>
-                                            </a>
-                                        </div>
-                                        
-                                        
-                                                                                                                                          <!-- Estado -->
+                </div>
 
 
-
-
-                                    </div>
-
-
-
-
-          
-
-                                </div>
-                            </div>
-
-                           
-
-                        </div>
-                        {% endfor %}
-                    {% endif %}
-                </div> <!-- Fin de tarjetas -->
-
-                <!-- Inclusión de panel adicional -->
               
 
             </div> <!-- col -->
-
-               <div class="col-12 col-lg-4 col-xl-3">
-               {% include 'usuarios/panel_usuario2.html' %}
-               </div>
 
 
 
