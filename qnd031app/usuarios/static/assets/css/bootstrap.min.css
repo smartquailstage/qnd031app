@@ -3561,7 +3561,8 @@ textarea.form-control-lg {
 	flex-direction: column;
 	padding-left: 0;
 	margin-bottom: 0;
-	list-style: none
+	list-style: none;
+	margin-right: 29px;
 }
 .navbar-nav .nav-link.active, .navbar-nav .nav-link.show {
 	color: var(--bs-navbar-active-color)
@@ -9358,9 +9359,15 @@ textarea.form-control-lg {
 	.order-lg-0 {
 		order: 0!important
 	}
+
 	.order-lg-1 {
-		order: 1!important
-	}
+    order: 1 !important;
+    margin-left: -97px;
+    width: 350px;
+    margin-top: -148px;
+	
+  }
+
 	.order-lg-2 {
 		order: 2!important
 	}
@@ -9454,7 +9461,7 @@ textarea.form-control-lg {
 		margin-bottom: auto!important
 	}
 	.mt-lg-0 {
-		margin-top: 0!important
+		margin-top: -128px !important;
 	}
 	.mt-lg-1 {
 		margin-top: .25rem!important

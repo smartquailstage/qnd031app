@@ -449,11 +449,11 @@ LOGOUT_URL = 'logout'
 #LOGIN_REDIRECT_URL = reverse_lazy('course_list')
 
 # Configuración de sesiones usando Redis
-SESSION_ENGINE = "django.contrib.sessions.backends.cache"
-SESSION_CACHE_ALIAS = "default"
-REDIS_HOST = os.environ.get('REDIS_HOST')  # Cambia esto según tu configuración
-REDIS_PORT  = os.environ.get('REDIS_PORT')        # Puerto por defecto de Redis
-REDIS_DB  = os.environ.get('REDIS_DB')
+#SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+#SESSION_CACHE_ALIAS = "default"
+#REDIS_HOST = os.environ.get('REDIS_HOST')  # Cambia esto según tu configuración
+#REDIS_PORT  = os.environ.get('REDIS_PORT')        # Puerto por defecto de Redis
+#REDIS_DB  = os.environ.get('REDIS_DB')
 
 #WEBAPP SETTINGS
 
