@@ -18,48 +18,57 @@
 
                     <div class="card-body">
 
-                        {% if actividad.media_terapia %}
-                        <figure class="text-center">
-                            <a href="{{ actividad.media_terapia.url }}" target="_blank" class="text-decoration-none position-relative d-inline-block">
-                                <img id="thumbnailPreview"
-                                     src="{% static 'img/default_video_thumb.jpg' %}"
-                                     alt="Previsualización del video"
-                                     class="img-thumbnail rounded-circle shadow-sm"
-                                     style="width: 160px; height: 160px; object-fit: cover;">
+                    
+    <div class="container mt-4">
+        <h2 class="mb-4">Lista de Tareas Enviadas</h2>
 
-                                <span class="position-absolute top-50 start-50 translate-middle bg-white text-dark rounded-circle p-2 shadow" style="font-size: 1.5rem;">
-                                    <i class="bi bi-play-fill"></i>
-                                </span>
-                            </a>
-                            <figcaption class="mt-2 small text-muted">Haz clic para ver el video</figcaption>
-                        </figure>
-                        {% else %}
-                        <div class="alert alert-light border-start border-4 border-warning mt-3" role="alert">
-                            <strong>ℹ️ No hay video disponible para esta actividad.</strong>
-                        </div>
-                        {% endif %}
+        {% if tareas %}
+            {% for tarea in tareas %}
+                {% if tarea.media_terapia %}
+                    <figure class="text-center">
+                        <a href="{{ tarea.media_terapia.url }}" target="_blank" class="text-decoration-none position-relative d-inline-block">
+                            <img id="thumbnailPreview"
+                                src="{% static 'img/default_video_thumb.jpg' %}"
+                                alt="Previsualización del video"
+                                class="img-thumbnail rounded-circle shadow-sm"
+                                style="width: 160px; height: 160px; object-fit: cover;">
 
-                        <hr class="my-4">
-
-                        <dl class="row mb-0">
-                            <dt class="col-sm-5">📅 Realizado:</dt>
-                            <dd class="col-sm-7">{{ actividad.fecha_actividad|date:"d/m/Y H:i" }}</dd>
-
-                            <dt class="col-sm-5">👨‍⚕️ Terapeuta Responsable:</dt>
-                            <dd class="col-sm-7">Dr. {{ actividad.terapeuta.get_full_name }}</dd>
-
-                            <dt class="col-sm-5">📍 Lugar:</dt>
-                            <dd class="col-sm-7">{{ actividad.sucursal }}</dd>
-
-                            <dt class="col-sm-5">📝 Actividad:</dt>
-                            <dd class="col-sm-7">{{ actividad.descripcion_actividad|safe }}</dd>
-                        </dl>
+                            <span class="position-absolute top-50 start-50 translate-middle bg-white text-dark rounded-circle p-2 shadow" style="font-size: 1.5rem;">
+                                <i class="bi bi-play-fill"></i>
+                            </span>
+                        </a>
+                        <figcaption class="mt-2 small text-muted">Haz clic para ver el video</figcaption>
+                    </figure>
+                {% else %}
+                    <div class="alert alert-light border-start border-4 border-warning mt-3" role="alert">
+                        <strong>ℹ️ No hay video disponible para esta actividad.</strong>
                     </div>
-                </div>
-
-                {% if actividad.media_terapia %}
-                    <video id="hiddenVideo" src="{{ actividad.media_terapia.url }}" style="display: none;"></video>
                 {% endif %}
+
+                <hr class="my-4">
+
+                <dl class="row mb-0">
+                    <dt class="col-sm-5">📅 Realizado:</dt>
+                    <dd class="col-sm-7">{{ tarea.fecha_actividad|date:"d/m/Y H:i" }}</dd>
+
+                    <dt class="col-sm-5">👨‍⚕️ Terapeuta Responsable:</dt>
+                    <dd class="col-sm-7">Dr. {{ tarea.terapeuta.get_full_name }}</dd>
+
+                    <dt class="col-sm-5">📍 Lugar:</dt>
+                    <dd class="col-sm-7">{{ tarea.sucursal }}</dd>
+
+                    <dt class="col-sm-5">📝 Actividad:</dt>
+                    <dd class="col-sm-7">{{ tarea.descripcion_actividad|safe }}</dd>
+                </dl>
+
+                <hr class="my-5">
+            {% endfor %}
+        {% else %}
+            <p class="text-muted">No hay tareas enviadas aún.</p>
+        {% endif %}
+    </div>
+
+
             </div>
         </div>
     </div>

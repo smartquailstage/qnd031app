@@ -9,6 +9,7 @@ django-unfold
 
 psycopg
 
+
 # Django Social Share
 django-social-share
 django_extensions
@@ -32,6 +33,9 @@ redis>=4.5.5
 
 # Django Dotenv
 django-dotenv
+
+
+moviepy
 
 # Psycopg2
 psycopg2-binary>=2.9.6  # Removed comment, using binary version

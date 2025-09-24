@@ -1590,6 +1590,14 @@ def clean(self):
         verbose_name_plural = "Citas Agendadas"
 
 
+#from moviepy.editor import VideoFileClip
+#from django.core.files.base import ContentFile
+#from django.db import models
+#import os
+#from io import BytesIO
+#from PIL import Image
+
+
 class tareas(models.Model):
     sucursal = models.ForeignKey(
         Sucursal,
@@ -1650,6 +1658,21 @@ class tareas(models.Model):
 
             return f"{horas}h {minutos}m"
         return "—"
+
+   # def save(self, *args, **kwargs):
+    #    super().save(*args, **kwargs)  # Primero guardar el video
+    #    if self.media_terapia and not self.thumbnail:
+    #        try:
+    #            clip = VideoFileClip(self.media_terapia.path)
+    #            frame = clip.get_frame(0.5)  # Primer medio segundo
+    #            image = Image.fromarray(frame)
+    #            thumb_io = BytesIO()
+    #            image.save(thumb_io, format='JPEG')
+    #            thumb_name = os.path.basename(self.media_terapia.name).split('.')[0] + '_thumb.jpg'
+    #            self.thumbnail.save(thumb_name, ContentFile(thumb_io.getvalue()), save=False)
+    #            super().save(update_fields=['thumbnail'])  # Guardar el thumbnail
+    #        except Exception as e:
+    #            print("Error generando thumbnail:", e)
 
 
 

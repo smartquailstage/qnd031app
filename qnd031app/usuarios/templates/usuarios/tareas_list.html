@@ -31,10 +31,46 @@
     <div class="col-12 col-md-6 mx-auto">
     <div class="card mb-4">
         <div class="card-body">
-            <h2 class="font-weight-bold display-4" style="color:#45a851;">CONTÁCTANOS</h2>
+            <h2 class="font-weight-bold display-4" style="color:#45a851;">TERAPIAS</h2>
                     <h4 class="mb-4">
-          Cuéntanos en qué podemos ayudarte
+         
                     </h4>
+                                    {% if actividad.media_terapia %}
+                        <figure class="text-center">
+                            <a href="{{ actividad.media_terapia.url }}" target="_blank" class="text-decoration-none position-relative d-inline-block">
+                                <img id="thumbnailPreview"
+                                     src="{% static 'img/default_video_thumb.jpg' %}"
+                                     alt="Previsualización del video"
+                                     class="img-thumbnail rounded-circle shadow-sm"
+                                     style="width: 160px; height: 160px; object-fit: cover;">
+
+                                <span class="position-absolute top-50 start-50 translate-middle bg-white text-dark rounded-circle p-2 shadow" style="font-size: 1.5rem;">
+                                    <i class="bi bi-play-fill"></i>
+                                </span>
+                            </a>
+                            <figcaption class="mt-2 small text-muted">Haz clic para ver el video</figcaption>
+                        </figure>
+                        {% else %}
+                        <div class="alert alert-light border-start border-4 border-warning mt-3" role="alert">
+                            <strong>ℹ️ No hay video disponible para esta actividad.</strong>
+                        </div>
+                        {% endif %}
+
+                        <hr class="my-4">
+
+                        <dl class="row mb-0">
+                            <dt class="col-sm-5">📅 Realizado:</dt>
+                            <dd class="col-sm-7">{{ actividad.fecha_actividad|date:"d/m/Y H:i" }}</dd>
+
+                            <dt class="col-sm-5">👨‍⚕️ Terapeuta Responsable:</dt>
+                            <dd class="col-sm-7">Dr. {{ actividad.terapeuta.get_full_name }}</dd>
+
+                            <dt class="col-sm-5">📍 Lugar:</dt>
+                            <dd class="col-sm-7">{{ actividad.sucursal }}</dd>
+
+                            <dt class="col-sm-5">📝 Actividad:</dt>
+                            <dd class="col-sm-7">{{ actividad.descripcion_actividad|safe }}</dd>
+                        </dl>
 <div style="max-height: 300px; overflow-y: auto; max-width: 357px; overflow-x: hidden;">
   <table class="table mb-0 table-dark table-striped">
     <thead>
@@ -55,8 +91,8 @@
           <td style="background-color: #495057;">{{ tarea.descripcion }}</td> <!-- Descripción de la tarea -->
           <td style="background-color: #343a40;">
             <!-- Aquí puedes agregar botones o enlaces para acciones como editar o ver detalles -->
-            <a href="{% url 'tarea_detalle' tarea.pk %}" class="btn btn-info btn-sm">Ver</a>
-            <a href="{% url 'tarea_editar' tarea.pk %}" class="btn btn-warning btn-sm">Editar</a>
+            <a href="{% url 'usuarios:tarea_detail' tarea.pk %}" class="btn btn-info btn-sm">Ver</a>
+            <a href="{% url 'usuarios:tarea_detail' tarea.pk %}" class="btn btn-warning btn-sm">Editar</a>
           </td>
         </tr>
       {% empty %}
@@ -108,7 +144,7 @@
                     <div class="row row-cols-1 row-cols-lg-3">
                         {% for tarea in tareas_nuevas %}
                             <div class="col mb-3">
-                                <a href="{% url 'usuarios:tarea_detail' tarea.pk %}">
+                                <a href="{% url 'usuarios:ver_tarea' tarea.pk %}">
                                     <div class="card radius-10 bg-warning text-dark">
                                         <div class="card-body">
                                             <div class="d-flex align-items-center mb-2">
