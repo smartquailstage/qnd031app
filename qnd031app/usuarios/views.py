@@ -783,7 +783,7 @@ class DashboardPrincipalView(UnfoldModelAdminViewMixin, TemplateView):
 
 class TareaListView(ListView):
     model = tareas
-    template_name = 'tareas/tarea_list.html'
+    template_name = 'usuarios/tarea_list.html'
     context_object_name = 'tareas'
 
     def get_queryset(self):
