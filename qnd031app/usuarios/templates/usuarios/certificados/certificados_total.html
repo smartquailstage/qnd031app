@@ -3,6 +3,100 @@
 {% load static %}
 
 {% block content %}
+
+        <div class="page-content-wrapper">
+          <!-- start page content-->
+            <div class="page-content">
+
+        <!-- Primera fila fuera del contenedor -->
+        <div class="row">
+            <div class="col-12 col-lg-8 col-xl-12">
+                <div class="card overflow-hidden radius-10">
+                    <div class="profile-cover-2 bg-dark position-relative mb-4">
+                        <!-- Logo arriba a la derecha -->
+
+
+                        <!-- Avatar centrado -->
+                        <div class="user-profile-avatar position-absolute top-50 start-0 translate-middle-x">
+                      
+                                <img src="{% static '/assets/images/meddes/visto.png' %}" alt="User Photo">
+                    
+                        </div>
+                    </div>
+
+    <div class="card-body text-left">
+       
+
+
+    <div class="col-12 col-md-6 mx-auto">
+    <div class="card mb-4">
+
+               <div class="card-body">
+                        <h5 class="card-title text-primary">Autorización Terapéutica y Certificados</h5>
+
+                        <!-- Mostrar formulario solo si no hay archivos -->
+                        {% if not archivos %}
+                            <form method="POST" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    {{ form.adjunto_autorizacion.label_tag }}
+                                    {{ form.adjunto_autorizacion|add_class:"form-control" }}
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <ion-icon name="cloud-upload-outline"></ion-icon> Subir Autorización
+                                </button>
+                            </form>
+                        {% else %}
+                            <div class="alert alert-success mt-3">
+                                <ion-icon name="checkmark-done-circle-outline"></ion-icon>
+                                Ya se ha subido una autorización terapéutica. No es necesario cargar otra.
+                            </div>
+                        {% endif %}
+
+                        <!-- Archivos adjuntos dinámicos -->
+                        {% if archivos %}
+                            <hr>
+                            <h6 class="mt-4">Archivos adjuntos:</h6>
+                            <ul class="list-group list-group-flush">
+                                {% for archivo in archivos %}
+                                <a class="btn btn-sm btn-outline-primary" href="{{ archivo.archivo.url }}" target="_blank">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <ion-icon name="document-outline"></ion-icon>
+                                            <strong>{{ archivo.titulo }}</strong>
+                                            <small class="text-muted">({{ archivo.fecha_creado|date:"d M Y" }})</small>
+                                        </div>
+                                    </li>
+                                </a>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                        
+                    </div>
+ 
+</div>
+
+      
+        </div>
+    </div>
+</div>
+
+    </div>
+
+
+                </div>
+            </div> <!-- col -->
+        </div> <!-- row -->
+
+        <!-- Segunda fila dentro de un card y container -->
+
+
+</div>
+
+
+{% endblock %}
+
+
 <div class="page-content-wrapper">
     <div class="page-content">
 
@@ -58,4 +152,3 @@
         </div>
     </div>
 </div>
-{% endblock %}

@@ -18,11 +18,7 @@
     <!--navigation-->
     <ul class="metismenu" id="menu">
 
-                    
-        
-        <li class="menu-label">Mi Proceso Terapéutico </li>
-
-        <li>
+                <li>
             <a href="{% url 'usuarios:perfil' %}">
                 <div class="parent-icon">
                     <ion-icon name="home-outline"></ion-icon>
@@ -31,8 +27,14 @@
             </a>
         </li>
 
+                    
+        
+        <li class="menu-label">Proceso Terapéutico </li>
+
+
+
         <li>
-            <a href="{% url 'usuarios:perfil' %}">
+            <a href="{% url 'usuarios:tarea_list' %}">
                 <div class="parent-icon">
                     <ion-icon name="home-outline"></ion-icon>
                 </div>
@@ -50,14 +52,7 @@
         </li>
 
 
-        <li>
-            <a href="{% url 'usuarios:inbox' %}">
-                <div class="parent-icon">
-                    <ion-icon name="paper-plane-outline"></ion-icon>
-                </div>
-                <div class="menu-title">CONTACTANOS</div>
-            </a>
-        </li>
+
 
 
                 <li>
@@ -70,15 +65,38 @@
         </li>
 
 
+         <li class="menu-label">Comunicaciones</li>
 
-        <li class="menu-label">Configuraciones</li>
+        <li>
+            <a href="{% url 'usuarios:inbox_total' %}">
+                <div class="parent-icon">
+                    <ion-icon name="archive-outline"></ion-icon>
+                </div>
+                <div class="menu-title">NOTIFICACIONES</div>
+            </a>
+        </li>
+
+         <li>
+            <a href="{% url 'usuarios:inbox' %}">
+                <div class="parent-icon">
+                    <ion-icon name="paper-plane-outline"></ion-icon>
+                </div>
+                <div class="menu-title">CONTACTANOS</div>
+            </a>
+        </li>
+
+
+
+
+
+        <li class="menu-label">Salir de MEDDES®</li>
 
         <li>
             <a href="{% url 'usuarios:logout' %}">
                 <div class="parent-icon">
                     <ion-icon name="exit-outline"></ion-icon>
                 </div>
-                <div class="menu-title">Salir de MEDDES®</div>
+                <div class="menu-title">SALIR</div>
             </a>
         </li>
     </ul>

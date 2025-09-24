@@ -56,13 +56,24 @@
     <div class="card mb-4">
         <div class="card-body">
             <h2 class="font-weight-bold display-4" style="color:#45a851;">CONTÁCTANOS</h2>
-                    <p class="mb-4">
-          We are currently working hard on this page. Subscribe to our newsletter<br>
-          to get notified when we go live.
-        </p>
-           <form method="POST" class="row g-3">
+                    <h4 class="mb-4">
+          Cuéntanos en qué podemos ayudarte
+                    </h4>
+ <form method="POST" enctype="multipart/form-data" class="row g-3">
     {% csrf_token %}
 
+    <!-- Campo Asunto -->
+    <div class="col-12">
+        <label for="{{ form.asunto.id_for_label }}" class="form-label">Asunto</label>
+        {{ form.asunto }}
+        {% if form.asunto.errors %}
+            <div class="text-danger mt-1">
+                {{ form.asunto.errors }}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Campo Cuerpo -->
     <div class="col-12">
         <label for="{{ form.cuerpo.id_for_label }}" class="form-label">Mensaje</label>
         {{ form.cuerpo }}
@@ -73,12 +84,25 @@
         {% endif %}
     </div>
 
+    <!-- Campo Adjunto -->
+    <div class="col-12">
+        <label for="{{ form.adjunto.id_for_label }}" class="form-label">Adjunto</label>
+        {{ form.adjunto }}
+        {% if form.adjunto.errors %}
+            <div class="text-danger mt-1">
+                {{ form.adjunto.errors }}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Botón Enviar -->
     <div class="col-12">
         <div class="d-grid">
             <button type="submit" class="btn btn-success">Enviar</button>
         </div>
     </div>
 </form>
+
 
 
 

@@ -3,6 +3,99 @@
 {% load static %}
 
 {% block content %}
+
+        <!-- start page content wrapper-->
+        <div class="page-content-wrapper">
+          <!-- start page content-->
+            <div class="page-content">
+
+        <!-- Primera fila fuera del contenedor -->
+        <div class="row">
+            <div class="col-12 col-lg-8 col-xl-12">
+                <div class="card overflow-hidden radius-10">
+                    <div class="profile-cover-2 bg-dark position-relative mb-4">
+                        <!-- Logo arriba a la derecha -->
+
+
+                        <!-- Avatar centrado -->
+                        <div class="user-profile-avatar position-absolute top-50 start-0 translate-middle-x">
+                      
+                                <img src="{% static '/assets/images/meddes/visto.png' %}" alt="User Photo">
+                    
+                        </div>
+                    </div>
+
+    <div class="card-body text-left">
+       
+
+
+    <div class="col-12 col-md-6 mx-auto">
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="font-weight-bold display-4" style="color:#45a851;">NOTIFICACIONES</h2>
+                    <h4 class="mb-4">
+          Bandeja de notificaciones recibidas.
+                    </h4>
+
+    <div style="max-height: 300px; overflow-y: auto; max-width: 357px; overflow-x: hidden;">
+  <table class="table mb-0 table-dark table-striped">
+    <tbody>
+      {% for mensaje in mensajes %}
+        <tr>
+          <th scope="row" style="background-color: #6c757d;">{{ forloop.counter }}</th> <!-- Número -->
+          <td style="background-color: #495057;">{{ mensaje.fecha_envio|date:"d-m-Y H:i" }}</td> <!-- Fecha -->
+          
+          <!-- Enlace al detalle del mensaje -->
+          <td style="background-color: #343a40;">
+            <a href="{% url 'ver_mensaje' mensaje.pk %}" class="text-decoration-none text-light">
+              {{ mensaje.asunto }}
+            </a>
+          </td>
+          
+          <!-- Estado leído/no leído -->
+          <td style="background-color: #343a40;">
+            {% if mensaje.leido %}
+              <span class="badge bg-success">Leído</span>
+            {% else %}
+              <span class="badge bg-warning text-dark">No leído</span>
+            {% endif %}
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="4" class="text-center text-muted" style="background-color: #343a40;">No hay mensajes.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+
+</div>
+
+      
+        </div>
+    </div>
+</div>
+
+    </div>
+
+
+                </div>
+            </div> <!-- col -->
+        </div> <!-- row -->
+
+        <!-- Segunda fila dentro de un card y container -->
+
+
+</div>
+
+     
+         
+
+{% endblock %}
+
+
 <div class="page-content-wrapper">
     <!-- start page content -->
     <div class="page-content">
@@ -76,4 +169,3 @@
 
     
 </div> <!-- Fin page-content-wrapper -->
-{% endblock %}

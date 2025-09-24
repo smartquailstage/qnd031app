@@ -107,12 +107,18 @@ class LoginForm(forms.Form):
 class MensajeForm(forms.ModelForm):
     class Meta:
         model = Mensaje
-        fields = ['cuerpo']
+        fields = ['asunto', 'cuerpo', 'adjunto']
         widgets = {
+            'asunto': forms.Select(attrs={
+                'class': 'form-select',  # Bootstrap 5 usa 'form-select' para selects
+            }),
             'cuerpo': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 6,
                 'placeholder': 'Escribe tu mensaje aquí...'
+            }),
+            'adjunto': forms.ClearableFileInput(attrs={
+                'class': 'form-control',
             }),
         }
 

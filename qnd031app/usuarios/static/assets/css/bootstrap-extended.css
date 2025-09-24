@@ -410,13 +410,13 @@
 }
 .btn-success {
 	color: #fff;
-	background-color: #18bb6b;
-	border-color: #18bb6b
+    background-color: #646464;
+    border-color: #646464;
 }
 .btn-success:hover {
 	color: #fff;
-	background-color: #14aa62;
-	border-color: #14aa62
+	background-color: #3b3b3b;
+	border-color: #3b3b3b
 }
 .btn-check:focus+.btn-success, .btn-success:focus {
 	color: #fff;
