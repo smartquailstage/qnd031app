@@ -174,6 +174,9 @@ def admin_cita_detail(request, cita_id):
     }
     return render(request, "admin/test.html", context)
 
+
+from datetime import date
+
 @login_required
 def profile_view(request):
     profile = Profile.objects.get(user=request.user)
@@ -202,6 +205,24 @@ def profile_view(request):
     except pagos.DoesNotExist:
         estado_de_pago = "No registrado"
 
+    # Obtener la edad detallada (años y meses)
+    if profile.fecha_nacimiento:
+        today = date.today()
+        years = today.year - profile.fecha_nacimiento.year
+        months = today.month - profile.fecha_nacimiento.month
+        days = today.day - profile.fecha_nacimiento.day
+
+        if days < 0:
+            months -= 1
+        if months < 0:
+            years -= 1
+            months += 12
+
+        edad_anios = years
+        edad_meses = months
+    else:
+        edad_anios, edad_meses = None, None
+
     return render(request, 'usuarios/profile.html', {
         'profile': profile,
         'cantidad_mensajes_recibidos': cantidad_mensajes_recibidos,
@@ -211,7 +232,11 @@ def profile_view(request):
         'estado_de_pago': estado_de_pago,
         'archivos': archivos,
         'ultima_tarea_multimedia': ultima_tarea_multimedia,
+        'edad_anios': edad_anios,
+        'edad_meses': edad_meses,
     })
+
+
 
 @login_required
 def header(request):
@@ -263,12 +288,24 @@ def inbox_view(request):
     no_leidos = mensajes.filter(leido=False).count()
     total = mensajes.count()
 
-    return render(request, 'usuarios/inbox.html', {
+    if request.method == 'POST':
+        form = MensajeForm(request.POST)
+        if form.is_valid():
+            mensaje = form.save(commit=False)
+            mensaje.emisor = request.user
+            mensaje.receptor = User.objects.get(id=1)  # <-- se asigna automáticamente
+            mensaje.save()
+            return redirect('usuarios:success')  # o donde prefieras
+    else:
+        form = MensajeForm()
+
+    return render(request, 'usuarios/contactanos.html', {
         'mensajes': mensajes,
         'profile': profile,
         'leidos': leidos,
         'no_leidos': no_leidos,
         'total': total,
+        'form':form,
     })
 
 @login_required
@@ -795,7 +832,7 @@ class TareaDetailView(LoginRequiredMixin, DetailView):
 
 class ActividadListView(LoginRequiredMixin, ListView):
     model = tareas
-    template_name = 'tareas/actividad_list.html'
+    template_name = 'usuarios/asistencias.html'
     context_object_name = 'actividades'
 
     def get_queryset(self):

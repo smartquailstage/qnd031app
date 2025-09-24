@@ -1161,6 +1161,40 @@ class Profile(models.Model):
 
 
     @property
+    def edad_anios(self):
+        if not self.fecha_nacimiento:
+            return None
+
+        today = date.today()
+        years = today.year - self.fecha_nacimiento.year
+        months = today.month - self.fecha_nacimiento.month
+        days = today.day - self.fecha_nacimiento.day
+
+        if days < 0:
+            months -= 1
+        if months < 0:
+            years -= 1
+            months += 12
+
+        return years
+
+    @property
+    def edad_meses(self):
+        if not self.fecha_nacimiento:
+            return None
+
+        today = date.today()
+        years = today.year - self.fecha_nacimiento.year
+        months = today.month - self.fecha_nacimiento.month
+
+        if months < 0:
+            months += 12
+
+        return months
+
+
+
+    @property
     def nombre_completo(self):
         return f" {self.institucion} / {self.nombre_paciente} {self.apellidos_paciente} / {self.edad_detallada}  ".strip()
 

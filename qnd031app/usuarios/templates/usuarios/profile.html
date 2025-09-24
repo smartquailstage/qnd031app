@@ -23,12 +23,8 @@
                     <div class="profile-cover bg-dark position-relative mb-4">
 
                         <!-- Logo arriba a la derecha -->
-                        <div class="position-absolute top-0 end-0 m-3">
-                            <img src="{% static 'img/BA-LOGOS/logoF.png' %}" alt="Logo" style="height: 60px;">
-                            <h5 style="color: rgb(52, 132, 72);">
-                                <i class="bx bx-plus-medical"></i> Servicios Terapéuticos
-                            </h5>
-                        </div>
+
+
 
                         <!-- Avatar centrado -->
                         <div class="user-profile-avatar position-absolute top-50 start-0 translate-middle-x">
@@ -50,25 +46,26 @@
     
     <!-- Bloque Izquierdo (verde) -->
     <div class="col-lg-6 order-1 order-lg-1">
-      <div class="p-3" style="background-color: #45a851;
-  color: white;
-  border-radius: 25px;
-  height: 174%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  margin-left: -45px;
-  margin-right: 46px;
-  margin-top: 7px;">
-        <h2 class="mb-2 text-start w-100">{{ profile.nombre_paciente }} {{ profile.apellidos_paciente }}</h2>
-        <h3 class="mb-2 text-start w-100" style="color:#353836;"><strong>{{ profile.institucion|default:"Particular" }}</strong></h3>
-        <p class="mb-2" style="font-size: 13pt;"><i style="color: rgb(207, 250, 14);" class="bx bx-plus-medical"></i> {{ profile.fecha_nacimiento }}</p>
-        <p class="mb-2" style="font-size: 13pt;"><i style="color: rgb(207, 250, 14);" class="bx bx-plus-medical"></i> {{ profile.edad_detallada }}</p>
-        <div class="text-center bg-white text-primary p-2 rounded shadow-sm mt-3" style="width: 70px;">
-          <div class="fw-bold" style="font-size: 2.5rem;">23</div>
-          <div style="text-transform: uppercase; font-size: 0.8rem;">años</div>
-        </div>
+      <div class="p-3" >
+        <h2 class="mb-2 text-start w-100" style="font-weight: 50;">{{ profile.nombre_paciente }} {{ profile.apellidos_paciente }}</h2>
+        <h3 class="mb-2 text-start w-100" style="color:#45a851;"><strong>{{ profile.institucion|default:"Particular" }}</strong></h3>
+        <p class="mb-3" style="font-size: 13pt;margin-right:90px;margin-top:20px"><i style="color: rgb(233, 220, 89);" class="bx bx-plus-medical"></i> {{ profile.fecha_nacimiento }}</p>
+        <p class="mb-3" style="font-size: 13pt;margin-right:147px;margin-top:-10px"><i style="color: rgb(233, 220, 89);" class="bx bx-plus-medical"></i> {{ profile.nacionalidad }}</p>
+        <p class="mb-3" style="font-size: 13pt;margin-right:150px;margin-top:-10px"><i style="color: rgb(233, 220, 89)" class="bx bx-plus-medical"></i> {{ profile.sexo }}</p>
+        <p class="mb-3" style="font-size: 13pt;margin-right:193px;margin-top:-10px"><i style="color: rgb(233, 220, 89);" class="bx bx-plus-medical"></i> {{ profile.sucursales }}</p>
+        <div class="text-center bg-white text-primary p-2 rounded shadow-sm mt-3" style="width: 70px; margin-left:145px">
+    <div class="fw-bold" style="font-size: 2.5rem;">
+        <!-- Usar los años de edad -->
+        {{ edad_anios|default:"N/A" }}
+    </div>
+    <div style="text-transform: uppercase; font-size: 0.8rem;">
+        años
+    </div>
+</div>
+
+
+
+
       </div>
     </div>
 
@@ -81,17 +78,65 @@
             <div class="mt-5 d-flex align-items-start justify-content-between">
               <div>
                 <h3 class="mb-2" style="color:#45a851">MI REPRESENTANTE</h3>
-                <p class="mb-1">Engineer at BB Agency Industry</p>
-                <p>New York, United States</p>
+                <p class="mb-1">{{ profile.nombres_representante_legal }} {{ profile.apellidos_representante_legal }} ({{ profile.relacion_del_representante }}) </p>
+                <p class="mb-0" style="font-size: 20pts;"><ion-icon name="mail-outline"></ion-icon> {{ profile.email }}</p>
+               <p class="mb-0"><ion-icon name="logo-whatsapp"></ion-icon> {{ profile.celular }}</p>
+                 <hr>
+              </div>
+              <div>
+               
+              </div>
+            </div>
+        <div class="mt-5 d-flex align-items-start justify-content-between">
+              <div>
+                <h3 class="mb-2" style="color:#45a851">MIS SERVICIOS</h3>
+             
+              
+
+    {% for servicio in profile.tipos %}
+        <p class="mb-0">{{ servicio }}</p>
+    {% empty %}
+        <p class="mb-0">No se han contratado servicios.</p>
+    {% endfor %}
+
+
+                <hr>
+              </div>
+               
+              <div>
+              </div>
+        </div>
+
+         <div class="mt-5 d-flex align-items-start justify-content-between">
+              <div>
+                <h3 class="mb-2" style="color:#45a851">MIS TERAPEUTAS</h3>
+                <p class="mb-1">
+                          <strong>
+        {% if profile.user_terapeutas or profile.user_terapeutas_1 or profile.user_terapeutas_3 %}
+          {% if profile.user_terapeutas %}
+           <p class="mb-0">{{ profile.user_terapeutas }}</p>
+          {% endif %}
+          {% if profile.user_terapeutas_1 %}
+            <p class="mb-0">{{ profile.user_terapeutas_1 }}</p>
+          {% endif %}
+          {% if profile.user_terapeutas_3 %}
+            <p class="mb-0">{{ profile.user_terapeutas_3 }}</p>
+          {% endif %}
+        {% else %}
+          <p class="mb-0">No hay terapeutas asignados.</p>
+        {% endif %}
+      </strong>
+
+
+                </p>
+                
+               
               </div>
               <div>
               </div>
-            </div>
+        </div>
           </div>
      
-        <div class="card mt-2 p-2 bg-light text-dark">
-          {{ profile.fecha_nacimiento }}
-        </div>
       </div>
     </div>
 
@@ -110,11 +155,12 @@
 
 
 
+
         </div> <!-- row -->
 
- 
     
     </div> <!-- page-content -->
+
 </div> <!-- page-content-wrapper -->
 
 

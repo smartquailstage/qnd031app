@@ -5,12 +5,12 @@
 <aside class="sidebar-wrapper" data-simplebar="true">
     <div class="sidebar-header">
         <div>
-            <img src="{% static 'img/BA-LOGOS/loro.png' %}" class="logo-icon"  width="130px" alt="logo icon">
+            <img src="{% static 'img/BA-LOGOS/loro.png' %}" class="logo-icon"  width="530px" alt="logo icon">
         </div>
         <div>
             <h4 class="logo-text">
                 <div>
-                    <img src="{% static 'img/BA-LOGOS/isotipo_meddes.png' %}"  width="150x" alt="logo icon">
+                    <img src="{% static 'img/BA-LOGOS/isotipo_meddes.png' %}"  width="120x" alt="logo icon">
                 </div>
             </h4>
         </div>
@@ -25,18 +25,27 @@
         <li>
             <a href="{% url 'usuarios:perfil' %}">
                 <div class="parent-icon">
-                    <i class="bx bx-plus-medical"></i>
+                    <ion-icon name="home-outline"></ion-icon>
                 </div>
-                <div class="menu-title">Mis Servicios</div>
+                <div class="menu-title">INICIO</div>
+            </a>
+        </li>
+
+        <li>
+            <a href="{% url 'usuarios:perfil' %}">
+                <div class="parent-icon">
+                    <ion-icon name="home-outline"></ion-icon>
+                </div>
+                <div class="menu-title">TERÁPIAS</div>
             </a>
         </li>
 
         <li>
             <a href="{% url 'usuarios:actividad_list'  %}">
                 <div class="parent-icon">
-                   <i class="fadeIn animated bx bx-street-view"></i>
+                   <ion-icon name="checkbox-outline"></ion-icon>
                 </div>
-                <div class="menu-title"> Mis Actividades </div>
+                <div class="menu-title"> ASISTENCIAS</div>
             </a>
         </li>
 
@@ -44,9 +53,9 @@
         <li>
             <a href="{% url 'usuarios:inbox' %}">
                 <div class="parent-icon">
-                    <ion-icon name="notifications-outline"></ion-icon>
+                    <ion-icon name="paper-plane-outline"></ion-icon>
                 </div>
-                <div class="menu-title">Mis Comunicaciones</div>
+                <div class="menu-title">CONTACTANOS</div>
             </a>
         </li>
 
@@ -56,7 +65,7 @@
                 <div class="parent-icon">
                     <ion-icon name="file-tray-full-outline"></ion-icon>
                 </div>
-                <div class="menu-title">Mis Informes</div>
+                <div class="menu-title">INFORMES</div>
             </a>
         </li>
 
