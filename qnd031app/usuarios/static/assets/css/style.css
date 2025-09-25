@@ -90,22 +90,22 @@ ion-icon {
 /* Sidebar */
 
 .sidebar-wrapper {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 260px;
-    height: 100%;
-    background-color: #ffffff;
-    background-clip: padding-box;
-    border-right: 1px solid #e2e3e4;
-    transition: all .2s;
-    z-index: 16;
-    box-shadow: none;
+position: fixed;
+  top: 0;
+  left: 0;
+  width: 260px;
+  height: 100%;
+  background-color: #353836;
+  background-clip: padding-box;
+  border-right: 1px solid #353836;
+  transition: all .2s;
+  z-index: 16;
+  box-shadow: none;
 }
 
 
 .sidebar-wrapper .sidebar-header {
-    width: 260px;
+    width: 276px;
     height: 65px;
     display: flex;
     align-items: center;
@@ -118,6 +118,8 @@ ion-icon {
     border-right: 1px solid #e2e3e4;
     border-bottom: 0px solid #e4e4e4;
     transition: all .2s;
+    border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 20px;
 }
 
 .sidebar-wrapper .sidebar-header .logo-icon {
@@ -198,7 +200,7 @@ ion-icon {
 	justify-content: left;
 	padding: 6px 10px;
 	font-size: 16px;
-	color: #5f5f5f;
+	color: #dbd6d6;
 	outline-width: 0;
 	text-overflow: ellipsis;
 	overflow: hidden;
@@ -246,9 +248,9 @@ ion-icon {
 .sidebar-wrapper .metismenu a:active,
 .sidebar-wrapper .metismenu a:focus,
 .sidebar-wrapper .metismenu a:hover {
-	color: #923eb9;
+    color: #78f087;
     text-decoration: none;
-    background-color: rgb(146 62 185 / 10%);
+    background-color: rgb(72 142 95);
 }
 
 .menu-label {
@@ -729,16 +731,16 @@ ion-icon {
 /* Footer */
 
 .footer {
-    position: absolute;
-    left: 260px;
-    right: 0;
-    bottom: 0;
-    padding: 0.7rem;
-    color: #484444;
-    background-color: #fff;
-    border-top: 1px solid #e9ecef;
-    text-align: center;
-    transition: .3s all;
+position: absolute;
+  left: 260px;
+  right: 0;
+  bottom: 0;
+  padding: 0.7rem;
+  color: #fff;
+  background-color: #353836;
+  border-top: 1px solid #45a851;
+  text-align: center;
+  transition: .3s all;
 }
 
 .wrapper.toggled .footer {
@@ -969,6 +971,19 @@ background-color: #ffffff;
   margin-top: 40px;
 }
 
+/* Adaptación para dispositivos móviles */
+@media screen and (max-width: 768px) {
+    .user-profile-avatar {
+width: 250px;
+        height: 250px;
+        padding: 10px;
+        margin-left: 162px;
+        margin-right: 37px;
+        margin-top: -95px;
+        display: block;
+    }
+}
+
 
 .user-profile-avatar img {
 	width: 100%;
@@ -983,12 +998,44 @@ background-color: #ffffff;
     background-position: center;
 }
 
-.profile-cover-2 {
-    background-image: url("../images/meddes/asistencias.jpg");
+.profile-cover-1 {
+    background-image: url("../images/meddes/terapias2_bg.jpg");
     background-size: cover;
     height: 23rem;
     background-position: center;
 }
+
+
+.profile-cover-2 {
+    background-image: url("../images/meddes/asistencias_bg.jpg");
+    background-size: cover;
+    height: 23rem;
+    background-position: center;
+}
+
+.profile-cover-3 {
+    background-image: url("../images/meddes/terapias_bg.jpg");
+    background-size: cover;
+    height: 23rem;
+    background-position: center;
+}
+
+.profile-cover-4 {
+    background-image: url("../images/meddes/notificaciones_bg.jpg");
+    background-size: cover;
+    height: 23rem;
+    background-position: center;
+}
+
+.profile-cover-5 {
+    background-image: url("../images/meddes/contactanos_bg.jpg");
+    background-size: cover;
+    height: 23rem;
+    background-position: center;
+}
+
+
+
 
 .user-change-photo {
 	background-color: #ffffff;

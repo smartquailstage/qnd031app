@@ -12,14 +12,14 @@
         <div class="row">
             <div class="col-12 col-lg-8 col-xl-12">
                 <div class="card overflow-hidden radius-10">
-                    <div class="profile-cover-2 bg-dark position-relative mb-4">
+                    <div class="profile-cover-1 bg-dark position-relative mb-4">
                         <!-- Logo arriba a la derecha -->
 
 
                         <!-- Avatar centrado -->
                         <div class="user-profile-avatar position-absolute top-50 start-0 translate-middle-x">
                       
-                                <img src="{% static '/assets/images/meddes/visto.png' %}" alt="User Photo">
+                                <img src="{% static '/assets/images/meddes/terapias_avatar.png' %}" alt="User Photo">
                     
                         </div>
                     </div>
@@ -33,71 +33,81 @@
         <div class="card-body">
             <h2 class="font-weight-bold display-4" style="color:#45a851;">TERAPIAS</h2>
                     <h4 class="mb-4">
-         
+                        Terapias realizadas recientemente.
                     </h4>
-                                    {% if actividad.media_terapia %}
-                        <figure class="text-center">
-                            <a href="{{ actividad.media_terapia.url }}" target="_blank" class="text-decoration-none position-relative d-inline-block">
-                                <img id="thumbnailPreview"
-                                     src="{% static 'img/default_video_thumb.jpg' %}"
-                                     alt="Previsualización del video"
-                                     class="img-thumbnail rounded-circle shadow-sm"
-                                     style="width: 160px; height: 160px; object-fit: cover;">
 
-                                <span class="position-absolute top-50 start-50 translate-middle bg-white text-dark rounded-circle p-2 shadow" style="font-size: 1.5rem;">
-                                    <i class="bi bi-play-fill"></i>
-                                </span>
-                            </a>
-                            <figcaption class="mt-2 small text-muted">Haz clic para ver el video</figcaption>
-                        </figure>
+                    {% for actividad in tareas %}
+    <div class="card mb-4">
+        <div class="card-body">
+
+            {% if actividad.media_terapia %}
+                <figure class="text-left">
+                    <a href="{{ actividad.media_terapia.url }}" target="_blank" class="text-decoration-none position-relative d-inline-block">
+                        {% if actividad.thumbnail_media %}
+                            <img src="{{ actividad.thumbnail_media.url }}"
+                                 alt="Previsualización del video"
+                                 class="img-thumbnail shadow-sm"
+                                 style="width: 260px; height: 260px; object-fit: cover;">
                         {% else %}
-                        <div class="alert alert-light border-start border-4 border-warning mt-3" role="alert">
-                            <strong>ℹ️ No hay video disponible para esta actividad.</strong>
-                        </div>
+                            <img src="{% static 'img/default_video_thumb.jpg' %}"
+                                 alt="Previsualización del video"
+                                 class="img-thumbnail shadow-sm"
+                                 style="width: 260px; height: 260px; object-fit: cover;">
                         {% endif %}
+                        <span class="position-absolute top-50 start-50 translate-middle bg-white text-dark rounded-circle p-2 shadow" style="font-size: 1.5rem;">
+                            <i class="bi bi-play-fill"></i>
+                        </span>
+                    </a>
+                
+                </figure>
+            {% else %}
+                <div class="alert alert-light border-start border-4 border-warning mt-3" role="alert">
+                    <strong>No hay video disponible para esta actividad.</strong>
+                </div>
+            {% endif %}
 
-                        <hr class="my-4">
+            <hr class="my-4">
 
-                        <dl class="row mb-0">
-                            <dt class="col-sm-5">📅 Realizado:</dt>
-                            <dd class="col-sm-7">{{ actividad.fecha_actividad|date:"d/m/Y H:i" }}</dd>
+        </div>
+    </div>
+{% empty %}
+    <div class="alert alert-info">No tienes tareas enviadas por el momento.</div>
+{% endfor %}
 
-                            <dt class="col-sm-5">👨‍⚕️ Terapeuta Responsable:</dt>
-                            <dd class="col-sm-7">Dr. {{ actividad.terapeuta.get_full_name }}</dd>
 
-                            <dt class="col-sm-5">📍 Lugar:</dt>
-                            <dd class="col-sm-7">{{ actividad.sucursal }}</dd>
-
-                            <dt class="col-sm-5">📝 Actividad:</dt>
-                            <dd class="col-sm-7">{{ actividad.descripcion_actividad|safe }}</dd>
-                        </dl>
-<div style="max-height: 300px; overflow-y: auto; max-width: 357px; overflow-x: hidden;">
+<div style="max-height: 300px; overflow-y: auto; max-width: 100%; overflow-x: auto;">
   <table class="table mb-0 table-dark table-striped">
-    <thead>
-      <tr>
-        <th scope="col" style="background-color: #6c757d;">#</th> <!-- Gris claro -->
-        <th scope="col" style="background-color: #6c757d;">Fecha de Envío</th>
-        <th scope="col" style="background-color: #6c757d;">Enviada</th>
-        <th scope="col" style="background-color: #6c757d;">Descripción</th>
-        <th scope="col" style="background-color: #6c757d;">Acciones</th>
-      </tr>
-    </thead>
+
     <tbody>
       {% for tarea in tareas %}
         <tr>
-          <th scope="row" style="background-color: #6c757d;">{{ forloop.counter }}</th> <!-- Gris claro -->
-          <td style="background-color: #495057;">{{ tarea.fecha_envio|date:"d-m-Y" }}</td> <!-- Gris más oscuro -->
-          <td style="background-color: #343a40;">{{ tarea.envio_tarea|yesno:"Sí,No" }}</td> <!-- Gris muy oscuro -->
-          <td style="background-color: #495057;">{{ tarea.descripcion }}</td> <!-- Descripción de la tarea -->
-          <td style="background-color: #343a40;">
-            <!-- Aquí puedes agregar botones o enlaces para acciones como editar o ver detalles -->
-            <a href="{% url 'usuarios:tarea_detail' tarea.pk %}" class="btn btn-info btn-sm">Ver</a>
-            <a href="{% url 'usuarios:tarea_detail' tarea.pk %}" class="btn btn-warning btn-sm">Editar</a>
+          <th scope="row" style="background-color: #6c757d;">{{ forloop.counter }}</th>
+         
+          <td style="background-color: #495057;">
+            <a href="{% url 'usuarios:tarea_detail' tarea.pk %}">{{ tarea.fecha_actividad|date:"d/m/Y H:i" }}</a> 
           </td>
+          
+
+          <td style="background-color: #343a40;">
+            {% if tarea.terapeuta %}
+              Dr. {{ tarea.terapeuta.get_full_name }}
+            {% else %}
+              <span class="text-muted">No asignado</span>
+            {% endif %}
+          </td>
+
+          <td style="background-color: #495057;">
+            {{ tarea.sucursal }}
+          </td>
+
+          <td style="background-color: #343a40;">
+            {{ tarea.descripcion_actividad|safe }}
+          </td>
+
         </tr>
       {% empty %}
         <tr>
-          <td colspan="5" style="background-color: #495057; text-align: center;">No hay tareas disponibles</td>
+          <td colspan="6" style="background-color: #495057; text-align: center;">No hay tareas disponibles</td>
         </tr>
       {% endfor %}
     </tbody>

@@ -2621,7 +2621,7 @@ textarea.form-control-lg {
 	font-size: var(--bs-btn-font-size);
 	font-weight: var(--bs-btn-font-weight);
 	line-height: var(--bs-btn-line-height);
-	color: var(--bs-btn-color);
+	color: #ffffff;
 	text-align: center;
 	text-decoration: none;
 	vertical-align: middle;
@@ -2631,7 +2631,7 @@ textarea.form-control-lg {
 	user-select: none;
 	border: var(--bs-btn-border-width) solid var(--bs-btn-border-color);
 	border-radius: var(--bs-btn-border-radius);
-	background-color: var(--bs-btn-bg);
+	background-color: #353836;
 	transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out
 }
 @media (prefers-reduced-motion:reduce) {
@@ -3933,7 +3933,7 @@ textarea.form-control-lg {
 	height: var(--bs-card-height);
 	color: var(--bs-body-color);
 	word-wrap: break-word;
-	background-color: var(--bs-card-bg);
+	background-color: #ffffff;
 	background-clip: border-box;
 	border: var(--bs-card-border-width) solid var(--bs-card-border-color);
 	border-radius: var(--bs-card-border-radius)

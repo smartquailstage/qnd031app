@@ -789,7 +789,7 @@ class TareaListView(ListView):
     def get_queryset(self):
         return tareas.objects.filter(
             profile__user=self.request.user,
-            envio_tarea=True  # ⬅️ Solo tareas enviadas
+            envio_tarea=True
         ).order_by('-fecha_envio')
 
 
