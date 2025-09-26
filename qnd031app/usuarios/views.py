@@ -621,6 +621,12 @@ def ver_tarea_interactiva(request, pk):
     })
 
 
+@login_required
+def tareas_asistidas_view(request):
+    actividades = tareas.objects.filter(asistire=True)
+    return render(request, 'usuarios/asistencias/asistencia_list.html', {'actividades': actividades})
+
+
 
 @login_required
 def tareas_realizadas(request):
@@ -789,7 +795,7 @@ class TareaListView(ListView):
     def get_queryset(self):
         return tareas.objects.filter(
             profile__user=self.request.user,
-            envio_tarea=True
+            asistire=True
         ).order_by('-fecha_envio')
 
 
@@ -830,44 +836,95 @@ class TareaDetailView(LoginRequiredMixin, DetailView):
         return self.render_to_response(context)
 
 
-class ActividadListView(LoginRequiredMixin, ListView):
+class TerapiaListView(LoginRequiredMixin, ListView):
     model = tareas
-    template_name = 'usuarios/asistencias.html'
+    template_name = 'terapias/terapia_list.html'
     context_object_name = 'actividades'
 
     def get_queryset(self):
         # Solo mostrar actividades enviadas, del usuario actual
         return tareas.objects.filter(
-            envio_tarea=True,
+            asistire=True,
             profile__user=self.request.user
         ).order_by('-fecha_envio')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Obtener el último objeto que tenga media_terapia
+        ultima_actividad_con_video = tareas.objects.filter(
+            asistire=True,
+            profile__user=self.request.user,
+            media_terapia__isnull=False
+        ).order_by('-fecha_envio').first()
 
-class ActividadDetailView(LoginRequiredMixin, DetailView):
-    model = tareas
-    template_name = 'tareas/actividad_detail.html'
-    context_object_name = 'actividad'
+        context['media'] = ultima_actividad_con_video  # Este será usado en el template
+        return context
 
-    def get_object(self, queryset=None):
-        # Solo permite ver actividades propias que han sido enviadas
-        return get_object_or_404(
+
+class TerapiaDetailView(LoginRequiredMixin, TemplateView):
+    template_name = 'usuarios/terapias/terapias_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Obtener la actividad principal actual (por pk)
+        actividad = get_object_or_404(
             tareas,
             pk=self.kwargs['pk'],
             profile__user=self.request.user,
-            envio_tarea=True
+            asistire=True
         )
 
-class TerapiaListView(ListView):
+        # Historial de actividades
+        actividades = tareas.objects.filter(
+            profile__user=self.request.user,
+            asistire=True
+        ).order_by('-fecha_envio')
+
+        # Última actividad con media_terapia (video disponible)
+        media = actividades.filter(media_terapia__isnull=False).first()
+
+        context.update({
+            'actividad': actividad,
+            'actividades': actividades,
+            'media': media,  # Última actividad con video
+        })
+
+        return context
+
+
+
+from django.views.generic import TemplateView
+
+class UltimaActividadView(LoginRequiredMixin, TemplateView):
+    template_name = 'tareas/actividad_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        ultima_actividad = (
+            tareas.objects.filter(
+                profile__user=self.request.user,
+                asistire=True
+            )
+            .order_by('-fecha_envio')
+            .first()
+        )
+        context['actividad'] = ultima_actividad
+        return context
+
+
+
+class AsistenciaListView(ListView):
     model = tareas
-    template_name = 'tareas/terapia_list.html'
+    template_name = 'asistencias/asistencia_list.html'
     context_object_name = 'terapias'
 
     def get_queryset(self):
         return tareas.objects.filter(cita_terapeutica_asignada__isnull=False, profile__user=self.request.user).order_by('-cita_terapeutica_asignada')
 
-class TerapiaDetailView(DetailView):
+class AsistenciaDetailView(DetailView):
     model = tareas
-    template_name = 'tareas/terapia_detail.html'
+    template_name = 'asistencias/asistencia_list.html'
     context_object_name = 'terapia'
 
 

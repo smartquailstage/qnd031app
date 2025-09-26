@@ -4532,13 +4532,13 @@ textarea.form-control-lg {
 	background-color: var(--bs-list-group-action-active-bg)
 }
 .list-group-item {
-	position: relative;
-	display: block;
-	padding: var(--bs-list-group-item-padding-y) var(--bs-list-group-item-padding-x);
-	color: var(--bs-list-group-color);
-	text-decoration: none;
-	background-color: var(--bs-list-group-bg);
-	border: var(--bs-list-group-border-width) solid var(--bs-list-group-border-color)
+    position: relative;
+    display: block;
+    padding: var(--bs-list-group-item-padding-y) var(--bs-list-group-item-padding-x);
+    color: var(--bs-list-group-color);
+    text-decoration: none;
+    background-color: #45a851;
+    border: var(--bs-list-group-border-width) solid var(--bs-list-group-border-color);
 }
 .list-group-item:first-child {
 	border-top-left-radius: inherit;

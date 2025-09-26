@@ -1,0 +1,147 @@
+{% extends "base_dash.html" %}
+{% load widget_tweaks %}
+{% load static %}
+
+{% block content %}
+
+<style>
+  .gris-oscuro {
+    background-color: #343a40; /* Gris oscuro */
+    color: white; /* Para que el texto sea legible */
+  }
+</style>
+
+
+
+<input type="file" id="videoInput" name="media_terapia" accept="video/*">
+<input type="hidden" id="thumbnailData" name="thumbnail_data">
+
+<video id="videoPreview" style="display:none;"></video>
+<canvas id="canvas" style="display:none;"></canvas>
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+<div class="page-content-wrapper">
+    <!-- start page content -->
+    <div class="page-content">
+
+        <!-- Primera fila fuera del contenedor -->
+        <div class="row">
+            <div class="col-12 col-lg-8 col-xl-12">
+                <div class="card overflow-hidden radius-10">
+                    <div class="profile-cover-3 bg-dark position-relative mb-4">
+                        <!-- Logo arriba a la derecha -->
+
+
+                        <!-- Avatar centrado -->
+                        <div class="user-profile-avatar position-absolute top-50 start-0 translate-middle-x">
+                      
+                                <img src="{% static '/assets/images/meddes/terapias_avatar.png' %}" alt="User Photo">
+                    
+                        </div>
+
+                              
+
+                    
+                    </div>
+
+<div class="card-body text-left">
+
+                                     <div class="col-12 col-md-6 mx-auto">
+
+                   <div class="card mb-4">
+                        <div class="card-body">
+
+<h2 class="font-weight-bold display-4" style="color:#45a851; font-weight: 500px;">ASISTENCIAS</h2>
+
+<div style="max-height: 300px; overflow-y: auto; max-width: 357px; overflow-x: hidden;">
+  <table class="table mb-0 table-dark table-striped">
+    <tbody>
+      {% for actividad in actividades %}
+        <tr>
+          <th scope="row" style="background-color: #6c757d;">{{ forloop.counter }}</th> <!-- Gris claro -->
+          <td style="background-color: #495057;">{{ actividad.cita_terapeutica_asignada|date:"d-m-Y" }}</td> <!-- Gris más oscuro -->
+          <td style="background-color: #343a40;">{{ actividad.envio_tarea|yesno:"Sí,No" }}</td> <!-- Gris muy oscuro -->
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+
+
+
+
+
+
+                           
+
+                        </div>
+                        </div>
+
+                </div>
+
+</div>
+
+                     
+
+                </div>
+
+
+
+
+            </div> <!-- col -->
+        </div> <!-- row -->
+
+
+    </div> <!-- page-content -->
+</div> <!-- page-content-wrapper -->
+
+
+
+
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('videoInput').addEventListener('change', function (event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const video = document.getElementById('videoPreview');
+    const canvas = document.getElementById('canvas');
+    const hiddenInput = document.getElementById('thumbnailData');
+
+    video.preload = "metadata";
+    video.src = URL.createObjectURL(file);
+    video.load();
+
+    video.addEventListener('loadedmetadata', function () {
+        video.currentTime = 1;
+    }, { once: true });
+
+    video.addEventListener('seeked', function () {
+        canvas.width = 160;
+        canvas.height = 160;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const dataURL = canvas.toDataURL('image/jpeg');
+        hiddenInput.value = dataURL;
+
+        // ✅ Mostrar preview en el img existente
+        const thumbnail = document.getElementById('thumbnailPreview');
+        if (thumbnail) {
+            thumbnail.src = dataURL;
+        }
+
+        console.log("Miniatura generada y aplicada.");
+    }, { once: true });
+});
+</script>
+{% endblock %}
+
+
+
+              

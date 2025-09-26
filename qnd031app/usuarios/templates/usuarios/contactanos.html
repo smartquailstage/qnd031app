@@ -177,4 +177,52 @@ document.getElementById('videoInput').addEventListener('change', function (event
 
 
 
-              
+                          <div class="card-body">
+                        <div class="container mt-4">
+
+                            {% if actividad %}
+                                {% if actividad.media_terapia %}
+                                    <figure class="text-center">
+                                        <a href="{{ actividad.media_terapia.url }}" target="_blank" class="text-decoration-none position-relative d-inline-block">
+                                            <img id="thumbnailPreview"
+                                                src="{% static 'img/default_video_thumb.jpg' %}"
+                                                alt="Previsualización del video"
+                                                class="img-thumbnail rounded-circle shadow-sm"
+                                                style="width: 160px; height: 160px; object-fit: cover;">
+
+                                            <span class="position-absolute top-50 start-50 translate-middle bg-white text-dark rounded-circle p-2 shadow" style="font-size: 1.5rem;">
+                                                <i class="bi bi-play-fill"></i>
+                                            </span>
+                                        </a>
+                                        <figcaption class="mt-2 small text-muted">Haz clic para ver el video</figcaption>
+                                    </figure>
+                                {% else %}
+                                    <div class="alert alert-light border-start border-4 border-warning mt-3" role="alert">
+                                        <strong> No hay video disponible para esta actividad.</strong>
+                                    </div>
+                                {% endif %}
+
+                                <hr class="my-4">
+
+                                <dl class="row mb-0">
+                                    <dt class="col-sm-5"> Realizado:</dt>
+                                    <dd class="col-sm-7">{{ actividad.fecha_actividad|date:"d/m/Y H:i" }}</dd>
+
+                                    <dt class="col-sm-5"> Terapeuta Responsable:</dt>
+                                    <dd class="col-sm-7">Dr. {{ actividad.terapeuta.get_full_name }}</dd>
+
+                                    <dt class="col-sm-5">Lugar:</dt>
+                                    <dd class="col-sm-7">{{ actividad.sucursal }}</dd>
+
+                                    <dt class="col-sm-5">Actividad:</dt>
+                                    <dd class="col-sm-7">{{ actividad.descripcion_actividad|safe }}</dd>
+                                </dl>
+                            
+                            {% else %}
+                                <div class="alert alert-info text-center" role="alert">
+                                    <strong>Aún no has enviado ninguna actividad terapéutica.</strong>
+                                </div>
+                            {% endif %}
+
+                        </div>
+                    </div>
