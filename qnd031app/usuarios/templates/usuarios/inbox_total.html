@@ -37,34 +37,30 @@
           Bandeja de notificaciones recibidas.
                     </h4>
 
-    <div style="max-height: 300px; overflow-y: auto; max-width: 357px; overflow-x: hidden;">
+<div style="max-height: 300px; overflow-y: auto; max-width: 357px; overflow-x: hidden;">
   <table class="table mb-0 table-dark table-striped">
     <tbody>
       {% for mensaje in mensajes %}
-        <tr>
-          <th scope="row" style="background-color: #6c757d;">{{ forloop.counter }}</th> <!-- Número -->
-          <td style="background-color: #495057;">{{ mensaje.fecha_envio|date:"d-m-Y H:i" }}</td> <!-- Fecha -->
-          
-          <!-- Enlace al detalle del mensaje -->
-          <td style="background-color: #343a40;">
-            <a href="{% url 'ver_mensaje' mensaje.pk %}" class="text-decoration-none text-light">
-              {{ mensaje.asunto }}
-            </a>
-          </td>
-          
-          <!-- Estado leído/no leído -->
-          <td style="background-color: #343a40;">
-            {% if mensaje.leido %}
-              <span class="badge bg-success">Leído</span>
-            {% else %}
-              <span class="badge bg-warning text-dark">No leído</span>
-            {% endif %}
-          </td>
-        </tr>
+      <tr>
+        <th scope="row" style="background-color: #6c757d;">{{ forloop.counter }}</th>
+        <td style="background-color: #495057;">{{ mensaje.fecha_envio|date:"d-m-Y H:i" }}</td>
+        <td style="background-color: #343a40;">
+          <a href="{% url 'usuarios:ver_mensaje' mensaje.pk %}" class="text-decoration-none text-light">
+            {{ mensaje.asunto }}
+          </a>
+        </td>
+        <td style="background-color: #343a40;">
+          {% if mensaje.leido %}
+          <span class="badge bg-success">Leído</span>
+          {% else %}
+          <span class="badge bg-warning text-dark">No leído</span>
+          {% endif %}
+        </td>
+      </tr>
       {% empty %}
-        <tr>
-          <td colspan="4" class="text-center text-muted" style="background-color: #343a40;">No hay mensajes.</td>
-        </tr>
+      <tr>
+        <td colspan="4" class="text-center text-muted" style="background-color: #343a40;">No hay mensajes.</td>
+      </tr>
       {% endfor %}
     </tbody>
   </table>

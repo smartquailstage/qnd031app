@@ -3,6 +3,86 @@
 {% load static %}
 
 {% block content %}
+
+        <div class="page-content-wrapper">
+          <!-- start page content-->
+            <div class="page-content">
+
+        <!-- Primera fila fuera del contenedor -->
+        <div class="row">
+            <div class="col-12 col-lg-8 col-xl-12">
+                <div class="card overflow-hidden radius-10">
+                    <div class="profile-cover-4 bg-dark position-relative mb-4">
+                        <!-- Logo arriba a la derecha -->
+
+
+                        <!-- Avatar centrado -->
+                        <div class="user-profile-avatar position-absolute top-50 start-0 translate-middle-x">
+                      
+                                <img src="{% static '/assets/images/meddes/notificaciones_avatar.png' %}" alt="User Photo">
+                    
+                        </div>
+                    </div>
+
+    <div class="card-body text-left">
+       
+
+
+    <div class="col-12 col-md-6 mx-auto">
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="font-weight-bold display-4" style="color:#45a851;">NOTIFICACIONES</h2>
+                    <h4 class="mb-4">
+          Bandeja de notificaciones recibidas.
+                    </h4>
+
+                 <h5 class="mb-0">                 
+                    {% if mensaje.asunto == 'consulta' or mensaje.asunto == 'Sugerencia' or mensaje.asunto == 'Informativo' %}
+                      Asunto: <span class="badge bg-success">Informativo</span>
+                    {% elif mensaje.asunto == 'Terapéutico' %}  
+                      Asunto: <span class="badge bg-warning">Terapéutico</span>
+                      <h6> Enviado: {{ mensaje.fecha_envio }}</h6> 
+                     
+                    {% elif mensaje.asunto == 'Solicitud de pago vencido' or mensaje.asunto == 'Solicitud de Certificado Médico' or mensaje.asunto == 'Reclamo del servicio  Médico'  or mensaje.asunto == 'Cancelación del servicio Médico'  %}
+                      Asunto: <span class="badge bg-danger">Urgente</span>
+                    {% endif %}
+                  </h5>
+                  <h6 class="mb-0">{{ mensaje.emisor.first_name }} {{ mensaje.emisor.last_name }}</h6>
+                  {% if mensaje.leido == True %}  
+                      <h6>Leído <ion-icon name="eye-outline"></ion-icon></h6>
+                    {% else %}
+                      <h6>Nuevo <ion-icon name="eye-off-outline"></ion-icon></h6>
+                    {% endif %} 
+
+                       
+              
+                <p>{{ mensaje.cuerpo|safe }}</p>
+           
+
+
+</div>
+
+      
+        </div>
+    </div>
+</div>
+
+    </div>
+
+
+                </div>
+            </div> <!-- col -->
+        </div> <!-- row -->
+
+        <!-- Segunda fila dentro de un card y container -->
+
+
+</div>
+
+
+{% endblock %}
+
+
 <div class="page-content-wrapper">
     <!-- start page content -->
     <div class="page-content">
@@ -56,4 +136,3 @@
         
     </div> <!-- Fin page-content -->
 </div> <!-- Fin page-content-wrapper -->
-{% endblock %}

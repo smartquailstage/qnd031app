@@ -10,7 +10,7 @@ from .models import Mensaje, Cita ,TareaComentario
 from serviceapp.models import ServicioTerapeutico
 from ckeditor.widgets import CKEditorWidget
 from django.forms.models import inlineformset_factory
-from .models import AsistenciaTerapeuta, prospecion_administrativa, DocenteCapacitado, Perfil_Terapeuta, ValoracionTerapia, AdministrativeProfile
+from .models import AsistenciaTerapeuta, prospecion_administrativa, DocenteCapacitado, Perfil_Terapeuta, ValoracionTerapia, AdministrativeProfile, Contacto
 from bootstrap_datepicker_plus.widgets import DatePickerInput
 from django import forms
 from .widgets import CustomDatePickerWidget
@@ -102,7 +102,18 @@ class LoginForm(forms.Form):
     email = forms.EmailField(label="Correo electrónico")
     password = forms.CharField(widget=forms.PasswordInput, label="Contraseña")
 
-    
+
+class ContactoForm(forms.ModelForm):
+    class Meta:
+        model = Contacto
+        fields = ['area', 'asunto', 'mensaje', 'adjunto']
+        widgets = {
+            'area': forms.Select(attrs={'class': 'form-select'}),
+            'asunto': forms.TextInput(attrs={'class': 'form-control'}),
+            'mensaje': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
+            'adjunto': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        }
+
 
 class MensajeForm(forms.ModelForm):
     class Meta:

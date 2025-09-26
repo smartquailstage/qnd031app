@@ -1838,6 +1838,40 @@ class AsistenciaTerapeuta(models.Model):
 
 
 
+class Contacto(models.Model):
+    AREA_OPCIONES = [
+        ('terapeutica', 'Terapéutica'),
+        ('administrativa', 'Administrativa'),
+        ('financiera', 'Financiera'),
+    ]
+
+    area = models.CharField(
+        max_length=20,
+        choices=AREA_OPCIONES,
+        verbose_name="Área"
+    )
+
+    asunto = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+        verbose_name="Asunto"
+    )
+
+    mensaje = models.TextField(
+        verbose_name="Mensaje"
+    )
+
+    adjunto = models.FileField(upload_to='adjuntos_contacto/', blank=True, null=True)
+
+    fecha_creacion = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Fecha de creación"
+    )
+
+    def __str__(self):
+        return f"{self.get_area_display()} - {self.asunto or 'Sin asunto'}"
+
 
 
 

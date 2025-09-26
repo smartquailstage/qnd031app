@@ -5,7 +5,7 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from django.contrib import messages
-from .forms import LoginForm,MensajeForm,CitaForm,TareaComentarioForm, AutorizacionForm                 
+from .forms import LoginForm,MensajeForm,CitaForm,TareaComentarioForm, AutorizacionForm,ContactoForm                 
 from .models import Profile, Cita
 from django.shortcuts import get_object_or_404
 from django.conf import settings
@@ -237,6 +237,19 @@ def profile_view(request):
     })
 
 
+@login_required
+def contacto_view(request):
+    if request.method == 'POST':
+        form = ContactoForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Tu mensaje ha sido enviado con éxito.')
+            return redirect('usuarios:formulario')  # Redirige a una página de éxito
+    else:
+        form = ContactoForm()
+    
+    return render(request, 'usuarios/contacto/contacto_form.html', {'form': form})
+
 
 @login_required
 def header(request):
@@ -312,9 +325,9 @@ def inbox_view(request):
 def inbox_record(request):
     profile = get_object_or_404(Profile, user=request.user)
 
-    # Todos los mensajes recibidos asignados al perfil del usuario
-    mensajes = Mensaje.objects.filter(receptor=profile)
-
+    # Mensajes ordenados por fecha de envío (más recientes primero)
+    mensajes = Mensaje.objects.filter(receptor=profile).order_by('-fecha_envio')
+    
     leidos = mensajes.filter(leido=True).count()
     no_leidos = mensajes.filter(leido=False).count()
     total = mensajes.count()

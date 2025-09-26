@@ -64,7 +64,7 @@ urlpatterns = [
 
     path('Asistencias/', views.tareas_asistidas_view, name='asistencia_list'),
 
-    
+    path('Contactanos/', views.contacto_view, name='formulario'),
     path('Asistencia/<int:pk>/', views.AsistenciaDetailView.as_view(), name='asistencia_detail'),
 
     #path('actividades/', views.ActividadListView.as_view(), name='actividad_list'),
