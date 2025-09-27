@@ -56,6 +56,8 @@
 
 {% if media %}
     {% if media.media_terapia %}
+    <video id="hiddenVideo" src="{{ media.media_terapia.url }}" style="display: none;"></video>
+    <canvas id="thumbnailCanvas" style="display: none;"></canvas>
         <figure class="text-center">
             <a href="{{ media.media_terapia.url }}" target="_blank" class="text-decoration-none position-relative d-inline-block">
                 <img id="thumbnailPreview"
@@ -147,38 +149,34 @@
 
 {% block scripts %}
 <script>
-document.getElementById('videoInput').addEventListener('change', function (event) {
-    const file = event.target.files[0];
-    if (!file) return;
+document.addEventListener('DOMContentLoaded', function () {
+    const video = document.getElementById('hiddenVideo');
+    const canvas = document.getElementById('thumbnailCanvas');
+    const thumbnailImg = document.getElementById('thumbnailPreview');
 
-    const video = document.getElementById('videoPreview');
-    const canvas = document.getElementById('canvas');
-    const hiddenInput = document.getElementById('thumbnailData');
-
-    video.preload = "metadata";
-    video.src = URL.createObjectURL(file);
-    video.load();
-
-    video.addEventListener('loadedmetadata', function () {
-        video.currentTime = 1;
-    }, { once: true });
+    video.addEventListener('loadeddata', function () {
+        // Espera a que esté cargado el primer frame
+        video.currentTime = 0;
+    });
 
     video.addEventListener('seeked', function () {
-        canvas.width = 160;
-        canvas.height = 160;
+        // Dibuja el frame en el canvas
         const ctx = canvas.getContext('2d');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // Convierte a data URL
         const dataURL = canvas.toDataURL('image/jpeg');
-        hiddenInput.value = dataURL;
 
-        // ✅ Mostrar preview en el img existente
-        const thumbnail = document.getElementById('thumbnailPreview');
-        if (thumbnail) {
-            thumbnail.src = dataURL;
-        }
+        // Establece como src del thumbnail
+        thumbnailImg.src = dataURL;
+    });
 
-        console.log("Miniatura generada y aplicada.");
-    }, { once: true });
+    // Manejo de errores (opcional)
+    video.addEventListener('error', function () {
+        console.error('Error cargando el video para generar thumbnail.');
+    });
 });
 </script>
 {% endblock %}

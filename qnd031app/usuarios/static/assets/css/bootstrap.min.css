@@ -3034,10 +3034,10 @@ textarea.form-control-lg {
 	--bs-dropdown-divider-bg: var(--bs-border-color-translucent);
 	--bs-dropdown-divider-margin-y: 0.5rem;
 	--bs-dropdown-box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-	--bs-dropdown-link-color: var(--bs-body-color);
+	--bs-dropdown-link-color:#030303;
 	--bs-dropdown-link-hover-color: var(--bs-body-color);
 	--bs-dropdown-link-hover-bg: var(--bs-tertiary-bg);
-	--bs-dropdown-link-active-color: #fff;
+	--bs-dropdown-link-active-color: #030303;
 	--bs-dropdown-link-active-bg: #0d6efd;
 	--bs-dropdown-link-disabled-color: var(--bs-tertiary-color);
 	--bs-dropdown-item-padding-x: 1rem;
