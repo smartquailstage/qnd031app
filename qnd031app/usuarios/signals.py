@@ -15,6 +15,17 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from .models import tareas
 
+
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from .models import tareas
+from .tasks import generar_thumbnail_video
+
+@receiver(post_save, sender=tareas)
+def generar_thumbnail_post_save(sender, instance, created, **kwargs):
+    if instance.media_terapia and not instance.thumbnail_media:
+        generar_thumbnail_video.delay(instance.id)
+
 @receiver(post_save, sender=tareas)
 def verificar_thumbnail_frontend(sender, instance, created, **kwargs):
     """

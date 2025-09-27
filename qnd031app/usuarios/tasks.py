@@ -19,6 +19,46 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+
+
+from .models import tareas
+from django.core.files import File
+import subprocess
+from tempfile import NamedTemporaryFile
+import os
+
+@shared_task
+def generar_thumbnail_video(tarea_id):
+    try:
+        tarea = tareas.objects.get(pk=tarea_id)
+        if not tarea.media_terapia:
+            return
+
+        input_path = tarea.media_terapia.path
+        temp_thumb = NamedTemporaryFile(suffix=".jpg", delete=False)
+
+        cmd = [
+            'ffmpeg',
+            '-i', input_path,
+            '-ss', '00:00:01.000',   # extrae frame en el segundo 1
+            '-vframes', '1',
+            '-q:v', '2',
+            temp_thumb.name
+        ]
+
+        subprocess.run(cmd, check=True)
+
+        with open(temp_thumb.name, 'rb') as f:
+            file_name = os.path.basename(temp_thumb.name)
+            tarea.thumbnail_media.save(file_name, File(f), save=True)
+
+        os.remove(temp_thumb.name)
+
+    except Exception as e:
+        print(f"[ERROR Celery] Generando thumbnail: {e}")
+
+
+
 @shared_task(bind=True, max_retries=3, default_retry_delay=60)  # 3 intentos, 60s entre cada uno
 def enviar_correo_async(self, emisor, receptor_email, asunto, cuerpo_html):
     try:
