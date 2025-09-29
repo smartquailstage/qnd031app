@@ -4535,7 +4535,7 @@ textarea.form-control-lg {
 	position: relative;
 	display: block;
 	padding: var(--bs-list-group-item-padding-y) var(--bs-list-group-item-padding-x);
-	color: var(--bs-list-group-color);
+	color: #000;
 	text-decoration: none;
 	background-color: var(--bs-list-group-bg);
 	border: var(--bs-list-group-border-width) solid var(--bs-list-group-border-color)
@@ -7780,7 +7780,7 @@ textarea.form-control-lg {
 }
 .bg-white {
 	--bs-bg-opacity: 1;
-	background-color: rgba(var(--bs-white-rgb), var(--bs-bg-opacity))!important
+	background-color: rgb(69 168 81)!important
 }
 .bg-body {
 	--bs-bg-opacity: 1;

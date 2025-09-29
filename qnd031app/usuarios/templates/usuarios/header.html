@@ -24,42 +24,55 @@
   <ul class="navbar-nav align-items-center">
 
     <!-- Tareas Asignadas -->
-    <li class="nav-item dropdown dropdown-large">
-      <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" href="#" data-bs-toggle="dropdown">
-        <div class="position-relative">
-          {% if tareas_nuevas_count > 0 %}
-            <span class="notify-badge">{{ tareas_nuevas_count }}</span>
-          {% endif %}
-          <ion-icon name="clipboard-outline"></ion-icon>
-        </div>
-      </a>
-      <div class="dropdown-menu dropdown-menu-end">
-        <div class="msg-header d-flex align-items-center">
-          <p class="msg-header-title mb-0"><ion-icon name="clipboard-outline"></ion-icon> Tareas Asignadas</p>
-          <p class="msg-header-clear ms-auto mb-0 text-primary">{{ tareas_nuevas_count }} nuevas</p>
-        </div>
-        <div class="header-notifications-list">
-          {% for tarea in tareas_detalle %}
-            <a class="dropdown-item" href="{% url 'usuarios:ver_tarea' tarea.id %}">
-              <div class="d-flex align-items-center">
-                <div class="notify text-warning"><ion-icon name="document-text-outline"></ion-icon></div>
-                <div class="flex-grow-1">
-                  <h6 class="msg-name">{{ tarea.titulo|default:"Sin título" }}</h6>
-                  <p class="msg-info">Entrega: {{ tarea.fecha_entrega|date:"d M Y" }}</p>
-                </div>
+<li class="nav-item dropdown dropdown-large">
+  <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" href="#" data-bs-toggle="dropdown">
+    <div class="position-relative">
+      {% if ultimos_videos_realizados|length > 0 %}
+        <span class="notify-badge">{{ ultimos_videos_realizados|length }}</span>
+      {% endif %}
+      <ion-icon name="videocam-outline"></ion-icon>
+    </div>
+  </a>
+  <div class="dropdown-menu dropdown-menu-end">
+    <div class="msg-header d-flex align-items-center">
+      <p class="msg-header-title mb-0">
+        <ion-icon name="videocam-outline"></ion-icon> Videos de Terapia
+      </p>
+      <p class="msg-header-clear ms-auto mb-0 text-primary">
+        {{ ultimos_videos_realizados|length }} nuevos
+      </p>
+    </div>
+    <div class="header-notifications-list">
+      {% for tarea in ultimos_videos_realizados %}
+        <a class="dropdown-item" href="{% url 'usuarios:terapia_detail' tarea.id %}">
+          <div class="d-flex align-items-center">
+            {% if tarea.thumbnail_media %}
+              <img src="{{ tarea.thumbnail_media.url }}" alt="Thumbnail" width="40" height="40" class="rounded me-2">
+            {% else %}
+              <div class="notify text-primary">
+                <ion-icon name="play-circle-outline"></ion-icon>
               </div>
-            </a>
-          {% empty %}
-            <div class="dropdown-item text-center text-muted small">
-              No tienes tareas pendientes
+            {% endif %}
+            <div class="flex-grow-1">
+              <h6 class="msg-name">{{ tarea.titulo|default:"Sin título" }}</h6>
+              <p class="msg-info">Fecha: {{ tarea.fecha_actividad|date:"d M Y H:i" }}</p>
             </div>
-          {% endfor %}
-        </div>
-        <a href="{% url 'usuarios:lista_tareas' %}">
-          <div class="text-center msg-footer"><ion-icon name="list-circle-outline"></ion-icon> Ver todas las tareas</div>
+          </div>
         </a>
+      {% empty %}
+        <div class="dropdown-item text-center text-muted small">
+          No hay videos recientes de terapia
+        </div>
+      {% endfor %}
+    </div>
+    <a href="{% url 'usuarios:terapia_list' %}">
+      <div class="text-center msg-footer">
+        <ion-icon name="film-outline"></ion-icon> Ver todas las terapias
       </div>
-    </li>
+    </a>
+  </div>
+</li>
+
 
     <!-- Notificaciones -->
     <li class="nav-item dropdown dropdown-large">

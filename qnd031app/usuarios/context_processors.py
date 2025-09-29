@@ -69,6 +69,24 @@ def ultima_cita(request):
     return {'ultima_cita': None}
 
 
+
+
+def ultimos_videos(request):
+    """
+    Procesador de contexto que retorna las últimas tareas con video cargado.
+    """
+    ultimos_videos = tareas.objects.filter(
+        media_terapia__isnull=False,
+        media_terapia__exact='',  # Esto se asegura de que no sea string vacío
+        actividad_realizada=True  # Solo tareas completadas, opcional
+    ).order_by('-fecha_actividad')[:5]  # Cambia 5 por el número que necesites
+
+    return {
+        'ultimos_videos_realizados': ultimos_videos
+    }
+
+
+    
 def ultima_tarea(request):
     """
     Obtener la última tarea usando profile, sin error si no existe el profile.

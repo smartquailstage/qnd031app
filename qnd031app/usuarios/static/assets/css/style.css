@@ -131,7 +131,7 @@ position: fixed;
     margin-left: 10px;
     margin-bottom: 0;
     letter-spacing: 1px;
-    color: #923eb9;
+    color: #00a426;
 }
 
 .toggle-icon {
@@ -147,7 +147,7 @@ position: fixed;
 }
 
 .toggle-icon:hover {
-    background-color: #f5f5f5;
+    background-color: #45a851;
 }
 
 .sidebar-wrapper ul {
@@ -395,8 +395,8 @@ position: fixed;
 
 .top-header .navbar .searchbar .form-control:focus {
     background-color: #fff;
-    border-color: #c27be4;
-    box-shadow: 0 0 0 .25rem rgba(146, 62, 185, 0.3)
+    border-color: #11a500;
+    box-shadow: 0 0 0 .25rem rgba(1, 107, 19, 0.3)
     
 }
 
@@ -412,7 +412,7 @@ position: fixed;
 }
 
 .top-header .navbar .top-navbar-right .nav-item:hover {
-    background-color: #353836;
+    background-color: #45a851;
 }
 
 .top-header .navbar .top-navbar-right .nav-link {
