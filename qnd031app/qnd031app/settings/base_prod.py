@@ -530,6 +530,8 @@ TEMPLATES = [
                 'usuarios.context_processors.profile_uploads_context',
                 'usuarios.context_processors.ultima_cita',
                 'usuarios.context_processors.ultima_tarea',
+                'usuarios.context_processors.ultima_tarea',
+                'usuarios.context_processors.ultimos_videos',
                 
             ],
         },
