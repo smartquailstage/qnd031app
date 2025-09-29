@@ -36,13 +36,12 @@ width: 123px;
                   <form class="form-body row g-3" method="post">
              
 
-              <div class="col-12 col-lg-12" width="10px" style="background-color: #46a851; color:#ffff">
-                <h4>SISTEMA DE ADMINISTRACION <strong>TERAPEUTICA MEDDES</strong></h4>
+              <div class="col-12 col-lg-12" width="10px" style="background-color: #46a851; color:#ffff;border-radius: 10px;margin-top: 44px;">
+                <p>SISTEMA DE ADMINISTRACION </p>
+                <h5><strong>TERAPEUTICA MEDDES</strong></h5>
 
               {% csrf_token %}
-                <div class="position-relative border-bottom my-3">
-                  <div class="position-absolute seperator-2 translate-middle-y"></div>
-                </div>
+            
               </div>
 
               {% if form.errors %}
@@ -117,7 +116,7 @@ width: 123px;
 <!-- Sección con fondo diferente y thumbnail sobresaliente -->
 <div class="thumbnail-section" style="position: relative;margin-top: 52px; background-color: #353836; padding-top: 50px; padding-bottom: 20px;">
   <div class="thumbnail-img-wrapper" style="position: absolute; top: -40px; left: 50%; transform: translateX(-50%); z-index: 10;">
-    <img src="{% static 'img/BA-LOGOS/logoF.png' %}" alt="Logo Meddes" class="thumbnail-img">
+    <img src="{% static 'assets/images/meddes/niña.png' %}" alt="Logo Meddes" class="thumbnail-img">
   </div>
   <p class="text-center text-muted" style="font-size: 12px;">MEDDES</p>
 </div>

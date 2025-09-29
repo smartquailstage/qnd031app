@@ -24,6 +24,14 @@ File: style.css
  */
 
 
+ @font-face {
+  font-family: 'Poppins';
+  src: url('/fonts/Poppins-Medium.ttf') format('ttf'),
+       url('/fonts/Poppins-Light.ttf') format('ttf');
+  font-weight: normal;
+  font-style: normal;
+}
+
 
 
 /* Genral */
@@ -34,7 +42,7 @@ body {
     letter-spacing: .5px;
     background-color:#353836;
     overflow-x: hidden;
-    font-family: Roboto, sans-serif;
+    font-family: Poppins, sans-serif;
 }
 
 a {
@@ -394,7 +402,7 @@ position: fixed;
 }
 
 .top-header .navbar .searchbar .form-control:focus {
-    background-color: #fff;
+    background-color:#11a500 ;
     border-color: #11a500;
     box-shadow: 0 0 0 .25rem rgba(1, 107, 19, 0.3)
     
