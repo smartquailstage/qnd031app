@@ -29,6 +29,18 @@ def badge_callback_meddes(request):
         return "0"
 
 
+
+def badge_callback_contacto(request):
+    try:
+        hoy = timezone.now().date()
+        nuevos = Contacto.objects.filter(fecha_creacion__date=hoy).count()
+        return str(nuevos)
+    except Exception:
+        return "0"
+
+
+        
+
 def badge_callback_notificaciones(request):
     try:
         hoy = timezone.now().date()

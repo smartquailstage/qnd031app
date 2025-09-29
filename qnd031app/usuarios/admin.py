@@ -2,7 +2,7 @@ import csv
 import xlsxwriter
 from django.contrib import admin
 from django.http import HttpResponse
-from .models import TicketSoporte, Cliente, ProblemaFrecuente,Perfil_Comercial, PreguntaFrecuente, Profile,InformesTerapeuticos, BitacoraDesarrollo, PerfilInstitucional ,Perfil_Terapeuta, Mensaje, Sucursal , ValoracionTerapia ,DocenteCapacitado, Cita,ComentarioCita, TareaComentario ,AsistenciaTerapeuta,prospecion_administrativa,Prospeccion, tareas, pagos
+from .models import TicketSoporte, Cliente, ProblemaFrecuente,Perfil_Comercial, PreguntaFrecuente, Profile,InformesTerapeuticos, BitacoraDesarrollo, PerfilInstitucional ,Perfil_Terapeuta, Mensaje, Sucursal , ValoracionTerapia ,DocenteCapacitado, Cita,ComentarioCita, TareaComentario ,AsistenciaTerapeuta,prospecion_administrativa,Prospeccion, tareas, pagos, Contacto
 from django.contrib.postgres.fields import ArrayField
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -2003,6 +2003,38 @@ class MensajeAdmin(ModelAdmin):
         return qs.none()  # Ningún perfil asociado → acceso denegado
 
     
+
+
+@admin.register(Contacto)
+class ContactoAdmin(ModelAdmin):
+    list_display = [
+        'area',
+        'asunto',
+        'fecha_creacion',
+    ]
+    list_filter_submit = True
+    list_filter = [
+        'area',
+        ('fecha_creacion'),
+    ]
+    search_fields = [
+        'asunto',
+        'mensaje',
+    ]
+    readonly_fields = [
+        'fecha_creacion',
+    ]
+    exclude = [
+        'adjunto',
+    ]
+    # Si deseas agregar acciones personalizadas:
+    # actions = [tu_accion_personalizada]
+
+    # Si en el futuro usas secciones o componentes personalizados en el admin:
+    # list_sections = [TuComponenteAdmin]
+
+    # Opcional: si quieres permitir edición en línea de algún campo desde la lista
+    # list_editable = ['asunto']
 
 
     def estado_tarea_coloreado(self, obj):

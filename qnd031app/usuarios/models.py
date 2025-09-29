@@ -1873,6 +1873,12 @@ class Contacto(models.Model):
         return f"{self.get_area_display()} - {self.asunto or 'Sin asunto'}"
 
 
+    class Meta:
+        verbose_name = "Contactos de usuarios"
+        verbose_name_plural = "Contactos de usuarios"
+        ordering = ['-fecha_creacion']
+
+
 
 
 

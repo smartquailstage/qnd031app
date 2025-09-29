@@ -305,6 +305,17 @@ UNFOLD = {
                 "badge_color": "custom-red-alert",
                 "permission": is_administrativo_o_isuperuser,
             },
+
+            {
+                "title": _("Contactos de Pacientes"),
+                "icon": "inbox",
+                "link": reverse_lazy("admin:usuarios_contacto_changelist"),
+                "badge": "usuarios.unfold_config.badge_callback_contacto",
+                "badge_color": "custom-red-alert",
+                "permission": is_administrativo_o_isuperuser,
+            },
+
+
         ],
     },
 
