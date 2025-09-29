@@ -1839,11 +1839,31 @@ class AsistenciaTerapeuta(models.Model):
 
 
 class Contacto(models.Model):
+
+
     AREA_OPCIONES = [
         ('terapeutica', 'Terapéutica'),
         ('administrativa', 'Administrativa'),
         ('financiera', 'Financiera'),
     ]
+
+    sucursal = models.ForeignKey(
+        Sucursal,
+        on_delete=models.CASCADE,
+        related_name="sucursal0",
+        null=True,
+        blank=True
+    )
+
+    emisor = models.ForeignKey(
+    'Profile',  # ← ya no apunta a User
+    related_name='contacto_paciente',
+    on_delete=models.SET_NULL,
+    null=True,
+    blank=True,
+    verbose_name="Administrador emisor"
+    )
+
 
     area = models.CharField(
         max_length=20,

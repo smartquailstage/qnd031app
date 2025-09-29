@@ -2008,8 +2008,10 @@ class MensajeAdmin(ModelAdmin):
 @admin.register(Contacto)
 class ContactoAdmin(ModelAdmin):
     list_display = [
+        'emisor',
         'area',
         'asunto',
+        'adjunto',
         'fecha_creacion',
     ]
     list_filter_submit = True

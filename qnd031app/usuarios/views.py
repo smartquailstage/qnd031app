@@ -236,18 +236,22 @@ def profile_view(request):
         'edad_meses': edad_meses,
     })
 
-
 @login_required
 def contacto_view(request):
+    # Obtenemos el perfil del usuario autenticado
+    emisor_profile = Profile.objects.get(user=request.user)
+
     if request.method == 'POST':
         form = ContactoForm(request.POST)
         if form.is_valid():
-            form.save()
+            mensaje = form.save(commit=False)
+            mensaje.emisor = emisor_profile  # Asignamos el perfil como emisor
+            mensaje.save()
             messages.success(request, 'Tu mensaje ha sido enviado con éxito.')
-            return redirect('usuarios:formulario')  # Redirige a una página de éxito
+            return redirect('usuarios:formulario')  # Cambiar por tu URL de éxito
     else:
         form = ContactoForm()
-    
+
     return render(request, 'usuarios/contacto/contacto_form.html', {'form': form})
 
 
