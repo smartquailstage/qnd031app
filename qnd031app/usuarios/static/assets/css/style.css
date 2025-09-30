@@ -1000,14 +1000,14 @@ width: 250px;
 }
 
 .profile-cover {
-    background-image: url("../images/meddes/profile_bg.jpg");
+    background-image: url("../meddes/profile_bg.jpg");
     background-size: cover;
     height: 23rem;
     background-position: center;
 }
 
 .profile-cover-1 {
-    background-image: url("../images/meddes/terapias2_bg.jpg");
+    background-image: url("../meddes/terapias2_bg.jpg");
     background-size: cover;
     height: 23rem;
     background-position: center;
@@ -1015,28 +1015,28 @@ width: 250px;
 
 
 .profile-cover-2 {
-    background-image: url("../images/meddes/asistencias_bg.jpg");
+    background-image: url("../meddes/asistencias_bg.jpg");
     background-size: cover;
     height: 23rem;
     background-position: center;
 }
 
 .profile-cover-3 {
-    background-image: url("../images/meddes/terapias_bg.jpg");
+    background-image: url("../meddes/terapias_bg.jpg");
     background-size: cover;
     height: 23rem;
     background-position: center;
 }
 
 .profile-cover-4 {
-    background-image: url("../images/meddes/notificaciones_bg.jpg");
+    background-image: url("../meddes/notificaciones_bg.jpg");
     background-size: cover;
     height: 23rem;
     background-position: center;
 }
 
 .profile-cover-5 {
-    background-image: url("../images/meddes/contactanos_bg.jpg");
+    background-image: url("../meddes/contactanos_bg.jpg");
     background-size: cover;
     height: 23rem;
     background-position: center;
