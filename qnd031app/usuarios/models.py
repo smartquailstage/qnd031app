@@ -1659,12 +1659,6 @@ class tareas(models.Model):
             return f"{horas}h {minutos}m"
         return "—"
 
-    def thumbnail_preview(self):
-        if self.thumbnail_media:
-            return mark_safe(f'<img src="{self.thumbnail_media.url}" width="150" />')
-        return "(No thumbnail)"
-    thumbnail_preview.short_description = 'Thumbnail'
-
    # def save(self, *args, **kwargs):
     #    super().save(*args, **kwargs)  # Primero guardar el video
     #    if self.media_terapia and not self.thumbnail:

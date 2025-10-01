@@ -23,24 +23,25 @@ from .tasks import generar_thumbnail_video
 
 from django.db import transaction
 
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from django.db import transaction
-from .models import tareas
-from .tasks import generar_thumbnail_video
 
 @receiver(post_save, sender=tareas)
-def post_save_tarea_handler(sender, instance, created, **kwargs):
+def generar_thumbnail_post_save(sender, instance, created, **kwargs):
+    if instance.media_terapia and not instance.thumbnail_media:
+        # Asegura que la tarea se ejecute después de guardar en DB
+        transaction.on_commit(lambda: generar_thumbnail_video.delay(instance.id))
+
+
+@receiver(post_save, sender=tareas)
+def verificar_thumbnail_frontend(sender, instance, created, **kwargs):
+    """
+    Si el frontend envió un thumbnail junto con el video, ya estará en instance.thumbnail_media.
+    Este signal solo puede hacer validaciones adicionales si lo deseas.
+    """
     if created:
         if instance.thumbnail_media:
             print(f"✅ Thumbnail recibido del frontend para tarea {instance.pk}")
         else:
             print(f"⚠️ No se recibió thumbnail desde el frontend para tarea {instance.pk}")
-    
-    if instance.media_terapia and not instance.thumbnail_media:
-        transaction.on_commit(lambda: generar_thumbnail_video.delay(instance.id))
-        print(f"🚀 Enviada tarea Celery para generar thumbnail de tarea {instance.id}")
-
 
 
 @receiver(post_save, sender=Cita)
