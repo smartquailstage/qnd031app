@@ -897,15 +897,14 @@ class TerapiaDetailView(LoginRequiredMixin, TemplateView):
             pk=self.kwargs['pk']
         )
 
-        media = actividades.filter(
-            Q(media_terapia__isnull=False),
-            Q(thumbnail_media__isnull=False),
-            ~Q(thumbnail_media='')
-            ).first()
+        media = actividades.filter(media_terapia__isnull=False).first()
 
-        # Si la actividad más reciente con video no tiene thumbnail, lo generamos en segundo plano
+        # Disparamos la tarea si falta el thumbnail
         if media and media.media_terapia and not media.thumbnail_media:
             generar_thumbnail_video.delay(media.id)
+
+        # 🔁 Refrescamos la instancia desde la base de datos
+        actividad.refresh_from_db()
 
         context.update({
             'actividad': actividad,
@@ -914,6 +913,7 @@ class TerapiaDetailView(LoginRequiredMixin, TemplateView):
         })
 
         return context
+
 
 
 
