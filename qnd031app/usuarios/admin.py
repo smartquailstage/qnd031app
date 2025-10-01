@@ -1350,7 +1350,7 @@ class tareasAdmin(ModelAdmin):
             'fields': ('sucursal', 'Insitucional_a_cargo', 'profile',  'asistire','cita_terapeutica_asignada',)
         }),
         ('Actividad Terapéutica', {
-            'fields': ('titulo', 'descripcion_actividad', 'media_terapia')
+            'fields': ('titulo', 'descripcion_actividad', 'media_terapia','thumbnail_media')
         }),
         ('Tareas', {
             'fields': ('envio_tarea', 'fecha_envio', 'fecha_entrega', 'descripcion_tarea', 'material_adjunto', 'actividad_realizada')
