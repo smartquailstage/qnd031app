@@ -53,14 +53,15 @@
 
 {% if media %}
     {% if media.media_terapia %}
-    <p><strong>Thumbnail URL:</strong> {{ media.thumbnail_media.url }}</p>
 
         <figure class="text-center">
             <a href="{{ media.media_terapia.url }}" target="_blank" class="text-decoration-none position-relative d-inline-block">
-<img src="{% if media.thumbnail_media %}{{ media.thumbnail_media.url }}{% else %}{% static 'img/default_video_thumb.jpg' %}{% endif %}"
+<img id="thumbnailPreview"
+     src="{% if actividad.thumbnail_media and actividad.thumbnail_media.name %}{{ actividad.thumbnail_media.url }}{% else %}{% static 'img/default_video_thumb.jpg' %}{% endif %}"
      alt="Previsualización del video"
      class="img-thumbnail shadow-sm"
      style="width: 560px; height: 560px; object-fit: cover;">
+
 
 
                 <span class="position-absolute top-50 start-50 translate-middle bg-white text-dark rounded-circle p-2 shadow" style="font-size: 1.5rem;">
