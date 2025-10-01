@@ -19,16 +19,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-
 from .models import tareas
 from django.core.files import File
 from celery import shared_task
-import subprocess
-from tempfile import NamedTemporaryFile
-import os
-import requests
-from .models import tareas
-from django.core.files import File
 import subprocess
 from tempfile import NamedTemporaryFile
 import os
@@ -38,14 +31,20 @@ import requests
 def generar_thumbnail_video(tarea_id):
     try:
         tarea = tareas.objects.get(pk=tarea_id)
+
+        # Verifica que hay video
         if not tarea.media_terapia:
             print(f"[❌ ERROR] Tarea {tarea_id} no tiene video.")
             return
 
-        # Descargar el video desde el bucket
+        # Evita generar si ya tiene thumbnail
+        if tarea.thumbnail_media:
+            print(f"[ℹ️ INFO] Tarea {tarea_id} ya tiene thumbnail.")
+            return
+
+        # Descargar el video
         video_url = tarea.media_terapia.url
         response = requests.get(video_url, stream=True)
-
         if response.status_code != 200:
             print(f"[❌ ERROR] No se pudo descargar el video: {video_url}")
             return
@@ -69,20 +68,23 @@ def generar_thumbnail_video(tarea_id):
         ]
         subprocess.run(cmd, check=True)
 
-        # Guardar en el modelo
+        # Guardar thumbnail
         with open(temp_thumb_path, 'rb') as f:
             file_name = f"thumb_{tarea.id}.jpg"
             tarea.thumbnail_media.save(file_name, File(f), save=True)
-
-        os.remove(temp_video_path)
-        os.remove(temp_thumb_path)
 
         print(f"[✅ SUCCESS] Thumbnail guardado para tarea {tarea_id}")
 
     except tareas.DoesNotExist:
         print(f"[❌ ERROR] Tarea con id {tarea_id} no existe.")
     except Exception as e:
-        print(f"[❌ ERROR Celery] Generando thumbnail: {e}")
+        print(f"[❌ ERROR Celery] Generando thumbnail para tarea {tarea_id}: {e}")
+    finally:
+        # Limpieza segura
+        if os.path.exists(temp_video_path):
+            os.remove(temp_video_path)
+        if os.path.exists(temp_thumb_path):
+            os.remove(temp_thumb_path)
 
 
 

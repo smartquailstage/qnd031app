@@ -1344,13 +1344,14 @@ class tareasAdmin(ModelAdmin):
     list_filter_sheet = True
     list_horizontal_scrollbar_top = False
     list_disable_select_all = False
+    readonly_fields = ('thumbnail_preview',)
 
     fieldsets = (
         ('Información General', {
             'fields': ('sucursal', 'Insitucional_a_cargo', 'profile',  'asistire','cita_terapeutica_asignada',)
         }),
         ('Actividad Terapéutica', {
-            'fields': ('titulo', 'descripcion_actividad', 'media_terapia','thumbnail_media')
+            'fields': ('titulo', 'descripcion_actividad', 'media_terapia','thumbnail_preview')
         }),
         ('Tareas', {
             'fields': ('envio_tarea', 'fecha_envio', 'fecha_entrega', 'descripcion_tarea', 'material_adjunto', 'actividad_realizada')
