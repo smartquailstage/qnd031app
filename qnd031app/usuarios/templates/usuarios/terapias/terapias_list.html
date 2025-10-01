@@ -50,24 +50,20 @@
     <h2 class="font-weight-bold display-4" style="color:#45a851;">TERAPIAS</h2>
     <h4 class="mb-4">Contenido de terapias realizadas</h4>
 
-{% if media %}
-    {% if media.media_terapia %}
-    <video id="hiddenVideo" src="{{ media.media_terapia.url }}" style="display: none;"></video>
-    <canvas id="thumbnailCanvas" style="display: none;"></canvas>
-        <figure class="text-center">
-            <a href="{{ media.media_terapia.url }}" target="_blank" class="text-decoration-none position-relative d-inline-block">
-                <img id="thumbnailPreview"
-                    src="{% static 'img/default_video_thumb.jpg' %}"
-                    alt="Previsualización del video"
-                    class="img-thumbnail rounded-circle shadow-sm"
-                    style="width: 160px; height: 160px; object-fit: cover;">
-                <span class="position-absolute top-50 start-50 translate-middle bg-white text-dark rounded-circle p-2 shadow" style="font-size: 1.5rem;">
-                    <i class="bi bi-play-fill"></i>
-                </span>
-            </a>
-            <figcaption class="mt-2 small text-muted">Haz clic para ver el video</figcaption>
-        </figure>
-    {% endif %}
+{% if actividad.media_terapia %}
+    <figure class="text-center">
+        <a href="{{ actividad.media_terapia.url }}" target="_blank" class="text-decoration-none position-relative d-inline-block">
+            <img id="thumbnailPreview"
+                src="{% if actividad.thumbnail_media %}{{ actividad.thumbnail_media.url }}{% else %}{% static 'img/default_video_thumb.jpg' %}{% endif %}"
+                alt="Previsualización del video"
+                class="img-thumbnail shadow-sm"
+                style="width: 560px; height: 560px; object-fit: cover;">
+            <span class="position-absolute top-50 start-50 translate-middle bg-white text-dark rounded-circle p-2 shadow" style="font-size: 1.5rem;">
+                <i class="bi bi-play-fill"></i>
+            </span>
+        </a>
+        <figcaption class="mt-2 small text-muted">Haz clic para ver el video</figcaption>
+    </figure>
 {% else %}
     <div class="alert alert-light border-start border-4 border-warning mt-3" role="alert">
         <strong>No hay video disponible para esta actividad.</strong>

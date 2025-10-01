@@ -879,6 +879,7 @@ class TerapiaListView(LoginRequiredMixin, ListView):
 
 
 from .tasks import generar_thumbnail_video
+from django.db.models import Q
 
 class TerapiaDetailView(LoginRequiredMixin, TemplateView):
     template_name = 'usuarios/terapias/terapias_detail.html'
@@ -896,7 +897,11 @@ class TerapiaDetailView(LoginRequiredMixin, TemplateView):
             pk=self.kwargs['pk']
         )
 
-        media = actividades.filter(media_terapia__isnull=False).first()
+        media = actividades.filter(
+            Q(media_terapia__isnull=False),
+            Q(thumbnail_media__isnull=False),
+            ~Q(thumbnail_media='')
+            ).first()
 
         # Si la actividad más reciente con video no tiene thumbnail, lo generamos en segundo plano
         if media and media.media_terapia and not media.thumbnail_media:
