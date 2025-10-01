@@ -886,21 +886,19 @@ class TerapiaDetailView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        actividad = get_object_or_404(
-            tareas,
-            pk=self.kwargs['pk'],
-            profile__user=self.request.user,
-            asistire=True
-        )
-
         actividades = tareas.objects.filter(
             profile__user=self.request.user,
             asistire=True
         ).order_by('-fecha_envio')
 
+        actividad = get_object_or_404(
+            actividades,  # Reutilizamos el queryset
+            pk=self.kwargs['pk']
+        )
+
         media = actividades.filter(media_terapia__isnull=False).first()
 
-        # 👇 Verificamos si falta el thumbnail y lo generamos
+        # Si la actividad más reciente con video no tiene thumbnail, lo generamos en segundo plano
         if media and media.media_terapia and not media.thumbnail_media:
             generar_thumbnail_video.delay(media.id)
 
