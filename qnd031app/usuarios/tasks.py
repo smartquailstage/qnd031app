@@ -23,24 +23,39 @@ logger = logging.getLogger(__name__)
 
 from .models import tareas
 from django.core.files import File
+from celery import shared_task
 import subprocess
 from tempfile import NamedTemporaryFile
 import os
+import requests
 
 @shared_task
 def generar_thumbnail_video(tarea_id):
     try:
         tarea = tareas.objects.get(pk=tarea_id)
+
         if not tarea.media_terapia:
+            print(f"[INFO] Tarea {tarea_id} no tiene video.")
             return
 
-        input_path = tarea.media_terapia.path
+        video_url = tarea.media_terapia.url
+        print(f"[INFO] Descargando video desde {video_url}")
+
+        # Descargar el video desde Spaces
+        with requests.get(video_url, stream=True) as r:
+            r.raise_for_status()
+            with NamedTemporaryFile(suffix=".mp4", delete=False) as temp_video:
+                for chunk in r.iter_content(chunk_size=8192):
+                    temp_video.write(chunk)
+                temp_video_path = temp_video.name
+
+        # Crear archivo temporal para el thumbnail
         temp_thumb = NamedTemporaryFile(suffix=".jpg", delete=False)
 
         cmd = [
             'ffmpeg',
-            '-i', input_path,
-            '-ss', '00:00:01.000',   # extrae frame en el segundo 1
+            '-i', temp_video_path,
+            '-ss', '00:00:01.000',
             '-vframes', '1',
             '-q:v', '2',
             temp_thumb.name
@@ -48,14 +63,29 @@ def generar_thumbnail_video(tarea_id):
 
         subprocess.run(cmd, check=True)
 
+        if not os.path.exists(temp_thumb.name):
+            print("[ERROR] ffmpeg no generó el archivo thumbnail.")
+            return
+
         with open(temp_thumb.name, 'rb') as f:
-            file_name = os.path.basename(temp_thumb.name)
+            file_name = f"thumb_{tarea_id}.jpg"
             tarea.thumbnail_media.save(file_name, File(f), save=True)
 
-        os.remove(temp_thumb.name)
+        print(f"[SUCCESS] Thumbnail generado para tarea {tarea_id}")
 
     except Exception as e:
-        print(f"[ERROR Celery] Generando thumbnail: {e}")
+        print(f"[ERROR] Generando thumbnail para tarea {tarea_id}: {e}")
+
+    finally:
+        # Limpieza de archivos temporales
+        try:
+            if os.path.exists(temp_video_path):
+                os.remove(temp_video_path)
+            if os.path.exists(temp_thumb.name):
+                os.remove(temp_thumb.name)
+        except Exception as e:
+            print(f"[CLEANUP ERROR] {e}")
+
 
 
 

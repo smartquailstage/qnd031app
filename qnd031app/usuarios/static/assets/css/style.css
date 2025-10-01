@@ -982,12 +982,12 @@ background-color: #ffffff;
 /* Adaptación para dispositivos móviles */
 @media screen and (max-width: 768px) {
     .user-profile-avatar {
-width: 250px;
-        height: 250px;
-        padding: 10px;
-        margin-left: 162px;
-        margin-right: 37px;
-        margin-top: -95px;
+width: 214px;
+    height: 214px;
+    padding: 10px;
+    margin-left: 175px;
+    margin-right: 40px;
+    margin-top: -30px;
         display: block;
     }
 }
@@ -1004,6 +1004,7 @@ width: 250px;
     background-size: cover;
     height: 23rem;
     background-position: center;
+    border-radius: 10px;
 }
 
 .profile-cover-1 {
@@ -1011,6 +1012,7 @@ width: 250px;
     background-size: cover;
     height: 23rem;
     background-position: center;
+    border-radius: 10px;
 }
 
 
@@ -1019,6 +1021,7 @@ width: 250px;
     background-size: cover;
     height: 23rem;
     background-position: center;
+    border-radius: 10px;
 }
 
 .profile-cover-3 {
@@ -1026,6 +1029,7 @@ width: 250px;
     background-size: cover;
     height: 23rem;
     background-position: center;
+    border-radius: 10px;
 }
 
 .profile-cover-4 {
@@ -1033,6 +1037,7 @@ width: 250px;
     background-size: cover;
     height: 23rem;
     background-position: center;
+    border-radius: 10px;
 }
 
 .profile-cover-5 {
@@ -1040,6 +1045,7 @@ width: 250px;
     background-size: cover;
     height: 23rem;
     background-position: center;
+    border-radius: 10px;
 }
 
 
