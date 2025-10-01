@@ -61,14 +61,11 @@
                      class="img-thumbnail shadow-sm"
                      style="width: 560px; height: 560px; object-fit: cover;">
             {% else %}
-                <img
-    id="thumbnailPreview"
-    src="{% static 'img/default_video_thumb.jpg' %}"
-    data-thumbnail-url="{% if actividad.thumbnail_media and actividad.thumbnail_media.name %}{{ actividad.thumbnail_media.url }}{% endif %}"
-    alt="Previsualización del video"
-    class="img-thumbnail shadow-sm"
-    style="width: 560px; height: 560px; object-fit: cover;">
-
+                <img id="thumbnailPreview"
+                     src="{% static 'img/default_video_thumb.jpg' %}"
+                     alt="Thumbnail por defecto"
+                     class="img-thumbnail shadow-sm"
+                     style="width: 560px; height: 560px; object-fit: cover;">
             {% endif %}
 
             <span class="position-absolute top-50 start-50 translate-middle bg-white text-dark rounded-circle p-2 shadow" style="font-size: 1.5rem;">
