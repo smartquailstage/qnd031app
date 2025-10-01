@@ -878,13 +878,14 @@ class TerapiaListView(LoginRequiredMixin, ListView):
         return context
 
 
+from .tasks import generar_thumbnail_video
+
 class TerapiaDetailView(LoginRequiredMixin, TemplateView):
     template_name = 'usuarios/terapias/terapias_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Obtener la actividad principal actual (por pk)
         actividad = get_object_or_404(
             tareas,
             pk=self.kwargs['pk'],
@@ -892,19 +893,21 @@ class TerapiaDetailView(LoginRequiredMixin, TemplateView):
             asistire=True
         )
 
-        # Historial de actividades
         actividades = tareas.objects.filter(
             profile__user=self.request.user,
             asistire=True
         ).order_by('-fecha_envio')
 
-        # Última actividad con media_terapia (video disponible)
         media = actividades.filter(media_terapia__isnull=False).first()
+
+        # 👇 Verificamos si falta el thumbnail y lo generamos
+        if media and media.media_terapia and not media.thumbnail_media:
+            generar_thumbnail_video.delay(media.id)
 
         context.update({
             'actividad': actividad,
             'actividades': actividades,
-            'media': media,  # Última actividad con video
+            'media': media,
         })
 
         return context
