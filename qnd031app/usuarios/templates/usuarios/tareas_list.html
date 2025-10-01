@@ -53,6 +53,8 @@
 
 {% if media %}
     {% if media.media_terapia %}
+    <p><strong>Thumbnail URL:</strong> {{ media.thumbnail_media.url }}</p>
+
         <figure class="text-center">
             <a href="{{ media.media_terapia.url }}" target="_blank" class="text-decoration-none position-relative d-inline-block">
 <img src="{% if media.thumbnail_media %}{{ media.thumbnail_media.url }}{% else %}{% static 'img/default_video_thumb.jpg' %}{% endif %}"
