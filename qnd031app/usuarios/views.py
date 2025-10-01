@@ -880,6 +880,10 @@ class TerapiaListView(LoginRequiredMixin, ListView):
 
 from .tasks import generar_thumbnail_video
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
+from django.views.generic import TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from .models import tareas
 
 class TerapiaDetailView(LoginRequiredMixin, TemplateView):
     template_name = 'usuarios/terapias/terapias_detail.html'
@@ -893,23 +897,20 @@ class TerapiaDetailView(LoginRequiredMixin, TemplateView):
         ).order_by('-fecha_envio')
 
         actividad = get_object_or_404(
-            actividades,  # Reutilizamos el queryset
+            actividades,
             pk=self.kwargs['pk']
         )
 
-        media = actividades.filter(media_terapia__isnull=False).first()
+        # Si hay video pero no hay thumbnail, genera uno
+        if actividad.media_terapia and not actividad.thumbnail_media:
+            generar_thumbnail_video.delay(actividad.id)
 
-        # Disparamos la tarea si falta el thumbnail
-        if media and media.media_terapia and not media.thumbnail_media:
-            generar_thumbnail_video.delay(media.id)
-
-        # 🔁 Refrescamos la instancia desde la base de datos
+        # Refresca la instancia (por si se generó)
         actividad.refresh_from_db()
 
         context.update({
             'actividad': actividad,
             'actividades': actividades,
-            'media': media,
         })
 
         return context

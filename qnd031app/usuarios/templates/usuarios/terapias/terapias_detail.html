@@ -49,15 +49,23 @@
       <div class="card-body">
     <h2 class="font-weight-bold display-4" style="color:#45a851;">TERAPIAS</h2>
     <h4 class="mb-4">Accede al contenido de terapias</h4>
-
 {% if actividad.media_terapia %}
     <figure class="text-center">
         <a href="{{ actividad.media_terapia.url }}" target="_blank" class="text-decoration-none position-relative d-inline-block">
-            <img id="thumbnailPreview"
-                 src="{% if actividad.thumbnail_media and actividad.thumbnail_media.name %}{{ actividad.thumbnail_media.url }}{% else %}{% static 'img/default_video_thumb.jpg' %}{% endif %}"
-                 alt="Previsualización del video"
-                 class="img-thumbnail shadow-sm"
-                 style="width: 560px; height: 560px; object-fit: cover;">
+
+            {% if actividad.thumbnail_media and actividad.thumbnail_media.name %}
+                <img id="thumbnailPreview"
+                     src="{{ actividad.thumbnail_media.url }}"
+                     alt="Previsualización del video"
+                     class="img-thumbnail shadow-sm"
+                     style="width: 560px; height: 560px; object-fit: cover;">
+            {% else %}
+                <img id="thumbnailPreview"
+                     src="{% static 'img/default_video_thumb.jpg' %}"
+                     alt="Thumbnail por defecto"
+                     class="img-thumbnail shadow-sm"
+                     style="width: 560px; height: 560px; object-fit: cover;">
+            {% endif %}
 
             <span class="position-absolute top-50 start-50 translate-middle bg-white text-dark rounded-circle p-2 shadow" style="font-size: 1.5rem;">
                 <i class="bi bi-play-fill"></i>
@@ -70,6 +78,8 @@
         <strong>No hay video disponible para esta actividad.</strong>
     </div>
 {% endif %}
+
+
 
 
 
@@ -144,38 +154,35 @@
 
 {% block scripts %}
 <script>
-document.getElementById('videoInput').addEventListener('change', function (event) {
-    const file = event.target.files[0];
-    if (!file) return;
+document.addEventListener('DOMContentLoaded', function () {
+    const img = document.getElementById('thumbnailPreview');
+    const thumbnailUrl = img.dataset.thumbnailUrl;
 
-    const video = document.getElementById('videoPreview');
-    const canvas = document.getElementById('canvas');
-    const hiddenInput = document.getElementById('thumbnailData');
+    if (!thumbnailUrl) return;  // Si no hay URL, no hay nada que verificar
 
-    video.preload = "metadata";
-    video.src = URL.createObjectURL(file);
-    video.load();
+    const checkInterval = 3000; // 3 segundos
+    const maxAttempts = 20;     // Evita loops infinitos
+    let attempts = 0;
 
-    video.addEventListener('loadedmetadata', function () {
-        video.currentTime = 1;
-    }, { once: true });
+    const checkThumbnailAvailable = () => {
+        fetch(thumbnailUrl, { method: 'HEAD' })
+            .then(response => {
+                if (response.ok) {
+                    img.src = thumbnailUrl; // reemplazamos
+                    clearInterval(intervalId); // paramos la verificación
+                }
+            })
+            .catch(error => {
+                // Silenciamos el error, puede ser un 403/404 si no está listo aún
+            });
 
-    video.addEventListener('seeked', function () {
-        canvas.width = 160;
-        canvas.height = 160;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const dataURL = canvas.toDataURL('image/jpeg');
-        hiddenInput.value = dataURL;
-
-        // ✅ Mostrar preview en el img existente
-        const thumbnail = document.getElementById('thumbnailPreview');
-        if (thumbnail) {
-            thumbnail.src = dataURL;
+        attempts++;
+        if (attempts >= maxAttempts) {
+            clearInterval(intervalId); // paramos si excede
         }
+    };
 
-        console.log("Miniatura generada y aplicada.");
-    }, { once: true });
+    const intervalId = setInterval(checkThumbnailAvailable, checkInterval);
 });
 </script>
 {% endblock %}
