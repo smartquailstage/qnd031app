@@ -20,7 +20,6 @@ logger = logging.getLogger(__name__)
 
 
 
-
 from .models import tareas
 from django.core.files import File
 from celery import shared_task
@@ -33,59 +32,53 @@ import requests
 def generar_thumbnail_video(tarea_id):
     try:
         tarea = tareas.objects.get(pk=tarea_id)
-
-        if not tarea.media_terapia:
-            print(f"[INFO] Tarea {tarea_id} no tiene video.")
-            return
-
         video_url = tarea.media_terapia.url
-        print(f"[INFO] Descargando video desde {video_url}")
 
-        # Descargar el video desde Spaces
+        # Paso 1: Descargar el video del bucket a un archivo temporal
+        print(f"[INFO] Descargando video de: {video_url}")
+        temp_video = NamedTemporaryFile(suffix='.mp4', delete=False)
         with requests.get(video_url, stream=True) as r:
             r.raise_for_status()
-            with NamedTemporaryFile(suffix=".mp4", delete=False) as temp_video:
-                for chunk in r.iter_content(chunk_size=8192):
-                    temp_video.write(chunk)
-                temp_video_path = temp_video.name
+            for chunk in r.iter_content(chunk_size=8192):
+                temp_video.write(chunk)
+        temp_video_path = temp_video.name
+        temp_video.close()
 
-        # Crear archivo temporal para el thumbnail
-        temp_thumb = NamedTemporaryFile(suffix=".jpg", delete=False)
-
+        # Paso 2: Generar imagen temporal con ffmpeg
+        temp_image = NamedTemporaryFile(suffix='.jpg', delete=False)
         cmd = [
             'ffmpeg',
             '-i', temp_video_path,
             '-ss', '00:00:01.000',
             '-vframes', '1',
             '-q:v', '2',
-            temp_thumb.name
+            temp_image.name
         ]
-
         subprocess.run(cmd, check=True)
 
-        if not os.path.exists(temp_thumb.name):
-            print("[ERROR] ffmpeg no generó el archivo thumbnail.")
-            return
-
-        with open(temp_thumb.name, 'rb') as f:
+        # Paso 3: Guardar la imagen como thumbnail en el modelo
+        with open(temp_image.name, 'rb') as img_file:
             file_name = f"thumb_{tarea_id}.jpg"
-            tarea.thumbnail_media.save(file_name, File(f), save=True)
+            tarea.thumbnail_media.save(file_name, File(img_file), save=True)
 
-        print(f"[SUCCESS] Thumbnail generado para tarea {tarea_id}")
+        print(f"[✅ SUCCESS] Thumbnail guardado para tarea {tarea_id}")
 
+    except tareas.DoesNotExist:
+        print(f"[❌ ERROR] No existe la tarea con ID {tarea_id}")
+    except requests.RequestException as e:
+        print(f"[❌ ERROR] Error descargando video: {e}")
+    except subprocess.CalledProcessError as e:
+        print(f"[❌ ERROR] ffmpeg falló: {e}")
     except Exception as e:
-        print(f"[ERROR] Generando thumbnail para tarea {tarea_id}: {e}")
-
+        print(f"[❌ ERROR general] {e}")
     finally:
-        # Limpieza de archivos temporales
         try:
             if os.path.exists(temp_video_path):
                 os.remove(temp_video_path)
-            if os.path.exists(temp_thumb.name):
-                os.remove(temp_thumb.name)
-        except Exception as e:
-            print(f"[CLEANUP ERROR] {e}")
-
+            if os.path.exists(temp_image.name):
+                os.remove(temp_image.name)
+        except Exception as cleanup_error:
+            print(f"[⚠️ CLEANUP ERROR] {cleanup_error}")
 
 
 

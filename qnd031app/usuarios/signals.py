@@ -21,10 +21,15 @@ from django.dispatch import receiver
 from .models import tareas
 from .tasks import generar_thumbnail_video
 
+from django.db import transaction
+
+
 @receiver(post_save, sender=tareas)
 def generar_thumbnail_post_save(sender, instance, created, **kwargs):
     if instance.media_terapia and not instance.thumbnail_media:
-        generar_thumbnail_video.delay(instance.id)
+        # Asegura que la tarea se ejecute después de guardar en DB
+        transaction.on_commit(lambda: generar_thumbnail_video.delay(instance.id))
+
 
 @receiver(post_save, sender=tareas)
 def verificar_thumbnail_frontend(sender, instance, created, **kwargs):
