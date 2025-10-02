@@ -590,7 +590,8 @@ progress {
 	border: var(--bs-border-width) solid var(--bs-border-color);
 	border-radius: var(--bs-border-radius);
 	max-width: 100%;
-	height: auto
+	height: auto;
+	border-radius: 10px;
 }
 .figure {
 	display: inline-block
@@ -2774,11 +2775,11 @@ textarea.form-control-lg {
 }
 .btn-light {
 	--bs-btn-color: #000;
-	--bs-btn-bg: #f8f9fa;
-	--bs-btn-border-color: #f8f9fa;
+	--bs-btn-bg: #45a851;
+	--bs-btn-border-color: #45a851;
 	--bs-btn-hover-color: #000;
-	--bs-btn-hover-bg: #d3d4d5;
-	--bs-btn-hover-border-color: #c6c7c8;
+	--bs-btn-hover-bg: #45a851;
+	--bs-btn-hover-border-color: #45a851;
 	--bs-btn-focus-shadow-rgb: 211, 212, 213;
 	--bs-btn-active-color: #000;
 	--bs-btn-active-bg: #c6c7c8;
