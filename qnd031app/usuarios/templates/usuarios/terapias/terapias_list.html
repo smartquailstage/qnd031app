@@ -53,25 +53,19 @@
 {% if actividad.media_terapia %}
     <figure class="text-center">
         <a href="{{ actividad.media_terapia.url }}" target="_blank" class="text-decoration-none position-relative d-inline-block">
-
-            {% if actividad.thumbnail_media and actividad.thumbnail_media.name %}
-                {% comment %}
-                    Si usás nombres únicos en el archivo (como thumb_12_abcd1234.jpg), no necesitás ?v=...
-                    Pero si usás el mismo nombre, usá un parámetro de versión para evitar caché
-                {% endcomment %}
-                <img id="thumbnailPreview"
-                     src="{{ actividad.thumbnail_media.url }}?v={{ actividad.updated_at.timestamp }}"
-                     alt="Previsualización del video"
-                     data-thumbnail-url="{{ actividad.thumbnail_media.url }}?v={{ actividad.updated_at.timestamp }}"
-                     class="img-thumbnail shadow-sm"
-                     style="width: 560px; height: 560px; object-fit: cover;">
+            
+            {% if actividad.thumbnail_media %}
+                <img
+                    src="{{ actividad.thumbnail_media.url }}"
+                    alt="Previsualización del video"
+                    class="img-thumbnail shadow-sm"
+                    style="width: 560px; height: 560px; object-fit: cover;">
             {% else %}
                 <img
-                     id="thumbnailPreview"
-                     src="{% static 'img/default_video_thumb.jpg' %}"
-                     alt="Previsualización del video"
-                     class="img-thumbnail shadow-sm"
-                     style="width: 560px; height: 560px; object-fit: cover;">
+                    src="{% static 'img/default_video_thumb.jpg' %}"
+                    alt="Previsualización del video"
+                    class="img-thumbnail shadow-sm"
+                    style="width: 560px; height: 560px; object-fit: cover;">
             {% endif %}
 
             <span class="position-absolute top-50 start-50 translate-middle bg-white text-dark rounded-circle p-2 shadow" style="font-size: 1.5rem;">

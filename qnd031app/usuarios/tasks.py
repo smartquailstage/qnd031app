@@ -19,20 +19,14 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-
-from .models import tareas
+from uuid import uuid4
+import os
+import requests
+import subprocess
+from tempfile import NamedTemporaryFile
 from django.core.files import File
 from celery import shared_task
-import subprocess
-from tempfile import NamedTemporaryFile
-import os
-import requests
-from .models import tareas
-from django.core.files import File
-import subprocess
-from tempfile import NamedTemporaryFile
-import os
-import requests
+from .models import tareas  # asegurate que este import esté bien
 
 @shared_task
 def generar_thumbnail_video(tarea_id):
@@ -69,11 +63,15 @@ def generar_thumbnail_video(tarea_id):
         ]
         subprocess.run(cmd, check=True)
 
-        # Guardar en el modelo
+        # Guardar en el modelo con nombre único
         with open(temp_thumb_path, 'rb') as f:
-            file_name = f"thumb_{tarea.id}.jpg"
+            file_name = f"thumb_{tarea.id}_{uuid4().hex[:8]}.jpg"
             tarea.thumbnail_media.save(file_name, File(f), save=True)
 
+        # Forzar actualización del campo updated_at
+        tarea.save(update_fields=["updated_at"])
+
+        # Limpieza
         os.remove(temp_video_path)
         os.remove(temp_thumb_path)
 
@@ -83,6 +81,7 @@ def generar_thumbnail_video(tarea_id):
         print(f"[❌ ERROR] Tarea con id {tarea_id} no existe.")
     except Exception as e:
         print(f"[❌ ERROR Celery] Generando thumbnail: {e}")
+
 
 
 

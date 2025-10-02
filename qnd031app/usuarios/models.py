@@ -1632,6 +1632,8 @@ class tareas(models.Model):
     descripcion_actividad =  HTMLField(null=True, blank=True, verbose_name="Describa la actividad a realizar")
     media_terapia =  models.FileField(upload_to='Videos/%Y/%m/%d/', blank=True, verbose_name="Video Multimedia de actividad ")
     thumbnail_media = models.ImageField(upload_to='thumbnails/', blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
     fecha_actividad = models.DateTimeField(auto_now=True, verbose_name="Fecha de Actividad")
 
     actividad_realizada = models.BooleanField(default=False, verbose_name="¿Realizó la tarea?")
