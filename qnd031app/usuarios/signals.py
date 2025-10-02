@@ -24,24 +24,38 @@ from .tasks import generar_thumbnail_video
 from django.db import transaction
 
 
+from django.db.models.signals import pre_save, post_save
+from django.dispatch import receiver
+from .models import tareas
+import os
+
+@receiver(pre_save, sender=tareas)
+def guardar_valor_anterior_media(sender, instance, **kwargs):
+    """
+    Guarda el valor actual de media_terapia antes de que se guarde el nuevo.
+    """
+    if instance.pk:
+        try:
+            old_instance = tareas.objects.get(pk=instance.pk)
+            instance._media_terapia_anterior = old_instance.media_terapia
+        except tareas.DoesNotExist:
+            instance._media_terapia_anterior = None
+
 @receiver(post_save, sender=tareas)
 def generar_thumbnail_post_save(sender, instance, created, **kwargs):
-    if instance.media_terapia and not instance.thumbnail_media:
-        # Asegura que la tarea se ejecute después de guardar en DB
-        transaction.on_commit(lambda: generar_thumbnail_video.delay(instance.id))
-
-
-@receiver(post_save, sender=tareas)
-def verificar_thumbnail_frontend(sender, instance, created, **kwargs):
     """
-    Si el frontend envió un thumbnail junto con el video, ya estará en instance.thumbnail_media.
-    Este signal solo puede hacer validaciones adicionales si lo deseas.
+    Llama a la tarea si se creó un nuevo video o si se reemplazó el existente.
     """
-    if created:
+    media_actual = instance.media_terapia
+    media_anterior = getattr(instance, "_media_terapia_anterior", None)
+
+    if media_actual and (created or media_actual != media_anterior):
+        # Opcional: eliminar thumbnail viejo
         if instance.thumbnail_media:
-            print(f"✅ Thumbnail recibido del frontend para tarea {instance.pk}")
-        else:
-            print(f"⚠️ No se recibió thumbnail desde el frontend para tarea {instance.pk}")
+            instance.thumbnail_media.delete(save=False)
+        
+        # Ejecutar la tarea después de confirmar transacción
+        transaction.on_commit(lambda: generar_thumbnail_video.delay(instance.id))
 
 
 @receiver(post_save, sender=Cita)

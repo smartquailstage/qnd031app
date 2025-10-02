@@ -55,20 +55,23 @@
         <a href="{{ actividad.media_terapia.url }}" target="_blank" class="text-decoration-none position-relative d-inline-block">
 
             {% if actividad.thumbnail_media and actividad.thumbnail_media.name %}
+                {% comment %}
+                    Si usás nombres únicos en el archivo (como thumb_12_abcd1234.jpg), no necesitás ?v=...
+                    Pero si usás el mismo nombre, usá un parámetro de versión para evitar caché
+                {% endcomment %}
                 <img id="thumbnailPreview"
-                     src="{{ actividad.thumbnail_media.url }}"
+                     src="{{ actividad.thumbnail_media.url }}?v={{ actividad.updated_at.timestamp }}"
                      alt="Previsualización del video"
+                     data-thumbnail-url="{{ actividad.thumbnail_media.url }}?v={{ actividad.updated_at.timestamp }}"
                      class="img-thumbnail shadow-sm"
                      style="width: 560px; height: 560px; object-fit: cover;">
             {% else %}
                 <img
-    id="thumbnailPreview"
-    src="{% static 'img/default_video_thumb.jpg' %}"
-    data-thumbnail-url="{% if actividad.thumbnail_media and actividad.thumbnail_media.name %}{{ actividad.thumbnail_media.url }}{% endif %}"
-    alt="Previsualización del video"
-    class="img-thumbnail shadow-sm"
-    style="width: 560px; height: 560px; object-fit: cover;">
-
+                     id="thumbnailPreview"
+                     src="{% static 'img/default_video_thumb.jpg' %}"
+                     alt="Previsualización del video"
+                     class="img-thumbnail shadow-sm"
+                     style="width: 560px; height: 560px; object-fit: cover;">
             {% endif %}
 
             <span class="position-absolute top-50 start-50 translate-middle bg-white text-dark rounded-circle p-2 shadow" style="font-size: 1.5rem;">
@@ -82,6 +85,7 @@
         <strong>No hay video disponible para esta actividad.</strong>
     </div>
 {% endif %}
+
 
 
 
@@ -161,33 +165,34 @@ document.addEventListener('DOMContentLoaded', function () {
     const img = document.getElementById('thumbnailPreview');
     const thumbnailUrl = img.dataset.thumbnailUrl;
 
-    if (!thumbnailUrl) return;  // Si no hay URL, no hay nada que verificar
+    if (!thumbnailUrl) return;
 
     const checkInterval = 3000; // 3 segundos
-    const maxAttempts = 20;     // Evita loops infinitos
+    const maxAttempts = 20;
     let attempts = 0;
 
     const checkThumbnailAvailable = () => {
         fetch(thumbnailUrl, { method: 'HEAD' })
             .then(response => {
                 if (response.ok) {
-                    img.src = thumbnailUrl; // reemplazamos
-                    clearInterval(intervalId); // paramos la verificación
+                    if (img.src !== thumbnailUrl) {
+                        img.src = thumbnailUrl;
+                    }
+                    clearInterval(intervalId);
                 }
             })
-            .catch(error => {
-                // Silenciamos el error, puede ser un 403/404 si no está listo aún
-            });
+            .catch(() => { /* Silenciar errores como 403/404 */ });
 
         attempts++;
         if (attempts >= maxAttempts) {
-            clearInterval(intervalId); // paramos si excede
+            clearInterval(intervalId);
         }
     };
 
     const intervalId = setInterval(checkThumbnailAvailable, checkInterval);
 });
 </script>
+
 {% endblock %}
 
 
