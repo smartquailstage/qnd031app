@@ -4,6 +4,10 @@
 
 {% block content %}
 
+<link href="{% static 'assets/plugins/datetimepicker/css/classic.css' %}" rel="stylesheet" />
+<link href="{% static 'assets/plugins/datetimepicker/css/classic.time.css' %}'" rel="stylesheet" />
+<link href="{% static 'assets/plugins/datetimepicker/css/classic.date.css' %}" rel="stylesheet" />
+
 <style>
   .gris-oscuro {
     background-color: #343a40; /* Gris oscuro */
@@ -31,7 +35,8 @@
             <div class="col-12 col-lg-8 col-xl-12">
                 <div class="card overflow-hidden radius-10">
                     <div class="profile-cover-1 bg-dark position-relative mb-4">
-
+                        <!-- Logo arriba a la derecha -->
+ 
                         <!-- Avatar centrado -->
                         <div class="user-profile-avatar position-absolute top-50 start-0 translate-middle-x">
                       
@@ -48,7 +53,35 @@
     <div class="card mb-4">
       <div class="card-body">
     <h2 class="font-weight-bold display-4" style="color:#45a851;">TERAPIAS</h2>
-    <h4 class="mb-4">Contenido de terapias realizadas</h4>
+    <h4 class="mb-4">Accede a las terapias realizadas en tiempo real.</h4>
+
+<form method="get" class="row g-2 mb-4">
+  <div class="col-md-4">
+    <label for="mes" class="form-label">Mes:</label>
+    <select name="mes" id="mes" class="form-select">
+      {% for numero, nombre in meses %}
+        <option value="{{ numero }}" {% if numero == mes %}selected{% endif %}>{{ nombre }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="col-md-4">
+    <label for="anio" class="form-label">Año:</label>
+    <select name="anio" id="anio" class="form-select">
+      {% for a in anios %}
+        <option value="{{ a }}" {% if a == anio %}selected{% endif %}>{{ a }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="col-md-4 d-flex align-items-end">
+    <button type="submit" class="btn btn-success w-100">Filtrar</button>
+  </div>
+</form>
+
+
+
+
 
 {% if actividad.media_terapia %}
     <figure class="text-center">
@@ -59,7 +92,7 @@
                     src="{{ actividad.thumbnail_media.url }}"
                     alt="Previsualización del video"
                     class="img-thumbnail shadow-sm"
-                    style="width: 560px; height: 560px; object-fit: cover;">
+                    style="width: 560px; height: 360px; object-fit: cover;">
             {% else %}
                 <img
                     src="{% static 'img/default_video_thumb.jpg' %}"
@@ -85,15 +118,12 @@
 
 
 
-    <!-- Tabla con historial de actividades -->
 <div style="max-height: 300px; overflow-y: auto; max-width: 100%; overflow-x: auto;">
     <table class="table mb-0 table-dark table-striped">
         <tbody>
             {% for actividad in actividades %}
                 {% if actividad.pk %}
-                    <tr 
-                        style="cursor: pointer;" 
-                        onclick="window.location.href='{% url 'usuarios:terapia_detail' actividad.id %}'">
+                    <tr onclick="window.location.href='{% url 'usuarios:terapia_detail' actividad.pk %}'" style="cursor: pointer;">
                         <td style="background-color: #6c757d;">
                             {{ actividad.fecha_actividad|date:"d/m/Y H:i" }}
                         </td>
@@ -112,7 +142,11 @@
                         </td>
                     </tr>
                 {% else %}
-                    <!-- O puedes loguear este caso si necesitas depurarlo -->
+                    <tr>
+                        <td colspan="4" style="background-color: #dc3545; color: white;">
+                            ⚠ Actividad sin ID detectada. No se puede generar enlace.
+                        </td>
+                    </tr>
                 {% endif %}
             {% empty %}
                 <tr>
@@ -124,7 +158,6 @@
         </tbody>
     </table>
 </div>
-
 
 </div>
 
@@ -144,50 +177,50 @@
      
         </div> <!-- container -->
 
-    </div> <!-- page-content -->
+</div> <!-- page-content -->
 
 
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script src="{% static 'assets/plugins/datetimepicker/js/legacy.js' %}"></script>
+<script src="{% static 'assets/plugins/datetimepicker/js/picker.js' %}"></script>
+<script src="{% static 'assets/plugins/datetimepicker/js/picker.time.js' %}"></script>
+<script src="{% static 'assets/plugins/datetimepicker/js/picker.date.js' %}"></script>
 
 
-
-{% endblock %}
-
-{% block scripts %}
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const img = document.getElementById('thumbnailPreview');
-    const thumbnailUrl = img.dataset.thumbnailUrl;
+  $(document).ready(function () {
+    $('#datepicker').pickadate({
+      format: 'yyyy-mm-dd',
+      selectMonths: true,
+      selectYears: true,
+      onSet: function(context) {
+        if (context.select) {
+          const selectedDate = new Date(context.select);
+          const mes = selectedDate.getMonth() + 1;
+          const anio = selectedDate.getFullYear();
 
-    if (!thumbnailUrl) return;
+          // Asignar valores a los selects ocultos
+          $('#mes').val(mes);
+          $('#anio').val(anio);
 
-    const checkInterval = 3000; // 3 segundos
-    const maxAttempts = 20;
-    let attempts = 0;
-
-    const checkThumbnailAvailable = () => {
-        fetch(thumbnailUrl, { method: 'HEAD' })
-            .then(response => {
-                if (response.ok) {
-                    if (img.src !== thumbnailUrl) {
-                        img.src = thumbnailUrl;
-                    }
-                    clearInterval(intervalId);
-                }
-            })
-            .catch(() => { /* Silenciar errores como 403/404 */ });
-
-        attempts++;
-        if (attempts >= maxAttempts) {
-            clearInterval(intervalId);
+          // Enviar el formulario automáticamente
+          $('#date-filter-form').submit();
         }
-    };
-
-    const intervalId = setInterval(checkThumbnailAvailable, checkInterval);
-});
+      }
+    });
+  });
 </script>
 
+
+
+
+
 {% endblock %}
+
+
+
 
 
 

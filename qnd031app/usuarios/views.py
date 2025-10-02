@@ -853,29 +853,59 @@ class TareaDetailView(LoginRequiredMixin, DetailView):
         return self.render_to_response(context)
 
 
+from django.utils.timezone import now
+
 class TerapiaListView(LoginRequiredMixin, ListView):
     model = tareas
     template_name = 'terapias/terapia_list.html'
     context_object_name = 'actividades'
 
     def get_queryset(self):
-        # Solo mostrar actividades enviadas, del usuario actual
-        return tareas.objects.filter(
+        mes = self.request.GET.get('mes')
+        anio = self.request.GET.get('anio')
+
+        queryset = tareas.objects.filter(
             asistire=True,
             profile__user=self.request.user
-        ).order_by('-fecha_envio')
+        )
+
+        if mes and anio:
+            try:
+                mes = int(mes)
+                anio = int(anio)
+                queryset = queryset.filter(
+                    fecha_envio__year=anio,
+                    fecha_envio__month=mes
+                )
+            except ValueError:
+                pass
+
+        return queryset.order_by('-fecha_envio')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Obtener el último objeto que tenga media_terapia
-        ultima_actividad_con_video = tareas.objects.filter(
+
+        context['media'] = tareas.objects.filter(
             asistire=True,
             profile__user=self.request.user,
             media_terapia__isnull=False
         ).order_by('-fecha_envio').first()
 
-        context['media'] = ultima_actividad_con_video  # Este será usado en el template
+        # Mes y año actuales o seleccionados
+        context['mes'] = int(self.request.GET.get('mes', now().month))
+        context['anio'] = int(self.request.GET.get('anio', now().year))
+
+        # Lista de meses y años para el template
+        context['meses'] = [
+            (1, 'Enero'), (2, 'Febrero'), (3, 'Marzo'), (4, 'Abril'),
+            (5, 'Mayo'), (6, 'Junio'), (7, 'Julio'), (8, 'Agosto'),
+            (9, 'Septiembre'), (10, 'Octubre'), (11, 'Noviembre'), (12, 'Diciembre')
+        ]
+        context['anios'] = list(range(2022, now().year + 2))
+
         return context
+
+
 
 
 from .tasks import generar_thumbnail_video

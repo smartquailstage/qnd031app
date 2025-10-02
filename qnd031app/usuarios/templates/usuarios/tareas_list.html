@@ -4,6 +4,10 @@
 
 {% block content %}
 
+<link href="{% static 'assets/plugins/datetimepicker/css/classic.css' %}" rel="stylesheet" />
+<link href="{% static 'assets/plugins/datetimepicker/css/classic.time.css' %}'" rel="stylesheet" />
+<link href="{% static 'assets/plugins/datetimepicker/css/classic.date.css' %}" rel="stylesheet" />
+
 <style>
   .gris-oscuro {
     background-color: #343a40; /* Gris oscuro */
@@ -49,7 +53,35 @@
     <div class="card mb-4">
       <div class="card-body">
     <h2 class="font-weight-bold display-4" style="color:#45a851;">TERAPIAS</h2>
-    <h4 class="mb-4">Accede a las terapias realizadas</h4>
+    <h4 class="mb-4">Accede a las terapias realizadas en tiempo real.</h4>
+
+<form method="get" class="row g-3 mb-4" id="date-filter-form">
+  <div class="col-md-5">
+    <label for="mes" class="form-label">Mes:</label>
+    <select name="mes" id="mes" class="form-select">
+      {% for numero, nombre in meses %}
+        <option value="{{ numero }}" {% if numero == mes %}selected{% endif %}>{{ nombre }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="col-md-5">
+    <label for="anio" class="form-label">Año:</label>
+    <select name="anio" id="anio" class="form-select">
+      {% for a in anios %}
+        <option value="{{ a }}" {% if a == anio %}selected{% endif %}>{{ a }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="col-md-2 d-flex align-items-end">
+    <button type="submit" class="btn btn-success w-100">Filtrar</button>
+  </div>
+</form>
+
+
+
+
 
 {% if actividad.media_terapia %}
     <figure class="text-center">
@@ -145,41 +177,10 @@
      
         </div> <!-- container -->
 
-    </div> <!-- page-content -->
+</div> <!-- page-content -->
 
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const img = document.getElementById('thumbnailPreview');
-    const thumbnailUrl = img.dataset.thumbnailUrl;
 
-    if (!thumbnailUrl) return;
-
-    const checkInterval = 3000; // 3 segundos
-    const maxAttempts = 20;
-    let attempts = 0;
-
-    const checkThumbnailAvailable = () => {
-        fetch(thumbnailUrl, { method: 'HEAD' })
-            .then(response => {
-                if (response.ok) {
-                    if (img.src !== thumbnailUrl) {
-                        img.src = thumbnailUrl;
-                    }
-                    clearInterval(intervalId);
-                }
-            })
-            .catch(() => { /* Silenciar errores como 403/404 */ });
-
-        attempts++;
-        if (attempts >= maxAttempts) {
-            clearInterval(intervalId);
-        }
-    };
-
-    const intervalId = setInterval(checkThumbnailAvailable, checkInterval);
-});
-</script>
 
 
 
