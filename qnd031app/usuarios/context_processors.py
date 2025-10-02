@@ -11,6 +11,27 @@ from django.shortcuts import get_object_or_404
 
 
 
+def nuevos_mensajes(request):
+    """
+    Procesador de contexto que retorna los mensajes no leídos del perfil del usuario logueado.
+    """
+    if request.user.is_authenticated:
+        try:
+            profile = request.user.profile  # Asegúrate de que el user tenga un Profile asociado
+            mensajes_nuevos = Mensaje.objects.filter(
+                receptor=profile,
+                leido=False
+            ).order_by('-fecha_envio')[:5]  # Cambia 5 por el número que desees mostrar
+        except Profile.DoesNotExist:
+            mensajes_nuevos = []
+    else:
+        mensajes_nuevos = []
+
+    return {
+        'mensajes_no_leidos': mensajes_nuevos
+    }
+
+
 
 def ultima_cita(request):
     if not request.user.is_authenticated:
@@ -72,18 +93,17 @@ def ultima_cita(request):
 
 
 def ultimos_videos(request):
-    """
-    Procesador de contexto que retorna las últimas tareas con video cargado.
-    """
     ultimos_videos = tareas.objects.filter(
         media_terapia__isnull=False,
-        media_terapia__exact='',  # Esto se asegura de que no sea string vacío
-        actividad_realizada=True  # Solo tareas completadas, opcional
-    ).order_by('-fecha_actividad')[:5]  # Cambia 5 por el número que necesites
+        actividad_realizada=True
+    ).exclude(
+        media_terapia=''
+    ).order_by('-fecha_actividad')[:5]
 
     return {
         'ultimos_videos_realizados': ultimos_videos
     }
+
 
 
     

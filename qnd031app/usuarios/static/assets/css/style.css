@@ -468,7 +468,7 @@ position: fixed;
     position: absolute;
     top: 0px;
     right: -8px;
-    color: #fff;
+    color: #353836;
     font-size: 12px;
     width: 16px;
     height: 16px;
@@ -476,7 +476,7 @@ position: fixed;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #f50d0d;
+    background-color: #efe04b;
     z-index: 1;
 }
 
