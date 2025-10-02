@@ -54,6 +54,45 @@
                         <div class="card-body">
 
 <h2 class="font-weight-bold display-4" style="color:#45a851; font-weight: 500px;">ASISTENCIAS</h2>
+<h4 class="mb-4">Sus asistencias terapeuticas.</h4>
+
+
+
+<form method="get" class="row g-3 mb-4" id="date-filter-form">
+  <div class="col-md-4">
+    <label for="mes" class="form-label">Mes:</label>
+    <select name="mes" id="mes" class="form-select">
+      {% for numero, nombre in meses %}
+        <option value="{{ numero }}" {% if numero == mes %}selected{% endif %}>{{ nombre }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="col-md-4">
+    <label for="anio" class="form-label">Año:</label>
+    <select name="anio" id="anio" class="form-select">
+      {% for a in anios %}
+        <option value="{{ a }}" {% if a == anio %}selected{% endif %}>{{ a }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="col-md-4">
+    <label for="asistio" class="form-label">Asistencia:</label>
+    <select name="asistio" id="asistio" class="form-select">
+      <option value="" {% if asistio == "" %}selected{% endif %}>Todos</option>
+      <option value="1" {% if asistio == "1" %}selected{% endif %}>Asistidos</option>
+      <option value="0" {% if asistio == "0" %}selected{% endif %}>No asistidos</option>
+    </select>
+  </div>
+
+  <div class="col-12 d-flex justify-content-end">
+    <button type="submit" class="btn btn-success">Filtrar</button>
+  </div>
+</form>
+
+
+
 
 <div style="max-height: 300px; overflow-y: auto; max-width: 357px; overflow-x: hidden;">
   <table class="table mb-0 table-dark table-striped">

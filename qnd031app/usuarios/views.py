@@ -638,10 +638,57 @@ def ver_tarea_interactiva(request, pk):
     })
 
 
+from django.utils.timezone import now
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from .models import tareas  # o el import correcto según tu proyecto
+
+from django.utils.timezone import now
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from .models import tareas  # ajustá si usás otro nombre de app
+
 @login_required
 def tareas_asistidas_view(request):
-    actividades = tareas.objects.filter(asistire=True)
-    return render(request, 'usuarios/asistencias/asistencia_list.html', {'actividades': actividades})
+    mes = request.GET.get('mes')
+    anio = request.GET.get('anio')
+    asistio = request.GET.get('asistio')  # nuevo parámetro
+
+    actividades = tareas.objects.all()
+
+    # Filtrar por asistencia
+    if asistio == '1':  # Asistió
+        actividades = actividades.filter(asistire=True)
+    elif asistio == '0':  # No asistió
+        actividades = actividades.filter(asistire=False)
+
+    # Filtrar por mes y año
+    if mes and anio:
+        try:
+            mes = int(mes)
+            anio = int(anio)
+            actividades = actividades.filter(
+                fecha_envio__year=anio,
+                fecha_envio__month=mes
+            )
+        except ValueError:
+            pass
+
+    context = {
+        'actividades': actividades.order_by('-fecha_envio'),
+        'meses': [
+            (1, 'Enero'), (2, 'Febrero'), (3, 'Marzo'), (4, 'Abril'),
+            (5, 'Mayo'), (6, 'Junio'), (7, 'Julio'), (8, 'Agosto'),
+            (9, 'Septiembre'), (10, 'Octubre'), (11, 'Noviembre'), (12, 'Diciembre')
+        ],
+        'anios': list(range(2025, now().year + 5)),
+        'mes': int(mes) if mes else now().month,
+        'anio': int(anio) if anio else now().year,
+        'asistio': asistio if asistio in ['0', '1'] else '',
+    }
+
+    return render(request, 'usuarios/asistencias/asistencia_list.html', context)
+
 
 
 
@@ -765,7 +812,6 @@ def subir_comprobante_pago(request, pk):
 
 @login_required
 def vista_certificados(request):
-    # Obtener el perfil del usuario logueado
     profile = get_object_or_404(Profile, user=request.user)
 
     if request.method == 'POST':
@@ -776,19 +822,43 @@ def vista_certificados(request):
     else:
         form = AutorizacionForm(instance=profile)
 
-    # ✅ Usar el perfil para filtrar los mensajes
+    # Obtener parámetros de filtrado
+    mes = request.GET.get('mes')
+    anio = request.GET.get('anio')
+
+    archivos = InformesTerapeuticos.objects.filter(profile=profile)
+
+    if mes and anio:
+        try:
+            mes = int(mes)
+            anio = int(anio)
+            archivos = archivos.filter(
+                fecha_creado__year=anio,
+                fecha_creado__month=mes
+            )
+        except ValueError:
+            pass
+
+    archivos = archivos.order_by('-fecha_creado')
+
     mensajes = Mensaje.objects.filter(receptor=profile).order_by('-fecha_envio')
 
-    # Archivos adjuntos del perfil del usuario
-    archivos = InformesTerapeuticos.objects.filter(profile=profile).order_by('-fecha_creado')
-
-    return render(request, 'usuarios/certificados/certificados_total.html', {
+    context = {
         'form': form,
         'profile': profile,
         'mensajes': mensajes,
-        'archivos': archivos
-    })
+        'archivos': archivos,
+        'meses': [
+            (1, 'Enero'), (2, 'Febrero'), (3, 'Marzo'), (4, 'Abril'),
+            (5, 'Mayo'), (6, 'Junio'), (7, 'Julio'), (8, 'Agosto'),
+            (9, 'Septiembre'), (10, 'Octubre'), (11, 'Noviembre'), (12, 'Diciembre')
+        ],
+        'anios': list(range(2025, now().year + 5)),
+        'mes': int(mes) if mes else now().month,
+        'anio': int(anio) if anio else now().year,
+    }
 
+    return render(request, 'usuarios/certificados/certificados_total.html', context)
 
 from django.views.generic import TemplateView
 from unfold.views import UnfoldModelAdminViewMixin
@@ -889,7 +959,7 @@ class TerapiaListView(LoginRequiredMixin, ListView):
             asistire=True,
             profile__user=self.request.user,
             media_terapia__isnull=False
-        ).order_by('-fecha_envio').first()
+        ).order_by('-cita_terapeutica_asignada').first()
 
         # Mes y año actuales o seleccionados
         context['mes'] = int(self.request.GET.get('mes', now().month))
@@ -901,7 +971,7 @@ class TerapiaListView(LoginRequiredMixin, ListView):
             (5, 'Mayo'), (6, 'Junio'), (7, 'Julio'), (8, 'Agosto'),
             (9, 'Septiembre'), (10, 'Octubre'), (11, 'Noviembre'), (12, 'Diciembre')
         ]
-        context['anios'] = list(range(2022, now().year + 2))
+        context['anios'] = list(range(2025, now().year + 5))
 
         return context
 
