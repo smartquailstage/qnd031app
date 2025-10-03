@@ -24,6 +24,7 @@ from tinymce.models import HTMLField
 from django.contrib.auth.models import AbstractUser
 from serviceapp.models import ServicioTerapeutico
 from decimal import Decimal
+from django.core.validators import FileExtensionValidator
 
 
 from datetime import datetime
@@ -1630,7 +1631,12 @@ class tareas(models.Model):
     envio_tarea = models.BooleanField(default=False, verbose_name="¿Se envía tarea? No/Si")
     titulo = models.CharField(max_length=255, blank=True, null=True, verbose_name="Título de Actividad") 
     descripcion_actividad =  HTMLField(null=True, blank=True, verbose_name="Describa la actividad a realizar")
-    media_terapia =  models.FileField(upload_to='Videos/%Y/%m/%d/', blank=True, verbose_name="Video Multimedia de actividad ")
+    media_terapia = models.FileField(
+        upload_to='Videos/%Y/%m/%d/',
+        blank=True,
+        verbose_name="Video Multimedia de actividad",
+        validators=[FileExtensionValidator(allowed_extensions=['mp4'])]
+    )
     thumbnail_media = models.ImageField(upload_to='thumbnails/', blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True)
 
