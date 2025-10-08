@@ -648,6 +648,10 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from .models import tareas  # ajustá si usás otro nombre de app
 
+from django.utils.timezone import now
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+
 @login_required
 def tareas_asistidas_view(request):
     mes = request.GET.get('mes')
@@ -662,32 +666,43 @@ def tareas_asistidas_view(request):
     elif asistio == '0':  # No asistió
         actividades = actividades.filter(asistire=False)
 
-    # Filtrar por mes y año
-    if mes and anio:
-        try:
-            mes = int(mes)
-            anio = int(anio)
+    # Filtrar por mes y año si son válidos
+    try:
+        mes_int = int(mes) if mes else None
+        anio_int = int(anio) if anio else None
+
+        if mes_int and anio_int and 1 <= mes_int <= 12:
             actividades = actividades.filter(
-                fecha_envio__year=anio,
-                fecha_envio__month=mes
+                fecha_envio__year=anio_int,
+                fecha_envio__month=mes_int
             )
-        except ValueError:
-            pass
+    except (TypeError, ValueError):
+        mes_int = now().month
+        anio_int = now().year
+    else:
+        # Si no hubo excepción pero mes/anio no vienen, asignar valores por defecto
+        if not mes_int:
+            mes_int = now().month
+        if not anio_int:
+            anio_int = now().year
+
+    actividades = actividades.order_by('-cita_terapeutica_asignada')
 
     context = {
-        'actividades': actividades.order_by('-fecha_envio'),
+        'actividades': actividades,
         'meses': [
             (1, 'Enero'), (2, 'Febrero'), (3, 'Marzo'), (4, 'Abril'),
             (5, 'Mayo'), (6, 'Junio'), (7, 'Julio'), (8, 'Agosto'),
             (9, 'Septiembre'), (10, 'Octubre'), (11, 'Noviembre'), (12, 'Diciembre')
         ],
         'anios': list(range(2025, now().year + 5)),
-        'mes': int(mes) if mes else now().month,
-        'anio': int(anio) if anio else now().year,
+        'mes': mes_int,
+        'anio': anio_int,
         'asistio': asistio if asistio in ['0', '1'] else '',
     }
 
     return render(request, 'usuarios/asistencias/asistencia_list.html', context)
+
 
 
 
@@ -925,6 +940,11 @@ class TareaDetailView(LoginRequiredMixin, DetailView):
 
 from django.utils.timezone import now
 
+from django.utils.timezone import now
+from django.shortcuts import get_object_or_404
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import ListView, DetailView
+from usuarios.models import tareas  # Ajusta según tu estructura
 
 class TerapiaListView(LoginRequiredMixin, ListView):
     model = tareas
@@ -932,7 +952,6 @@ class TerapiaListView(LoginRequiredMixin, ListView):
     context_object_name = 'actividades'
 
     def get_queryset(self):
-        # Valores por defecto
         mes = self.request.GET.get('mes')
         anio = self.request.GET.get('anio')
 
@@ -944,14 +963,13 @@ class TerapiaListView(LoginRequiredMixin, ListView):
         try:
             mes = int(mes)
             anio = int(anio)
-
             if 1 <= mes <= 12:
                 queryset = queryset.filter(
-                    fecha_envio__year=anio,
-                    fecha_envio__month=mes
+                    cita_terapeutica_asignada__year=anio,
+                    cita_terapeutica_asignada__month=mes
                 )
         except (TypeError, ValueError):
-            # Si los parámetros son inválidos o no están presentes, no se filtra por fecha
+            # Si no hay filtro válido, no filtramos
             pass
 
         return queryset.order_by('-cita_terapeutica_asignada')
@@ -959,44 +977,29 @@ class TerapiaListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Obtener la actividad (sin filtrar por fecha)
-        actividad = get_object_or_404(
-            tareas,
-            pk=self.kwargs['pk'],
+        # Seleccionamos la primera actividad sin filtro de fecha para mostrar media
+        media = tareas.objects.filter(
+            asistire=True,
             profile__user=self.request.user,
-            asistire=True
-        )
+            media_terapia__isnull=False
+        ).order_by('-cita_terapeutica_asignada').first()
 
-        # Obtener filtros
+        # Filtros actuales o por defecto
         mes = self.request.GET.get('mes')
         anio = self.request.GET.get('anio')
 
-        # Query base
-        actividades = tareas.objects.filter(
-            profile__user=self.request.user,
-            asistire=True
-        )
-
-        # Filtro por mes y año si es válido
         try:
             mes = int(mes)
-            anio = int(anio)
-            if 1 <= mes <= 12:
-                actividades = actividades.filter(
-                    fecha_envio__year=anio,
-                    fecha_envio__month=mes
-                )
         except (TypeError, ValueError):
-            # Si no hay filtro o es inválido, no se filtra
             mes = now().month
+
+        try:
+            anio = int(anio)
+        except (TypeError, ValueError):
             anio = now().year
 
-        actividades = actividades.order_by('-cita_terapeutica_asignada')
-
-        # Contexto
         context.update({
-            'actividad': actividad,
-            'actividades': actividades,
+            'media': media,
             'mes': mes,
             'anio': anio,
             'meses': [
@@ -1012,9 +1015,11 @@ class TerapiaListView(LoginRequiredMixin, ListView):
 
 
 
-
 from django.utils.timezone import now
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import TemplateView
+from usuarios.models import tareas  # importa tu modelo correctamente
 
 class TerapiaDetailView(LoginRequiredMixin, TemplateView):
     template_name = 'usuarios/terapias/terapias_detail.html'
@@ -1022,41 +1027,40 @@ class TerapiaDetailView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Obtener la actividad (sin filtrar por fecha)
+        pk = self.kwargs.get('pk')
+        if not pk:
+            # Puedes lanzar un 404 o manejarlo como prefieras
+            from django.http import Http404
+            raise Http404("No se proporcionó el ID de la tarea")
+
+        # Obtener la actividad asegurándonos que el usuario es dueño y que asistire=True
         actividad = get_object_or_404(
             tareas,
-            pk=self.kwargs['pk'],
+            pk=pk,
             profile__user=self.request.user,
             asistire=True
         )
 
-        # Obtener filtros
+        # Obtener filtros de mes y año desde GET, con fallback a mes y año actuales
         mes = self.request.GET.get('mes')
         anio = self.request.GET.get('anio')
 
-        # Query base
-        actividades = tareas.objects.filter(
-            profile__user=self.request.user,
-            asistire=True
-        )
-
-        # Filtro por mes y año si es válido
         try:
             mes = int(mes)
             anio = int(anio)
-            if 1 <= mes <= 12:
-                actividades = actividades.filter(
-                    fecha_envio__year=anio,
-                    fecha_envio__month=mes
-                )
+            if not (1 <= mes <= 12):
+                raise ValueError
         except (TypeError, ValueError):
-            # Si no hay filtro o es inválido, no se filtra
             mes = now().month
             anio = now().year
 
-        actividades = actividades.order_by('-cita_terapeutica_asignada')
+        actividades = tareas.objects.filter(
+            profile__user=self.request.user,
+            asistire=True,
+            fecha_envio__year=anio,
+            fecha_envio__month=mes
+        ).order_by('-cita_terapeutica_asignada')
 
-        # Contexto
         context.update({
             'actividad': actividad,
             'actividades': actividades,
@@ -1071,7 +1075,6 @@ class TerapiaDetailView(LoginRequiredMixin, TemplateView):
         })
 
         return context
-
 
 
 from django.views.generic import TemplateView
