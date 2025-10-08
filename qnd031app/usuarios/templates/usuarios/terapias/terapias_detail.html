@@ -54,11 +54,10 @@
         <a href="{{ actividad.media_terapia.url }}" target="_blank" class="text-decoration-none position-relative d-inline-block">
             
             {% if actividad.thumbnail_media %}
-                <img
-                    src="{{ actividad.thumbnail_media.url }}"
-                    alt="Previsualización del video"
-                    class="img-thumbnail shadow-sm"
-                    style="width: 560px; height: 560px; object-fit: cover;">
+                                <img src="{{ actividad.thumbnail_media.url }}?v={{ actividad.updated_at.timestamp }}"
+     alt="Previsualización del video"
+     class="img-thumbnail shadow-sm"
+     style="width: 560px; height: 360px; object-fit: cover;">
             {% else %}
                 <img
                     src="{% static 'img/default_video_thumb.jpg' %}"
