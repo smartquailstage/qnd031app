@@ -652,11 +652,15 @@ from django.utils.timezone import now
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
+from django.utils.timezone import now
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+
 @login_required
 def tareas_asistidas_view(request):
-    mes = request.GET.get('mes')
+    mes = request.GET.get('mes')      # vienen como strings
     anio = request.GET.get('anio')
-    asistio = request.GET.get('asistio')  # nuevo parámetro
+    asistio = request.GET.get('asistio')  # '1', '0' o ''
 
     actividades = tareas.objects.all()
 
@@ -666,21 +670,20 @@ def tareas_asistidas_view(request):
     elif asistio == '0':  # No asistió
         actividades = actividades.filter(asistire=False)
 
-    # Filtrar por mes y año si son válidos
+    # Filtrar por mes y año si vienen y son válidos
     try:
         mes_int = int(mes) if mes else None
         anio_int = int(anio) if anio else None
 
         if mes_int and anio_int and 1 <= mes_int <= 12:
             actividades = actividades.filter(
-                fecha_envio__year=anio_int,
-                fecha_envio__month=mes_int
+                cita_terapeutica_asignada__year=anio_int,
+                cita_terapeutica_asignada__month=mes_int
             )
     except (TypeError, ValueError):
         mes_int = now().month
         anio_int = now().year
     else:
-        # Si no hubo excepción pero mes/anio no vienen, asignar valores por defecto
         if not mes_int:
             mes_int = now().month
         if not anio_int:
@@ -696,12 +699,15 @@ def tareas_asistidas_view(request):
             (9, 'Septiembre'), (10, 'Octubre'), (11, 'Noviembre'), (12, 'Diciembre')
         ],
         'anios': list(range(2025, now().year + 5)),
-        'mes': mes_int,
-        'anio': anio_int,
+        'mes': str(mes_int),   # Pasar como string para el template
+        'anio': str(anio_int), # Pasar como string también
         'asistio': asistio if asistio in ['0', '1'] else '',
     }
 
     return render(request, 'usuarios/asistencias/asistencia_list.html', context)
+
+
+
 
 
 
@@ -1041,6 +1047,9 @@ class TerapiaDetailView(LoginRequiredMixin, TemplateView):
             asistire=True
         )
 
+        # ✅ Forzamos recarga desde la BD para asegurar que el thumbnail ya esté disponible
+        actividad.refresh_from_db(fields=['thumbnail_media'])
+
         # Obtener filtros de mes y año desde GET, con fallback a mes y año actuales
         mes = self.request.GET.get('mes')
         anio = self.request.GET.get('anio')
@@ -1057,8 +1066,8 @@ class TerapiaDetailView(LoginRequiredMixin, TemplateView):
         actividades = tareas.objects.filter(
             profile__user=self.request.user,
             asistire=True,
-            fecha_envio__year=anio,
-            fecha_envio__month=mes
+            cita_terapeutica_asignada__year=anio,
+            cita_terapeutica_asignada__month=mes
         ).order_by('-cita_terapeutica_asignada')
 
         context.update({
