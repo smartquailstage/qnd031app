@@ -992,7 +992,7 @@ class TerapiaListView(LoginRequiredMixin, ListView):
 
 
 
-from .tasks import generar_thumbnail_video
+
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
@@ -1015,12 +1015,6 @@ class TerapiaDetailView(LoginRequiredMixin, TemplateView):
             pk=self.kwargs['pk']
         )
 
-        # Si hay video pero no hay thumbnail, genera uno
-        if actividad.media_terapia and not actividad.thumbnail_media:
-            generar_thumbnail_video.delay(actividad.id)
-
-        # Refresca la instancia (por si se generó)
-        actividad.refresh_from_db()
 
         context.update({
             'actividad': actividad,
