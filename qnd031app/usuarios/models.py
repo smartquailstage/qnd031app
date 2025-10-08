@@ -1598,53 +1598,54 @@ def clean(self):
 #from io import BytesIO
 #from PIL import Image
 
-
 import os
 import subprocess
+import requests
 from uuid import uuid4
+from io import BytesIO
 from tempfile import NamedTemporaryFile
-from django.core.files import File
 from django.db import models
 from django.core.validators import FileExtensionValidator
+from django.core.files import File
+from django.conf import settings
 from tinymce.models import HTMLField
 from datetime import datetime, timedelta
-from django.conf import settings
-
 
 class tareas(models.Model):
     sucursal = models.ForeignKey(
-        Sucursal,
+        'Sucursal',
         on_delete=models.CASCADE,
         related_name="sucursal6", null=True, blank=True
     )
     Insitucional_a_cargo = models.ForeignKey(
-        PerfilInstitucional,
+        'PerfilInstitucional',
         on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
+        null=True, blank=True,
         related_name='tareas_institucionales',
         verbose_name="Responsable institucional"
     )
     cita_terapeutica_asignada = models.DateField(null=True, blank=True, verbose_name="Fecha Sesion de Terapia")
+
     profile = models.ForeignKey(
-        Profile,
+        'Profile',
         on_delete=models.CASCADE,
         related_name='Asignar_perfil_de_paciente2',
         verbose_name="Paciente Asignado"
     )
     fecha_envio = models.DateField(blank=True, null=True, verbose_name="Fecha de envio de tarea")
+
     terapeuta = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name='terapeuta_asiga_tarea',
         on_delete=models.CASCADE,
-        null=True,
-        blank=True
+        null=True, blank=True
     )
+
     asistire = models.BooleanField(default=False, verbose_name="¿Asistió? No/Si")
     envio_tarea = models.BooleanField(default=False, verbose_name="¿Se envía tarea? No/Si")
     titulo = models.CharField(max_length=255, blank=True, null=True, verbose_name="Título de Actividad")
     descripcion_actividad = HTMLField(null=True, blank=True, verbose_name="Describa la actividad a realizar")
-    
+
     media_terapia = models.FileField(
         upload_to='Videos/%Y/%m/%d/',
         blank=True,
@@ -1655,7 +1656,6 @@ class tareas(models.Model):
 
     updated_at = models.DateTimeField(auto_now=True)
     fecha_actividad = models.DateTimeField(auto_now=True, verbose_name="Fecha de Actividad")
-
     actividad_realizada = models.BooleanField(default=False, verbose_name="¿Realizó la tarea?")
     descripcion_tarea = HTMLField(null=True, blank=True, verbose_name="Describa la tarea a realizar")
     fecha_entrega = models.DateField(blank=True, null=True, verbose_name="Fecha de entrega de tarea")
@@ -1671,7 +1671,7 @@ class tareas(models.Model):
         return f"Tareas terapéuticas de {self.profile.nombre_paciente} {self.profile.apellidos_paciente} - {self.titulo}"
 
     def get_duracion(self):
-        if self.hora and self.hora_fin:
+        if hasattr(self, 'hora') and hasattr(self, 'hora_fin') and self.hora and self.hora_fin:
             base_date = datetime(2000, 1, 1)
             hora_inicio = datetime.combine(base_date, self.hora)
             hora_final = datetime.combine(base_date, self.hora_fin)
@@ -1686,7 +1686,6 @@ class tareas(models.Model):
     def save(self, *args, **kwargs):
         generar_thumb = False
 
-        # Detectar si el video cambió
         if self.pk:
             try:
                 old = tareas.objects.get(pk=self.pk)
@@ -1700,17 +1699,30 @@ class tareas(models.Model):
             if self.media_terapia and not self.thumbnail_media:
                 generar_thumb = True
 
-        super().save(*args, **kwargs)  # Guarda el modelo primero
+        # Guarda el modelo antes de procesar el video
+        super().save(*args, **kwargs)
 
         if generar_thumb and self.media_terapia:
             try:
-                with NamedTemporaryFile(delete=False, suffix='.jpg') as temp_thumb:
+                # 1. Descargar el video desde su URL (almacenamiento remoto)
+                video_url = self.media_terapia.url
+                response = requests.get(video_url, stream=True)
+                if response.status_code != 200:
+                    print(f"[❌ ERROR] No se pudo descargar el video: {video_url}")
+                    return
+
+                with NamedTemporaryFile(delete=False, suffix=".mp4") as temp_video:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        temp_video.write(chunk)
+                    temp_video_path = temp_video.name
+
+                # 2. Generar el thumbnail
+                with NamedTemporaryFile(delete=False, suffix=".jpg") as temp_thumb:
                     temp_thumb_path = temp_thumb.name
 
-                # Ejecutar ffmpeg
                 cmd = [
                     'ffmpeg',
-                    '-i', self.media_terapia.path,
+                    '-i', temp_video_path,
                     '-ss', '00:00:00.500',
                     '-vframes', '1',
                     '-q:v', '2',
@@ -1719,11 +1731,16 @@ class tareas(models.Model):
                 ]
                 subprocess.run(cmd, check=True)
 
+                # 3. Guardar el thumbnail
                 with open(temp_thumb_path, 'rb') as f:
                     file_name = f"thumb_{self.id}_{uuid4().hex[:8]}.jpg"
                     self.thumbnail_media.save(file_name, File(f), save=False)
 
-                super().save(update_fields=['thumbnail_media'])  # Actualiza solo el thumbnail
+                # 4. Guardar solo el thumbnail actualizado
+                super().save(update_fields=['thumbnail_media'])
+
+                # 5. Limpiar archivos temporales
+                os.remove(temp_video_path)
                 os.remove(temp_thumb_path)
 
             except Exception as e:

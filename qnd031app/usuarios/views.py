@@ -928,7 +928,7 @@ from django.utils.timezone import now
 
 class TerapiaListView(LoginRequiredMixin, ListView):
     model = tareas
-    template_name = 'terapias/terapia_list.html'
+    template_name = 'usuarios/terapias/terapia_list.html'
     context_object_name = 'actividades'
 
     def get_queryset(self):
@@ -959,45 +959,62 @@ class TerapiaListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Filtros seguros para contexto
-        try:
-            context['mes'] = int(self.request.GET.get('mes', now().month))
-            if not (1 <= context['mes'] <= 12):
-                context['mes'] = now().month
-        except (TypeError, ValueError):
-            context['mes'] = now().month
-
-        try:
-            context['anio'] = int(self.request.GET.get('anio', now().year))
-        except (TypeError, ValueError):
-            context['anio'] = now().year
-
-        # Último recurso multimedia
-        context['media'] = tareas.objects.filter(
-            asistire=True,
+        # Obtener la actividad (sin filtrar por fecha)
+        actividad = get_object_or_404(
+            tareas,
+            pk=self.kwargs['pk'],
             profile__user=self.request.user,
-            media_terapia__isnull=False
-        ).order_by('-cita_terapeutica_asignada').first()
+            asistire=True
+        )
 
-        # Lista de meses y años para el formulario en el template
-        context['meses'] = [
-            (1, 'Enero'), (2, 'Febrero'), (3, 'Marzo'), (4, 'Abril'),
-            (5, 'Mayo'), (6, 'Junio'), (7, 'Julio'), (8, 'Agosto'),
-            (9, 'Septiembre'), (10, 'Octubre'), (11, 'Noviembre'), (12, 'Diciembre')
-        ]
+        # Obtener filtros
+        mes = self.request.GET.get('mes')
+        anio = self.request.GET.get('anio')
 
-        context['anios'] = list(range(2025, now().year + 5))
+        # Query base
+        actividades = tareas.objects.filter(
+            profile__user=self.request.user,
+            asistire=True
+        )
+
+        # Filtro por mes y año si es válido
+        try:
+            mes = int(mes)
+            anio = int(anio)
+            if 1 <= mes <= 12:
+                actividades = actividades.filter(
+                    fecha_envio__year=anio,
+                    fecha_envio__month=mes
+                )
+        except (TypeError, ValueError):
+            # Si no hay filtro o es inválido, no se filtra
+            mes = now().month
+            anio = now().year
+
+        actividades = actividades.order_by('-cita_terapeutica_asignada')
+
+        # Contexto
+        context.update({
+            'actividad': actividad,
+            'actividades': actividades,
+            'mes': mes,
+            'anio': anio,
+            'meses': [
+                (1, 'Enero'), (2, 'Febrero'), (3, 'Marzo'), (4, 'Abril'),
+                (5, 'Mayo'), (6, 'Junio'), (7, 'Julio'), (8, 'Agosto'),
+                (9, 'Septiembre'), (10, 'Octubre'), (11, 'Noviembre'), (12, 'Diciembre')
+            ],
+            'anios': list(range(2025, now().year + 5)),
+        })
 
         return context
 
 
 
 
-from django.db.models import Q
+
+from django.utils.timezone import now
 from django.shortcuts import get_object_or_404
-from django.views.generic import TemplateView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import tareas
 
 class TerapiaDetailView(LoginRequiredMixin, TemplateView):
     template_name = 'usuarios/terapias/terapias_detail.html'
@@ -1005,24 +1022,55 @@ class TerapiaDetailView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        # Obtener la actividad (sin filtrar por fecha)
+        actividad = get_object_or_404(
+            tareas,
+            pk=self.kwargs['pk'],
+            profile__user=self.request.user,
+            asistire=True
+        )
+
+        # Obtener filtros
+        mes = self.request.GET.get('mes')
+        anio = self.request.GET.get('anio')
+
+        # Query base
         actividades = tareas.objects.filter(
             profile__user=self.request.user,
             asistire=True
-        ).order_by('-cita_terapeutica_asignada')
-
-        actividad = get_object_or_404(
-            actividades,
-            pk=self.kwargs['pk']
         )
 
+        # Filtro por mes y año si es válido
+        try:
+            mes = int(mes)
+            anio = int(anio)
+            if 1 <= mes <= 12:
+                actividades = actividades.filter(
+                    fecha_envio__year=anio,
+                    fecha_envio__month=mes
+                )
+        except (TypeError, ValueError):
+            # Si no hay filtro o es inválido, no se filtra
+            mes = now().month
+            anio = now().year
 
+        actividades = actividades.order_by('-cita_terapeutica_asignada')
+
+        # Contexto
         context.update({
             'actividad': actividad,
             'actividades': actividades,
+            'mes': mes,
+            'anio': anio,
+            'meses': [
+                (1, 'Enero'), (2, 'Febrero'), (3, 'Marzo'), (4, 'Abril'),
+                (5, 'Mayo'), (6, 'Junio'), (7, 'Julio'), (8, 'Agosto'),
+                (9, 'Septiembre'), (10, 'Octubre'), (11, 'Noviembre'), (12, 'Diciembre')
+            ],
+            'anios': list(range(2025, now().year + 5)),
         })
 
         return context
-
 
 
 
