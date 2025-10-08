@@ -925,12 +925,14 @@ class TareaDetailView(LoginRequiredMixin, DetailView):
 
 from django.utils.timezone import now
 
+
 class TerapiaListView(LoginRequiredMixin, ListView):
     model = tareas
     template_name = 'terapias/terapia_list.html'
     context_object_name = 'actividades'
 
     def get_queryset(self):
+        # Valores por defecto
         mes = self.request.GET.get('mes')
         anio = self.request.GET.get('anio')
 
@@ -939,42 +941,54 @@ class TerapiaListView(LoginRequiredMixin, ListView):
             profile__user=self.request.user
         )
 
-        if mes and anio:
-            try:
-                mes = int(mes)
-                anio = int(anio)
+        try:
+            mes = int(mes)
+            anio = int(anio)
+
+            if 1 <= mes <= 12:
                 queryset = queryset.filter(
                     fecha_envio__year=anio,
                     fecha_envio__month=mes
                 )
-            except ValueError:
-                pass
+        except (TypeError, ValueError):
+            # Si los parámetros son inválidos o no están presentes, no se filtra por fecha
+            pass
 
         return queryset.order_by('-cita_terapeutica_asignada')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        # Filtros seguros para contexto
+        try:
+            context['mes'] = int(self.request.GET.get('mes', now().month))
+            if not (1 <= context['mes'] <= 12):
+                context['mes'] = now().month
+        except (TypeError, ValueError):
+            context['mes'] = now().month
+
+        try:
+            context['anio'] = int(self.request.GET.get('anio', now().year))
+        except (TypeError, ValueError):
+            context['anio'] = now().year
+
+        # Último recurso multimedia
         context['media'] = tareas.objects.filter(
             asistire=True,
             profile__user=self.request.user,
             media_terapia__isnull=False
         ).order_by('-cita_terapeutica_asignada').first()
 
-        # Mes y año actuales o seleccionados
-        context['mes'] = int(self.request.GET.get('mes', now().month))
-        context['anio'] = int(self.request.GET.get('anio', now().year))
-
-        # Lista de meses y años para el template
+        # Lista de meses y años para el formulario en el template
         context['meses'] = [
             (1, 'Enero'), (2, 'Febrero'), (3, 'Marzo'), (4, 'Abril'),
             (5, 'Mayo'), (6, 'Junio'), (7, 'Julio'), (8, 'Agosto'),
             (9, 'Septiembre'), (10, 'Octubre'), (11, 'Noviembre'), (12, 'Diciembre')
         ]
+
         context['anios'] = list(range(2025, now().year + 5))
 
         return context
-
 
 
 

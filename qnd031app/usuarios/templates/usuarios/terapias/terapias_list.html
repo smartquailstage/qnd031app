@@ -55,7 +55,7 @@
     <h2 class="font-weight-bold display-4" style="color:#45a851;">TERAPIAS</h2>
     <h4 class="mb-4">Accede a las terapias realizadas en tiempo real.</h4>
 
-<form method="get" class="row g-2 mb-4">
+<form method="get" class="row g-2 mb-4" id="date-filter-form">
   <div class="col-md-4">
     <label for="mes" class="form-label">Mes:</label>
     <select name="mes" id="mes" class="form-select">
@@ -78,6 +78,7 @@
     <button type="submit" class="btn btn-success w-100">Filtrar</button>
   </div>
 </form>
+
 
 
 
@@ -128,7 +129,7 @@
                         </td>
                         <td style="background-color: #343a40;">
                             {% if actividad.terapeuta %}
-                                Dr. {{ actividad.terapeuta.get_full_name }}
+                             {{ actividad.terapeuta.get_full_name }}
                             {% else %}
                                 <em>Sin terapeuta</em>
                             {% endif %}

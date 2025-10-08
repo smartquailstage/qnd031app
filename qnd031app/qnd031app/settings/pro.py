@@ -202,9 +202,6 @@ AWS_S3_OBJECT_PARAMETERS = {
     "ACL": "public-read"  # Cambia a 'private' si los archivos deben ser privados
 }
 
-AWS_QUERYSTRING_AUTH = False  # Para URLs públicas y limpias
-AWS_DEFAULT_ACL = None  # Evita conflictos con la ACL global
-AWS_S3_FILE_OVERWRITE = False
 
 # Configuración de almacenamiento
 AWS_LOCATION = os.environ.get("AWS_LOCATION")  # 'static' o 'media'
