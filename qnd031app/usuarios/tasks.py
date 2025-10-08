@@ -56,9 +56,10 @@ def generar_thumbnail_video(tarea_id):
         cmd = [
             'ffmpeg',
             '-i', temp_video_path,
-            '-ss', '00:00:01.000',
+            '-ss', '00:00:00.250',
             '-vframes', '1',
             '-q:v', '2',
+            '-vf', 'scale=560:-1',  # opcional para limitar ancho
             temp_thumb_path
         ]
         subprocess.run(cmd, check=True)
