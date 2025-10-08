@@ -950,7 +950,7 @@ class TerapiaListView(LoginRequiredMixin, ListView):
             except ValueError:
                 pass
 
-        return queryset.order_by('-fecha_envio')
+        return queryset.order_by('-cita_terapeutica_asignada')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -994,7 +994,7 @@ class TerapiaDetailView(LoginRequiredMixin, TemplateView):
         actividades = tareas.objects.filter(
             profile__user=self.request.user,
             asistire=True
-        ).order_by('-fecha_envio')
+        ).order_by('-cita_terapeutica_asignada')
 
         actividad = get_object_or_404(
             actividades,
@@ -1030,7 +1030,7 @@ class UltimaActividadView(LoginRequiredMixin, TemplateView):
                 profile__user=self.request.user,
                 asistire=True
             )
-            .order_by('-fecha_envio')
+            .order_by('-cita_terapeutica_asignada')
             .first()
         )
         context['actividad'] = ultima_actividad

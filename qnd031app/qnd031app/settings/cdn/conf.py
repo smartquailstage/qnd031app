@@ -3,12 +3,16 @@ import os
 # Configuración de AWS
 AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
+AWS_S3_FILE_OVERWRITE = False
 AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
 AWS_S3_ENDPOINT_URL = os.environ.get("AWS_S3_ENDPOINT_URL")  # Cambia si usas otro endpoint
 AWS_S3_OBJECT_PARAMETERS = {
-    "CacheControl": "max-age=86400", 
+    "CacheControl": "max-age=60", 
     "ACL": "public-read"  # Cambia a 'private' si los archivos deben ser privados
 }
+
+AWS_QUERYSTRING_AUTH = False  # Para URLs públicas y limpias
+AWS_DEFAULT_ACL = None  # Evita conflictos con la ACL global
 
 # Configuración de almacenamiento
 AWS_LOCATION = os.environ.get("AWS_LOCATION")  # 'static' o 'media'

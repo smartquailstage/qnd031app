@@ -64,6 +64,13 @@ def generar_thumbnail_video(tarea_id):
         ]
         subprocess.run(cmd, check=True)
 
+        # ✅ Eliminar el thumbnail anterior si existe
+        if tarea.thumbnail_media:
+            try:
+                tarea.thumbnail_media.delete(save=False)
+            except Exception as e:
+                print(f"[⚠️ WARNING] No se pudo eliminar el thumbnail anterior: {e}")
+
         # Guardar en el modelo con nombre único
         with open(temp_thumb_path, 'rb') as f:
             file_name = f"thumb_{tarea.id}_{uuid4().hex[:8]}.jpg"
@@ -82,7 +89,6 @@ def generar_thumbnail_video(tarea_id):
         print(f"[❌ ERROR] Tarea con id {tarea_id} no existe.")
     except Exception as e:
         print(f"[❌ ERROR Celery] Generando thumbnail: {e}")
-
 
 
 
