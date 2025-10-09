@@ -55,7 +55,8 @@
 
             {% if actividad.thumbnail_media and actividad.thumbnail_media.url %}
                 <img 
-                    src="{{ actividad.thumbnail_media.url }}?v={{ actividad.updated_at.timestamp|default_if_none:'' }}"
+                    src="{{ actividad.thumbnail_media.url }}?v={{ actividad.updated_at.timestamp|floatformat:0 }}"
+
                     alt="Previsualización del video"
                     class="img-thumbnail shadow-sm"
                     style="width: 560px; height: 360px; object-fit: cover;">
