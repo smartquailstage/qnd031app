@@ -1602,16 +1602,13 @@ def clean(self):
 import os
 import requests
 import subprocess
-from uuid import uuid4
-from datetime import datetime, timedelta
 from tempfile import NamedTemporaryFile
-
-from django.conf import settings
+from uuid import uuid4
 from django.core.files import File
-from django.core.validators import FileExtensionValidator
 from django.db import models
+from django.conf import settings
+from django.core.validators import FileExtensionValidator
 from tinymce.models import HTMLField
-
 
 class tareas(models.Model):
     sucursal = models.ForeignKey(
@@ -1672,22 +1669,10 @@ class tareas(models.Model):
     def __str__(self):
         return f"Tareas terapéuticas de {self.profile.nombre_paciente} {self.profile.apellidos_paciente} - {self.titulo}"
 
-    def get_duracion(self):
-        if hasattr(self, 'hora') and hasattr(self, 'hora_fin') and self.hora and self.hora_fin:
-            base_date = datetime(2000, 1, 1)
-            hora_inicio = datetime.combine(base_date, self.hora)
-            hora_final = datetime.combine(base_date, self.hora_fin)
-            if hora_final < hora_inicio:
-                hora_final += timedelta(days=1)
-            duracion = hora_final - hora_inicio
-            horas, resto = divmod(duracion.seconds, 3600)
-            minutos = resto // 60
-            return f"{horas}h {minutos}m"
-        return "—"
-
     def save(self, *args, **kwargs):
         generar_thumb = False
 
+        # Verificar si es update y video cambió para generar thumbnail
         if self.pk:
             try:
                 old = tareas.objects.get(pk=self.pk)
@@ -1701,14 +1686,13 @@ class tareas(models.Model):
             if self.media_terapia and not self.thumbnail_media:
                 generar_thumb = True
 
+        # Guardar inicialmente para obtener ID (necesario para nombre archivo thumbnail)
         super().save(*args, **kwargs)
 
         if generar_thumb and self.media_terapia:
             temp_video_path = None
             temp_thumb_path = None
-
             try:
-                # 1. Descargar el video
                 video_url = self.media_terapia.url
                 response = requests.get(video_url, stream=True)
                 if response.status_code != 200:
@@ -1720,19 +1704,18 @@ class tareas(models.Model):
                         temp_video.write(chunk)
                     temp_video_path = temp_video.name
 
-                # 2. Generar el thumbnail
                 with NamedTemporaryFile(delete=False, suffix=".jpg") as temp_thumb:
                     temp_thumb_path = temp_thumb.name
-                    
-                    cmd = [
-                        'ffmpeg',
-                        '-ss', '00:00:00.500',  # Captura desde medio segundo
-                        '-i', temp_video_path,
-                        '-vframes', '1',
-                        '-q:v', '2',
-                        '-vf', 'scale=560:-1',
-                        temp_thumb_path
-                    ]
+
+                cmd = [
+                    'ffmpeg',
+                    '-ss', '00:00:00.500',  # Captura desde medio segundo
+                    '-i', temp_video_path,
+                    '-vframes', '1',
+                    '-q:v', '2',
+                    '-vf', 'scale=560:-1',
+                    temp_thumb_path
+                ]
 
                 result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
@@ -1744,18 +1727,17 @@ class tareas(models.Model):
                     print(f"[❌ ERROR] Thumbnail generado vacío")
                     return
 
-                # 3. Guardar el thumbnail
                 with open(temp_thumb_path, 'rb') as f:
                     file_name = f"thumb_{self.id}_{uuid4().hex[:8]}.jpg"
                     self.thumbnail_media.save(file_name, File(f), save=False)
 
-                # 4. Guardar el modelo con el thumbnail
+                # Guardar sólo el campo thumbnail_media actualizado
                 super().save(update_fields=['thumbnail_media'])
 
             except Exception as e:
                 print(f"[❌ ERROR al generar thumbnail]: {e}")
+
             finally:
-                # 5. Limpieza
                 try:
                     if temp_video_path and os.path.exists(temp_video_path):
                         os.remove(temp_video_path)
