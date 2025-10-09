@@ -37,6 +37,12 @@
   <link href="{% static 'assets/css/semi-dark.css' %}" rel="stylesheet" />
   <link href="{% static 'assets/css/header-colors.css' %}" rel="stylesheet" />
 
+ <style>
+/* ------ DESKTOP ------ */
+
+
+
+</style>
   
 
   <title>Plataforma de Gestión de pacientes</title>
@@ -47,7 +53,7 @@
 
    
   <!--start wrapper-->
-  <div class="wrapper">
+  <div class="wrapper toggled">
     {% include 'usuarios/header.html' %} 
 
     {% include 'usuarios/sidebar.html' %} 
@@ -84,9 +90,31 @@
  
   <!--end wrapper-->
   {% bootstrap_javascript jquery='full' %}
-      <!-- JS Files-->
+      <!-- JS Fil
+       es-->
 
+  <script>
+$(document).ready(function () {
+    // Activa el menú para móviles
+    $(".nav-toggle-icon").click(function () {
+        if (window.innerWidth <= 768) {
+            $(".wrapper").toggleClass("mobile-active");
+        } else {
+            $(".wrapper").toggleClass("toggled");
+        }
+    });
 
+    // Cierra el menú móvil si se hace clic fuera del sidebar
+    $(document).click(function (e) {
+        if (
+            window.innerWidth <= 768 &&
+            !$(e.target).closest(".sidebar-wrapper, .nav-toggle-icon").length
+        ) {
+            $(".wrapper").removeClass("mobile-active");
+        }
+    });
+});
+    </script>
 
     <!-- Main JS-->
   <script src="{% static 'assets/plugins/datetimepicker/js/legacy.js' %}"></script>
@@ -124,25 +152,3 @@
 
 </html>
 
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const video = document.getElementById('hiddenVideo');
-    const img = document.getElementById('thumbnailPreview');
-
-    // Espera a que los metadatos se carguen para poder buscar el primer frame
-    video.addEventListener('loadeddata', function () {
-        const canvas = document.createElement('canvas');
-        canvas.width = 160;
-        canvas.height = 160;
-
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        const imageUrl = canvas.toDataURL('image/png');
-        img.src = imageUrl;
-    });
-
-    // Asegura que solo cargue hasta el primer frame
-    video.currentTime = 0.1;
-});
-</script>

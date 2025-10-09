@@ -1599,18 +1599,15 @@ def clean(self):
 #from PIL import Image
 
 
-import os
-import requests
-import subprocess
-from uuid import uuid4
-from datetime import datetime, timedelta
-from tempfile import NamedTemporaryFile
 
-from django.conf import settings
-from django.core.files import File
-from django.core.validators import FileExtensionValidator
-from django.db import models
-from tinymce.models import HTMLField
+from uuid import uuid4
+from moviepy import VideoFileClip, TextClip, CompositeVideoClip
+from django.core.files.base import ContentFile
+from PIL import Image
+import requests
+import tempfile
+import io
+import os
 
 
 class tareas(models.Model):
@@ -1672,18 +1669,7 @@ class tareas(models.Model):
     def __str__(self):
         return f"Tareas terapéuticas de {self.profile.nombre_paciente} {self.profile.apellidos_paciente} - {self.titulo}"
 
-    def get_duracion(self):
-        if hasattr(self, 'hora') and hasattr(self, 'hora_fin') and self.hora and self.hora_fin:
-            base_date = datetime(2000, 1, 1)
-            hora_inicio = datetime.combine(base_date, self.hora)
-            hora_final = datetime.combine(base_date, self.hora_fin)
-            if hora_final < hora_inicio:
-                hora_final += timedelta(days=1)
-            duracion = hora_final - hora_inicio
-            horas, resto = divmod(duracion.seconds, 3600)
-            minutos = resto // 60
-            return f"{horas}h {minutos}m"
-        return "—"
+
 
     def save(self, *args, **kwargs):
         generar_thumb = False
@@ -1701,68 +1687,53 @@ class tareas(models.Model):
             if self.media_terapia and not self.thumbnail_media:
                 generar_thumb = True
 
+        # Guardar inicialmente el modelo (por si es nuevo)
         super().save(*args, **kwargs)
 
         if generar_thumb and self.media_terapia:
             temp_video_path = None
-            temp_thumb_path = None
 
             try:
-                # 1. Descargar el video
-                video_url = self.media_terapia.url
-                response = requests.get(video_url, stream=True)
+                # 1. Descargar el video remoto a un archivo temporal
+                response = requests.get(self.media_terapia.url, stream=True)
                 if response.status_code != 200:
-                    print(f"[❌ ERROR] No se pudo descargar el video: {video_url}")
+                    print(f"[❌ ERROR] No se pudo descargar el video: {self.media_terapia.url}")
                     return
 
-                with NamedTemporaryFile(delete=False, suffix=".mp4") as temp_video:
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_video:
                     for chunk in response.iter_content(chunk_size=8192):
                         temp_video.write(chunk)
                     temp_video_path = temp_video.name
 
-                # 2. Generar el thumbnail
-                with NamedTemporaryFile(delete=False, suffix=".jpg") as temp_thumb:
-                    temp_thumb_path = temp_thumb.name
-                    
-                    cmd = [
-                        'ffmpeg',
-                        '-ss', '00:00:00.500',  # Captura desde medio segundo
-                        '-i', temp_video_path,
-                        '-vframes', '1',
-                        '-q:v', '2',
-                        '-vf', 'scale=560:-1',
-                        temp_thumb_path
-                    ]
+                # 2. Usar moviepy para extraer un frame
+                clip = VideoFileClip(temp_video_path)
+                frame = clip.get_frame(0.5)  # capturar en el segundo 0.5
+                clip.close()
 
-                result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                # 3. Convertir a imagen con Pillow
+                image = Image.fromarray(frame)
+                buffer = io.BytesIO()
+                image.save(buffer, format='JPEG')
+                buffer.seek(0)
 
-                if result.returncode != 0:
-                    print(f"[❌ FFmpeg ERROR]\n{result.stderr.decode()}")
-                    return
+                # 4. Guardar el thumbnail en el campo
+                file_name = f"thumb_{self.id}_{uuid4().hex[:8]}.jpg"
+                self.thumbnail_media.save(file_name, ContentFile(buffer.read()), save=False)
 
-                if not os.path.exists(temp_thumb_path) or os.path.getsize(temp_thumb_path) == 0:
-                    print(f"[❌ ERROR] Thumbnail generado vacío")
-                    return
-
-                # 3. Guardar el thumbnail
-                with open(temp_thumb_path, 'rb') as f:
-                    file_name = f"thumb_{self.id}_{uuid4().hex[:8]}.jpg"
-                    self.thumbnail_media.save(file_name, File(f), save=False)
-
-                # 4. Guardar el modelo con el thumbnail
+                # 5. Guardar el modelo con el thumbnail generado
                 super().save(update_fields=['thumbnail_media'])
 
             except Exception as e:
-                print(f"[❌ ERROR al generar thumbnail]: {e}")
+                print(f"[❌ ERROR al generar thumbnail con moviepy]: {e}")
+
             finally:
-                # 5. Limpieza
+                # 6. Limpieza de archivos temporales
                 try:
                     if temp_video_path and os.path.exists(temp_video_path):
                         os.remove(temp_video_path)
-                    if temp_thumb_path and os.path.exists(temp_thumb_path):
-                        os.remove(temp_thumb_path)
                 except Exception as cleanup_error:
                     print(f"[⚠️ WARNING] Limpieza fallida: {cleanup_error}")
+
 
 
 
