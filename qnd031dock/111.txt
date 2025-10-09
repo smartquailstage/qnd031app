@@ -25,7 +25,8 @@ moviepy
 imageio 
 numpy 
 pillow
-
+channels
+channels_redis
 
 
 # Celery

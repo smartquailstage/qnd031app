@@ -164,6 +164,8 @@ qrcode
 
 twilio 
 requests
+channels
+channels_redis
 
 django-celery-beat 
 django-celery-results

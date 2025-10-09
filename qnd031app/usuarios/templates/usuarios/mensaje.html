@@ -28,43 +28,77 @@
        
 
 
-    <div class="col-12 col-md-6 mx-auto">
-    <div class="card mb-4">
-        <div class="card-body">
-            <h2 class="font-weight-bold display-4" style="color:#45a851;">NOTIFICACIONES</h2>
-                    <h4 class="mb-4">
-          Bandeja de notificaciones recibidas.
-                    </h4>
+<div class="col-12 col-md-6 mx-auto">
+  <div class="card mb-4">
+    <div class="card-body">
+      <h2 class="font-weight-bold display-4" style="color:#45a851;">NOTIFICACIONES</h2>
 
-                 <h5 class="mb-0">                 
-                    {% if mensaje.asunto == 'consulta' or mensaje.asunto == 'Sugerencia' or mensaje.asunto == 'Informativo' %}
-                      Asunto: <span class="badge bg-success">Informativo</span>
-                    {% elif mensaje.asunto == 'Terapéutico' %}  
-                      Asunto: <span class="badge bg-warning">Terapéutico</span>
-                      <h6> Enviado: {{ mensaje.fecha_envio }}</h6> 
-                     
-                    {% elif mensaje.asunto == 'Solicitud de pago vencido' or mensaje.asunto == 'Solicitud de Certificado Médico' or mensaje.asunto == 'Reclamo del servicio  Médico'  or mensaje.asunto == 'Cancelación del servicio Médico'  %}
-                      Asunto: <span class="badge bg-danger">Urgente</span>
-                    {% endif %}
-                  </h5>
-                  <h6 class="mb-0">{{ mensaje.emisor.first_name }} {{ mensaje.emisor.last_name }}</h6>
-                  {% if mensaje.leido == True %}  
-                      <h6>Leído <ion-icon name="eye-outline"></ion-icon></h6>
-                    {% else %}
-                      <h6>Nuevo <ion-icon name="eye-off-outline"></ion-icon></h6>
-                    {% endif %} 
+      <h4 class="mb-4">{{ mensaje.asunto_2 }}</h4>
 
-                       
-              
-                <p>{{ mensaje.cuerpo|safe }}</p>
-           
+      <!-- Asunto y tipo -->
+      <div class="mb-3">
+        <h5 class="mb-1">
+          Asunto: 
+          {% if mensaje.asunto in 'consulta Sugerencia Informativo' %}
+            <span class="badge bg-success">Informativo</span>
+          {% elif mensaje.asunto == 'Terapéutico' %}
+            <span class="badge bg-warning">Terapéutico</span>
+          {% elif mensaje.asunto in 'Solicitud de pago vencido Solicitud de Certificado Médico Reclamo del servicio  Médico Cancelación del servicio Médico' %}
+            <span class="badge bg-danger">Urgente</span>
+          {% else %}
+            <span class="badge bg-secondary">Otro</span>
+          {% endif %}
+        </h5>
 
+        <!-- Fecha de envío (si aplica) -->
+        {% if mensaje.fecha_envio %}
+          <h6 class="text-muted">Enviado: {{ mensaje.fecha_envio }}</h6>
+        {% endif %}
+      </div>
 
+      <!-- Emisor -->
+      <h6 class="mb-1">
+        De: {{ mensaje.emisor.first_name }} {{ mensaje.emisor.last_name }}
+      </h6>
+
+      <!-- Estado de lectura -->
+      <h6 class="mb-3">
+        {% if mensaje.leido %}
+          Leído <ion-icon name="eye-outline"></ion-icon>
+        {% else %}
+          Nuevo <ion-icon name="eye-off-outline"></ion-icon>
+        {% endif %}
+      </h6>
+
+      <!-- Cuerpo del mensaje -->
+      <p>{{ mensaje.cuerpo|safe }}</p>
+
+      <!-- Descarga del archivo -->
+      <ul class="list-group list-group-flush mt-3">
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <ion-icon name="attach-outline"></ion-icon>
+            <strong>Archivo adjunto:</strong>
+          </div>
+
+          {% if mensaje.adjunto %}
+            <a 
+              class="btn btn-sm btn-outline-primary"
+              href="{{ mensaje.adjunto.url }}"
+              download
+            >
+              Descargar
+            </a>
+          {% else %}
+            <span class="text-muted">No hay archivo adjunto</span>
+          {% endif %}
+        </li>
+      </ul>
+
+    </div>
+  </div>
 </div>
 
-      
-        </div>
-    </div>
 </div>
 
     </div>

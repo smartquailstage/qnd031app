@@ -34,40 +34,62 @@
         <div class="card-body">
             <h2 class="font-weight-bold display-4" style="color:#45a851;">NOTIFICACIONES</h2>
                     <h4 class="mb-4">
-          Bandeja de notificaciones recibidas.
+          Mensajes Recibidos.
                     </h4>
 
-<div style="max-height: 300px; overflow-y: auto; max-width: 357px; overflow-x: hidden;">
-  <table class="table mb-0 table-dark table-striped">
+<div style="max-height: 300px; overflow-y: auto; max-width: 557px; overflow-x: hidden;">
+  <table class="table mb-5 table-dark table-striped">
+    <thead>
+      <tr>
+        <th></th>
+        <th><ion-icon name="time-outline"></ion-icon></th>
+        <th><ion-icon name="calendar-outline"></ion-icon></th>
+        <th>Asunto</th>
+        <th>Titulo</th>
+      
+      </tr>
+    </thead>
     <tbody>
       {% for mensaje in mensajes %}
-      <a href="{% url 'usuarios:ver_mensaje' mensaje.pk %}" class="text-decoration-none text-light">
-      <tr>
-        <th scope="row" style="background-color: #6c757d;">{{ forloop.counter }}</th>
-        <td style="background-color: #495057;">{{ mensaje.fecha_envio|date:"d-m-Y H:i" }}</td>
-        <td style="background-color: #343a40;">
+        <tr 
+          style="cursor: pointer;" 
+          onclick="window.location.href='{% url 'usuarios:ver_mensaje' mensaje.pk %}'">
           
-            {{ mensaje.asunto }}
-         
-        </td>
         <td style="background-color: #343a40;">
-          {% if mensaje.leido %}
-          <span class="badge bg-success">Leído</span>
-          {% else %}
-          <span class="badge bg-warning text-dark">No leído</span>
-          {% endif %}
-        </td>
-      </tr>
-      </a>
+            {% if mensaje.leido %}
+              <span class="badge bg-success"><ion-icon name="eye-outline"></ion-icon></span>
+            {% else %}
+              <span class="badge bg-warning text-dark"><ion-icon name="eye-off-outline"></ion-icon> </span>
+            {% endif %}
+          </td>
+          
+          <!-- Columna de HORA -->
+          <td style="background-color: #495057;">{{ mensaje.fecha_envio|date:"H:i" }}</td>
+          
+          <!-- Columna de FECHA -->
+          <td style="background-color: #495057;">{{ mensaje.fecha_envio|date:"d-m-Y" }}</td>
+          
+          <!-- Asunto -->
+          <td style="background-color: #343a40;">{{ mensaje.asunto }}</td>
+          
+          <!-- Asunto 2 -->
+          <td style="background-color: #343a40;">{{ mensaje.asunto_2 }}</td>
+          
+          <!-- Estado -->
+
+        </tr>
       {% empty %}
-      <tr>
-        <td colspan="4" class="text-center text-muted" style="background-color: #343a40;">No hay mensajes.</td>
-      </tr>
+        <tr>
+          <td colspan="6" class="text-center text-muted" style="background-color: #343a40;">No hay mensajes.</td>
+        </tr>
       {% endfor %}
     </tbody>
   </table>
 </div>
 
+                 
+
+                   
 
 </div>
 

@@ -40,35 +40,46 @@
     <div class="col-12 col-md-6 mx-auto">
     <div class="card mb-4">
       <div class="card-body">
-    <h2 class="font-weight-bold display-4" style="color:#45a851;">TERAPIAS</h2>
-    <h4 class="mb-4">Accede al contenido de terapias</h4>
+    
+    
 {% if actividad.media_terapia %}
-    <figure class="text-center">
-        <a href="{{ actividad.media_terapia.url }}" target="_blank" class="text-decoration-none position-relative d-inline-block">
-            {% if actividad.thumbnail_media and actividad.thumbnail_media.url %}
-                <img 
-                    src="{{ actividad.thumbnail_media.url }}"
-                    alt="Previsualización del video"
-                    class="img-thumbnail shadow-sm"
-                    style="width: 560px; height: 360px; object-fit: cover;">
-            {% else %}
-                <img
-                    src="{% static 'img/default_video_thumb.jpg' %}"
-                    alt="Previsualización por defecto"
-                    class="img-thumbnail shadow-sm"
-                    style="width: 560px; height: 360px; object-fit: cover;">
-            {% endif %}
-            <span class="position-absolute top-50 start-50 translate-middle bg-white text-dark rounded-circle p-2 shadow" style="font-size: 1.5rem;">
-                <i class="bi bi-play-fill"></i>
-            </span>
-        </a>
-        <figcaption class="mt-2 small text-muted">Haz clic para ver el video</figcaption>
-    </figure>
+<h2 class="font-weight-bold display-4" style="color:#45a851;">TERAPIAS</h2>
+  <h4 class="mb-2">{{ actividad.titulo }}</h4>
+
+  <!-- Descripción en textarea -->
+  <div class="mb-4">
+    <textarea id="descripcionTerapia" class="form-control" rows="4" readonly style="background-color: #f8f9fa;">
+      {{ actividad.descripcion_actividad|default:"Sin descripción disponible." }}
+    </textarea>
+  </div>
+
+  <figure class="text-center">
+    <a href="{{ actividad.media_terapia.url }}" target="_blank" class="text-decoration-none position-relative d-inline-block">
+      {% if actividad.thumbnail_media and actividad.thumbnail_media.url %}
+        <img 
+          src="{{ actividad.thumbnail_media.url }}"
+          alt="Previsualización del video"
+          class="img-thumbnail shadow-sm"
+          style="width: 560px; height: 360px; object-fit: cover;">
+      {% else %}
+        <img
+          src="{% static 'img/default_video_thumb.jpg' %}"
+          alt="Previsualización por defecto"
+          class="img-thumbnail shadow-sm"
+          style="width: 560px; height: 360px; object-fit: cover;">
+      {% endif %}
+      <span class="position-absolute top-50 start-50 translate-middle bg-white text-dark rounded-circle p-2 shadow" style="font-size: 1.5rem;">
+        <i class="bi bi-play-fill"></i>
+      </span>
+    </a>
+    <figcaption class="mt-2 small text-muted">Haz clic para ver el video</figcaption>
+  </figure>
 {% else %}
-    <div class="alert alert-light border-start border-4 border-warning mt-3" role="alert">
-        <strong>No hay video disponible para esta actividad.</strong>
-    </div>
+  <div class="alert alert-light border-start border-4 border-warning mt-3" role="alert">
+    <strong>No hay video disponible para esta actividad.</strong>
+  </div>
 {% endif %}
+
 
 
 
@@ -101,9 +112,6 @@
                         </td>
                         <td style="background-color: #495057;">
                             {{ actividad.sucursal }}
-                        </td>
-                        <td style="background-color: #343a40;">
-                            {{ actividad.descripcion_actividad|safe }}
                         </td>
                     </tr>
                 {% else %}
