@@ -159,6 +159,7 @@ braintree>=4.29.0
 # Weasyprint
 weasyprint>=57.0
 moviepy
+
 qrcode
 
 twilio 
