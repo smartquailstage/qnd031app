@@ -22,6 +22,10 @@ XlsxWriter
 requests
 ffmpeg-python
 moviepy
+imageio 
+numpy 
+pillow
+
 
 
 # Celery
