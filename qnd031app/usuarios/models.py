@@ -1722,14 +1722,14 @@ class tareas(models.Model):
 
                 cmd = [
                     'ffmpeg',
+                    '-ss', '2',  # colócalo antes del input
                     '-i', temp_video_path,
-                    '-ss', '00:00:02.000',
                     '-vframes', '1',
                     '-q:v', '2',
                     '-vf', 'scale=560:-1',
                     temp_thumb_path
                 ]
-
+                
                 subprocess.run(cmd, check=True)
 
                 # 3. Guardar el thumbnail

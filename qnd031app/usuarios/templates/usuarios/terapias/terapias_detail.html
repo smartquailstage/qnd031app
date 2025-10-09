@@ -52,11 +52,9 @@
 {% if actividad.media_terapia %}
     <figure class="text-center">
         <a href="{{ actividad.media_terapia.url }}" target="_blank" class="text-decoration-none position-relative d-inline-block">
-
             {% if actividad.thumbnail_media and actividad.thumbnail_media.url %}
                 <img 
-                    src="{{ actividad.thumbnail_media.url }}?v={{ actividad.updated_at.timestamp|floatformat:0 }}"
-
+                    src="{{ actividad.thumbnail_media.url }}"
                     alt="Previsualización del video"
                     class="img-thumbnail shadow-sm"
                     style="width: 560px; height: 360px; object-fit: cover;">
@@ -67,7 +65,6 @@
                     class="img-thumbnail shadow-sm"
                     style="width: 560px; height: 360px; object-fit: cover;">
             {% endif %}
-
             <span class="position-absolute top-50 start-50 translate-middle bg-white text-dark rounded-circle p-2 shadow" style="font-size: 1.5rem;">
                 <i class="bi bi-play-fill"></i>
             </span>
@@ -79,6 +76,7 @@
         <strong>No hay video disponible para esta actividad.</strong>
     </div>
 {% endif %}
+
 
 
 
