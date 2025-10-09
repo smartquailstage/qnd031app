@@ -1723,16 +1723,16 @@ class tareas(models.Model):
                 # 2. Generar el thumbnail
                 with NamedTemporaryFile(delete=False, suffix=".jpg") as temp_thumb:
                     temp_thumb_path = temp_thumb.name
-
-                cmd = [
-                    'ffmpeg',
-                    '-i', temp_video_path,
-                    '-ss', '00:00:00.500',  # Medio segundo
-                    '-vframes', '1',
-                    '-q:v', '2',
-                    '-vf', 'scale=560:-1',
-                    temp_thumb_path
-                ]
+                    
+                    cmd = [
+                        'ffmpeg',
+                        '-ss', '00:00:00.500',  # Captura desde medio segundo
+                        '-i', temp_video_path,
+                        '-vframes', '1',
+                        '-q:v', '2',
+                        '-vf', 'scale=560:-1',
+                        temp_thumb_path
+                    ]
 
                 result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
