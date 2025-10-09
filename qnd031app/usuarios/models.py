@@ -1598,18 +1598,20 @@ def clean(self):
 #from io import BytesIO
 #from PIL import Image
 
+
 import os
-import subprocess
 import requests
+import subprocess
 from uuid import uuid4
-from io import BytesIO
-from tempfile import NamedTemporaryFile
-from django.db import models
-from django.core.validators import FileExtensionValidator
-from django.core.files import File
-from django.conf import settings
-from tinymce.models import HTMLField
 from datetime import datetime, timedelta
+from tempfile import NamedTemporaryFile
+
+from django.conf import settings
+from django.core.files import File
+from django.core.validators import FileExtensionValidator
+from django.db import models
+from tinymce.models import HTMLField
+
 
 class tareas(models.Model):
     sucursal = models.ForeignKey(
@@ -1699,12 +1701,14 @@ class tareas(models.Model):
             if self.media_terapia and not self.thumbnail_media:
                 generar_thumb = True
 
-        # Guarda el modelo antes de procesar el video
         super().save(*args, **kwargs)
 
         if generar_thumb and self.media_terapia:
+            temp_video_path = None
+            temp_thumb_path = None
+
             try:
-                # 1. Descargar el video desde su URL (almacenamiento remoto)
+                # 1. Descargar el video
                 video_url = self.media_terapia.url
                 response = requests.get(video_url, stream=True)
                 if response.status_code != 200:
@@ -1722,30 +1726,43 @@ class tareas(models.Model):
 
                 cmd = [
                     'ffmpeg',
-                    '-ss', '2',  # colócalo antes del input
                     '-i', temp_video_path,
+                    '-ss', '00:00:00.500',  # Medio segundo
                     '-vframes', '1',
                     '-q:v', '2',
                     '-vf', 'scale=560:-1',
                     temp_thumb_path
                 ]
-                
-                subprocess.run(cmd, check=True)
+
+                result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+                if result.returncode != 0:
+                    print(f"[❌ FFmpeg ERROR]\n{result.stderr.decode()}")
+                    return
+
+                if not os.path.exists(temp_thumb_path) or os.path.getsize(temp_thumb_path) == 0:
+                    print(f"[❌ ERROR] Thumbnail generado vacío")
+                    return
 
                 # 3. Guardar el thumbnail
                 with open(temp_thumb_path, 'rb') as f:
                     file_name = f"thumb_{self.id}_{uuid4().hex[:8]}.jpg"
                     self.thumbnail_media.save(file_name, File(f), save=False)
 
-                # 4. Guardar solo el thumbnail actualizado
+                # 4. Guardar el modelo con el thumbnail
                 super().save(update_fields=['thumbnail_media'])
-
-                # 5. Limpiar archivos temporales
-                os.remove(temp_video_path)
-                os.remove(temp_thumb_path)
 
             except Exception as e:
                 print(f"[❌ ERROR al generar thumbnail]: {e}")
+            finally:
+                # 5. Limpieza
+                try:
+                    if temp_video_path and os.path.exists(temp_video_path):
+                        os.remove(temp_video_path)
+                    if temp_thumb_path and os.path.exists(temp_thumb_path):
+                        os.remove(temp_thumb_path)
+                except Exception as cleanup_error:
+                    print(f"[⚠️ WARNING] Limpieza fallida: {cleanup_error}")
 
 
 
