@@ -19,7 +19,7 @@ from .models import tareas
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from .models import tareas
-from .tasks import generar_thumbnail_video
+
 
 from django.db import transaction
 
