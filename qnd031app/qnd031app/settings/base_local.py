@@ -116,17 +116,6 @@ INSTALLED_APPS = [
   
 ]
 
-ASGI_APPLICATION = "qnd031app.asgi.application"
-
-
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("localhost", 6379)],
-        },
-    },
-}
 
 
 
