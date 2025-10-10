@@ -48,9 +48,9 @@
 
   <!-- Descripción en textarea -->
   <div class="mb-4">
-    <textarea id="descripcionTerapia" class="form-control" rows="4" readonly style="background-color: #f8f9fa;">
-      {{ actividad.descripcion_actividad|default:"Sin descripción disponible." }}
-    </textarea>
+    
+      <p>{{ actividad.descripcion_actividad|default:"Sin descripción disponible." }}</p>
+    
   </div>
 
   <figure class="text-center">
