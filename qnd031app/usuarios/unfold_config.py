@@ -8,7 +8,7 @@ from usuarios.models import tareas
 from usuarios.models import AsistenciaTerapeuta
 from django.utils import timezone
 from usuarios.models import Mensaje
-from usuarios.models import Prospeccion
+from usuarios.models import Prospeccion, Contacto
 from .models import InformesTerapeuticos
 
 
@@ -33,8 +33,12 @@ def badge_callback_meddes(request):
 def badge_callback_contacto(request):
     try:
         hoy = timezone.now().date()
-        nuevos = Contacto.objects.filter(fecha_creacion__date=hoy).count()
-        return str(nuevos)
+        conteos = {
+            "Contactos": Contacto.objects.filter(fecha_creacion__date=hoy).count(),
+        }
+
+        return " | ".join(f"{value}" for key, value in conteos.items())
+
     except Exception:
         return "0"
 
