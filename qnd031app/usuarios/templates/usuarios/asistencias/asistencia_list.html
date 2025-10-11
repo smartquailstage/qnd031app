@@ -81,6 +81,11 @@
                             <td style="background-color: #495057;">
                               {{ actividad.cita_terapeutica_asignada|date:"d-m-Y" }}
                             </td>
+
+                            <td style="background-color: #343a40;">
+                              {{ actividad.titulo |yesno:"Sí,No" }}
+                            </td>
+
                             <td style="background-color: #343a40;">
                               {{ actividad.asistire |yesno:"Sí,No" }}
                             </td>
