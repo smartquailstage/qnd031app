@@ -982,12 +982,12 @@ background-color: #ffffff;
 /* Adaptación para dispositivos móviles */
 @media screen and (max-width: 768px) {
     .user-profile-avatar {
-width: 250px;
-        height: 250px;
+        width: 150px;
+        height: 150px;
         padding: 10px;
-        margin-left: 162px;
-        margin-right: 37px;
-        margin-top: -95px;
+        margin-left: 90px;
+        margin-right: 64px;
+        margin-top: 33px;
         display: block;
     }
 }
@@ -1002,7 +1002,7 @@ width: 250px;
 .profile-cover {
     background-image: url("../meddes/profile_bg.jpg");
     background-size: cover;
-    height: 23rem;
+    height: 12rem;
     background-position: center;
 }
 

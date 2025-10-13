@@ -590,7 +590,8 @@ progress {
 	border: var(--bs-border-width) solid var(--bs-border-color);
 	border-radius: var(--bs-border-radius);
 	max-width: 100%;
-	height: auto
+	height: auto;
+	border-radius: 10px;
 }
 .figure {
 	display: inline-block
@@ -2774,11 +2775,11 @@ textarea.form-control-lg {
 }
 .btn-light {
 	--bs-btn-color: #000;
-	--bs-btn-bg: #f8f9fa;
-	--bs-btn-border-color: #f8f9fa;
+	--bs-btn-bg: #45a851;
+	--bs-btn-border-color: #45a851;
 	--bs-btn-hover-color: #000;
-	--bs-btn-hover-bg: #d3d4d5;
-	--bs-btn-hover-border-color: #c6c7c8;
+	--bs-btn-hover-bg: #45a851;
+	--bs-btn-hover-border-color: #45a851;
 	--bs-btn-focus-shadow-rgb: 211, 212, 213;
 	--bs-btn-active-color: #000;
 	--bs-btn-active-bg: #c6c7c8;
@@ -7142,7 +7143,7 @@ textarea.form-control-lg {
 	margin-top: 1.5rem!important
 }
 .mt-5 {
-	margin-top: 4rem!important
+	margin-top: 0rem!important
 }
 .mt-auto {
 	margin-top: auto!important
@@ -7551,7 +7552,7 @@ textarea.form-control-lg {
 }
 .text-muted {
 	--bs-text-opacity: 1;
-	color: rgb(255 255 255 / 86%) !important
+	color: rgb(69, 169, 82) !important
 }
 .text-black-50 {
 	--bs-text-opacity: 1;
