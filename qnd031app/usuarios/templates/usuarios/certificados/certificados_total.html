@@ -59,7 +59,7 @@
   </div>
 
   <div class="col-md-4 d-flex align-items-end">
-    <button type="submit" class="btn btn btn-success w-100"><ion-icon name="search-outline"></ion-icon> Buscar Informes</button>
+    <button type="submit" class="btn btn btn-success w-100"><ion-icon name="search-outline"></ion-icon> Buscar</button>
   </div>
 </form>
 
@@ -87,7 +87,7 @@
                         <!-- Archivos adjuntos dinámicos -->
 {% if archivos %}
     <hr>
-    <h6 class="mt-4">Archivos adjuntos (últimos 4):</h6>
+    <h6 class="mt-4">Descargar Documentos</h6>
     <ul class="list-group list-group-flush">
         {% for archivo in archivos %}
         <a class="btn btn-sm btn-outline-primary" href="{{ archivo.archivo.url }}" target="_blank">

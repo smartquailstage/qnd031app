@@ -1094,6 +1094,21 @@ background-color: #ffffff;
     border-radius: 10px;
 }
 
+
+
+@media screen and (max-width: 768px) {
+
+    .profile-cover-4 {
+    background-image: url("../meddes/notificaciones_bg.jpg");
+    background-size: cover;
+    height: 12rem;
+    background-position: center;
+    border-radius: 10px;
+}
+}
+
+
+
 .profile-cover-5 {
     background-image: url("../meddes/contactanos_bg.jpg");
     background-size: cover;
@@ -1102,6 +1117,18 @@ background-color: #ffffff;
     border-radius: 10px;
 }
 
+
+@media screen and (max-width: 768px) {
+
+.profile-cover-5 {
+    background-image: url("../meddes/contactanos_bg.jpg");
+    background-size: cover;
+    height: 12rem;
+    background-position: center;
+    border-radius: 10px;
+}
+
+}
 
 
 
@@ -1354,7 +1381,7 @@ ul.categories-list li {
 }
 .steps-light .step-item.active .step-count, .steps-light .step-item.active .step-progress {
 	color: #ffffff;
-    background-color: #923eb9;
+    background-color: #014907;
 }
 .step-item:first-child .step-progress {
 	border-radius: .125rem;

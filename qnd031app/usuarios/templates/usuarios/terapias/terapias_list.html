@@ -82,7 +82,7 @@
                     </div>
 
                     <div class="col-md-4 d-flex align-items-end">
-                      <button type="submit" class="btn btn-success w-100"><ion-icon name="search-outline"></ion-icon> Buscar Terapias</button>
+                      <button type="submit" class="btn btn-success w-100"><ion-icon name="search-outline"></ion-icon> Buscar</button>
                     </div>
                   </form>
 
@@ -93,7 +93,7 @@
       {% for actividad in actividades %}
         <tr onclick="window.location.href='{% url 'usuarios:terapia_detail' actividad.pk %}'" style="cursor: pointer;">
           <!-- COLUMNA: NUEVA -->
-          <td style="background-color: {% if actividad.es_nueva %}#198754{% else %}#6c757d{% endif %}; color: white; font-weight: bold;">
+          <td style="background-color: {% if actividad.es_nueva %}#198754{% else %}#646464{% endif %}; color: white; font-weight: bold;">
             {% if actividad.es_nueva %}
               NUEVA
             {% else %}

@@ -965,7 +965,7 @@ class Profile(models.Model):
     nombre_paciente = models.CharField(max_length=255, blank=True, null=True, verbose_name="Nombres")
     apellidos_paciente = models.CharField(max_length=255, blank=True, null=True, verbose_name="Apellidos")
     nacionalidad = models.CharField(blank=True, null=True, max_length=100, verbose_name="Nacionalidad")
-    sexo = models.CharField(blank=True, null=True, max_length=120, choices=[("MASCULINO", "Masculino"), ("FEMENINO", "Femenino")], verbose_name="Sexo del Paciente")
+    sexo = models.CharField(blank=True, null=True, max_length=120, choices=[("Masculino", "Masculino"), ("Femenino", "Femenino")], verbose_name="Sexo del Paciente")
     fecha_nacimiento = models.DateField(null=True, blank=True)
    # edad =  models.CharField(max_length=255, blank=True, null=True, verbose_name="Edad")
     institucion =  models.ForeignKey(

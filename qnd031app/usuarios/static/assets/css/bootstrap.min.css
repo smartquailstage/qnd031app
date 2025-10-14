@@ -78,7 +78,7 @@
 	--bs-body-font-size: 1rem;
 	--bs-body-font-weight: 400;
 	--bs-body-line-height: 1.5;
-	--bs-body-color: #ffff;
+	--bs-body-color:#f8fffa;
 	--bs-body-color-rgb: 33, 37, 41;
 	--bs-body-bg: #fff;
 	--bs-body-bg-rgb: 255, 255, 255;
@@ -1895,9 +1895,9 @@ progress {
 	-webkit-margin-end: .75rem;
 	margin-inline-end: .75rem;
 	color: var(--bs-body-color);
-	background-color: var(--bs-tertiary-bg);
+	background-color: #0000;
 	pointer-events: none;
-	border-color: inherit;
+	border-color: #5c636a;
 	border-style: solid;
 	border-width: 0;
 	border-inline-end-width: var(--bs-border-width);
@@ -1911,9 +1911,9 @@ progress {
 	-webkit-margin-end: .75rem;
 	margin-inline-end: .75rem;
 	color: var(--bs-body-color);
-	background-color: var(--bs-tertiary-bg);
+	background-color: #5c636a;
 	pointer-events: none;
-	border-color: inherit;
+	border-color: #5c636a;
 	border-style: solid;
 	border-width: 0;
 	border-inline-end-width: var(--bs-border-width);
@@ -1930,10 +1930,10 @@ progress {
 	}
 }
 .form-control:hover:not(:disabled):not([readonly])::-webkit-file-upload-button {
-	background-color: var(--bs-secondary-bg)
+	background-color: #5c636a;
 }
 .form-control:hover:not(:disabled):not([readonly])::file-selector-button {
-	background-color: var(--bs-secondary-bg)
+	background-color: #5c636a;
 }
 .form-control-plaintext {
 	display: block;
@@ -4492,7 +4492,7 @@ textarea.form-control-lg {
 	--bs-list-group-border-width: var(--bs-border-width);
 	--bs-list-group-border-radius: var(--bs-border-radius);
 	--bs-list-group-item-padding-x: 1rem;
-	--bs-list-group-item-padding-y: 0.5rem;
+	--bs-list-group-item-padding-y: -0.5rem;
 	--bs-list-group-action-color: var(--bs-secondary-color);
 	--bs-list-group-action-hover-color: var(--bs-emphasis-color);
 	--bs-list-group-action-hover-bg: var(--bs-tertiary-bg);
@@ -4533,13 +4533,13 @@ textarea.form-control-lg {
 	background-color: var(--bs-list-group-action-active-bg)
 }
 .list-group-item {
-	position: relative;
-	display: block;
-	padding: var(--bs-list-group-item-padding-y) var(--bs-list-group-item-padding-x);
-	color: #000;
-	text-decoration: none;
-	background-color: var(--bs-list-group-bg);
-	border: var(--bs-list-group-border-width) solid var(--bs-list-group-border-color)
+  position: relative;
+  display: block;
+  padding: var(--bs-list-group-item-padding-y) var(--bs-list-group-item-padding-x);
+  color: #fff7f7;
+  text-decoration: none;
+  background-color: #353836;
+  border: var(--bs-list-group-border-width) solid #353836;
 }
 .list-group-item:first-child {
 	border-top-left-radius: inherit;
