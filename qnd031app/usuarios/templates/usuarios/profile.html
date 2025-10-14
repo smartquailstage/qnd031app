@@ -51,15 +51,16 @@
 											<div class="card-body">
 
                               <div class="p-3" >
-        <h2 class="mb-2 text-start w-100" style="font-weight: 50;">{{ profile.nombre_paciente }} {{ profile.apellidos_paciente }}</h2>
-        <h3 class="mb-2 text-start w-100" style="color:#45a851;"><strong>{{ profile.institucion|default:"Particular" }}</strong></h3>
-        <p class="mb-3" style="font-size: 13pt;margin-right:90px;margin-top:20px"><i style="color: rgb(233, 220, 89);" class="bx bx-plus-medical"></i> {{ profile.fecha_nacimiento }}</p>
-        <p class="mb-3" style="font-size: 13pt;margin-right:147px;margin-top:-10px"><i style="color: rgb(233, 220, 89);" class="bx bx-plus-medical"></i> {{ profile.nacionalidad }}</p>
-        <p class="mb-3" style="font-size: 13pt;margin-right:150px;margin-top:-10px"><i style="color: rgb(233, 220, 89)" class="bx bx-plus-medical"></i> {{ profile.sexo }}</p>
-        <p class="mb-3" style="font-size: 13pt;margin-right:193px;margin-top:-10px"><i style="color: rgb(233, 220, 89);" class="bx bx-plus-medical"></i> {{ profile.sucursales }}</p>
-        <div class="text-center bg-white text-primary p-2 rounded shadow-sm mt-3" style="width: 86px;
-  margin-left: 217px;
-  height: 100px;">
+        <h2 class="mb-2 text-end  w-100" style="font-weight: 50;">{{ profile.nombre_paciente }} {{ profile.apellidos_paciente }}</h2>
+        <h3 class="mb-2 text-end  w-100" style="color:#45a851;"><strong>{{ profile.institucion|default:"Particular" }}</strong></h3>
+        <p class="mb-3 text-end " style="font-size: 13pt;margin-right:0px;margin-top:20px">{{ profile.fecha_nacimiento }} <i style="color: rgb(233, 220, 89);" class="bx bx-plus-medical"></i> </p>
+        <p class="mb-3 text-end " style="font-size: 13pt;margin-right:0px;margin-top:-10px">{{ profile.nacionalidad }}<i style="color: rgb(233, 220, 89);" class="bx bx-plus-medical"></i> </p>
+        <p class="mb-3 text-end " style="font-size: 13pt;margin-right:0px;margin-top:-10px">{{ profile.sexo }}<i style="color: rgb(233, 220, 89)" class="bx bx-plus-medical"></i> </p>
+        <p class="mb-3 text-end  " style="font-size: 13pt;margin-right:0px;margin-top:-10px"> {{ profile.sucursales }}<i style="color: rgb(233, 220, 89);" class="bx bx-plus-medical"></i></p>
+        <div class="text-center bg-white text-primary p-2 rounded shadow-sm mt-3" style="
+        width: 73px;
+  margin-left: 0px;
+  height: 94px;">
     <div class="fw-bold" style="font-size: 2.7rem;">
         <!-- Usar los años de edad -->
         {{ edad_anios|default:"N/A" }}
@@ -85,7 +86,7 @@
 									<div class="order-summary">
 										<div class="card">
 											<div class="card-body">
-												<div class="card">
+											
 													<div class="card-body">
 
                                   <div class="p-3" style="background-color:#353836; color: white; border-radius: 25px;">
@@ -94,7 +95,7 @@
           <div class="card-body">
             <div class="mt-5 d-flex align-items-start justify-content-between">
               <div>
-                <h3 class="mb-2" style="color:#45a851">MI REPRESENTANTE</h3>
+                <h3 class="mb-2" style="color:#45a851">REPRESENTANTE</h3>
                 <p class="mb-1">{{ profile.nombres_representante_legal }} {{ profile.apellidos_representante_legal }} ({{ profile.relacion_del_representante }}) </p>
                 <p class="mb-0" style="font-size: 20pts;"><ion-icon name="mail-outline"></ion-icon> {{ profile.email }}</p>
                <p class="mb-0"><ion-icon name="logo-whatsapp"></ion-icon> {{ profile.celular }}</p>
@@ -106,7 +107,7 @@
             </div>
         <div class="mt-5 d-flex align-items-start justify-content-between">
               <div>
-                <h3 class="mb-2" style="color:#45a851">MIS SERVICIOS</h3>
+                <h3 class="mb-2" style="color:#45a851">SERVICIOS</h3>
              
               
 
@@ -126,7 +127,7 @@
 
          <div class="mt-5 d-flex align-items-start justify-content-between">
               <div>
-                <h3 class="mb-2" style="color:#45a851">MIS TERAPEUTAS</h3>
+                <h3 class="mb-2" style="color:#45a851">TERAPEUTAS</h3>
                 <p class="mb-1">
                           <strong>
         {% if profile.user_terapeutas or profile.user_terapeutas_1 or profile.user_terapeutas_3 %}
@@ -157,7 +158,7 @@
       </div>
 
 													</div>
-												</div>
+											
 
 											</div>
 										</div>

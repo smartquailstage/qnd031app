@@ -33,30 +33,7 @@
                   <h2 class="font-weight-bold display-4" style="color:#45a851;">TERAPIAS</h2>
                   <h4 class="mb-4">Acceda a sus terapias realizadas, en tiempo real.</h4>
 
-                  <!-- Formulario de filtro -->
-                  <form method="get" class="row g-2 mb-4" id="date-filter-form">
-                    <div class="col-md-4">
-                      <label for="mes" class="form-label">Mes:</label>
-                      <select name="mes" id="mes" class="form-select">
-                        {% for numero, nombre in meses %}
-                          <option value="{{ numero }}" {% if numero == mes %}selected{% endif %}>{{ nombre }}</option>
-                        {% endfor %}
-                      </select>
-                    </div>
 
-                    <div class="col-md-4">
-                      <label for="anio" class="form-label">Año:</label>
-                      <select name="anio" id="anio" class="form-select">
-                        {% for a in anios %}
-                          <option value="{{ a }}" {% if a == anio %}selected{% endif %}>{{ a }}</option>
-                        {% endfor %}
-                      </select>
-                    </div>
-
-                    <div class="col-md-4 d-flex align-items-end">
-                      <button type="submit" class="btn btn-success w-100">Filtrar</button>
-                    </div>
-                  </form>
 
                   <!-- Video destacado -->
                   {% if media and media.media_terapia %}
@@ -66,12 +43,12 @@
                           <img src="{{ media.thumbnail_media.url }}"
                                alt="Previsualización del video"
                                class="img-thumbnail shadow-sm"
-                               style="width: 560px; height: 360px; object-fit: cover;">
+                               style="width: 560px; height: 195px; object-fit: cover;">
                         {% else %}
                           <img src="{% static 'img/default_video_thumb.jpg' %}"
                                alt="Sin miniatura"
                                class="img-thumbnail shadow-sm"
-                               style="width: 560px; height: 360px; object-fit: cover;">
+                               style="width: 560px; height: 195px; object-fit: cover;">
                         {% endif %}
                         <span class="position-absolute top-50 start-50 translate-middle bg-white text-dark rounded-circle p-2 shadow" style="font-size: 1.5rem;">
                           <i class="bi bi-play-fill"></i>
@@ -82,6 +59,32 @@
                   {% else %}
                     <div class="alert alert-warning mt-3">No hay video disponible para mostrar.</div>
                   {% endif %}
+
+
+                                    <!-- Formulario de filtro -->
+                  <form method="get" class="row g-2 mb-4" id="date-filter-form">
+                    <div class="col-6">
+                      <label for="mes" class="form-label"></label>
+                      <select name="mes" id="mes" class="form-select">
+                        {% for numero, nombre in meses %}
+                          <option value="{{ numero }}" {% if numero == mes %}selected{% endif %}>{{ nombre }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+
+                    <div class="col-6">
+                      <label for="anio" class="form-label"></label>
+                      <select name="anio" id="anio" class="form-select">
+                        {% for a in anios %}
+                          <option value="{{ a }}" {% if a == anio %}selected{% endif %}>{{ a }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+
+                    <div class="col-md-4 d-flex align-items-end">
+                      <button type="submit" class="btn btn-success w-100"><ion-icon name="search-outline"></ion-icon> Buscar Terapias</button>
+                    </div>
+                  </form>
 
                   <!-- Tabla de terapias -->
 <div style="max-height: 300px; overflow-y: auto;">

@@ -860,7 +860,8 @@ def vista_certificados(request):
         except ValueError:
             pass
 
-    archivos = archivos.order_by('-fecha_creado')
+    archivos = archivos.order_by('-fecha_creado')[:4]
+
 
     mensajes = Mensaje.objects.filter(receptor=profile).order_by('-fecha_envio')
 

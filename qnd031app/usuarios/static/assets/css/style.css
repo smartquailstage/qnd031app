@@ -984,14 +984,15 @@ background-color: #ffffff;
 /* Adaptación para dispositivos móviles */
 @media screen and (max-width: 768px) {
     .user-profile-avatar {
-width: 214px;
-    height: 214px;
+    width: 120px;
+    height: 120px;
     padding: 10px;
-    margin-left: 175px;
-    margin-right: 40px;
-    margin-top: -30px;
-        display: block;
+    margin-left: 79px;
+    margin-right: 28px;
+    margin-top: -27px;
+    display: block;
     }
+
 }
 
 
@@ -1009,6 +1010,20 @@ width: 214px;
     border-radius: 10px;
 }
 
+
+
+@media screen and (max-width: 768px) {
+    
+    .profile-cover {
+        background-image: url("../meddes/profile_bg.jpg");
+        background-size: cover;
+        height: 12rem;
+        background-position: center;
+        border-radius: 10px;
+}
+}
+
+
 .profile-cover-1 {
     background-image: url("../meddes/terapias2_bg.jpg");
     background-size: cover;
@@ -1016,6 +1031,18 @@ width: 214px;
     background-position: center;
     border-radius: 10px;
 }
+
+
+@media screen and (max-width: 768px) {
+    .profile-cover-1 {
+        background-image: url("../meddes/terapias2_bg.jpg");
+        background-size: cover;
+        height: 12rem;
+        background-position: center;
+        border-radius: 10px;
+}
+}
+
 
 
 .profile-cover-2 {
@@ -1026,12 +1053,37 @@ width: 214px;
     border-radius: 10px;
 }
 
+
+@media screen and (max-width: 768px) {
+
+    .profile-cover-2 {
+    background-image: url("../meddes/asistencias_bg.jpg");
+    background-size: cover;
+    height: 12rem;
+    background-position: center;
+    border-radius: 10px;
+}
+}
+
+
 .profile-cover-3 {
     background-image: url("../meddes/terapias_bg.jpg");
     background-size: cover;
     height: 23rem;
     background-position: center;
     border-radius: 10px;
+}
+
+
+@media screen and (max-width: 768px) {
+
+    .profile-cover-3 {
+    background-image: url("../meddes/terapias_bg.jpg");
+    background-size: cover;
+    height: 12rem;
+    background-position: center;
+    border-radius: 10px;
+}
 }
 
 .profile-cover-4 {
@@ -1189,7 +1241,7 @@ width: 214px;
 
 
 .shop-container .card {
-    border: 1px solid rgb(0, 0, 0, .125);
+    border: 0px solid rgb(0, 0, 0, .125);
     box-shadow: none;
 }
 

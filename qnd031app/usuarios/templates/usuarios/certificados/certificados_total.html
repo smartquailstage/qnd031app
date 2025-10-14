@@ -34,14 +34,14 @@
     <div class="card mb-4">
 
                <div class="card-body">
-                                    <h2 class="font-weight-bold display-4" style="color:#45a851;">INFORMES TERAÉUTICOS</h2>
+                                    <h2 class="font-weight-bold display-4" style="color:#45a851;">INFORMES TERAPÉUTICOS</h2>
                     <h4 class="mb-4">
                         Descarga tus informes terapeuticos al instante. 
                     </h4>
 
                     <form method="get" class="row g-3 mb-4">
   <div class="col-md-4">
-    <label for="mes" class="form-label">Mes:</label>
+    <label for="mes" class="form-label"></label>
     <select name="mes" id="mes" class="form-select">
       {% for numero, nombre in meses %}
         <option value="{{ numero }}" {% if numero == mes %}selected{% endif %}>{{ nombre }}</option>
@@ -50,7 +50,7 @@
   </div>
 
   <div class="col-md-4">
-    <label for="anio" class="form-label">Año:</label>
+    <label for="anio" class="form-label"></label>
     <select name="anio" id="anio" class="form-select">
       {% for a in anios %}
         <option value="{{ a }}" {% if a == anio %}selected{% endif %}>{{ a }}</option>
@@ -59,7 +59,7 @@
   </div>
 
   <div class="col-md-4 d-flex align-items-end">
-    <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+    <button type="submit" class="btn btn btn-success w-100"><ion-icon name="search-outline"></ion-icon> Buscar Informes</button>
   </div>
 </form>
 
@@ -85,23 +85,24 @@
                         {% endif %}
 
                         <!-- Archivos adjuntos dinámicos -->
-                        {% if archivos %}
-                            <hr>
-                            <h6 class="mt-4">Archivos adjuntos:</h6>
-                            <ul class="list-group list-group-flush">
-                                {% for archivo in archivos %}
-                                <a class="btn btn-sm btn-outline-primary" href="{{ archivo.archivo.url }}" target="_blank">
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <ion-icon name="document-outline"></ion-icon>
-                                            <strong>{{ archivo.titulo }}</strong>
-                                            <small class="text-muted">({{ archivo.fecha_creado|date:"d M Y" }})</small>
-                                        </div>
-                                    </li>
-                                </a>
-                                {% endfor %}
-                            </ul>
-                        {% endif %}
+{% if archivos %}
+    <hr>
+    <h6 class="mt-4">Archivos adjuntos (últimos 4):</h6>
+    <ul class="list-group list-group-flush">
+        {% for archivo in archivos %}
+        <a class="btn btn-sm btn-outline-primary" href="{{ archivo.archivo.url }}" target="_blank">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <ion-icon name="document-outline"></ion-icon>
+                    <strong>{{ archivo.titulo }}</strong>
+                    <small class="text-muted">({{ archivo.fecha_creado|date:"d M Y" }})</small>
+                </div>
+            </li>
+        </a>
+        {% endfor %}
+    </ul>
+{% endif %}
+
                         
                     </div>
  

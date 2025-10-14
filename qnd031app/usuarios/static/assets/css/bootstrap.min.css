@@ -1352,7 +1352,7 @@ progress {
 	}
 	.col-xl-8 {
 		flex: 0 0 auto;
-		width: 66.66666667%
+		width: 27.667%
 	}
 	.col-xl-9 {
 		flex: 0 0 auto;
@@ -7176,7 +7176,7 @@ textarea.form-control-lg {
 	margin-bottom: .25rem!important
 }
 .mb-2 {
-	margin-bottom: .5rem!important
+	margin-bottom: 0rem!important
 }
 .mb-3 {
 	margin-bottom: 1rem!important

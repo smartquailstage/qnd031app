@@ -44,7 +44,7 @@
     
 {% if actividad.media_terapia %}
 <h2 class="font-weight-bold display-4" style="color:#45a851;">TERAPIAS</h2>
-  <h4 class="mb-2">{{ actividad.titulo }}</h4>
+  <h5 class="mb-2">{{ actividad.titulo }}</h5>
 
   <!-- Descripción en textarea -->
   <div class="mb-4">
@@ -60,13 +60,13 @@
           src="{{ actividad.thumbnail_media.url }}"
           alt="Previsualización del video"
           class="img-thumbnail shadow-sm"
-          style="width: 560px; height: 360px; object-fit: cover;">
+          style="width: 560px; height: 195px; object-fit: cover;">
       {% else %}
         <img
           src="{% static 'img/default_video_thumb.jpg' %}"
           alt="Previsualización por defecto"
           class="img-thumbnail shadow-sm"
-          style="width: 560px; height: 360px; object-fit: cover;">
+          style="width: 560px; height: 195px; object-fit: cover;">
       {% endif %}
       <span class="position-absolute top-50 start-50 translate-middle bg-white text-dark rounded-circle p-2 shadow" style="font-size: 1.5rem;">
         <i class="bi bi-play-fill"></i>
@@ -94,24 +94,28 @@
     <!-- Tabla con historial de actividades -->
     <div style="max-height: 300px; overflow-y: auto; max-width: 100%; overflow-x: auto;">
     <table class="table mb-0 table-dark table-striped">
+            <thead>
+        <tr>
+            <th></th>
+            <th style="background-color: #646464;">Fecha</th>
+            <th style="background-color: #646464;">Título</th>
+            <th style="background-color: #646464;">Tarea Enviada</th>
+        </tr>
+    </thead>
         <tbody>
             {% for actividad in actividades %}
                 {% if actividad.pk %}
                     <tr 
                         style="cursor: pointer;" 
                         onclick="window.location.href='{% url 'usuarios:terapia_detail' actividad.id %}'">
-                        <td style="background-color: #6c757d;">
-                            {{ actividad.fecha_actividad|date:"d/m/Y H:i" }}
+                        <td style="background-color: #646464;">
+                            {{ actividad.fecha_actividad|date:"d/m/Y" }}
                         </td>
-                        <td style="background-color: #343a40;">
-                            {% if actividad.terapeuta %}
-                             {{ actividad.terapeuta.get_full_name }}
-                            {% else %}
-                                <em>Sin terapeuta</em>
-                            {% endif %}
+                        <td style="background-color: #646464;">
+                             {{ actividad.titulo }}
                         </td>
-                        <td style="background-color: #495057;">
-                            {{ actividad.sucursal }}
+                        <td style="background-color: #646464;">
+                            {{ actividad.envio_tarea|yesno:"Sí,No" }}
                         </td>
                     </tr>
                 {% else %}
