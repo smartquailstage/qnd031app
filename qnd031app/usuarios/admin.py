@@ -1203,6 +1203,7 @@ class TareasComponent(BaseComponent):
         else:
             profile = None
 
+        # Si no hay perfil válido, mostrar mensaje
         if profile is None:
             context.update({
                 "title": "Tareas & Actividades realizadas",
@@ -1213,6 +1214,7 @@ class TareasComponent(BaseComponent):
             })
             return context
 
+        # Obtener tareas asignadas al perfil
         tareas_asignadas = tareas.objects.filter(profile=profile)
 
         headers = [
@@ -1221,22 +1223,26 @@ class TareasComponent(BaseComponent):
 
         rows = []
         for tarea in tareas_asignadas:
+            # Link al material adjunto (si existe)
             material_link = format_html(
                 '<a href="{}" target="_blank">Ver Tarea</a>',
                 tarea.material_adjunto.url
             ) if tarea.material_adjunto else "N/A"
 
+            # Link al video/media (si existe)
             media_link = format_html(
                 '<a href="{}" target="_blank">Ver Actividad</a>',
                 tarea.media_terapia.url
             ) if tarea.media_terapia else "N/A"
 
+            # Agregar fila con validación segura de fecha
             rows.append([
                 tarea.titulo or "Sin título",
-                tarea.cita_terapeutica_asignada.strftime("%d/%m/%Y") if tarea.fecha_envio else "Sin fecha",
+                tarea.cita_terapeutica_asignada.strftime("%d/%m/%Y") if tarea.cita_terapeutica_asignada else "Sin fecha",
                 media_link,
             ])
 
+        # Actualizar contexto con tabla
         context.update({
             "title": f"Actividades realizadas por {profile.nombre_completo}",
             "table": {
@@ -1249,6 +1255,7 @@ class TareasComponent(BaseComponent):
 
     def render(self):
         return render_to_string(self.template_name, self.get_context_data())
+
 
 
 
