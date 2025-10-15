@@ -1656,7 +1656,7 @@ progress {
 }
 .table-striped>tbody>tr:nth-of-type(odd)>* {
 	--bs-table-color-type: var(--bs-table-striped-color);
-	--bs-table-bg-type: var(--bs-table-striped-bg)
+	--bs-table-bg-type: #646464;
 }
 .table-striped-columns>:not(caption)>tr>:nth-child(2n) {
 	--bs-table-color-type: var(--bs-table-striped-color);

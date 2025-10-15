@@ -323,8 +323,8 @@ UNFOLD = {
         "collapsible": True,
         "items": [
             {
-                "title": _("Bandeja de Salida"),
-                "icon": "inbox",
+                "title": _("Notificaciones"),
+                "icon": "note_add",
                 "link": reverse_lazy("admin:usuarios_mensaje_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_notificaciones",
                 "badge_color": "custom-red-alert",
@@ -332,7 +332,7 @@ UNFOLD = {
             },
 
             {
-                "title": _("Contactos de Pacientes"),
+                "title": _("Solicitudes de Pacientes"),
                 "icon": "inbox",
                 "link": reverse_lazy("admin:usuarios_contacto_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_contacto",
@@ -342,7 +342,7 @@ UNFOLD = {
 
         ],
     },
-
+    
     {
         "title": _("Registros Administrativos"),
         "separator": True,

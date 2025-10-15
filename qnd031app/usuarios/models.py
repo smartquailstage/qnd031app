@@ -1046,7 +1046,7 @@ class Profile(models.Model):
         ('insatisfecho', 'Insatisfecho'),
         ('otro', 'Otro'),
     ]
-
+    es_en_convenio = models.BooleanField(default=False, verbose_name="Convenio")
     es_en_terapia = models.BooleanField(default=False, verbose_name="En terapia")
     es_retirado = models.BooleanField(default=False, verbose_name="Retirado")
     es_pausa = models.BooleanField(default=False, verbose_name="En Pausa")
