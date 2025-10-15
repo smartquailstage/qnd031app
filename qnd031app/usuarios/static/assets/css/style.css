@@ -710,7 +710,7 @@ position: fixed;
 
 .header-notifications-list {
 	position: relative;
-	height: 332px;
+	height: auto;
 }
 
 
