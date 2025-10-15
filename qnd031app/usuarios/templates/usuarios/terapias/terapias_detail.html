@@ -53,6 +53,7 @@
     
   </div>
 
+{% if actividad.media_terapia and actividad.media_terapia.url %}
   <figure class="text-center">
     <a href="{{ actividad.media_terapia.url }}" target="_blank" class="text-decoration-none position-relative d-inline-block">
       {% if actividad.thumbnail_media and actividad.thumbnail_media.url %}
@@ -80,16 +81,13 @@
   </div>
 {% endif %}
 
-
-
-
-
-
-
-
-
-
-
+{% if actividad.envio_tarea %}
+  <div class="mb-4">
+    <h5 class="mb-2">Descripción de Tarea:</h5>
+      <p><strong>Fecha de entrega:</strong> {{ actividad.fecha_entrega|date:"d 'de' F 'de' Y" }}</p>
+      <p>{{ actividad.descripcion_tarea }}</p>
+  </div>
+{% endif %}
 
     <!-- Tabla con historial de actividades -->
     <div style="max-height: 300px; overflow-y: auto; max-width: 100%; overflow-x: auto;">
