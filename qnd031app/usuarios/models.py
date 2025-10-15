@@ -908,11 +908,12 @@ class InformesTerapeuticos(models.Model):
         verbose_name="Responsable institucional"
     )
     terapeuta = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        related_name='terapeuta_responsable_informe',
+        'Perfil_Terapeuta',  # Asegúrate de que este modelo esté bien importado
+        verbose_name="Terapéuta Responsable",
         on_delete=models.CASCADE,
-        null=True,
-        blank=True
+        related_name='primer_terapeuta_informes',  # Este nombre puede ser cualquiera y se usa para acceder desde el otro lado
+        blank=True,  # Permite que el campo sea opcional
+        null=True,  # Permite que el campo sea opcional
     )
  
     tipo_de_informe = models.CharField(max_length=3,blank=True, choices=CATEGORIA, verbose_name="Tipo de Informe")
