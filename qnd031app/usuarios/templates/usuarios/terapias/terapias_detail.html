@@ -69,7 +69,7 @@
                   {% if actividad.envio_tarea %}
                     <div class="mb-4">
                       <h5 class="mb-2">Descripción de Tarea:</h5>
-                      <p><strong>Fecha de entrega:</strong> entregada el {{ actividad.fecha_entrega|date:"d/m/Y" }}</p>
+                      <p><strong>Fecha de entrega:</strong> {{ actividad.fecha_entrega|date:"d/m/Y" }}</p>
                       <p>{{ actividad.descripcion_tarea }}</p>
                     </div>
                   {% endif %}
