@@ -3,155 +3,126 @@
 {% load static %}
 
 {% block content %}
-
 <style>
   .gris-oscuro {
-    background-color: #343a40; /* Gris oscuro */
-    color: white; /* Para que el texto sea legible */
+    background-color: #343a40;
+    color: white;
   }
 </style>
-
-
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
 <div class="page-content-wrapper">
-    <!-- start page content -->
-    <div class="page-content">
+  <div class="page-content">
 
-        <!-- Primera fila fuera del contenedor -->
-        <div class="row">
-            <div class="col-12 col-lg-8 col-xl-12">
-                <div class="card overflow-hidden radius-10">
-                    <div class="profile-cover-1 bg-dark position-relative mb-4">
-                        <!-- Logo arriba a la derecha -->
-                        <!-- Avatar centrado -->
-                        <div class="user-profile-avatar position-absolute top-50 start-0 translate-middle-x">
-                      
-                                <img src="{% static 'assets/meddes/terapias_avatar.png' %}" alt="User Photo">
-                    
-                        </div>
+    <div class="row">
+      <div class="col-12 col-lg-8 col-xl-12">
+        <div class="card overflow-hidden radius-10">
+          <div class="profile-cover-1 bg-dark position-relative mb-4">
+            <div class="user-profile-avatar position-absolute top-50 start-0 translate-middle-x">
+              <img src="{% static 'assets/meddes/terapias_avatar.png' %}" alt="User Photo">
+            </div>
+          </div>
+
+          <div class="card-body text-left">
+            <div class="col-12 col-md-6 mx-auto">
+              <div class="card mb-4">
+                <div class="card-body">
+
+                  {% if actividad.media_terapia %}
+                    <h2 class="font-weight-bold display-4" style="color:#45a851;">TERAPIAS</h2>
+                    <h5 class="mb-2">{{ actividad.titulo }}</h5>
+
+                    <div class="mb-4">
+                      <p>{{ actividad.descripcion_actividad|default:"Sin descripción disponible." }}</p>
                     </div>
 
-                        <div class="card-body text-left">
-       
+                    {% if actividad.media_terapia.url %}
+                      <figure class="text-center">
+                        <a href="{{ actividad.media_terapia.url }}" target="_blank" class="text-decoration-none position-relative d-inline-block">
+                          {% if actividad.thumbnail_media and actividad.thumbnail_media.url %}
+                            <img 
+                              src="{{ actividad.thumbnail_media.url }}"
+                              alt="Previsualización del video"
+                              class="img-thumbnail shadow-sm"
+                              style="width: 560px; height: 195px; object-fit: cover;">
+                          {% else %}
+                            <img
+                              src="{% static 'img/default_video_thumb.jpg' %}"
+                              alt="Previsualización por defecto"
+                              class="img-thumbnail shadow-sm"
+                              style="width: 560px; height: 195px; object-fit: cover;">
+                          {% endif %}
+                          <span class="position-absolute top-50 start-50 translate-middle bg-white text-dark rounded-circle p-2 shadow" style="font-size: 1.5rem;">
+                            <i class="bi bi-play-fill"></i>
+                          </span>
+                        </a>
+                        <figcaption class="mt-2 small text-muted">Haz clic para ver el video</figcaption>
+                      </figure>
+                    {% else %}
+                      <div class="alert alert-light border-start border-4 border-warning mt-3" role="alert">
+                        <strong>No hay video disponible para esta actividad.</strong>
+                      </div>
+                    {% endif %}
+                  {% endif %}
 
+                  {% if actividad.envio_tarea %}
+                    <div class="mb-4">
+                      <h5 class="mb-2">Descripción de Tarea:</h5>
+                      <p><strong>Fecha de entrega:</strong> entregada el {{ actividad.fecha_entrega|date:"d 'de' F 'de' Y" }}</p>
+                      <p>{{ actividad.descripcion_tarea }}</p>
+                    </div>
+                  {% endif %}
 
-    <div class="col-12 col-md-6 mx-auto">
-    <div class="card mb-4">
-      <div class="card-body">
-    
-    
-{% if actividad.media_terapia %}
-<h2 class="font-weight-bold display-4" style="color:#45a851;">TERAPIAS</h2>
-  <h5 class="mb-2">{{ actividad.titulo }}</h5>
-
-  <!-- Descripción en textarea -->
-  <div class="mb-4">
-    
-      <p>{{ actividad.descripcion_actividad|default:"Sin descripción disponible." }}</p>
-    
-  </div>
-
-{% if actividad.media_terapia and actividad.media_terapia.url %}
-  <figure class="text-center">
-    <a href="{{ actividad.media_terapia.url }}" target="_blank" class="text-decoration-none position-relative d-inline-block">
-      {% if actividad.thumbnail_media and actividad.thumbnail_media.url %}
-        <img 
-          src="{{ actividad.thumbnail_media.url }}"
-          alt="Previsualización del video"
-          class="img-thumbnail shadow-sm"
-          style="width: 560px; height: 195px; object-fit: cover;">
-      {% else %}
-        <img
-          src="{% static 'img/default_video_thumb.jpg' %}"
-          alt="Previsualización por defecto"
-          class="img-thumbnail shadow-sm"
-          style="width: 560px; height: 195px; object-fit: cover;">
-      {% endif %}
-      <span class="position-absolute top-50 start-50 translate-middle bg-white text-dark rounded-circle p-2 shadow" style="font-size: 1.5rem;">
-        <i class="bi bi-play-fill"></i>
-      </span>
-    </a>
-    <figcaption class="mt-2 small text-muted">Haz clic para ver el video</figcaption>
-  </figure>
-{% else %}
-  <div class="alert alert-light border-start border-4 border-warning mt-3" role="alert">
-    <strong>No hay video disponible para esta actividad.</strong>
-  </div>
-{% endif %}
-
-{% if actividad.envio_tarea %}
-  <div class="mb-4">
-    <h5 class="mb-2">Descripción de Tarea:</h5>
-      <p><strong>Fecha de entrega:</strong> {{ actividad.fecha_entrega|date:"d 'de' F 'de' Y" }}</p>
-      <p>{{ actividad.descripcion_tarea }}</p>
-  </div>
-{% endif %}
-
-    <!-- Tabla con historial de actividades -->
-    <div style="max-height: 300px; overflow-y: auto; max-width: 100%; overflow-x: auto;">
-    <table class="table mb-0 table-dark table-striped">
-            <thead>
-        <tr>
-            <th style="background-color: #646464;">Fecha</th>
-            <th style="background-color: #646464;">Título</th>
-            <th style="background-color: #646464;">Tarea Enviada</th>
-        </tr>
-    </thead>
-        <tbody>
-            {% for actividad in actividades %}
-                {% if actividad.pk %}
-                    <tr 
-                        style="cursor: pointer;" 
-                        onclick="window.location.href='{% url 'usuarios:terapia_detail' actividad.id %}'">
-                        <td style="background-color: #646464;">
-                            {{ actividad.fecha_actividad|date:"d/m/Y" }}
-                        </td>
-                        <td style="background-color: #646464;">
-                             {{ actividad.titulo }}
-                        </td>
-                        <td style="background-color: #646464;">
-                            {{ actividad.envio_tarea|yesno:"Sí,No" }}
-                        </td>
-                    </tr>
-                {% else %}
-                    <!-- O puedes loguear este caso si necesitas depurarlo -->
-                {% endif %}
-            {% empty %}
-                <tr>
-                    <td colspan="4" style="background-color: #495057; text-align: center;">
-                        No hay actividades registradas para este paciente.
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-</div>
-
-    </div>
-</div>
-
-    </div>
-
-                            
-                    
-
+                  <!-- Tabla con historial de actividades -->
+                  <div style="max-height: 300px; overflow-y: auto; max-width: 100%; overflow-x: auto;">
+                    <table class="table mb-0 table-dark table-striped">
+                      <thead>
+                        <tr>
+                          <th style="background-color: #646464;">Fecha</th>
+                          <th style="background-color: #646464;">Título</th>
+                          <th style="background-color: #646464;">Tarea Enviada</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for actividad_item in actividades %}
+                          {% if actividad_item.pk %}
+                            <tr 
+                              style="cursor: pointer;" 
+                              onclick="window.location.href='{% url 'usuarios:terapia_detail' actividad_item.id %}'">
+                              <td style="background-color: #646464;">
+                                {{ actividad_item.fecha_actividad|date:"d/m/Y" }}
+                              </td>
+                              <td style="background-color: #646464;">
+                                {{ actividad_item.titulo }}
+                              </td>
+                              <td style="background-color: #646464;">
+                                {{ actividad_item.envio_tarea|yesno:"Sí,No" }}
+                              </td>
+                            </tr>
+                          {% endif %}
+                        {% empty %}
+                          <tr>
+                            <td colspan="3" style="background-color: #495057; text-align: center;">
+                              No hay actividades registradas para esta paciente.
+                            </td>
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
 
                 </div>
-            </div> <!-- col -->
-        </div> <!-- row -->
+              </div>
+            </div>
+          </div> <!-- card-body -->
 
-     
-        </div> <!-- container -->
+        </div>
+      </div> <!-- col -->
+    </div> <!-- row -->
 
-    </div> <!-- page-content -->
-
-
-
-
-
+  </div> <!-- page-content -->
+</div> <!-- page-content-wrapper -->
 
 {% endblock %}
 
@@ -159,8 +130,9 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const img = document.getElementById('thumbnailPreview');
-    const thumbnailUrl = img.dataset.thumbnailUrl;
+    if (!img) return;
 
+    const thumbnailUrl = img.dataset.thumbnailUrl;
     if (!thumbnailUrl) return;
 
     const checkInterval = 3000; // 3 segundos
@@ -177,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     clearInterval(intervalId);
                 }
             })
-            .catch(() => { /* Silenciar errores como 403/404 */ });
+            .catch(() => {});
 
         attempts++;
         if (attempts >= maxAttempts) {
@@ -188,9 +160,4 @@ document.addEventListener('DOMContentLoaded', function () {
     const intervalId = setInterval(checkThumbnailAvailable, checkInterval);
 });
 </script>
-
 {% endblock %}
-
-
-
-              
