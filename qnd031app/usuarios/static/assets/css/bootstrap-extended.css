@@ -192,6 +192,10 @@
     color: #012c02!important;
 }
 
+.text-white {
+    color: #ffffff!important;
+}
+
 .text-danger {
     color: #f73757!important;
 }
