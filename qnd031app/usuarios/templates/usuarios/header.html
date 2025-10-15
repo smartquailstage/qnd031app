@@ -23,60 +23,57 @@
 <div class="top-navbar-right ms-auto">
   <ul class="navbar-nav align-items-center">
 
-    <!-- Tareas Asignadas -->
+<!-- Última Terapia Asignada -->
 <li class="nav-item dropdown dropdown-large">
   <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" href="#" data-bs-toggle="dropdown">
     <div class="position-relative">
-      {% if ultimos_videos_realizados|length > 0 %}
-        <span class="notify-badge">{{ ultimos_videos_realizados|length }}</span>
+      {% if ultima_tarea %}
+        <span class="notify-badge">1</span>
       {% endif %}
-      <ion-icon name="notifications-outline"></ion-icon>
+      <ion-icon name="create-outline"></ion-icon>
     </div>
   </a>
   <div class="dropdown-menu dropdown-menu-end">
-    <!-- Cabecera del dropdown -->
+    <!-- Cabecera -->
     <div class="msg-header d-flex align-items-center">
       <p class="msg-header-title mb-0">
-        <ion-icon name="notifications-outline"></ion-icon>Terapias
+        <ion-icon name="create-outline"></ion-icon> Última Terapia
       </p>
       <p class="msg-header-clear ms-auto mb-0 text-primary">
-        {{ ultimos_videos_realizados|length }} nuevos
+        {% if ultima_tarea %}Nueva{% else %}Sin asignar{% endif %}
       </p>
     </div>
 
-    <!-- Lista de videos -->
+    <!-- Contenido -->
     <div class="header-notifications-list">
-      {% for tarea in ultimos_videos_realizados %}
-        <a class="dropdown-item" href="{% url 'usuarios:terapia_detail' tarea.id %}">
+      {% if ultima_tarea %}
+        <a class="dropdown-item" href="{% url 'usuarios:terapia_detail' ultima_tarea.id %}">
           <div class="d-flex align-items-center">
-            {% if tarea.thumbnail_media %}
-              <img src="{{ tarea.thumbnail_media.url }}" alt="Thumbnail" width="40" height="40" class="rounded me-2">
-            {% else %}
-              <div class="notify text-primary fs-4 me-2">
-                <ion-icon name="play-circle-outline"></ion-icon>
-              </div>
-            {% endif %}
+            <div class="notify text-primary fs-4 me-2">
+              <ion-icon name="document-text-outline"></ion-icon>
+            </div>
             <div class="flex-grow-1">
-              <h6 class="msg-name mb-0">{{ tarea.titulo|default:"Sin título" }}</h6>
-              <p class="msg-info mb-0 small">Fecha: {{ tarea.fecha_actividad|date:"d M Y H:i" }}</p>
+              <h6 class="msg-name mb-0">{{ ultima_tarea.titulo|default:"Terapia sin título" }}</h6>
+              <p class="msg-info mb-0 small">Fecha: {{ ultima_tarea.fecha_actividad|date:"d M Y H:i" }}</p>
             </div>
           </div>
         </a>
-      {% empty %}
+      {% else %}
         <div class="dropdown-item text-center text-muted small">
-          No hay videos recientes de terapia
+          No hay terapias asignadas aún
         </div>
-      {% endfor %}
+      {% endif %}
     </div>
 
-    <!-- Enlace al listado completo -->
+    <!-- Enlace a todas -->
     <a href="{% url 'usuarios:terapia_list' %}">
       <div class="text-center msg-footer">
-        <ion-icon name="film-outline"></ion-icon> Ver todas las terapias
+        <ion-icon name="document-text-outline"></ion-icon> Ver todas las terapias
       </div>
     </a>
   </div>
 </li>
+
 
 
     <!-- Notificaciones -->
@@ -86,13 +83,13 @@
       {% if mensajes_no_leidos|length > 0 %}
         <span class="notify-badge">{{ mensajes_no_leidos|length }}</span>
       {% endif %}
-      <ion-icon name="mail-unread-outline" class="fs-4"></ion-icon>
+      <ion-icon name="notifications-outline"></ion-icon>
     </div>
   </a>
   <div class="dropdown-menu dropdown-menu-end">
     <div class="msg-header d-flex align-items-center">
       <p class="msg-header-title mb-0">
-        <ion-icon name="mail-outline"></ion-icon> Mensajes nuevos
+        <ion-icon name="notifications-outline"></ion-icon> Mensajes nuevos
       </p>
       <p class="msg-header-clear ms-auto mb-0 text-primary">
         {{ mensajes_no_leidos|length }} sin leer
@@ -103,7 +100,7 @@
         <a class="dropdown-item" href="{% url 'usuarios:ver_mensaje' mensaje.id %}">
           <div class="d-flex align-items-center">
             <div class="notify text-primary fs-4 me-2">
-              <ion-icon name="mail-outline"></ion-icon>
+              <ion-icon name="notifications-outline"></ion-icon>
             </div>
             <div class="flex-grow-1">
               <h6 class="msg-name mb-0">{{ mensaje.asunto }}</h6>

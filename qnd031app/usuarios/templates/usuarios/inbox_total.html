@@ -41,7 +41,7 @@
   <table class="table mb-5 table-dark table-striped">
     <thead>
       <tr>
-        <th>Estado</th>
+        <th></th>
         <th><ion-icon name="time-outline"></ion-icon>Hora</th>
         <th><ion-icon name="calendar-outline"></ion-icon>Fecha</th>
         <th>Asunto</th>
@@ -53,22 +53,22 @@
           style="cursor: pointer;" 
           onclick="window.location.href='{% url 'usuarios:ver_mensaje' mensaje.pk %}'">
           
-        <td style="background-color: #495057;">
+        <td style="background-color: #646464;">
             {% if mensaje.leido %}
-              <span class="badge bg-success"><ion-icon name="eye-outline"></ion-icon></span>
+              <ion-icon name="eye-outline"></ion-icon>
             {% else %}
-              <span class="badge bg-warning text-dark"><ion-icon name="eye-off-outline"></ion-icon> </span>
+              <ion-icon name="eye-off-outline"></ion-icon> 
             {% endif %}
           </td>
           
           <!-- Columna de HORA -->
-          <td style="background-color: #495057;">{{ mensaje.fecha_envio|date:"H:i" }}</td>
+          <td style="background-color:#646464;">{{ mensaje.fecha_envio|date:"H:i" }}</td>
           
           <!-- Columna de FECHA -->
-          <td style="background-color: #495057;">{{ mensaje.fecha_envio|date:"d-m-Y" }}</td>
+          <td style="background-color: #646464;">{{ mensaje.fecha_envio|date:"d-m-Y" }}</td>
           
           <!-- Asunto -->
-          <td style="background-color: #343a40;">{{ mensaje.asunto }}</td>
+          <td style="background-color: #646464;">{{ mensaje.asunto }}</td>
           
           <!-- Asunto 2 -->
        

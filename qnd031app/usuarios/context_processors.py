@@ -115,7 +115,7 @@ def ultima_tarea(request):
         profile = Profile.objects.filter(user=request.user).first()  # devuelve None si no existe
         if profile is None:
             return {'ultima_tarea': None}
-        ultima_tarea = tareas.objects.filter(profile=profile).order_by('-fecha_envio', '-fecha_entrega').first()
+        ultima_tarea = tareas.objects.filter(profile=profile).order_by('-cita_terapeutica_asignada').first()
         return {'ultima_tarea': ultima_tarea}
     return {}
 
