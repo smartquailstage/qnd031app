@@ -247,7 +247,7 @@ UNFOLD = {
     "DASHBOARD_CALLBACK": "usuarios.views.dashboard_callback",
     "ENVIRONMENT": "qnd041app.utils.environment.environment_callback",
     "THEME": "light",
-    "LOGIN": {  "image": lambda request: static("img/BA-BG/test.jpg"),
+    "LOGIN": {  "image": lambda request: static("img/BA-BG/fondo-meddes-sistema.png"),
                "password_icon": lambda request: static("icons/eye-solid.svg"),
                 "username_icon": lambda request: static("icons/username-icon.svg")
                 },
