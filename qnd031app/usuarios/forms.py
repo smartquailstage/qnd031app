@@ -10,7 +10,7 @@ from .models import Mensaje, Cita ,TareaComentario
 from serviceapp.models import ServicioTerapeutico
 from ckeditor.widgets import CKEditorWidget
 from django.forms.models import inlineformset_factory
-from .models import AsistenciaTerapeuta, prospecion_administrativa, DocenteCapacitado, Perfil_Terapeuta, ValoracionTerapia, AdministrativeProfile, Contacto
+from .models import AsistenciaTerapeuta, prospecion_administrativa,InformesTerapeuticos, DocenteCapacitado, Perfil_Terapeuta, ValoracionTerapia, AdministrativeProfile, Contacto
 from bootstrap_datepicker_plus.widgets import DatePickerInput
 from django import forms
 from .widgets import CustomDatePickerWidget
@@ -450,8 +450,38 @@ class AsistenciaTerapeutaAdminForm(forms.ModelForm):
         }
 
 
+
+
+
+class InformeTerapiaForm(forms.ModelForm):
+    class Meta:
+        model = InformesTerapeuticos
+        fields = ['tipo_de_informe', 'titulo', 'archivo']
+        widgets = {
+            'tipo_de_informe': forms.HiddenInput(),  # Ocultamos el campo tipo_de_informe
+            'titulo': forms.HiddenInput(),           # Ocultamos el campo titulo
+            'archivo': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        }
+        labels = {
+            'tipo_de_informe': 'Tipo',
+            'titulo': 'Título del Informe',
+            'archivo': 'Archivo',
+        }
+
+    # Asignamos valores por defecto para los campos ocultos
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Establecemos el valor predeterminado para "tipo_de_informe" y "titulo"
+        self.fields['tipo_de_informe'].initial = 'INI'  # 'INI' corresponde a 'Inicial' o 'Autorización'
+        self.fields['titulo'].initial = 'Informe de autorización terapéutica'
+
 class AutorizacionForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['adjunto_autorizacion']
-        labels = {'adjunto_autorizacion': 'Archivo de autorización'}
+        widgets = {
+            'adjunto_autorizacion': forms.ClearableFileInput(attrs={
+                'class': 'form-control',
+                'accept': '.pdf,.jpg,.png',
+            }),
+        }

@@ -22,6 +22,23 @@
                                 <img src="{% static 'assets/meddes/Informes_avatar.png' %}" alt="User Photo">
                     
                         </div>
+
+                           <div class="d-block d-md-none position-absolute bottom-0 end-0 p-2">
+                    <img src="{% static 'img/BA-LOGOS/logo.png' %}" alt="Logo" style="
+    height: 28px;
+    background-color: rgb(255 255 255);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    padding: 4px;
+    box-shadow: 0 0 0px rgba(0, 0, 0, 0.2);
+    margin-bottom: -8px;
+    margin-left: 0;
+    margin-right: -9px;
+                    ">
+                </div>
+
+
+                
                     </div>
 
     <div class="card-body text-left">
@@ -39,55 +56,101 @@
                         Descarga tus informes terapeuticos al instante. 
                     </h4>
 
-                    <form method="get" class="row g-3 mb-4">
-  <div class="col-md-4">
-    <label for="mes" class="form-label"></label>
-    <select name="mes" id="mes" class="form-select">
-      {% for numero, nombre in meses %}
-        <option value="{{ numero }}" {% if numero == mes %}selected{% endif %}>{{ nombre }}</option>
-      {% endfor %}
-    </select>
-  </div>
+                <form method="get" class="row g-2 mb-4" id="date-filter-form">
+                    <div class="col-6">
+                      <label for="mes" class="form-label"></label>
+                      <select name="mes" id="mes" class="form-select">
+                        {% for numero, nombre in meses %}
+                          <option value="{{ numero }}" {% if numero == mes %}selected{% endif %}>{{ nombre }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
 
-  <div class="col-md-4">
-    <label for="anio" class="form-label"></label>
-    <select name="anio" id="anio" class="form-select">
-      {% for a in anios %}
-        <option value="{{ a }}" {% if a == anio %}selected{% endif %}>{{ a }}</option>
-      {% endfor %}
-    </select>
-  </div>
+                    <div class="col-6">
+                      <label for="anio" class="form-label"></label>
+                      <select name="anio" id="anio" class="form-select">
+                        {% for a in anios %}
+                          <option value="{{ a }}" {% if a == anio %}selected{% endif %}>{{ a }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
 
-  <div class="col-md-4 d-flex align-items-end">
-    <button type="submit" class="btn btn btn-success w-100"><ion-icon name="search-outline"></ion-icon> Buscar</button>
-  </div>
-</form>
+                    <div class="col-md-4 d-flex align-items-end">
+                      <button type="submit" class="btn btn-success w-100"><ion-icon name="search-outline"></ion-icon> Buscar</button>
+                    </div>
+                  </form>
+
+           
+                
+{% if not archivos %}
+
+    <hr>
+<p>Si aún no ha subido su informe de autorización, puede hacerlo aquí.</p>
+  
+
+  <!-- Formulario para subir informe terapéutico -->
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <!-- Campo oculto para tipo_de_informe con valor por defecto "Autorizacion" -->
+    <input type="hidden" name="tipo_de_informe" value="INI">
+
+    <!-- Campo oculto para titulo con valor por defecto "Informe de autorización terapéutica" -->
+    <input type="hidden" name="titulo" value="Informe de autorización terapéutica">
+
+    <!-- Campo para seleccionar archivo del informe -->
+    <div class="mb-3">
+      <input id="file-input-informe" type="file" name="archivo" style="display: none;" required>
+
+      <!-- Botón personalizado para activar el selector de archivo -->
+      <button type="button" class="btn btn-outline-success" onclick="document.getElementById('file-input-informe').click();">
+        <ion-icon name="cloud-upload-outline"></ion-icon>
+        <span>Seleccionar archivo</span>
+      </button>
+
+      <!-- Mostrar nombre de archivo seleccionado -->
+      <span id="file-name-informe" class="ms-2 text-muted" style="font-style: italic;"></span>
+    </div>
+
+    <!-- Botón para subir informe -->
+    <button type="submit" class="btn btn-success ms-3">
+      Subir Informe
+    </button>
+
+    <!-- Mostrar errores del formulario, si existen -->
+    {% if form.errors %}
+      <div class="alert alert-danger mt-3">
+        <ul>
+          {% for field in form %}
+            {% for error in field.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  </form>
+
+  <!-- Script para mostrar el nombre del archivo seleccionado para informe -->
+  <script>
+    document.getElementById('file-input-informe').addEventListener('change', function () {
+      const fileName = this.files.length > 0 ? this.files[0].name : '';
+      document.getElementById('file-name-informe').textContent = fileName;
+    });
+  </script>
+
+{% else %}
+
+{% endif %}
 
 
 
-                        <!-- Mostrar formulario solo si no hay archivos -->
-                        {% if not archivos %}
-                            <form method="POST" enctype="multipart/form-data">
-                                {% csrf_token %}
-                                <div class="mb-3">
-                                    {{ form.adjunto_autorizacion.label_tag }}
-                                    {{ form.adjunto_autorizacion|add_class:"form-control" }}
-                                </div>
-                                <button type="submit" class="btn btn-primary">
-                                    <ion-icon name="cloud-upload-outline"></ion-icon> Subir Autorización
-                                </button>
-                            </form>
-                        {% else %}
-                            <div class="alert alert-success mt-3">
-                                <ion-icon name="checkmark-done-circle-outline"></ion-icon>
-                                Ya se ha subido una autorización terapéutica. No es necesario cargar otra.
-                            </div>
-                        {% endif %}
+
 
                         <!-- Archivos adjuntos dinámicos -->
 {% if archivos %}
     <hr>
-    <h6 class="mt-4">Descargar Documentos</h6>
+    <h6 class="mt-4">Descargar Informes Terapéuticos</h6>
     <ul class="list-group list-group-flush">
         {% for archivo in archivos %}
         <a class="btn btn-sm btn-outline-primary" href="{{ archivo.archivo.url }}" target="_blank">

@@ -329,20 +329,46 @@ def inbox_view(request):
 def inbox_record(request):
     profile = get_object_or_404(Profile, user=request.user)
 
-    # Mensajes ordenados por fecha de envío (más recientes primero)
+    # Obtener parámetros de filtrado (mes y año)
+    mes = request.GET.get('mes')
+    anio = request.GET.get('anio')
+
+    # Filtrar mensajes por fecha de envío
     mensajes = Mensaje.objects.filter(receptor=profile).order_by('-fecha_envio')
-    
+
+    # Si mes y año están presentes, filtramos los mensajes
+    if mes and anio:
+        try:
+            mes = int(mes)
+            anio = int(anio)
+            mensajes = mensajes.filter(fecha_envio__year=anio, fecha_envio__month=mes)
+        except ValueError:
+            pass
+
+    # Contadores de mensajes leídos y no leídos
     leidos = mensajes.filter(leido=True).count()
     no_leidos = mensajes.filter(leido=False).count()
     total = mensajes.count()
 
-    return render(request, 'usuarios/inbox_total.html', {
+    # Contexto para renderizar la plantilla
+    context = {
         'mensajes': mensajes,
         'profile': profile,
         'leidos': leidos,
         'no_leidos': no_leidos,
         'total': total,
-    })
+        'meses': [
+            (1, 'Enero'), (2, 'Febrero'), (3, 'Marzo'), (4, 'Abril'),
+            (5, 'Mayo'), (6, 'Junio'), (7, 'Julio'), (8, 'Agosto'),
+            (9, 'Septiembre'), (10, 'Octubre'), (11, 'Noviembre'), (12, 'Diciembre')
+        ],
+        'anios': list(range(2025, now().year + 5)),
+        'mes': int(mes) if mes else now().month,
+        'anio': int(anio) if anio else now().year,
+    }
+
+    return render(request, 'usuarios/inbox_total.html', context)
+
 
 
 
@@ -825,25 +851,44 @@ def subir_comprobante_pago(request, pk):
 
 
 
+# views.py
+
+from .forms import AutorizacionForm, InformeTerapiaForm
+from .models import InformesTerapeuticos, Profile, Mensaje
+from django.utils.timezone import now
 
 @login_required
 def vista_certificados(request):
     profile = get_object_or_404(Profile, user=request.user)
 
-    if request.method == 'POST':
-        form = AutorizacionForm(request.POST, request.FILES, instance=profile)
-        if form.is_valid():
-            form.save()
-            return redirect('usuarios:vista_certificados')
-    else:
-        form = AutorizacionForm(instance=profile)
+    form_autorizacion = AutorizacionForm(instance=profile)
+    form_informe = InformeTerapiaForm()
 
-    # Obtener parámetros de filtrado
+    if request.method == 'POST':
+        if 'adjunto_autorizacion' in request.FILES:
+            form_autorizacion = AutorizacionForm(request.POST, request.FILES, instance=profile)
+            if form_autorizacion.is_valid():
+                form_autorizacion.save()
+                return redirect('usuarios:vista_certificados')
+            else:
+                print(form_autorizacion.errors)  # Depuración de errores en el formulario de autorización
+
+        if 'archivo' in request.FILES:
+            form_informe = InformeTerapiaForm(request.POST, request.FILES)
+            if form_informe.is_valid():
+                informe = form_informe.save(commit=False)
+                informe.profile = profile
+                informe.creado_por = request.user
+                informe.save()
+                return redirect('usuarios:vista_certificados')
+            else:
+                print(form_informe.errors)  # Depuración de errores en el formulario del informe
+
+    # Filtros
     mes = request.GET.get('mes')
     anio = request.GET.get('anio')
 
     archivos = InformesTerapeuticos.objects.filter(profile=profile)
-
     if mes and anio:
         try:
             mes = int(mes)
@@ -856,12 +901,11 @@ def vista_certificados(request):
             pass
 
     archivos = archivos.order_by('-fecha_creado')[:4]
-
-
     mensajes = Mensaje.objects.filter(receptor=profile).order_by('-fecha_envio')
 
     context = {
-        'form': form,
+        'form': form_autorizacion,
+        'form_informe': form_informe,
         'profile': profile,
         'mensajes': mensajes,
         'archivos': archivos,
@@ -876,6 +920,8 @@ def vista_certificados(request):
     }
 
     return render(request, 'usuarios/certificados/certificados_total.html', context)
+
+
 
 from django.views.generic import TemplateView
 from unfold.views import UnfoldModelAdminViewMixin

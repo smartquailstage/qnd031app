@@ -23,6 +23,23 @@
                                 <img src="{% static 'assets/meddes/notificaciones_avatar.png' %}" alt="User Photo">
                     
                         </div>
+
+                           <div class="d-block d-md-none position-absolute bottom-0 end-0 p-2">
+                    <img src="{% static 'img/BA-LOGOS/logo.png' %}" alt="Logo" style="
+    height: 28px;
+    background-color: rgb(255 255 255);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    padding: 4px;
+    box-shadow: 0 0 0px rgba(0, 0, 0, 0.2);
+    margin-bottom: -8px;
+    margin-left: 0;
+    margin-right: -9px;
+                    ">
+                </div>
+
+
+                
                     </div>
 
     <div class="card-body text-left">
@@ -36,6 +53,32 @@
                     <h4 class="mb-4">
           Mensajes Recibidos.
                     </h4>
+
+
+                                      <form method="get" class="row g-2 mb-4" id="date-filter-form">
+                    <div class="col-6">
+                      <label for="mes" class="form-label"></label>
+                      <select name="mes" id="mes" class="form-select">
+                        {% for numero, nombre in meses %}
+                          <option value="{{ numero }}" {% if numero == mes %}selected{% endif %}>{{ nombre }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+
+                    <div class="col-6">
+                      <label for="anio" class="form-label"></label>
+                      <select name="anio" id="anio" class="form-select">
+                        {% for a in anios %}
+                          <option value="{{ a }}" {% if a == anio %}selected{% endif %}>{{ a }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+
+                    <div class="col-md-4 d-flex align-items-end">
+                      <button type="submit" class="btn btn-success w-100"><ion-icon name="search-outline"></ion-icon> Buscar</button>
+                    </div>
+                  </form>
+
 
 <div style="max-height: 300px; overflow-y: auto; max-width: 557px; overflow-x: hidden;">
   <table class="table mb-5 table-dark table-striped">
