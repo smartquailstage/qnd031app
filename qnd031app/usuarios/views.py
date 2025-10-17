@@ -660,15 +660,11 @@ from django.shortcuts import render
 def tareas_asistidas_view(request):
     mes = request.GET.get('mes')      # vienen como strings
     anio = request.GET.get('anio')
-    asistio = request.GET.get('asistio')  # '1', '0' o ''
 
     actividades = tareas.objects.all()
 
     # Filtrar por asistencia
-    if asistio == '1':  # Asistió
-        actividades = actividades.filter(asistire=True)
-    elif asistio == '0':  # No asistió
-        actividades = actividades.filter(asistire=False)
+
 
     # Filtrar por mes y año si vienen y son válidos
     try:
@@ -701,7 +697,6 @@ def tareas_asistidas_view(request):
         'anios': list(range(2025, now().year + 5)),
         'mes': str(mes_int),   # Pasar como string para el template
         'anio': str(anio_int), # Pasar como string también
-        'asistio': asistio if asistio in ['0', '1'] else '',
     }
 
     return render(request, 'usuarios/asistencias/asistencia_list.html', context)

@@ -29,6 +29,20 @@
             <div class="user-profile-avatar position-absolute top-50 start-0 translate-middle-x">
               <img src="{% static 'assets/meddes/visto.png' %}" alt="User Photo">
             </div>
+                            <!-- Logotipo solo visible en pantallas pequeñas -->
+                <div class="d-block d-md-none position-absolute bottom-0 end-0 p-2">
+                    <img src="{% static 'img/BA-LOGOS/logo.png' %}" alt="Logo" style="
+    height: 28px;
+    background-color: rgb(255 255 255);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    padding: 4px;
+    box-shadow: 0 0 0px rgba(0, 0, 0, 0.2);
+    margin-bottom: -8px;
+    margin-left: 0;
+    margin-right: -9px;
+                    ">
+                </div>
           </div>
 
           <div class="card-body text-left">
@@ -38,55 +52,29 @@
 
                   <h2 class="font-weight-bold display-4" style="color:#45a851;">ASISTENCIAS</h2>
                   <h4 class="mb-4">Revise sus asistencias terapéuticas</h4>
-<form method="get" class="needs-validation" id="date-filter-form" novalidate>
-  <!-- Primera fila con los tres campos en línea -->
-  <div class="row g-3 mb-3">
-    <div class="col-md-4">
-      <label for="mes" class="form-label">Mes</label>
-      <select name="mes" id="mes" class="form-select" required>
-        {% for numero, nombre in meses %}
-          <option value="{{ numero }}" {% if numero|stringformat:"s" == mes|stringformat:"s" %}selected{% endif %}>{{ nombre }}</option>
-        {% endfor %}
-      </select>
-      <div class="invalid-feedback">
-        Please select a month.
-      </div>
-    </div>
+                  <form method="get" class="row g-2 mb-4" id="date-filter-form">
+                    <div class="col-6">
+                      <label for="mes" class="form-label"></label>
+                      <select name="mes" id="mes" class="form-select">
+                        {% for numero, nombre in meses %}
+                          <option value="{{ numero }}" {% if numero == mes %}selected{% endif %}>{{ nombre }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
 
-    <div class="col-md-4">
-      <label for="anio" class="form-label">Año</label>
-      <select name="anio" id="anio" class="form-select" required>
-        {% for a in anios %}
-          <option value="{{ a }}" {% if a|stringformat:"s" == anio|stringformat:"s" %}selected{% endif %}>{{ a }}</option>
-        {% endfor %}
-      </select>
-      <div class="invalid-feedback">
-        Please select a valid year.
-      </div>
-    </div>
+                    <div class="col-6">
+                      <label for="anio" class="form-label"></label>
+                      <select name="anio" id="anio" class="form-select">
+                        {% for a in anios %}
+                          <option value="{{ a }}" {% if a == anio %}selected{% endif %}>{{ a }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
 
-    <div class="col-md-4">
-      <label for="asistio" class="form-label">Asistencia</label>
-      <select name="asistio" id="asistio" class="form-select" required>
-        <option value="" {% if asistio == "" %}selected{% endif %}>Todos</option>
-        <option value="1" {% if asistio == "1" %}selected{% endif %}>Asistidos</option>
-        <option value="0" {% if asistio == "0" %}selected{% endif %}>No asistidos</option>
-      </select>
-      <div class="invalid-feedback">
-        Please select a valid attendance option.
-      </div>
-    </div>
-  </div>
-
-  <!-- Segunda fila con el botón -->
-  <div class="row">
-    <div class="col text-end">
-      <button type="submit" class="btn btn-success px-4">
-        <ion-icon name="search-outline"></ion-icon> Buscar
-      </button>
-    </div>
-  </div>
-</form>
+                    <div class="col-md-4 d-flex align-items-end">
+                      <button type="submit" class="btn btn-success w-100"><ion-icon name="search-outline"></ion-icon> Buscar</button>
+                    </div>
+                  </form>
 
 
 

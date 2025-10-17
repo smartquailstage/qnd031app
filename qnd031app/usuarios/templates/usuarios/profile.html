@@ -17,164 +17,171 @@
 <div class="page-content-wrapper">
     <!-- start page content -->
     <div class="page-content">
-        <div class="row">
-            <div class="col-12 col-lg-8 col-xl-12">
-                <div class="card overflow-hidden radius-10">
-                    <div class="profile-cover bg-dark position-relative mb-4">
-
-                        <!-- Logo arriba a la derecha -->
-
-
-
-                        <!-- Avatar centrado -->
-                        <div class="user-profile-avatar position-absolute top-50 start-0 translate-middle-x">
-                            {% if profile.photo and profile.photo.url %}
-                                <img src="{{ profile.photo.url }}" alt="User Photo">
-                            {% else %}
-                                <img src="{% static 'img/BA-LOGOS/user.png' %}" style="width:150px;" alt="Default Photo">
-                            {% endif %}
-                        </div>
-                    </div>
+<div class="row">
+    <div class="col-12 col-lg-8 col-xl-12">
+        <div class="card overflow-hidden radius-10">
+            <div class="profile-cover bg-dark position-relative mb-4" style="min-height: 200px;">
+                <!-- Avatar centrado -->
+                <div class="user-profile-avatar position-absolute top-50 start-0 translate-middle-x">
+                    {% if profile.photo and profile.photo.url %}
+                        <img src="{{ profile.photo.url }}" alt="User Photo">
+                    {% else %}
+                        <img src="{% static 'img/BA-LOGOS/user.png' %}" style="width:150px;" alt="Default Photo">
+                    {% endif %}
                 </div>
-            </div> <!-- col -->
-        </div> <!-- row -->
 
-    <section class="shop-page">
-            <div class="shop-container">
-              <div class="card shadow-sm border-0">
-                <div class="card-body">
-						<div class="shop-cart">
-							<div class="row">
-								<div class="col-12 col-xl-8">
-									<div class="checkout-details">
-										<div class="card">
-											<div class="card-body">
-
-                              <div class="p-3" >
-        <h2 class="mb-2 text-end  w-100" style="font-weight: 50;">{{ profile.nombre_paciente }} {{ profile.apellidos_paciente }}</h2>
-        <h3 class="mb-2 text-end  w-100" style="color:#45a851;"><strong>{{ profile.institucion|default:"Particular" }}</strong></h3>
-        <p class="mb-3 text-end " style="font-size: 13pt;margin-right:0px;margin-top:20px">{{ profile.fecha_nacimiento }} <i style="color: rgb(233, 220, 89);" class="bx bx-plus-medical"></i> </p>
-        <p class="mb-3 text-end " style="font-size: 13pt;margin-right:0px;margin-top:-10px">{{ profile.nacionalidad }}<i style="color: rgb(233, 220, 89);" class="bx bx-plus-medical"></i> </p>
-        <p class="mb-3 text-end " style="font-size: 13pt;margin-right:0px;margin-top:-10px">{{ profile.sexo }}<i style="color: rgb(233, 220, 89)" class="bx bx-plus-medical"></i> </p>
-        <p class="mb-3 text-end  " style="font-size: 13pt;margin-right:0px;margin-top:-10px"> {{ profile.sucursales }}<i style="color: rgb(233, 220, 89);" class="bx bx-plus-medical"></i></p>
-        <div class="text-center bg-white text-white p-2 rounded shadow-sm mt-3" style="
-        width: 73px;
-  margin-left: 0px;
-  height: 94px;">
-    <div class="fw-bold" style="font-size: 2.7rem;">
-        <!-- Usar los años de edad -->
-        {{ edad_anios|default:"N/A" }}
-    </div>
-    <div style="text-transform: uppercase; font-size: 0.8rem;">
-        años
-    </div>
-</div>
-
-
-
-
-      </div>
-
-											</div>
-										</div>
-
-									</div>
-								</div>
-
-
-								<div class="col-12 col-xl-4">
-									<div class="order-summary">
-										<div class="card">
-											<div class="card-body">
-											
-													<div class="card-body">
-
-                                  <div class="p-3" style="background-color:#353836; color: white; border-radius: 25px;">
- 
-
-          <div class="card-body">
-            <div class="mt-5 d-flex align-items-start justify-content-between">
-              <div>
-                <h3 class="mb-2" style="color:#45a851">REPRESENTANTE</h3>
-                <p class="mb-1">{{ profile.nombres_representante_legal }} {{ profile.apellidos_representante_legal }} ({{ profile.relacion_del_representante }}) </p>
-                <p class="mb-0" style="font-size: 20pts;"><ion-icon name="mail-outline"></ion-icon> {{ profile.email }}</p>
-               <p class="mb-0"><ion-icon name="logo-whatsapp"></ion-icon> {{ profile.celular }}</p>
-                 <hr>
-              </div>
-              <div>
-               
-              </div>
+                <!-- Logotipo solo visible en pantallas pequeñas -->
+                <div class="d-block d-md-none position-absolute bottom-0 end-0 p-2">
+                    <img src="{% static 'img/BA-LOGOS/logo.png' %}" alt="Logo" style="
+    height: 28px;
+    background-color: rgb(255 255 255);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    padding: 4px;
+    box-shadow: 0 0 0px rgba(0, 0, 0, 0.2);
+    margin-bottom: -8px;
+    margin-left: 0;
+    margin-right: -9px;
+                    ">
+                </div>
             </div>
-        <div class="mt-5 d-flex align-items-start justify-content-between">
-              <div>
-                <h3 class="mb-2" style="color:#45a851">SERVICIOS</h3>
-             
-              
-
-    {% for servicio in profile.tipos %}
-        <p class="mb-0">{{ servicio }}</p>
-    {% empty %}
-        <p class="mb-0">No se han contratado servicios.</p>
-    {% endfor %}
-
-
-                <hr>
-              </div>
-               
-              <div>
-              </div>
         </div>
-
-         <div class="mt-5 d-flex align-items-start justify-content-between">
-              <div>
-                <h3 class="mb-2" style="color:#45a851">TERAPEUTAS</h3>
-                <p class="mb-1">
-                          <strong>
-        {% if profile.user_terapeutas or profile.user_terapeutas_1 or profile.user_terapeutas_3 %}
-          {% if profile.user_terapeutas %}
-           <p class="mb-0">{{ profile.user_terapeutas }}</p>
-          {% endif %}
-          {% if profile.user_terapeutas_1 %}
-            <p class="mb-0">{{ profile.user_terapeutas_1 }}</p>
-          {% endif %}
-          {% if profile.user_terapeutas_3 %}
-            <p class="mb-0">{{ profile.user_terapeutas_3 }}</p>
-          {% endif %}
-        {% else %}
-          <p class="mb-0">No hay terapeutas asignados.</p>
-        {% endif %}
-      </strong>
+    </div> <!-- col -->
+</div> <!-- row -->
 
 
-                </p>
-                
-               
-              </div>
-              <div>
-              </div>
-        </div>
-          </div>
-     
-      </div>
+        <section class="shop-page">
+            <div class="shop-container">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <div class="shop-cart">
+                            <div class="row">
+                                <div class="col-12 col-xl-8">
+                                    <div class="checkout-details">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="p-3">
+                                                    <h2 class="mb-2 text-end w-100" style="font-weight: 50;font-size: 38px;">
+                                                        {{ profile.nombre_paciente }} {{ profile.apellidos_paciente }}
+                                                    </h2>
+                                                    <h3 class="mb-2 text-end w-100" style="color:#45a851;">
+                                                        <strong>{{ profile.institucion|default:"Particular" }}</strong>
+                                                    </h3>
 
-													</div>
-											
+                                                    <!-- Edad a la izquierda, fecha a la derecha -->
+                                                    <div class="d-flex justify-content-end align-items-center mb-3" style="margin-top: 20px;">
+                                                        <div class="text-center bg-white text-white p-2 rounded shadow-sm me-3" style="width: 73px; height: 94px;">
+                                                            <div class="fw-bold" style="font-size: 2.7rem;">
+                                                                {{ edad_anios|default:"N/A" }}
+                                                            </div>
+                                                            <div style="text-transform: uppercase; font-size: 0.8rem;">
+                                                                años
+                                                            </div>
+                                                        </div>
+                                                        <p class="mb-0" style="font-size: 13pt;margin-top: -67px;">
+                                                          <i style="color: rgb(233, 220, 89);" class="bx bx-plus-medical"></i>
+                                                            {{ profile.fecha_nacimiento }}
+                                                            
+                                                        </p>
+                                                    </div>
 
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-							<!--end row-->
-						</div>
-					</div>
-        </div>
-      </div>
-				</section>
+                                                    <!-- Otros datos -->
+                                                    <p class="mb-3 text-end" style="font-size: 13pt;margin-top: -87px;margin-right: 58px;">
+                                                      <i style="color: rgb(233, 220, 89);" class="bx bx-plus-medical"></i>
+                                                        {{ profile.nacionalidad }}
+                                                        
+                                                    </p>
+                                                    <p class="mb-3 text-end" style="font-size: 13pt;margin-top: -18px;margin-right: 112px;">
+                                                       <i style="color: rgb(233, 220, 89)" class="bx bx-plus-medical"></i>
+                                                        {{ profile.sexo }}
+                                                       
+                                                    </p>
+                                                    <p class="mb-3 text-end" style="font-size: 13pt; margin-top: -18px;margin-right: 109px;">
+                                                       <i style="color: rgb(233, 220, 89);" class="bx bx-plus-medical"></i>
+                                                        {{ profile.sucursales }}
+                                                       
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
+                                <!-- Columna derecha -->
+                                <div class="col-12 col-xl-4">
+                                    <div class="order-summary">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="p-3" style="background-color:#353836; color: white; border-radius: 25px;">
+                                                    <div class="card-body">
+                                                        <!-- Representante -->
+                                                        <div class="mt-5 d-flex align-items-start justify-content-between">
+                                                            <div>
+                                                                <h3 class="mb-2" style="color:#45a851">REPRESENTANTE</h3>
+                                                                <p class="mb-1">
+                                                                    {{ profile.nombres_representante_legal }} {{ profile.apellidos_representante_legal }} ({{ profile.relacion_del_representante }})
+                                                                </p>
+                                                                <p class="mb-0">
+                                                                    <ion-icon name="mail-outline"></ion-icon> {{ profile.email }}
+                                                                </p>
+                                                                <p class="mb-0">
+                                                                    <ion-icon name="logo-whatsapp"></ion-icon> {{ profile.celular }}
+                                                                </p>
+                                                                <hr>
+                                                            </div>
+                                                        </div>
 
+                                                        <!-- Servicios -->
+                                                        <div class="mt-5 d-flex align-items-start justify-content-between">
+                                                            <div>
+                                                                <h3 class="mb-2" style="color:#45a851">SERVICIOS</h3>
+                                                                {% for servicio in profile.tipos %}
+                                                                    <p class="mb-0">{{ servicio }}</p>
+                                                                {% empty %}
+                                                                    <p class="mb-0">No se han contratado servicios.</p>
+                                                                {% endfor %}
+                                                                <hr>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Terapeutas -->
+                                                        <div class="mt-5 d-flex align-items-start justify-content-between">
+                                                            <div>
+                                                                <h3 class="mb-2" style="color:#45a851">TERAPEUTAS</h3>
+                                                                <p class="mb-1">
+                                                                    <strong>
+                                                                        {% if profile.user_terapeutas or profile.user_terapeutas_1 or profile.user_terapeutas_3 %}
+                                                                            {% if profile.user_terapeutas %}
+                                                                                <p class="mb-0">{{ profile.user_terapeutas }}</p>
+                                                                            {% endif %}
+                                                                            {% if profile.user_terapeutas_1 %}
+                                                                                <p class="mb-0">{{ profile.user_terapeutas_1 }}</p>
+                                                                            {% endif %}
+                                                                            {% if profile.user_terapeutas_3 %}
+                                                                                <p class="mb-0">{{ profile.user_terapeutas_3 }}</p>
+                                                                            {% endif %}
+                                                                        {% else %}
+                                                                            <p class="mb-0">No hay terapeutas asignados.</p>
+                                                                        {% endif %}
+                                                                    </strong>
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div> <!-- end card-body -->
+                                                </div> <!-- end p-3 -->
+                                            </div> <!-- end card-body -->
+                                        </div> <!-- end card -->
+                                    </div> <!-- end order-summary -->
+                                </div> <!-- end col -->
+                            </div> <!-- end row -->
+                        </div> <!-- end shop-cart -->
+                    </div> <!-- end card-body -->
+                </div> <!-- end card -->
+            </div> <!-- end shop-container -->
+        </section>
     </div> <!-- page-content -->
 </div> <!-- page-content-wrapper -->
+
 
 
 
