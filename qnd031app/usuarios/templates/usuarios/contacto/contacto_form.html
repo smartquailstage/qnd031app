@@ -122,36 +122,36 @@
     </div>
 
     <!-- Campo Adjunto -->
-<div class="col-12">
-    <label for="file-input" class="form-label"></label>
-    
-    <!-- Campo de archivo oculto, sin rastro de él -->
-    <input type="file" id="file-input" name="adjunto" style="display: none;" accept="application/pdf,image/*" required>
+    <div class="col-12">
+        <label for="file-input" class="form-label"></label>
 
-    <!-- Botón visible para seleccionar archivo -->
-    <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('file-input').click();">
-        <ion-icon name="cloud-upload-outline"></ion-icon>
-        <span>Adjuntar archivo al mensaje</span>
-    </button>
+        <!-- Campo de archivo oculto, sin rastro de él -->
+        <input type="file" id="file-input" name="adjunto" style="display: none;" accept="application/pdf,image/*" required>
 
-    <!-- Mostrar nombre del archivo seleccionado (opcional) -->
-    <span id="file-name" class="ms-2 text-muted" style="font-style: italic;"></span>
+        <!-- Botón visible para seleccionar archivo -->
+        <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('file-input').click();">
+            <ion-icon name="cloud-upload-outline"></ion-icon>
+            <span>Adjuntar archivo al mensaje</span>
+        </button>
 
-    <!-- Mostrar errores si existen -->
-    {% if form.adjunto.errors %}
-        <div class="text-danger mt-1">
-            {{ form.adjunto.errors }}
-        </div>
-    {% endif %}
-</div>
+        <!-- Mostrar nombre del archivo seleccionado (opcional) -->
+        <span id="file-name" class="ms-2 text-muted" style="font-style: italic;"></span>
 
-<!-- Script para mostrar el nombre del archivo seleccionado -->
-<script>
-    document.getElementById('file-input').addEventListener('change', function () {
-        const fileName = this.files.length > 0 ? this.files[0].name : '';
-        document.getElementById('file-name').textContent = fileName;
-    });
-</script>
+        <!-- Mostrar errores si existen -->
+        {% if form.adjunto.errors %}
+            <div class="text-danger mt-1">
+                {{ form.adjunto.errors }}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Script para mostrar el nombre del archivo seleccionado -->
+    <script>
+        document.getElementById('file-input').addEventListener('change', function () {
+            const fileName = this.files.length > 0 ? this.files[0].name : '';
+            document.getElementById('file-name').textContent = fileName;
+        });
+    </script>
 
     <!-- Botón Enviar -->
     <div class="col-12">

@@ -242,10 +242,15 @@ def contacto_view(request):
     emisor_profile = Profile.objects.get(user=request.user)
 
     if request.method == 'POST':
-        form = ContactoForm(request.POST)
+        form = ContactoForm(request.POST, request.FILES)  # Agrega request.FILES para manejar archivos
         if form.is_valid():
             mensaje = form.save(commit=False)
             mensaje.emisor = emisor_profile  # Asignamos el perfil como emisor
+
+            # Si el archivo fue cargado, lo asignamos
+            if 'adjunto' in request.FILES:
+                mensaje.adjunto = request.FILES['adjunto']  # Guardar el archivo
+
             mensaje.save()
             messages.success(request, 'Tu mensaje ha sido enviado con éxito.')
             return redirect('usuarios:formulario')  # Cambiar por tu URL de éxito
@@ -253,6 +258,7 @@ def contacto_view(request):
         form = ContactoForm()
 
     return render(request, 'usuarios/contacto/contacto_form.html', {'form': form})
+
 
 
 @login_required
