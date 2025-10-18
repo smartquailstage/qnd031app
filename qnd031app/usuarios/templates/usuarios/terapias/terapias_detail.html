@@ -45,8 +45,11 @@
                 <div class="card-body">
 
                   {% if actividad.media_terapia %}
-                    <h2 class="font-weight-bold display-4" style="color:#45a851;">TERAPIAS</h2>
-                    <h5 class="mb-2">{{ actividad.titulo }}</h5>
+                              <div class="text-end">
+  <h2 class="font-weight-bold display-4" style="color:#45a851;font-size: 20px">TERAPIAS</h2>
+  <h4 class="mb-4">{{ actividad.titulo }}</h4>
+</div>
+                
 
                     <div class="mb-4">
                       <p>{{ actividad.descripcion_actividad|default:"Sin descripción disponible." }}</p>
