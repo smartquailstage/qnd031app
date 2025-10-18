@@ -984,12 +984,12 @@ background-color: #ffffff;
 /* Adaptación para dispositivos móviles */
 @media screen and (max-width: 768px) {
     .user-profile-avatar {
-        width: 93px;
-        height: 93px;
+        width: 125px;
+        height: 125px;
         padding: 6px;
-        margin-left: 45px;
-        margin-right: 28px;
-        margin-top: 3px;
+        margin-left: 62px;
+        margin-right: 26px;
+        margin-top: -31px;
         display: block;
     }
 

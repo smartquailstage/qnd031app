@@ -47,8 +47,11 @@
             <div class="col-12 col-md-6 mx-auto">
               <div class="card mb-4">
                 <div class="card-body">
-                  <h2 class="font-weight-bold display-4" style="color:#45a851;">TERAPIAS</h2>
-                  <h4 class="mb-4">Acceda acontenido de sus terapias en tiempo real.</h4>
+            <div class="text-end">
+  <h2 class="font-weight-bold display-4" style="color:#45a851;">TERAPIAS</h2>
+  <h4 class="mb-4">Acceda a contenido de sus terapias en tiempo real.</h4>
+</div>
+
 
 
                   <!-- Video destacado -->
@@ -112,12 +115,16 @@
   overflow-x: hidden;
   margin-top: 20px;">
   <table class="table mb-0 table-dark table-striped">
-            <tr>
-              <th></th>
-            <th>Fecha</th>
-            <th>Título</th>
-            <th>Tarea Enviada</th>
-        </tr>
+  <thead>
+    <tr style="background-color: #198754; color: white;">
+      <th></th>
+      <th>Fecha</th>
+      <th>Título</th>
+      <th>Tarea Enviada</th>
+    </tr>
+  </thead>
+
+
         
     <tbody>
       {% for actividad in actividades %}
