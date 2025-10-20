@@ -2843,7 +2843,7 @@ class ProfileAdmin(ModelAdmin):
 
     conditional_fields = {
         # Mostrar estos campos solo si asistió'
-        "nombre_institucion": "es_en_convenio == true",
+        "nombre_institucion": "es_en_convenio == false",
     }
 
     
