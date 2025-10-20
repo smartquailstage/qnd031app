@@ -2840,6 +2840,12 @@ class ProfileAdmin(ModelAdmin):
         'user__last_name',   # Buscar por el apellido del usuario
     ]
 
+
+    conditional_fields = {
+        # Mostrar estos campos solo si asistió'
+        "nombre_institucion": "es_en_convenio == true",
+    }
+
     
     
     compressed_fields = True
@@ -3009,7 +3015,7 @@ class ProfileAdmin(ModelAdmin):
                 'instirucional', 'valorizacion_terapeutica', 'tipos',
                 'user_terapeutas', 'user_terapeutas_1', 'user_terapeutas_3',
                 'fecha_inicio', 'fecha_pausa', 'fecha_re_inicio',
-                'fecha_alta', 'certificado_inicio','es_en_convenio',
+                'fecha_alta', 'certificado_inicio','es_en_convenio','nombre_institucion',
                 'es_en_terapia', 'es_retirado', 'es_alta', 'es_pausa',
             ),
             'classes': ('collapse',),

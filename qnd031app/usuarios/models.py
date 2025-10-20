@@ -1048,6 +1048,7 @@ class Profile(models.Model):
         ('otro', 'Otro'),
     ]
     es_en_convenio = models.BooleanField(default=False, verbose_name="Convenio")
+    nombre_institucion = models.CharField(max_length=255, blank=True, null=True, verbose_name="Nombre de Institución sin convenio")
     es_en_terapia = models.BooleanField(default=False, verbose_name="En terapia")
     es_retirado = models.BooleanField(default=False, verbose_name="Retirado")
     es_pausa = models.BooleanField(default=False, verbose_name="En Pausa")
