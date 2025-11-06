@@ -245,7 +245,7 @@ UNFOLD = {
     "SHOW_VIEW_ON_SITE": True,
     "SHOW_BACK_BUTTON": True,
     "DASHBOARD_CALLBACK": "usuarios.views.dashboard_callback",
-    "ENVIRONMENT": "qnd041app.utils.environment.environment_callback",
+    "ENVIRONMENT": "qnd031app.utils.environment.environment_callback",
     "THEME": "light",
     "LOGIN": {  "image": lambda request: static("img/BA-BG/fondo-meddes-sistema.png"),
                "password_icon": lambda request: static("icons/eye-solid.svg"),
@@ -426,7 +426,7 @@ UNFOLD = {
         {"title": _("Users"), "icon": "people", "link": reverse_lazy("admin:auth_user_changelist")},
         {
             "label": "Dashboard",
-            "url": "/es/inicio/",
+            "url": "https://app.meddes.com.ec/",
             "icon": "home",
         },
     ],

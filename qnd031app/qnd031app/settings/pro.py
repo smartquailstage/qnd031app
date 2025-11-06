@@ -2,14 +2,14 @@ from .base_prod import *
 
 
 
-DEBUG=True
+DEBUG=False
 
 # Obtener las variables de entorno desde Kubernetes
 IP = os.environ.get("IP")
 DOMAIN = os.environ.get("DOMAIN")
 HOST = os.environ.get("HOST")
 
-ALLOWED_HOSTS='127.0.0.1',"localhost","https://qnd03101.smartquail.io","qnd03101.smartquail.io","64.23.178.103"
+ALLOWED_HOSTS='127.0.0.1',"localhost","https://app.meddes.com.ec","https://app.meddes.com.ec","64.23.178.103"
 
 #import wagtail_ai
 
@@ -27,8 +27,7 @@ ALLOWED_HOSTS='127.0.0.1',"localhost","https://qnd03101.smartquail.io","qnd03101
 #CSRF_COOKIE_SECURE = True
 #CSRF_TRUSTED_ORIGINS = ['https://qnd03101.smartquail.io','https://meddes.smartquail.io/','https://146.190.164.22']
 CORS_ALLOWED_ORIGINS = [
-    'https://qnd03101.smartquail.io',
-    'https://smartquail.io',    # Otros orígenes permitidos si los hay
+    'https://app.meddes.com.ec',   # Otros orígenes permitidos si los hay
 ]
 
 
