@@ -107,10 +107,15 @@ def dashboard_callback(request, context):
 
 
 
+from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
+
 @login_required
 def user_logout(request):
     logout(request)
-    return redirect('usuarios:login')
+    return redirect('https://www.meddes.com.ec')
+
 
 def user_login(request):
     if request.method == 'POST':
