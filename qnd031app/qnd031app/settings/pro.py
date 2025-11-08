@@ -2,9 +2,9 @@ from .base_prod import *
 
 
 
-DEBUG=False
+DEBUG = False
 
-# Obtener las variables de entorno desde Kubernetes
+# Variables de entorno desde Kubernetes
 IP = os.environ.get("IP")
 DOMAIN = os.environ.get("DOMAIN")
 HOST = os.environ.get("HOST")
@@ -16,25 +16,18 @@ ALLOWED_HOSTS = [
     "64.23.178.103",
 ]
 
-
-#import wagtail_ai
-
-#WAGTAIL_AI_PROMPTS = wagtail_ai.DEFAULT_PROMPTS + [
-#    {
-#        "label": "Simplify",
-#        "description": "Rewrite your text in a simpler form",
-#        "prompt": "Rewrite the following text to make it simper and more succinct",
-#        "method": "replace",
-#    }
-#]
-
-
-CSRF_COOKIE_DOMAIN="https://app.meddes.com.ec"
+CSRF_COOKIE_DOMAIN = "app.meddes.com.ec"
 CSRF_COOKIE_SECURE = True
-CSRF_TRUSTED_ORIGINS = ['https://app.meddes.com.ec','https://146.190.164.22']
-CORS_ALLOWED_ORIGINS = [
-    'https://app.meddes.com.ec',   # Otros orígenes permitidos si los hay
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://app.meddes.com.ec",
+    "https://146.190.164.22",
 ]
+
+CORS_ALLOWED_ORIGINS = [
+    "https://app.meddes.com.ec",
+]
+
 
 
 
