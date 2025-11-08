@@ -9,7 +9,7 @@ IP = os.environ.get("IP")
 DOMAIN = os.environ.get("DOMAIN")
 HOST = os.environ.get("HOST")
 
-ALLOWED_HOSTS='127.0.0.1',"localhost","https://app.meddes.com.ec","https://app.meddes.com.ec","64.23.178.103"
+ALLOWED_HOSTS='127.0.0.1',"localhost","https://app.meddes.com.ec","https://app.meddes.com.ec/meddes_erp","64.23.178.103"
 
 #import wagtail_ai
 
