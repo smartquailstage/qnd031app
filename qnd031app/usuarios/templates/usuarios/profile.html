@@ -58,52 +58,70 @@
                             <div class="row">
                                 <div class="col-12 col-xl-8">
                                     <div class="checkout-details">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <div class="p-3">
-                                                    <h2 class="mb-2 text-end w-100" style="font-weight: 50;font-size: 23px;">
-                                                        {{ profile.nombre_paciente }} {{ profile.apellidos_paciente }}
-                                                    </h2>
-                                                    <h3 class="mb-2 text-end w-100" style="color:#45a851;font-size: 18px;">
-                                                        <strong>{{ profile.institucion|default:"Particular" }}</strong>
-                                                    </h3>
+<div class="card">
+  <div class="card-body">
+    <div class="p-3">
 
-                                                    <!-- Edad a la izquierda, fecha a la derecha -->
-                                                    <div class="d-flex justify-content-end align-items-center mb-3" style="margin-top: 20px;">
-                                                        <div class="text-center bg-white text-white p-2 rounded shadow-sm me-3" style="width: 73px; height: 94px;">
-                                                            <div class="fw-bold" style="font-size: 2.7rem;">
-                                                                {{ edad_anios|default:"N/A" }}
-                                                            </div>
-                                                            <div style="text-transform: uppercase; font-size: 0.8rem;">
-                                                                Años
-                                                            </div>
-                                                        </div>
-                                                        <p class="mb-0" style="font-size: 11pt;margin-top: -67px;">
-                                                          <i style="color: rgb(233, 220, 89);" class="bx bx-plus-medical"></i>
-                                                            {{ profile.fecha_nacimiento }}
-                                                            
-                                                        </p>
-                                                    </div>
+      <!-- Contenedor principal en dos columnas -->
+      <div class="d-flex justify-content-between align-items-start flex-wrap">
+        
+        <!-- Columna Izquierda -->
+        <div class="text-start">
+          <!-- Nombre -->
+          <h2 class="mb-1" style="font-weight: 500; font-size: 23px;">
+            {{ profile.nombre_paciente }} {{ profile.apellidos_paciente }}
+          </h2>
 
-                                                    <!-- Otros datos -->
-                                                    <p class="mb-3 text-end" style="font-size: 11pt;margin-top: -86px;margin-right: 70px;">
-                                                      <i style="color: rgb(233, 220, 89);" class="bx bx-plus-medical"></i>
-                                                        {{ profile.nacionalidad }}
-                                                        
-                                                    </p>
-                                                    <p class="mb-3 text-end" style="font-size: 11pt;margin-top: -14px;margin-right: 84px;">
-                                                       <i style="color: rgb(233, 220, 89)" class="bx bx-plus-medical"></i>
-                                                        {{ profile.sexo }}
-                                                       
-                                                    </p>
-                                                    <p class="mb-3 text-end" style="font-size: 11pt; margin-top: -15px;margin-right: 116px;">
-                                                       <i style="color: rgb(233, 220, 89);" class="bx bx-plus-medical"></i>
-                                                        {{ profile.sucursales }}
-                                                       
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
+          <!-- Institución -->
+          <h3 class="mb-3" style="color: #45a851; font-size: 18px;">
+            <strong>{{ profile.institucion|default:"Particular" }}</strong>
+          </h3>
+
+          <!-- Edad -->
+          <div class="text-center bg-white  rounded shadow-sm p-3 mt-2" 
+               style="width: 100px; height: 96px;">
+            <!-- Meses -->
+            <div style="font-size: 0.9rem; color: #ffffff; margin-bottom: 4px;">
+              {{ edad_meses|default:"0" }} meses
+            </div>
+            <!-- Años -->
+            <div class="fw-bold" style="font-size: 2.5rem; color: #ffffff; line-height: 1;">
+              {{ edad_anios|default:"N/A" }}
+            </div>
+            <div style="text-transform: uppercase; font-size: 0.8rem; color: #ffffff; margin-top: 4px;">
+              Años
+            </div>
+          </div>
+        </div>
+
+        <!-- Columna Derecha -->
+        <div class="text-start ms-4">
+          <p class="mb-2" style="font-size: 11pt;">
+            <i class="bx bx-plus-medical" style="color: rgb(233, 220, 89);"></i>
+            {{ profile.fecha_nacimiento }}
+          </p>
+          <p class="mb-2" style="font-size: 11pt;">
+            <i class="bx bx-plus-medical" style="color: rgb(233, 220, 89);"></i>
+            {{ profile.nacionalidad }}
+          </p>
+          <p class="mb-2" style="font-size: 11pt;">
+            <i class="bx bx-plus-medical" style="color: rgb(233, 220, 89);"></i>
+            {{ profile.sexo }}
+          </p>
+          <p class="mb-0" style="font-size: 11pt;">
+            <i class="bx bx-plus-medical" style="color: rgb(233, 220, 89);"></i>
+            {{ profile.sucursales }}
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+
                                     </div>
                                 </div>
 
