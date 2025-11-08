@@ -23,9 +23,9 @@ ALLOWED_HOSTS='127.0.0.1',"localhost","https://app.meddes.com.ec","https://app.m
 #]
 
 
-#CSRF_COOKIE_DOMAIN="http://qnd03101.smartquail.io"
-#CSRF_COOKIE_SECURE = True
-#CSRF_TRUSTED_ORIGINS = ['https://qnd03101.smartquail.io','https://meddes.smartquail.io/','https://146.190.164.22']
+CSRF_COOKIE_DOMAIN="https://app.meddes.com.ec"
+CSRF_COOKIE_SECURE = True
+CSRF_TRUSTED_ORIGINS = ['https://app.meddes.com.ec','https://146.190.164.22']
 CORS_ALLOWED_ORIGINS = [
     'https://app.meddes.com.ec',   # Otros orígenes permitidos si los hay
 ]
