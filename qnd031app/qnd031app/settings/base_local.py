@@ -290,6 +290,7 @@ UNFOLD = {
     "SIDEBAR": {
         "show_search": False,
         "show_all_applications": False,
+
 "navigation": [
 
     {
@@ -405,7 +406,15 @@ UNFOLD = {
             "icon": "home",
         },
     ],
+
+
+
+    
 }
+
+
+
+
 
 
 
