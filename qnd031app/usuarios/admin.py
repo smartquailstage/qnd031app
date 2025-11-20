@@ -3074,7 +3074,6 @@ class InformesTerapeuticosAdmin(ModelAdmin):
     )
 
     list_display = [
-        
         'get_terapeuta_full_name',
         'profile',
         'tipo_de_informe',
@@ -3093,22 +3092,38 @@ class InformesTerapeuticosAdmin(ModelAdmin):
         qs = super().get_queryset(request)
         user = request.user
 
+        # 1️⃣ Si es superusuario o administrativo → ve todo
         if user.is_superuser or user.groups.filter(name='administrativo').exists():
             return qs
 
-        # Filtrar informes asignados al terapeuta
-        if qs.model.objects.filter(terapeuta=user).exists():
-            return qs.filter(terapeuta=user)
+        # 2️⃣ Intentar obtener el perfil terapeuta del usuario
+        terapeuta = None
+        try:
+            terapeuta = Perfil_Terapeuta.objects.get(user=user)
+        except Perfil_Terapeuta.DoesNotExist:
+            pass
 
-        # Filtrar informes asignados al institucional (PerfilInstitucional vinculado al usuario)
+        # Si el usuario es un terapeuta → ver solo sus informes asignados
+        if terapeuta:
+            return qs.filter(terapeuta=terapeuta)
+
+        # 3️⃣ Intentar obtener el perfil institucional
         try:
             perfil_institucional = PerfilInstitucional.objects.get(usuario=user)
-            if qs.model.objects.filter(Insitucional_a_cargo=perfil_institucional).exists():
-                return qs.filter(Insitucional_a_cargo=perfil_institucional)
+            return qs.filter(Insitucional_a_cargo=perfil_institucional)
         except PerfilInstitucional.DoesNotExist:
             pass
 
+        # 4️⃣ Si no coincide con ningún perfil → no ve nada
         return qs.none()
+
+    # Si tienes esta función en display, mantenla:
+    def get_terapeuta_full_name(self, obj):
+        if obj.terapeuta and obj.terapeuta.usuario:
+            return f"{obj.terapeuta.usuario.first_name} {obj.terapeuta.usuario.last_name}"
+        return "Sin terapeuta"
+    get_terapeuta_full_name.short_description = "Terapeuta"
+
 
 
 
