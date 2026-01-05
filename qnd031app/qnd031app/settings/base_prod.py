@@ -334,7 +334,7 @@ UNFOLD = {
                 "icon": "note_add",
                 "link": reverse_lazy("admin:usuarios_mensaje_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_notificaciones",
-                "badge_color": "custom-red-alert",
+                "badge_color": "custom.red-alert",
                 "permission": is_administrativo_o_isuperuser,
             },
 
@@ -343,7 +343,7 @@ UNFOLD = {
                 "icon": "inbox",
                 "link": reverse_lazy("admin:usuarios_contacto_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_contacto",
-                "badge_color": "custom-red-alert",
+                "badge_color": "custom.red-alert",
                 "permission": is_administrativo_o_isuperuser,
             },
 
@@ -401,7 +401,7 @@ UNFOLD = {
                 "icon": "download",
                 "link": reverse_lazy("admin:usuarios_valoracionterapia_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_valoracion",
-                "badge_color": "custom-red-alert",
+                "badge_color": "custom.red-alert",
                 "permission": is_institucional_o_terapeuta_o_administrativo,
             },
 
@@ -410,7 +410,7 @@ UNFOLD = {
                 "icon": "task",
                 "link": reverse_lazy("admin:usuarios_tareas_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_tareas",
-                "badge_color": "custom-red-alert",
+                "badge_color": "custom.red-alert",
                 "permission": is_institucional_o_terapeuta_o_administrativo,
             },
 
@@ -419,7 +419,7 @@ UNFOLD = {
                 "icon": "description",
                 "link": reverse_lazy("admin:usuarios_informesterapeuticos_changelist"),
                 "badge": "usuarios.unfold_config.badge_callback_informes",
-                "badge_color": "custom-red-alert",
+                "badge_color": "custom.red-alert",
                 "permission": is_institucional_o_terapeuta_o_administrativo,
             },
         ],
