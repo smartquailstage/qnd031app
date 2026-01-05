@@ -582,7 +582,14 @@ class ValoracionTerapiaAdmin(ModelAdmin):
 
     autocomplete_fields = ['perfil_terapeuta','Insitucional_a_cargo','institucion',]
 
-    search_fields = ["nombre", 'perfil_terapeuta__first_name', 'perfil_terapeuta__last_name', 'institucion__nombre_institucion', 'Insitucional_a_cargo__usuario__first_name', 'Insitucional_a_cargo__usuario__last_name'] 
+    search_fields = [
+    'nombre',
+    'perfil_terapeuta__user__first_name',
+    'perfil_terapeuta__user__last_name',
+    'institucion__nombre_institucion',
+    'Insitucional_a_cargo__usuario__first_name',
+    'Insitucional_a_cargo__usuario__last_name',
+    ]
 
 
     conditional_fields = {
@@ -3062,11 +3069,13 @@ class InformesTerapeuticosAdmin(ModelAdmin):
     list_disable_select_all = False
 
     search_fields = [
-        'titulo',
-        'profile__user__first_name',
-        'profile__user__last_name',
-        'profile__institucion__nombre',
+    'titulo',
+    'profile__user__username',
+    'profile__user__first_name',
+    'profile__user__last_name',
     ]
+
+
 
     list_filter = (
         'tipo_de_informe',
