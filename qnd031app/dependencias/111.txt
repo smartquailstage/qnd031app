@@ -26,7 +26,7 @@ requests
 celery>=5.2.7,<6.0  # Compatible with Django 4.2
 
 # uWSGI
-uWSGI==2.0.23
+uWSGI==2.0.31
 
 # Redis
 redis>=4.5.5
