@@ -3042,11 +3042,11 @@ class InformesTerapeuticosAdmin(ModelAdmin):
         "titulo": lambda t: t.strip(),
     }
 
-    autocomplete_fields = ['profile', 'Insitucional_a_cargo']
+    autocomplete_fields = ['profile','institucion', 'Insitucional_a_cargo']
 
     fieldsets = (
         ('Información del Informe', {
-            'fields': ('profile', 'tipo_de_informe', 'titulo', 'archivo')
+            'fields': ('profile', 'institucion','tipo_de_informe', 'titulo', 'archivo')
         }),
         ('Asignación y Control', {
             'fields': ('Insitucional_a_cargo', 'terapeuta', 'creado_por', 'fecha_creado')
@@ -3070,6 +3070,7 @@ class InformesTerapeuticosAdmin(ModelAdmin):
 
     search_fields = [
     'titulo',
+    'institucion__nombre_institucion',
     'profile__user__username',
     'profile__user__first_name',
     'profile__user__last_name',

@@ -899,6 +899,13 @@ class InformesTerapeuticos(models.Model):
         ('ALT', 'Alta'),
     ]
     profile = models.ForeignKey('Profile', on_delete=models.CASCADE, related_name='informes')
+    institucion = models.ForeignKey(
+        Prospeccion,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Institución"
+    )   
     Insitucional_a_cargo = models.ForeignKey(
         PerfilInstitucional,
         on_delete=models.SET_NULL,
