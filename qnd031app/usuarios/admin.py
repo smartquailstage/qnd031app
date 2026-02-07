@@ -1351,7 +1351,7 @@ class tareasAdmin(ModelAdmin):
         "other_field_name": lambda content: content.strip(),
     }
 
-    autocomplete_fields = ['profile','Insitucional_a_cargo']
+    autocomplete_fields = ['profile', 'Insitucional_a_cargo']
 
     list_filter_submit = True
     list_fullwidth = False
@@ -1361,7 +1361,7 @@ class tareasAdmin(ModelAdmin):
 
     fieldsets = (
         ('Información General', {
-            'fields': ('sucursal', 'Insitucional_a_cargo', 'profile',  'asistire','cita_terapeutica_asignada',)
+            'fields': ('sucursal', 'Insitucional_a_cargo', 'profile','terapeuta','asistire','cita_terapeutica_asignada',)
         }),
         ('Actividad Terapéutica', {
             'fields': ('titulo', 'descripcion_actividad', 'media_terapia','thumbnail_media')
@@ -1375,7 +1375,6 @@ class tareasAdmin(ModelAdmin):
     )
 
     conditional_fields = {
-        # Mostrar estos campos solo si asistió'
         "cita_terapeutica_asignada": "asistire == true",
         "fecha_envio": "asistire == true",
         "titulo": "asistire == true",
@@ -1383,9 +1382,6 @@ class tareasAdmin(ModelAdmin):
         "media_terapia": "asistire == true",
         "envio_tarea": "asistire == true",
         "tarea_realizada":  "asistire == true",
-
-        # Mostrar estos campos solo si asistió Y también marcó que se envía tarea
-        
         "fecha_entrega": "asistire == true && envio_tarea == true",
         "descripcion_tarea": "asistire == true && envio_tarea == true",
         "actividad_realizada": "asistire == true && envio_tarea == true",
@@ -1414,7 +1410,7 @@ class tareasAdmin(ModelAdmin):
         'profile__institucion__nombre_institucion',
     ]
 
-    list_filter_submit = True  # Botón "Submit" para filtrar
+    list_filter_submit = True
     list_filter = (
         'sucursal',
         'cita_terapeutica_asignada',
@@ -1424,67 +1420,43 @@ class tareasAdmin(ModelAdmin):
     )
 
     list_editable = ['asistire', 'actividad_realizada', 'tarea_realizada']
-    list_sections = [TareasComponent,actividadesComponent]
+    list_sections = [TareasComponent, actividadesComponent]
 
     list_display = [
         'get_terapeuta_full_name',
         'profile',
+        'terapeuta',
         'cita_terapeutica_asignada',
         'asistire',
         'actividad_realizada',
         'tarea_realizada'
     ]
 
-
-
-    #exclude = ('terapeuta',)
     actions = [export_to_csv, export_to_excel]
 
     verbose_name = "Registro Administrativo / Tarea Terapéutica"
     verbose_name_plural = "Administrativo / Tareas Terapéuticas"
 
+    # Ajuste para que solo administradores o el terapeuta creador vean los inlines
     def get_inline_instances(self, request, obj=None):
-        inline_instances = []
-        user = request.user
-        user_groups = set(user.groups.values_list('name', flat=True))
-
         if not obj:
             return []
-
-        if user.is_superuser or user_groups.intersection({'administrativo', 'terapeutico'}):
+        user = request.user
+        if user.is_superuser or user.groups.filter(name='administrativo').exists() or obj.terapeuta == user:
             return super().get_inline_instances(request, obj)
+        return []
 
-        if 'institucional' in user_groups:
-            try:
-                perfil_institucional = PerfilInstitucional.objects.get(usuario=user)
-                if obj.Insitucional_a_cargo == perfil_institucional:
-                    return super().get_inline_instances(request, obj)
-            except PerfilInstitucional.DoesNotExist:
-                pass
-
-        return inline_instances
-
-
+    # Ajuste para que solo administradores o el terapeuta creador vean los registros
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         user = request.user
 
-        if user.is_superuser or user.groups.filter(name='administrativo').exists()  or user.groups.filter(name='terapeutico').exists():
+        # Los superusuarios y administradores ven todo
+        if user.is_superuser or user.groups.filter(name='administrativo').exists():
             return qs
 
-        # Filtrar tareas asignadas al terapeuta
-        if qs.model.objects.filter(terapeuta=user).exists():
-            return qs.filter(terapeuta=user)
-
-        # Filtrar tareas asignadas a la institución del usuario institucional
-        try:
-            perfil_institucional = PerfilInstitucional.objects.get(usuario=user)
-            if qs.model.objects.filter(Insitucional_a_cargo=perfil_institucional).exists():
-                return qs.filter(Insitucional_a_cargo=perfil_institucional)
-        except PerfilInstitucional.DoesNotExist:
-            pass
-
-        return qs.none()
+        # El terapeuta solo ve sus propias tareas
+        return qs.filter(terapeuta=user)
 
 
     
