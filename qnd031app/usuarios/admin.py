@@ -2277,6 +2277,13 @@ class CitasCohortComponent(BaseComponent):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        request = self.request
+        if not request or not hasattr(request, "user"):
+            return context  # ← ESTO evita el crash en producción
+
+        user = request.user
+        user_groups = set(user.groups.values_list("name", flat=True))
+
 
         # Fecha base
         cita_centrada = self.instance
@@ -2309,7 +2316,11 @@ class CitasCohortComponent(BaseComponent):
                 horas_unicas.add(hora_str)
 
         # Filtrado según rol del usuario
-        user = self.request.user
+        request = self.request
+        if not request or not hasattr(request, "user"):
+            return context  # salir sin romper el admin
+        user = request.user
+
         user_groups = set(user.groups.values_list("name", flat=True))
 
         qs = Cita.objects.filter(
