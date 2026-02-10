@@ -13,7 +13,6 @@
             {% endfor %}
           </tr>
         </thead>
-
         <tbody>
           {% for dia_info in agenda_dias %}
             <tr>
@@ -21,7 +20,7 @@
                 <div class="font-semibold text-font-important-light truncate dark:text-font-important-dark">
                   {{ dia_info.date|date:"j \\d\\e F" }}
                 </div>
-                <div class="mt-0.5 text-xs capitalize">{{ dia_info.date|date:"l" }}</div>
+                <div class="mt-0.5 text-xs">{{ dia_info.date|date:"l" }}</div>
               </td>
 
               {% for hora in horas %}
@@ -29,45 +28,36 @@
                   {% with citas=dia_info.agenda|get_item:hora %}
                     {% if citas %}
                       {% for cita in citas %}
+                       <div class="flex flex-col justify-center px-2 py-2 mb-2 rounded-default
+{% if cita.estado == 'Pendiente' %}
+  bg-blue-600
+{% elif cita.estado == 'Confirmada' %}
+  bg-green-600
+{% elif cita.estado == 'Cancelada' %}
+  bg-red-600
+{% else %}
+  bg-gray-500
+{% endif %}
 
-                        {% comment %} Colores según estado {% endcomment %}
-                        {% with %}
-                          {% if cita.estado == 'Pendiente' %}
-                            {% with bg_estado='bg-blue-600' %}
-                          {% elif cita.estado == 'Confirmada' %}
-                            {% with bg_estado='bg-green-600' %}
-                          {% elif cita.estado == 'Cancelada' %}
-                            {% with bg_estado='bg-red-600' %}
-                          {% else %}
-                            {% with bg_estado='bg-gray-500' %}
-                          {% endif %}
+{% if cita.tipo_cita == 'administrativa' %}
+  border-4 border-yellow-400
+{% elif cita.tipo_cita == 'terapeutica' %}
+  border-4 border-purple-600
+{% elif cita.tipo_cita == 'particular' %}
+  border-4 border-pink-600
+{% elif cita.tipo_cita == 'urgente' %}
+  border-4 border-red-800
+{% endif %}
 
-                          {% comment %} Bordes según tipo de cita {% endcomment %}
-                          {% if cita.tipo_cita == 'administrativa' %}
-                            {% with border_tipo='border-yellow-400' %}
-                          {% elif cita.tipo_cita == 'terapeutica' %}
-                            {% with border_tipo='border-purple-600' %}
-                          {% elif cita.tipo_cita == 'particular' %}
-                            {% with border_tipo='border-pink-600' %}
-                          {% elif cita.tipo_cita == 'urgente' %}
-                            {% with border_tipo='border-red-800' %}
-                          {% else %}
-                            {% with border_tipo='border-gray-500' %}
-                          {% endif %}
-
-                          <div class="flex flex-col justify-center px-2 py-2 mb-2 rounded-default border-4 {{ border_tipo }} {{ bg_estado }} text-white dark:text-base-600">
-                            <span class="mt-0.5 truncate font-semibold">{{ cita.nombre_responsable }}</span>
-                            <span class="mt-0.5 text-xs italic truncate">{{ cita.tipo_cita|default:"—" }}</span>
-                            <span class="mt-0.5 text-xs italic">{{ cita.estado|default:"—" }}</span>
-                            <span class="mt-0.5 text-xs italic">{{ cita.area|default:"Sin área" }}</span>
-                          </div>
-
-                        {% endwith %}
-                        {% endwith %}
-
+text-white dark:text-base-600">
+  <span class="mt-0.5 truncate">{{ cita.nombre_responsable }}</span>
+  <span class="mt-0.5 text-xs italic truncate">{{ cita.tipo_cita }}</span>
+  <span class="mt-0.5 text-xs italic">{{ cita.estado }}</span>
+  <span class="mt-0.5 text-xs italic">{{ cita.area }}</span>
+</div>
                       {% endfor %}
                     {% else %}
-                      <div class="text-gray-400 text-xs text-center">–</div>
+                      <div class="text-gray-400 text-xs">–</div>
                     {% endif %}
                   {% endwith %}
                 </td>
