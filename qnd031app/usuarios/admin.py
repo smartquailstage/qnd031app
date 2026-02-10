@@ -2340,6 +2340,7 @@ class CitasCohortComponent(BaseComponent):
             if cita.tipo_cita == "terapeutica" and cita.profile_terapeuta:
                 return str(cita.profile_terapeuta)
             elif cita.tipo_cita == "administrativa" and cita.destinatario:
+                
                 user_obj = getattr(cita.destinatario, "user", None)
                 if user_obj:
                     return user_obj.get_full_name()
@@ -2550,12 +2551,20 @@ class CitaAdmin(ModelAdmin):
     def nombre_asociado(self, obj):
         if obj.tipo_cita == "terapeutica":
             return str(obj.profile) if obj.profile else "—"
+
         elif obj.tipo_cita == "administrativa":
-            return getattr(obj.destinatario, 'get_full_name', lambda: "—")() if obj.destinatario else "—"
+            if obj.destinatario:
+                user_obj = getattr(obj.destinatario, "user", None)
+                if user_obj:
+                    return user_obj.get_full_name() or "—"
+            return "—"
+
         elif obj.tipo_cita == "particular":
             return obj.nombre_paciente or "—"
+
         elif obj.tipo_cita == "comercial":
             return str(obj.comercial_meddes) if obj.comercial_meddes else "—"
+
         return "—"
 
     @admin.display(description="Calendario")
@@ -2564,6 +2573,7 @@ class CitaAdmin(ModelAdmin):
             return format_html('<a href="{}">Ver</a>', obj.get_calendar_url())
         except Exception:
             return "—"
+
  
 
 
