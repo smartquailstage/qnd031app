@@ -2330,18 +2330,20 @@ class CitasCohortComponent(BaseComponent):
                    # --- Función segura para obtener el nombre ---
         def get_nombre_responsable(cita):
             if cita.tipo_cita == "terapeutica" and cita.profile_terapeuta:
-                return str(cita.profile_terapeuta)
+               return str(cita.profile_terapeuta)
             elif cita.tipo_cita == "administrativa":
                 if cita.destinatario and getattr(cita.destinatario, "user", None):
-                    return cita.destinatario.user.get_full_name()
-                else:
-                    return "Sin nombre"
+                    user = cita.destinatario.user
+                if user:
+                    return user.get_full_name()
+                return "Sin nombre"
             elif cita.tipo_cita == "comercial" and cita.comercial_meddes:
                 return str(cita.comercial_meddes)
             elif cita.tipo_cita == "particular" and cita.nombre_paciente:
                 return cita.nombre_paciente
             else:
                 return "Sin nombre"
+
 
         for cita in citas:
             if not cita.fecha or not cita.hora:
