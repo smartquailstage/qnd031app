@@ -2284,7 +2284,11 @@ class CitasCohortComponent(BaseComponent):
         start_date = base_date - timedelta(days=2)
         end_date = base_date + timedelta(days=2)
 
-        time_slots = [time(hour=h) for h in range(7, 23)]
+        time_slots = []
+        for h in range(7, 23):
+            time_slots.append(time(h, 0))
+            time_slots.append(time(h, 30))
+
 
         agenda = defaultdict(lambda: defaultdict(list))
         fechas_unicas = set()
