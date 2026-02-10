@@ -1588,6 +1588,27 @@ class Cita(models.Model):
             if citas_conflictivas.exists():
                 raise ValidationError("Ya existe una cita agendada con este terapeuta en ese horario.")
 
+
+    @property
+    def nombre_responsable(self):
+        """
+        Devuelve el nombre de la persona responsable de la cita de forma segura.
+        No lanza errores aunque algún campo sea None.
+        """
+        if self.tipo_cita == "terapeutica" and self.profile_terapeuta:
+            # Asumiendo que Perfil_Terapeuta tiene __str__ definido
+            return str(self.profile_terapeuta)
+        elif self.tipo_cita == "administrativa":
+            if self.destinatario and getattr(self.destinatario, "user", None):
+                return self.destinatario.user.get_full_name()
+            return "Sin nombre"
+        elif self.tipo_cita == "comercial" and self.comercial_meddes:
+            return str(self.comercial_meddes)
+        elif self.tipo_cita == "particular" and self.nombre_paciente:
+            return self.nombre_paciente
+        return "Sin nombre"
+
+
     class Meta:
         ordering = ['-fecha', '-hora']
         verbose_name = "Cita Agendada"
