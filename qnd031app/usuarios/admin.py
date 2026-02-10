@@ -2260,6 +2260,12 @@ class CitasComponent(BaseComponent):
         return render_to_string(self.template_name, self.get_context_data())
 
 
+from collections import defaultdict
+from datetime import datetime, timedelta, time
+from django.template.loader import render_to_string
+from django.utils.timezone import localtime, make_aware, is_naive
+
+
 @register_component
 class CitasCohortComponent(BaseComponent):
     template_name = "admin/test.html"
@@ -2270,11 +2276,9 @@ class CitasCohortComponent(BaseComponent):
         self.instance = instance
 
     def get_context_data(self, **kwargs):
-        from collections import defaultdict
-        from datetime import timedelta, datetime, time
-
         context = super().get_context_data(**kwargs)
 
+        # Fecha base
         cita_centrada = self.instance
         if not cita_centrada or not cita_centrada.fecha:
             base_date = localtime(make_aware(datetime.now())).date()
@@ -2284,12 +2288,13 @@ class CitasCohortComponent(BaseComponent):
         start_date = base_date - timedelta(days=2)
         end_date = base_date + timedelta(days=2)
 
+        # Franja horaria
         time_slots = []
         for h in range(7, 23):
             time_slots.append(time(h, 0))
             time_slots.append(time(h, 30))
 
-
+        # Agenda inicial vacía
         agenda = defaultdict(lambda: defaultdict(list))
         fechas_unicas = set()
         horas_unicas = set()
@@ -2298,20 +2303,24 @@ class CitasCohortComponent(BaseComponent):
             dia = start_date + timedelta(days=i)
             dia_str = dia.strftime("%Y-%m-%d")
             fechas_unicas.add(dia_str)
-
             for t in time_slots:
                 hora_str = t.strftime("%H:%M")
-                agenda[dia_str][hora_str]
+                agenda[dia_str][hora_str]  # inicializa lista vacía
                 horas_unicas.add(hora_str)
 
-        # --- FILTRADO SEGÚN ROL DEL USUARIO ---
+        # Filtrado según rol del usuario
         user = self.request.user
         user_groups = set(user.groups.values_list("name", flat=True))
 
         qs = Cita.objects.filter(
             fecha__range=(start_date, end_date),
             hora__range=(time(7, 0), time(22, 0))
-        ).select_related("creador", "destinatario", "profile_terapeuta", "comercial_meddes")
+        ).select_related(
+            "creador", 
+            "destinatario", "destinatario__user",
+            "profile_terapeuta", "profile_terapeuta__user",
+            "comercial_meddes", "comercial_meddes__user"
+        )
 
         if user.is_superuser or 'administrativo' in user_groups:
             citas = qs
@@ -2325,17 +2334,15 @@ class CitasCohortComponent(BaseComponent):
                 citas = Cita.objects.none()
         else:
             citas = Cita.objects.none()
-        # --------------------------------------
 
-                   # --- Función segura para obtener el nombre ---
+        # --- Función segura para obtener nombre ---
         def get_nombre_responsable(cita):
             if cita.tipo_cita == "terapeutica" and cita.profile_terapeuta:
-               return str(cita.profile_terapeuta)
-            elif cita.tipo_cita == "administrativa":
-                if cita.destinatario and getattr(cita.destinatario, "user", None):
-                    user = cita.destinatario.user
-                if user:
-                    return user.get_full_name()
+                return str(cita.profile_terapeuta)
+            elif cita.tipo_cita == "administrativa" and cita.destinatario:
+                user_obj = getattr(cita.destinatario, "user", None)
+                if user_obj:
+                    return user_obj.get_full_name()
                 return "Sin nombre"
             elif cita.tipo_cita == "comercial" and cita.comercial_meddes:
                 return str(cita.comercial_meddes)
@@ -2344,7 +2351,7 @@ class CitasCohortComponent(BaseComponent):
             else:
                 return "Sin nombre"
 
-
+        # Llenar agenda
         for cita in citas:
             if not cita.fecha or not cita.hora:
                 continue
@@ -2359,25 +2366,27 @@ class CitasCohortComponent(BaseComponent):
 
             agenda[dia_str][hora_str].append({
                 "nombre_responsable": get_nombre_responsable(cita),
-                "tipo_cita": cita.tipo_cita,
+                "tipo_cita": cita.tipo_cita or "—",
                 "motivo": cita.motivo or "Sin motivo",
                 "area": cita.area or "Sin área",
                 "creador": cita.creador.get_full_name() if cita.creador else "Sin creador",
-                "estado": ("Confirmada" if cita.confirmada else "Pendiente" if cita.pendiente else "Cancelada"
+                "estado": (
+                    "Confirmada" if cita.confirmada else
+                    "Pendiente" if cita.pendiente else
+                    "Cancelada"
                 ),
                 "hora": hora_str,
             })
 
-
+        # Construir lista de días para plantilla
         dias_date = [datetime.strptime(d, "%Y-%m-%d").date() for d in fechas_unicas]
-
         agenda_dias = []
         for d in sorted(dias_date):
             d_str = d.strftime("%Y-%m-%d")
             agenda_dias.append({
                 "date": d,
                 "str": d_str,
-                "agenda": agenda[d_str],
+                "agenda": dict(agenda[d_str]),
             })
 
         context["agenda_dias"] = agenda_dias
@@ -2391,7 +2400,6 @@ class CitasCohortComponent(BaseComponent):
 
 
 
-
        
 class CardSection(TemplateSection):
     template_name = "admin/test2.html"
@@ -2402,6 +2410,15 @@ from .widgets import CustomDatePickerWidget, CustomTimePickerWidget
 from unfold.contrib.filters.admin import RangeDateFilter, RangeDateTimeFilter
 # Asegúrate de importar: export_to_csv, export_to_excel, duplicar_citas, WysiwygWidget, ArrayWidget
 
+from django.contrib import admin
+from django.utils.html import format_html
+from django.db.models import Q
+from .models import Cita, Perfil_Comercial, Profile
+from .forms import CitaForm
+from .widgets import CustomDatePickerWidget, CustomTimePickerWidget
+
+
+
 @admin.register(Cita)
 class CitaAdmin(ModelAdmin):
 
@@ -2410,7 +2427,7 @@ class CitaAdmin(ModelAdmin):
         if obj.tipo_cita == "terapeutica":
             return str(obj.profile_terapeuta) if obj.profile_terapeuta else "—"
         elif obj.tipo_cita == "administrativa":
-            return obj.destinatario.user.get_full_name() if obj.destinatario else "—"
+            return getattr(obj.destinatario.user, 'get_full_name', lambda: "—")() if obj.destinatario else "—"
         elif obj.tipo_cita == "comercial":
             return str(obj.comercial_meddes) if obj.comercial_meddes else "—"
         return "—"
@@ -2419,23 +2436,23 @@ class CitaAdmin(ModelAdmin):
     form = CitaForm
 
     conditional_fields = {
-    "fecha": "tipo_cita != null",
-    "hora": "tipo_cita != null",
-    "hora_fin": "tipo_cita != null",
-    "motivo": "tipo_cita != null",
-    "notas": "tipo_cita != null",
-    "pendiente": "tipo_cita != null",
-    "confirmada": "tipo_cita != null",
-    "cancelada": "tipo_cita != null",
-    "profile": "tipo_cita == 'terapeutica'",
-    "profile_terapeuta": "tipo_cita == 'terapeutica'",
-    "dias_recurrentes": "tipo_cita == 'terapeutica'",
-    "fecha_fin": "tipo_cita == 'terapeutica'",
-    "area": "tipo_cita == 'terapeutica'",
-    "nombre_paciente": "tipo_cita == 'particular'",
-    "fecha_nacimiento": "tipo_cita == 'particular'",  # ✅ Solo se muestra si es 'particular'
-    "destinatario": "tipo_cita == 'administrativa'",
-    "comercial_meddes": "tipo_cita == 'comercial'",
+        "fecha": "tipo_cita != null",
+        "hora": "tipo_cita != null",
+        "hora_fin": "tipo_cita != null",
+        "motivo": "tipo_cita != null",
+        "notas": "tipo_cita != null",
+        "pendiente": "tipo_cita != null",
+        "confirmada": "tipo_cita != null",
+        "cancelada": "tipo_cita != null",
+        "profile": "tipo_cita == 'terapeutica'",
+        "profile_terapeuta": "tipo_cita == 'terapeutica'",
+        "dias_recurrentes": "tipo_cita == 'terapeutica'",
+        "fecha_fin": "tipo_cita == 'terapeutica'",
+        "area": "tipo_cita == 'terapeutica'",
+        "nombre_paciente": "tipo_cita == 'particular'",
+        "fecha_nacimiento": "tipo_cita == 'particular'",
+        "destinatario": "tipo_cita == 'administrativa'",
+        "comercial_meddes": "tipo_cita == 'comercial'",
     }
 
     formfield_overrides = {
@@ -2446,19 +2463,15 @@ class CitaAdmin(ModelAdmin):
     list_sections = [CitasComponent, CitasCohortComponent]
     list_sections_layout = "horizontal"
 
-    list_display = ('responsable',
-        'tipo_cita','fecha', 'hora', 'sucursal', 
+    list_display = (
+        'responsable', 'tipo_cita', 'fecha', 'hora', 'sucursal',
         'confirmada', 'pendiente', 'cancelada'
     )
-
     list_editable = ("pendiente", "confirmada", "cancelada")
 
-    list_filter = (
-        'sucursal',
-        'fecha',
-        'tipo_cita',
-    )
+    list_filter = ('sucursal', 'fecha', 'tipo_cita')
     list_filter_submit = True
+
     search_fields = (
         'profile__user__first_name',
         'profile__user__last_name',
@@ -2473,7 +2486,6 @@ class CitaAdmin(ModelAdmin):
     list_per_page = 20
     compressed_fields = True
     list_horizontal_scrollbar_top = True
-
     change_form_show_cancel_button = True
     exclude = ("creador",)
     ordering = ["fecha"]
@@ -2487,7 +2499,6 @@ class CitaAdmin(ModelAdmin):
         qs = super().get_queryset(request)
         user = request.user
 
-        # Permitir solo usuarios de estos grupos
         allowed_groups = {'administrativo', 'terapeutico', 'comercial', 'institucional'}
         user_groups = set(user.groups.values_list("name", flat=True))
 
@@ -2507,7 +2518,7 @@ class CitaAdmin(ModelAdmin):
         except Perfil_Comercial.DoesNotExist:
             citas_comercial = qs.none()
 
-        # Usuario tipo paciente (Profile)
+        # Usuario tipo paciente
         try:
             profile = Profile.objects.get(user=user)
             citas_profile = qs.filter(profile=profile)
@@ -2523,34 +2534,37 @@ class CitaAdmin(ModelAdmin):
 
     @admin.display(description="Duración")
     def duracion(self, obj):
-        return obj.get_duracion()
+        try:
+            return obj.get_duracion() or "—"
+        except Exception:
+            return "—"
 
     @admin.display(description="Fecha relativa")
     def fecha_relativa(self, obj):
-        return obj.get_fecha_relativa()
+        try:
+            return obj.get_fecha_relativa() or "—"
+        except Exception:
+            return "—"
 
     @admin.display(description="Cita con")
     def nombre_asociado(self, obj):
         if obj.tipo_cita == "terapeutica":
             return str(obj.profile) if obj.profile else "—"
         elif obj.tipo_cita == "administrativa":
-            return obj.destinatario.get_full_name() if obj.destinatario else "—"
+            return getattr(obj.destinatario, 'get_full_name', lambda: "—")() if obj.destinatario else "—"
         elif obj.tipo_cita == "particular":
             return obj.nombre_paciente or "—"
         elif obj.tipo_cita == "comercial":
             return str(obj.comercial_meddes) if obj.comercial_meddes else "—"
         return "—"
 
-
-
- 
-
-
     @admin.display(description="Calendario")
     def ver_en_calendario(self, obj):
-        return format_html('<a href="{}">Ver</a>', obj.get_calendar_url())
-
-    
+        try:
+            return format_html('<a href="{}">Ver</a>', obj.get_calendar_url())
+        except Exception:
+            return "—"
+ 
 
 
 
