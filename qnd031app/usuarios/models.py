@@ -1378,6 +1378,7 @@ class MultipleChoicesField(models.CharField):
                     raise ValidationError(f"Valor '{val}' no es válido")
         super().validate(value, model_instance)
 
+from django.db.models import Q
 
 
 class Cita(models.Model):
@@ -1407,17 +1408,17 @@ class Cita(models.Model):
 
 
     AREA_CHOICES = [
-    ('psicologia', 'Psicología'),
-    ('terapia_lenguaje', 'Terapia de Lenguaje'),
-    ('ocupacional', 'Terapia Ocupacional'),
+        ('psicologia', 'Psicología'),
+        ('terapia_lenguaje', 'Terapia de Lenguaje'),
+        ('ocupacional', 'Terapia Ocupacional'),
     ]
     
     area = models.CharField(
-    max_length=50,
-    choices=AREA_CHOICES,
-    null=True,
-    blank=True,
-    verbose_name="Área Terapéutica"
+        max_length=50,
+        choices=AREA_CHOICES,
+        null=True,
+        blank=True,
+        verbose_name="Área Terapéutica"
     )
 
     creador = models.ForeignKey(
@@ -1457,9 +1458,8 @@ class Cita(models.Model):
         verbose_name="Nombre del Paciente Particular"
     )
 
-
     comercial_meddes = models.ForeignKey(
-       Perfil_Comercial,
+        Perfil_Comercial,
         on_delete=models.CASCADE,
         null=True,
         blank=True,
@@ -1478,7 +1478,7 @@ class Cita(models.Model):
         help_text="Fecha en la que dejarán de repetirse las citas"
     )
 
-        # ✅ Nuevos campos
+    # ✅ Nuevos campos
     DIAS_SEMANA = [
         ("lunes", "Lunes"),
         ("martes", "Martes"),
@@ -1490,18 +1490,14 @@ class Cita(models.Model):
     ]
 
     dias_recurrentes = models.CharField(
-    max_length=100,
-    blank=True,
-    null=True,
-    verbose_name="Días de la semana recurrentes",
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name="Días de la semana recurrentes",
     )
-
 
     motivo = models.CharField(max_length=255)
     notas = models.TextField(null=True, blank=True, verbose_name="Notas adicionales")
-
-
-
 
     pendiente = models.BooleanField(default=True, verbose_name="Pendiente")
     confirmada = models.BooleanField(default=False, verbose_name="Confirmada")
@@ -1509,13 +1505,12 @@ class Cita(models.Model):
 
     def get_duracion(self):
         if self.hora and self.hora_fin:
-            # Combinar con una fecha base para poder restar
             base_date = datetime(2000, 1, 1)
             hora_inicio = datetime.combine(base_date, self.hora)
             hora_final = datetime.combine(base_date, self.hora_fin)
 
             if hora_final < hora_inicio:
-                hora_final += timedelta(days=1)  # Para casos de paso de medianoche
+                hora_final += timedelta(days=1)
 
             duracion = hora_final - hora_inicio
             horas, resto = divmod(duracion.seconds, 3600)
@@ -1551,7 +1546,6 @@ class Cita(models.Model):
         else:
             return self.fecha.strftime("%d/%m/%Y") 
 
-
     def __str__(self):
         fecha_str = self.fecha.strftime('%d/%m/%Y') if self.fecha else 'Sin fecha'
         hora_str = self.hora.strftime('%H:%M') if self.hora else 'Sin hora'
@@ -1567,37 +1561,38 @@ class Cita(models.Model):
             return "Cancelada"
         return "Desconocido"
 
-def clean(self):
-    super().clean()
+    def clean(self):
+        super().clean()
 
-    # Estado válido
-    estados = ['pendiente', 'confirmada', 'cancelada']
-    seleccionados = [estado for estado in estados if getattr(self, estado)]
+        # Estado válido
+        estados = ['pendiente', 'confirmada', 'cancelada']
+        seleccionados = [estado for estado in estados if getattr(self, estado)]
 
-    if len(seleccionados) > 1:
-        raise ValidationError("Solo un estado puede estar activo a la vez.")
-    if len(seleccionados) == 0:
-        raise ValidationError("Debe seleccionarse al menos un estado.")
+        if len(seleccionados) > 1:
+            raise ValidationError("Solo un estado puede estar activo a la vez.")
+        if len(seleccionados) == 0:
+            raise ValidationError("Debe seleccionarse al menos un estado.")
 
-    # Fecha final válida
-    if self.fecha_fin and self.fecha and self.fecha_fin < self.fecha:
-        raise ValidationError("La fecha de finalización no puede ser anterior a la fecha de inicio.")
+        # Fecha final válida
+        if self.fecha_fin and self.fecha and self.fecha_fin < self.fecha:
+            raise ValidationError("La fecha de finalización no puede ser anterior a la fecha de inicio.")
 
-    # Verificar solapamiento de citas
-    if self.profile_terapeuta and self.fecha and self.hora and self.hora_fin:
-        citas_conflictivas = Cita.objects.filter(
-            profile_terapeuta=self.profile_terapeuta,
-            fecha=self.fecha
-        ).exclude(pk=self.pk).filter(
-            Q(hora__lt=self.hora_fin, hora_fin__gt=self.hora)
-        )
-        if citas_conflictivas.exists():
-            raise ValidationError("Ya existe una cita agendada con este terapeuta en ese horario.")
+        # Verificar solapamiento de citas
+        if self.profile_terapeuta and self.fecha and self.hora and self.hora_fin:
+            citas_conflictivas = Cita.objects.filter(
+                profile_terapeuta=self.profile_terapeuta,
+                fecha=self.fecha
+            ).exclude(pk=self.pk).filter(
+                Q(hora__lt=self.hora_fin, hora_fin__gt=self.hora)
+            )
+            if citas_conflictivas.exists():
+                raise ValidationError("Ya existe una cita agendada con este terapeuta en ese horario.")
 
     class Meta:
         ordering = ['-fecha', '-hora']
         verbose_name = "Cita Agendada"
         verbose_name_plural = "Citas Agendadas"
+
 
 
 #from moviepy.editor import VideoFileClip

@@ -1924,7 +1924,7 @@ class MensajeAdmin(ModelAdmin):
     #search_fields = ['emisor__username', 'receptor__user__username', 'cuerpo']
     actions = [duplicar_mensajes]
     readonly_fields = ('fecha_envio', 'task_id', 'task_status')
-
+    autocomplete_fields = ('receptor','perfil_terapeuta',)
     # ✅ Campos condicionales con Unfold
     conditional_fields = {
     "perfil_terapeuta": "asunto == 'Terapéutico'",
@@ -1988,7 +1988,7 @@ class MensajeAdmin(ModelAdmin):
             
         return qs.none()  # Ningún perfil asociado → acceso denegado
 
-    
+
 
 
 @admin.register(Contacto)
