@@ -2327,6 +2327,22 @@ class CitasCohortComponent(BaseComponent):
             citas = Cita.objects.none()
         # --------------------------------------
 
+                   # --- Función segura para obtener el nombre ---
+        def get_nombre_responsable(cita):
+            if cita.tipo_cita == "terapeutica" and cita.profile_terapeuta:
+                return str(cita.profile_terapeuta)
+            elif cita.tipo_cita == "administrativa":
+                if cita.destinatario and getattr(cita.destinatario, "user", None):
+                    return cita.destinatario.user.get_full_name()
+                else:
+                    return "Sin nombre"
+            elif cita.tipo_cita == "comercial" and cita.comercial_meddes:
+                return str(cita.comercial_meddes)
+            elif cita.tipo_cita == "particular" and cita.nombre_paciente:
+                return cita.nombre_paciente
+            else:
+                return "Sin nombre"
+
         for cita in citas:
             if not cita.fecha or not cita.hora:
                 continue
@@ -2340,24 +2356,16 @@ class CitasCohortComponent(BaseComponent):
             hora_str = cita_dt.strftime("%H:%M")
 
             agenda[dia_str][hora_str].append({
-                "nombre_responsable": (
-                    str(cita.profile_terapeuta) if cita.tipo_cita == "terapeutica" and cita.profile_terapeuta else
-                    cita.destinatario.user.get_full_name() if cita.tipo_cita == "administrativa" and cita.destinatario else
-                    str(cita.comercial_meddes) if cita.tipo_cita == "comercial" and cita.comercial_meddes else
-                    cita.nombre_paciente if cita.tipo_cita == "particular" and cita.nombre_paciente else
-                    "Sin nombre"
-                ),
+                "nombre_responsable": get_nombre_responsable(cita),
                 "tipo_cita": cita.tipo_cita,
                 "motivo": cita.motivo or "Sin motivo",
                 "area": cita.area or "Sin área",
                 "creador": cita.creador.get_full_name() if cita.creador else "Sin creador",
-                "estado": (
-                    "Confirmada" if cita.confirmada
-                    else "Pendiente" if cita.pendiente
-                    else "Cancelada"
+                "estado": ("Confirmada" if cita.confirmada else "Pendiente" if cita.pendiente else "Cancelada"
                 ),
                 "hora": hora_str,
             })
+
 
         dias_date = [datetime.strptime(d, "%Y-%m-%d").date() for d in fechas_unicas]
 
@@ -2378,6 +2386,8 @@ class CitasCohortComponent(BaseComponent):
     def render(self):
         context = self.get_context_data()
         return render_to_string(self.template_name, context, request=self.request)
+
+
 
 
        
