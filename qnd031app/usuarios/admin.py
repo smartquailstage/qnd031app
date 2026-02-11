@@ -118,18 +118,10 @@ def dashboard_callback(request, context):
 
 
 
-# 1. Anular el registro por defecto
-#admin.site.unregister(User)
-admin.site.unregister(Group)
 
 
 
 
-# Registrar el modelo Group con estilo Unfold también
-@admin.register(Group)
-class CustomGroupAdmin(GroupAdmin, ModelAdmin):
-    search_fields = ("name",)
-    ordering = ("name",)
 
 
 
