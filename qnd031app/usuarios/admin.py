@@ -74,25 +74,6 @@ from django.contrib.auth.admin import UserAdmin as DefaultUserAdmin
 
 
 
-admin.site.unregister(User)
-admin.site.unregister(Group)
-
-
-@admin.register(User)
-class UserAdmin(BaseUserAdmin, ModelAdmin):
-    # Forms loaded from `unfold.forms`
-    form = UserChangeForm
-    add_form = UserCreationForm
-    change_password_form = AdminPasswordChangeForm
-    search_fields = ['username', 'first_name', 'last_name']
-
-
-@admin.register(Group)
-class GroupAdmin(BaseGroupAdmin, ModelAdmin):
-    pass
-
-
-
 
 class ProblemaFrecuenteInline(TabularInline):
     model = ProblemaFrecuente
