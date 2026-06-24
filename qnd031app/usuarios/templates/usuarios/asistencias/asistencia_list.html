@@ -95,27 +95,31 @@
   </tr>
 </thead>
 
-                      <tbody>
-                        {% for actividad in actividades %}
-                          <tr>
-                            <td style="background-color: #646464">
-                              {{ actividad.cita_terapeutica_asignada|date:"d-m-Y" }}
-                            </td>
+<tbody>
+  {% for actividad in actividades %}
+    <tr>
+      <td style="background-color: #646464; color: #fff;">
+        {{ actividad.cita_terapeutica_asignada|date:"d-m-Y" }}
+      </td>
 
-                            <td style="background-color: #646464;">
-                              {{ actividad.titulo }}
-                            </td>
+      <td style="background-color: #646464; color: #fff;">
+        {{ actividad.titulo }}
+      </td>
 
-                            <td style="background-color: #646464;">
-                              {{ actividad.asistire |yesno:"Sí,No" }}
-                            </td>
-                          </tr>
-                        {% empty %}
-                          <tr>
-                            <td colspan="3" class="text-center">No hay actividades para estos filtros.</td>
-                          </tr>
-                        {% endfor %}
-                      </tbody>
+      <td style="background-color: #646464; text-align: center; font-size: 1.2rem;">
+        {% if actividad.asistire %}
+          <span>✅</span>  {% else %}
+          <span>❌</span>  {% endif %}
+      </td>
+    </tr>
+  {% empty %}
+    <tr>
+      <td colspan="3" class="text-center" style="background-color: #646464; color: #fff;">
+        No hay actividades agendadas para este mes.
+      </td>
+    </tr>
+  {% endfor %}
+</tbody>
                     </table>
                   </div>
 

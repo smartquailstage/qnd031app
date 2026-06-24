@@ -696,10 +696,7 @@ def tareas_asistidas_view(request):
 
     # 2. Filtramos SOLO las que marcaron asistencia (asistire=True)
     # y nos aseguramos de que tengan un perfil de paciente asignado (por si acaso hay nulos)
-    actividades = actividades.filter(
-        asistire=True,
-        profile__isnull=False
-    )
+    actividades = actividades.filter(profile__isnull=False)
 
     # Filtrar por mes y año si vienen y son válidos
     try:
