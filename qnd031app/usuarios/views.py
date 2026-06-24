@@ -685,23 +685,21 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from .models import tareas  # ajustá si usás otro nombre de app
 
-from django.utils.timezone import now
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-
-from django.utils.timezone import now
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
 
 @login_required
 def tareas_asistidas_view(request):
-    mes = request.GET.get('mes')      # vienen como strings
+    mes = request.GET.get('mes')      # Vienen como strings
     anio = request.GET.get('anio')
 
+    # 1. Comenzamos con todas las tareas
     actividades = tareas.objects.all()
 
-    # Filtrar por asistencia
-
+    # 2. Filtramos SOLO las que marcaron asistencia (asistire=True)
+    # y nos aseguramos de que tengan un perfil de paciente asignado (por si acaso hay nulos)
+    actividades = actividades.filter(
+        asistire=True,
+        profile__isnull=False
+    )
 
     # Filtrar por mes y año si vienen y son válidos
     try:
