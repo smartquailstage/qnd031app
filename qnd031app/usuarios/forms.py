@@ -396,6 +396,10 @@ class CitaAdminForm(forms.ModelForm):
         return super().save(commit)
 
 
+from django import forms
+from django.core.exceptions import ValidationError
+from .models import Profile
+
 class ProfileAdminForm(forms.ModelForm):
     TIPO_SERVICIO = [
         ('TERAPIA DE LENGUAJE', 'Terapia de Lenguaje'),
@@ -408,7 +412,7 @@ class ProfileAdminForm(forms.ModelForm):
 
     tipos = forms.MultipleChoiceField(
         choices=TIPO_SERVICIO,
-        widget=forms.CheckboxSelectMultiple,
+        widget=forms.CheckboxSelectMultiple, # Unfold aplicará su estilo Tailwind a los checkboxes
         required=False,
         label="Servicios Terapéuticos",
         help_text="Seleccionar uno o más servicios"
@@ -426,6 +430,28 @@ class ProfileAdminForm(forms.ModelForm):
         if self.instance and self.instance.pk:
             self.initial['tipos'] = self.instance.tipos or []
 
+    def clean_user(self):
+        """
+        Bloqueo y Blindaje de Identidad para la relación 1:1 del Paciente.
+        Evita asignaciones promiscuas (como sqadmindb) o cuentas cruzadas.
+        """
+        user = self.cleaned_data.get('user')
+        
+        if user:
+            # Buscamos si el usuario seleccionado ya le pertenece a OTRO paciente
+            queryset = Profile.objects.filter(user=user)
+            if self.instance.pk:
+                # Excluimos el registro actual si estamos editando
+                queryset = queryset.exclude(pk=self.instance.pk)
+            
+            if queryset.exists():
+                # Unfold capturará esta excepción y pintará el banner de error nativo en Tailwind
+                raise ValidationError(
+                    f"Integridad referencial rota: El usuario de paciente '{user.username}' "
+                    f"ya se encuentra asignado a otro expediente clínico activo."
+                )
+        return user
+
     def clean_tipos(self):
         return self.cleaned_data['tipos']
 
@@ -436,7 +462,6 @@ class ProfileAdminForm(forms.ModelForm):
             instance.save()
             self.save_m2m()
         return instance
-
 
 
 class AsistenciaTerapeutaAdminForm(forms.ModelForm):

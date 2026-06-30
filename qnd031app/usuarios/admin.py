@@ -2824,40 +2824,35 @@ class ValoracionsInline(TabularInline):
 
 
 
-from unfold.contrib.filters.admin import RangeDateFilter, RangeDateTimeFilter
+from django.contrib import admin
+from django.db import models
 from django.db.models import Q
+from unfold.admin import ModelAdmin
+from unfold.contrib.filters.admin import RangeDateFilter, RangeDateTimeFilter
+
 @admin.register(Profile)
 class ProfileAdmin(ModelAdmin):
-    form = ProfileAdminForm
-    # Campos de autocompletado
+    form = ProfileAdminForm  # El formulario blindado que acabamos de unificar
+    
+    # Campos de autocompletado (Corregido 'institucional')
     autocomplete_fields = [
         'user', 'sucursales',
         'user_terapeutas', 'user_terapeutas_1', 'user_terapeutas_3',
-        'institucion','instirucional','valorizacion_terapeutica'
+        'institucion', 'institucional', 'valorizacion_terapeutica'
     ]
 
-    # Búsqueda sobre el campo 'nombre' de ValoracionTerapia
     search_fields = [
-        'user__username',  # Buscar por el nombre de usuario
-        'user__first_name',  # Buscar por el primer nombre del usuario
-        'user__last_name',   # Buscar por el apellido del usuario
+        'user__username',  
+        'user__first_name',  
+        'user__last_name',   
     ]
-
 
     conditional_fields = {
-        # Mostrar estos campos solo si asistió'
         "nombre_institucion": "es_en_convenio == false",
     }
 
-    
-    
     compressed_fields = True
-    inlines = [TareaItemInline, CitaItemInline, PagosItemInline]
-
-
-    
     list_sections = [ProfileComponent, ProfileComponentRepresentante, ProfileComponentTerapeutico]
-  #  form = ProfileWithUserForm
     warn_unsaved_form = True
 
     readonly_preprocess_fields = {
@@ -2865,17 +2860,11 @@ class ProfileAdmin(ModelAdmin):
         "other_field_name": lambda content: content.strip(),
     }
 
-
     list_filter_submit = True
     list_fullwidth = True
     list_filter_sheet = True
     list_horizontal_scrollbar_top = False
     list_disable_select_all = False
-
-    actions_list = []
-    actions_row = []
-    actions_detail = []
-    actions_submit_line = []
 
     change_form_show_cancel_button = True
 
@@ -2886,7 +2875,7 @@ class ProfileAdmin(ModelAdmin):
     }
 
     list_display = [
-        'get_full_name', 'fecha_inicio', 'fecha_alta','es_en_convenio',
+        'get_full_name', 'fecha_inicio', 'fecha_alta', 'es_en_convenio',
         'es_retirado', 'es_en_terapia', 'es_pausa', 'es_alta'
     ]
 
@@ -2898,23 +2887,17 @@ class ProfileAdmin(ModelAdmin):
         qs = super().get_queryset(request)
         user = request.user
 
-        # 👑 Superusuarios ven todo
-        if user.is_superuser:
+        if user.is_superuser or user.groups.filter(name='administrativo').exists():
             return qs
 
-        # 👥 Coordinadores (grupo administrativo) ven todo
-        if user.groups.filter(name='administrativo').exists():
-            return qs
-
-        # 🏫 Usuarios institucionales ven solo lo suyo
         if user.groups.filter(name='institucional').exists():
             try:
+                # Ojo: verifica si tu campo en el modelo es 'instirucional' o 'institucional'
                 perfil_institucional = PerfilInstitucional.objects.get(usuario=user)
-                return qs.filter(instirucional=perfil_institucional)
+                return qs.filter(institucional=perfil_institucional)
             except PerfilInstitucional.DoesNotExist:
                 return qs.none()
 
-        # 👨‍⚕️ Terapeutas ven solo pacientes donde están asignados
         if user.groups.filter(name='terapeutico').exists():
             try:
                 perfil_terapeuta = Perfil_Terapeuta.objects.get(user=user)
@@ -2926,13 +2909,10 @@ class ProfileAdmin(ModelAdmin):
             except Perfil_Terapeuta.DoesNotExist:
                 return qs.none()
 
-        # ❌ Todos los demás no tienen acceso
         return qs.none()
 
     def get_fieldsets(self, request, obj=None):
         user = request.user
-
-        # Mostrar fieldsets limitados si el usuario está en los grupos 'terapeutico' o 'institucional'
         if user.groups.filter(name__in=['terapeutico', 'institucional']).exists():
             return (
                 ('Ingresar Información Personal del Paciente', {
@@ -2950,27 +2930,28 @@ class ProfileAdmin(ModelAdmin):
                     'classes': ('collapse',),
                 }),
             )
-
-        # Si es superusuario u otro grupo, usa la definición por defecto
         return super().get_fieldsets(request, obj)
-    
 
     def get_inline_instances(self, request, obj=None):
         inline_instances = []
         user = request.user
-        allowed_groups = ['terapeutico', 'institucional']
-        base_inlines = [TareaItemInline, CitaItemInline, PagosItemInline]
-
+        
+        # Inlines básicos permitidos para todos los roles válidos
+        base_inlines = [TareaItemInline, CitaItemInline]
         for inline_class in base_inlines:
             inline = inline_class(self.model, self.admin_site)
             inline_instances.append(inline)
 
-        if user.is_superuser or user.groups.filter(name__in=allowed_groups).exists():
+        # 🔒 Blindaje: Solo admin y superuser manejan Inlines financieros y reportes avanzados
+        if user.is_superuser or user.groups.filter(name='administrativo').exists():
+            inline_instances.append(PagosItemInline(self.model, self.admin_site))
+            inline_instances.append(InformesTerapeuticosInline(self.model, self.admin_site))
+        
+        # Si el terapeuta necesita agregar informes, se le permite explícitamente aquí
+        elif user.groups.filter(name='terapeutico').exists():
             inline_instances.append(InformesTerapeuticosInline(self.model, self.admin_site))
 
         return inline_instances
-
-        
 
     list_editable = ['es_retirado', 'es_en_terapia', 'es_pausa', 'es_alta']
 
@@ -2981,21 +2962,14 @@ class ProfileAdmin(ModelAdmin):
     ]
 
     actions = [export_to_csv, export_to_excel]
-
     verbose_name = "Registro Administrativo / Ingreso de Paciente"
     verbose_name_plural = "Registro Administrativo / Ingreso de Paciente"
 
-    # Este fieldsets se usa como fallback si no se sobreescribe con get_fieldsets()
     fieldsets = (
-
-        
         ('Información del Sistema ', {
-            'fields': (
-                'user', 'contrasena',
-            ),
+            'fields': ('user', 'contrasena',),
             'classes': ('collapse',),
         }),
-
         ('Ingresar Información Personal del Paciente', {
             'fields': (
                 'sucursales', 'photo',
@@ -3015,16 +2989,15 @@ class ProfileAdmin(ModelAdmin):
         }),
         ('Ingresar Información Terapéutica', {
             'fields': (
-                'instirucional', 'valorizacion_terapeutica', 'tipos',
+                'institucional', 'valorizacion_terapeutica', 'tipos',
                 'user_terapeutas', 'user_terapeutas_1', 'user_terapeutas_3',
                 'fecha_inicio', 'fecha_pausa', 'fecha_re_inicio',
-                'fecha_alta', 'certificado_inicio','es_en_convenio','nombre_institucion',
+                'fecha_alta', 'certificado_inicio', 'es_en_convenio', 'nombre_institucion',
                 'es_en_terapia', 'es_retirado', 'es_alta', 'es_pausa',
             ),
             'classes': ('collapse',),
         }),
     )
-
 
 
 
