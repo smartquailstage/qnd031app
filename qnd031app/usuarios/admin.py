@@ -2830,6 +2830,9 @@ from django.db.models import Q
 from unfold.admin import ModelAdmin
 from unfold.contrib.filters.admin import RangeDateFilter, RangeDateTimeFilter
 
+from django.contrib import admin
+from django.db.models import Q, models
+
 @admin.register(Profile)
 class ProfileAdmin(ModelAdmin):
     form = ProfileAdminForm  # El formulario blindado que acabamos de unificar
@@ -2883,6 +2886,17 @@ class ProfileAdmin(ModelAdmin):
     def get_full_name(self, obj):
         return obj.user.get_full_name() if obj.user else "Sin usuario"
 
+    def get_readonly_fields(self, request, obj=None):
+        """
+        🔒 BLINDAJE CRÍTICO FASE 3:
+        Si el perfil de paciente ya existe (modo edición/cambio), el campo 'user' 
+        se transforma dinámicamente en Solo Lectura. Esto impide que un operador 
+        reasigne la cuenta raíz rompiendo el aislamiento transaccional 1:1.
+        """
+        if obj:
+            return self.readonly_fields + ('user',)
+        return self.readonly_fields
+
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         user = request.user
@@ -2892,7 +2906,7 @@ class ProfileAdmin(ModelAdmin):
 
         if user.groups.filter(name='institucional').exists():
             try:
-                # Ojo: verifica si tu campo en el modelo es 'instirucional' o 'institucional'
+                # Nota: Valida si tu modelo físico en models.py usa 'instirucional' o 'institucional'
                 perfil_institucional = PerfilInstitucional.objects.get(usuario=user)
                 return qs.filter(institucional=perfil_institucional)
             except PerfilInstitucional.DoesNotExist:
@@ -2901,11 +2915,12 @@ class ProfileAdmin(ModelAdmin):
         if user.groups.filter(name='terapeutico').exists():
             try:
                 perfil_terapeuta = Perfil_Terapeuta.objects.get(user=user)
+                # Se agrega .distinct() para limpiar duplicados lógicos en las consultas evaluadas por OR (Q)
                 return qs.filter(
                     Q(user_terapeutas=perfil_terapeuta) |
                     Q(user_terapeutas_1=perfil_terapeuta) |
                     Q(user_terapeutas_3=perfil_terapeuta)
-                )
+                ).distinct()
             except Perfil_Terapeuta.DoesNotExist:
                 return qs.none()
 
@@ -2942,12 +2957,12 @@ class ProfileAdmin(ModelAdmin):
             inline = inline_class(self.model, self.admin_site)
             inline_instances.append(inline)
 
-        # 🔒 Blindaje: Solo admin y superuser manejan Inlines financieros y reportes avanzados
+        # 🔒 Blindaje Financiero: Solo la administración central y superusuarios ven la facturación
         if user.is_superuser or user.groups.filter(name='administrativo').exists():
             inline_instances.append(PagosItemInline(self.model, self.admin_site))
             inline_instances.append(InformesTerapeuticosInline(self.model, self.admin_site))
         
-        # Si el terapeuta necesita agregar informes, se le permite explícitamente aquí
+        # El cuerpo terapéutico puede generar reportes pero no auditar los estados de pago
         elif user.groups.filter(name='terapeutico').exists():
             inline_instances.append(InformesTerapeuticosInline(self.model, self.admin_site))
 
@@ -2998,7 +3013,6 @@ class ProfileAdmin(ModelAdmin):
             'classes': ('collapse',),
         }),
     )
-
 
 
 
