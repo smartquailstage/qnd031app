@@ -963,25 +963,47 @@ class InformesTerapeuticos(models.Model):
 
 
 
+from django.db import models
+from django.conf import settings
+from django.core.validators import RegexValidator
+from datetime import date  # Evita el colapso de las propiedades de edad
+
+# Asegúrate de importar correctamente tus modelos relacionados o usar strings 'app.Model'
+# from .models import Sucursal, Prospeccion, ValoracionTerapia, PerfilInstitucional, Perfil_Terapeuta
+
 class Profile(models.Model):
-    #Informacion personal
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Nombre de Usuario")
+    # =========================================================================
+    # INFORMACIÓN PERSONAL
+    # =========================================================================
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        verbose_name="Nombre de Usuario"
+    )
     contrasena = models.CharField(max_length=255, blank=True, null=True, verbose_name="Actual contraseña de usuario")
-    sucursales = models.ForeignKey(Sucursal,on_delete=models.CASCADE,related_name="sucursal33",null=True, blank=True)
+    sucursales = models.ForeignKey('Sucursal', on_delete=models.CASCADE, related_name="sucursal33", null=True, blank=True)
     photo = models.ImageField(upload_to='users/%Y/%m/%d/', blank=True, verbose_name="Foto Perfil")
-    ruc = models.CharField(max_length=13, verbose_name="C.I Paciente", help_text="Ingrese C.I del Paciente",blank=True, null=True)
+    ruc = models.CharField(max_length=13, verbose_name="C.I Paciente", help_text="Ingrese C.I del Paciente", blank=True, null=True)
     nombre_paciente = models.CharField(max_length=255, blank=True, null=True, verbose_name="Nombres")
     apellidos_paciente = models.CharField(max_length=255, blank=True, null=True, verbose_name="Apellidos")
     nacionalidad = models.CharField(blank=True, null=True, max_length=100, verbose_name="Nacionalidad")
-    sexo = models.CharField(blank=True, null=True, max_length=120, choices=[("Masculino", "Masculino"), ("Femenino", "Femenino")], verbose_name="Sexo del Paciente")
-    fecha_nacimiento = models.DateField(null=True, blank=True)
-   # edad =  models.CharField(max_length=255, blank=True, null=True, verbose_name="Edad")
-    institucion =  models.ForeignKey(
-        Prospeccion,
-        on_delete=models.CASCADE,
-        related_name="instituciones2",null=True, blank=True
+    sexo = models.CharField(
+        blank=True, 
+        null=True, 
+        max_length=120, 
+        choices=[("Masculino", "Masculino"), ("Femenino", "Femenino")], 
+        verbose_name="Sexo del Paciente"
     )
-    #Informacion de representante y contacto
+    fecha_nacimiento = models.DateField(null=True, blank=True)
+    institucion = models.ForeignKey(
+        'Prospeccion',
+        on_delete=models.CASCADE,
+        related_name="instituciones2", null=True, blank=True
+    )
+
+    # =========================================================================
+    # INFORMACIÓN DE REPRESENTANTE Y CONTACTO
+    # =========================================================================
     nombres_representante_legal = models.CharField(max_length=255, blank=True, null=True, verbose_name="Nombres")
     apellidos_representante_legal = models.CharField(max_length=255, blank=True, null=True, verbose_name="Apellidos")
     relacion_del_representante = models.CharField(
@@ -1000,55 +1022,42 @@ class Profile(models.Model):
         ],
         verbose_name="Relación del representante con el paciente"
     )
-
     adjunto_autorizacion = models.FileField(upload_to='documentos/pacientes/autorizacion/', blank=True, null=True)
     nacionalidad_representante = models.CharField(blank=True, null=True, max_length=100, verbose_name="Nacionalidad")
-    ruc_representante = models.CharField(max_length=13, verbose_name="RUC / C.I", help_text="R.U.C o C.I del Representante",blank=True, null=True)
+    ruc_representante = models.CharField(max_length=13, verbose_name="RUC / C.I", help_text="R.U.C o C.I del Representante", blank=True, null=True)
     email = models.EmailField(blank=True, null=True, verbose_name="Correo Electrónico")
+    
+    # Validadores de strings para formatos telefónicos locales/internacionales
     phone_regex = RegexValidator(
         regex=r'^\+?593?\d{9,15}$',
         message="El número de teléfono debe estar en formato internacional. Ejemplo: +593XXXXXXXXX."
     )
-    telefono = PhoneNumberField(verbose_name="Teléfono convencional de contacto",validators=[phone_regex],default='+593')
-    celular = PhoneNumberField(verbose_name="Teléfono celular de contacto",validators=[phone_regex],default='+593')
+    # Nota: Si usas campos CharField con validadores, mantén la estructura para evitar colisiones de tipos en Postgres
+    telefono = models.CharField(max_length=20, verbose_name="Teléfono convencional de contacto", validators=[phone_regex], default='+593', blank=True, null=True)
+    celular = models.CharField(max_length=20, verbose_name="Teléfono celular de contacto", validators=[phone_regex], default='+593', blank=True, null=True)
+    
     provincia = models.CharField(
         max_length=255,
         blank=True,
         null=True,
         choices=[
-            ('Azuay', 'Azuay'),
-            ('Bolívar', 'Bolívar'),
-            ('Cañar', 'Cañar'),
-            ('Carchi', 'Carchi'),
-            ('Chimborazo', 'Chimborazo'),
-            ('Cotopaxi', 'Cotopaxi'),
-            ('El Oro', 'El Oro'),
-            ('Esmeraldas', 'Esmeraldas'),
-            ('Galápagos', 'Galápagos'),
-            ('Guayas', 'Guayas'),
-            ('Imbabura', 'Imbabura'),
-            ('Loja', 'Loja'),
-            ('Los Ríos', 'Los Ríos'),
-            ('Manabí', 'Manabí'),
-            ('Morona Santiago', 'Morona Santiago'),
-            ('Napo', 'Napo'),
-            ('Orellana', 'Orellana'),
-            ('Pastaza', 'Pastaza'),
-            ('Pichincha', 'Pichincha'),
-            ('Santa Elena', 'Santa Elena'),
-            ('Santo Domingo de los Tsáchilas', 'Santo Domingo de los Tsáchilas'),
-            ('Sucumbíos', 'Sucumbíos'),
-            ('Tungurahua', 'Tungurahua'),
-            ('Zamora Chinchipe', 'Zamora Chinchipe'),
+            ('Azuay', 'Azuay'), ('Bolívar', 'Bolívar'), ('Cañar', 'Cañar'), ('Carchi', 'Carchi'),
+            ('Chimborazo', 'Chimborazo'), ('Cotopaxi', 'Cotopaxi'), ('El Oro', 'El Oro'), ('Esmeraldas', 'Esmeraldas'),
+            ('Galápagos', 'Galápagos'), ('Guayas', 'Guayas'), ('Imbabura', 'Imbabura'), ('Loja', 'Loja'),
+            ('Los Ríos', 'Los Ríos'), ('Manabí', 'Manabí'), ('Morona Santiago', 'Morona Santiago'), ('Napo', 'Napo'),
+            ('Orellana', 'Orellana'), ('Pastaza', 'Pastaza'), ('Pichincha', 'Pichincha'), ('Santa Elena', 'Santa Elena'),
+            ('Santo Domingo de los Tsáchilas', 'Santo Domingo de los Tsáchilas'), ('Sucumbíos', 'Sucumbíos'),
+            ('Tungurahua', 'Tungurahua'), ('Zamora Chinchipe', 'Zamora Chinchipe'),
         ],
         verbose_name="Localidad",
         default='Pichincha'
     )
     direccion = models.CharField(max_length=255, blank=True, null=True, verbose_name="Dirección")
-    actividad_economica =  models.CharField(max_length=255, blank=True, null=True, verbose_name="Actividad económica del representante")
+    actividad_economica = models.CharField(max_length=255, blank=True, null=True, verbose_name="Actividad económica del representante")
     
-    #Informacion de Terapeutica
-    
+    # =========================================================================
+    # INFORMACIÓN TERAPÉUTICA Y CONTROL DE ESTADOS
+    # =========================================================================
     MOTIVOS_RETIRO = [
         ('economico', 'Económico'),
         ('insatisfecho', 'Insatisfecho'),
@@ -1061,7 +1070,6 @@ class Profile(models.Model):
     es_pausa = models.BooleanField(default=False, verbose_name="En Pausa")
     es_alta = models.BooleanField(default=False, verbose_name="En Alta")
     
-
     valorizacion_terapeutica = models.ForeignKey(
         'ValoracionTerapia',
         on_delete=models.CASCADE,
@@ -1069,6 +1077,7 @@ class Profile(models.Model):
         verbose_name="Valoración Terapéutica", blank=True, null=True,
     )
 
+    # ⚠️ SE PRESERVA EL CAMPO FÍSICO CON LA ERRATA PARA NO COLOPSAR POSTGRESQL 17
     instirucional = models.ForeignKey(
         'PerfilInstitucional',
         on_delete=models.CASCADE,
@@ -1079,39 +1088,27 @@ class Profile(models.Model):
     )
 
     user_terapeutas = models.ForeignKey(
-        'Perfil_Terapeuta',  # Asegúrate de que este modelo esté bien importado
+        'Perfil_Terapeuta',
         verbose_name="Asignar primer terapéuta",
         on_delete=models.CASCADE,
-        related_name='primer_terapeuta',  # Este nombre puede ser cualquiera y se usa para acceder desde el otro lado
-        blank=True,  # Permite que el campo sea opcional
-        null=True,  # Permite que el campo sea opcional
-        )
+        related_name='primer_terapeuta',
+        blank=True, null=True,
+    )
     user_terapeutas_1 = models.ForeignKey(
-        'Perfil_Terapeuta',  # Asegúrate de que este modelo esté bien importado
+        'Perfil_Terapeuta',
         verbose_name="Asignar segundo terapéuta",
         on_delete=models.CASCADE,
-        related_name='segundo_terapeuta',  # Este nombre puede ser cualquiera y se usa para acceder desde el otro lado
-        blank=True,  # Permite que el campo sea opcional
-        null=True,  # Permite que el campo sea opcional
-        )
+        related_name='segundo_terapeuta',
+        blank=True, null=True,
+    )
     user_terapeutas_3 = models.ForeignKey(
-        'Perfil_Terapeuta',  # Asegúrate de que este modelo esté bien importado
+        'Perfil_Terapeuta',
         verbose_name="Asignar tercer terapéuta",
         on_delete=models.CASCADE,
-        related_name='tercer_terapeuta',  # Este nombre puede ser cualquiera y se usa para acceder desde el otro lado
-        blank=True,  # Permite que el campo sea opcional
-        null=True,  # Permite que el campo sea opcional
-        )
+        related_name='tercer_terapeuta',
+        blank=True, null=True,
+    )
 
-    TIPO_SERVICIO = [
-        ('TERAPIA DE LENGUAJE', 'Terapia de Lenguaje'),
-        ('ESTIMULACIÓN COGNITIVA', 'Estimulación Cognitiva'),
-        ('PSICOLOGÍA', 'Psicología'),
-        ('ESTIMULACIÓN TEMPRANA', 'Estimulación Temprana'),
-        ('VALORACIÓN', 'Valoración'),
-        ('TERAPIA OCUPACIONAL', 'Terápia Ocupacional'),
-    ]
-        
     tipos = models.JSONField(
         default=list,
         verbose_name="servicios contratados",
@@ -1120,41 +1117,43 @@ class Profile(models.Model):
 
     certificado_inicio = models.FileField(
         upload_to='certificados/inicio/',
-        blank=True,
-        null=True,
+        blank=True, null=True,
         verbose_name="Autorización inicio Terapéutico",
     )
 
-
     fecha_inicio = models.DateField(blank=True, null=True, verbose_name="Fecha de inicio")
-
-    # Campos opcionales según estado
     fecha_retiro = models.DateField(null=True, blank=True)
     motivo_retiro = models.CharField(max_length=50, choices=MOTIVOS_RETIRO, null=True, blank=True)
     motivo_otro = models.CharField(max_length=255, null=True, blank=True, help_text="Especifique otro motivo (si aplica)")
-
-    
-
-    fecha_alta = models.DateField(null=True, blank=True,verbose_name="Fecha de Alta")
+    fecha_alta = models.DateField(null=True, blank=True, verbose_name="Fecha de Alta")
     fecha_pausa = models.DateField(null=True, blank=True)
     fecha_re_inicio = models.DateField(blank=True, null=True, verbose_name="Fecha de re inicio de tratamiento")
 
+    # =========================================================================
+    # PROPIEDADES AVANZADAS Y ALIAS DE CAPA LÓGICA (BLINDAJE DE CONSISTENCIA)
+    # =========================================================================
+    
+    @property
+    def institucional(self):
+        """
+        Alias dinámico a nivel de Python. Mapea la propiedad limpia 'institucional'
+        hacia la columna física real de la base de datos 'instirucional' sin alterar la tabla física.
+        """
+        return self.instirucional
 
-    #Informacion de la cuenta
-
+    @institucional.setter
+    def determinar_institucional(self, value):
+        self.instirucional = value
 
     class Meta:
         ordering = ['user']
         verbose_name = "Registro Administrativo / Historial de Paciente"
         verbose_name_plural = "Registro Administrativo / Historiales de Pacientes"   
 
-
-
     @property
     def edad_detallada(self):
         if not self.fecha_nacimiento:
-            return None
-
+            return "Edad no especificada"
         today = date.today()
         years = today.year - self.fecha_nacimiento.year
         months = today.month - self.fecha_nacimiento.month
@@ -1165,53 +1164,41 @@ class Profile(models.Model):
         if months < 0:
             years -= 1
             months += 12
-
         return f"{years} año{'s' if years != 1 else ''} y {months} mes{'es' if months != 1 else ''}"
-
-
 
     @property
     def edad_anios(self):
         if not self.fecha_nacimiento:
             return None
-
         today = date.today()
         years = today.year - self.fecha_nacimiento.year
         months = today.month - self.fecha_nacimiento.month
         days = today.day - self.fecha_nacimiento.day
-
         if days < 0:
             months -= 1
         if months < 0:
             years -= 1
-            months += 12
-
         return years
 
     @property
     def edad_meses(self):
         if not self.fecha_nacimiento:
             return None
-
         today = date.today()
-        years = today.year - self.fecha_nacimiento.year
         months = today.month - self.fecha_nacimiento.month
-
         if months < 0:
             months += 12
-
         return months
-
-
 
     @property
     def nombre_completo(self):
-        return f" {self.institucion} / {self.nombre_paciente} {self.apellidos_paciente} / {self.edad_detallada}  ".strip()
+        institucion_str = f"{self.institucion} / " if self.institucion else ""
+        nombre_str = f"{self.nombre_paciente or ''} {self.apellidos_paciente or ''}".strip()
+        edad_str = f" / {self.edad_detallada}" if self.fecha_nacimiento else ""
+        return f"{institucion_str}{nombre_str}{edad_str}".strip()
 
     def __str__(self):
         return self.nombre_completo
-
-    
 
 
 class pagos(models.Model):
