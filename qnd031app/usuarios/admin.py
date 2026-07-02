@@ -2831,67 +2831,97 @@ from unfold.admin import ModelAdmin
 from unfold.contrib.filters.admin import RangeDateFilter, RangeDateTimeFilter
 
 from django.contrib import admin
-from django.db.models import Q, models
+from django.db.models import Q
+from unfold.admin import ModelAdmin  # Aseguramos la herencia nativa de Unfold
+from unfold.contrib.filters.admin import RangeDateFilter  # Filtro correcto para Unfold
+from .models import Profile, PerfilInstitucional, Perfil_Terapeuta  # Ajusta tus imports
+
 
 @admin.register(Profile)
 class ProfileAdmin(ModelAdmin):
-    form = ProfileAdminForm  # El formulario blindado que acabamos de unificar
+    form = ProfileAdminForm  # El formulario blindado que unificaste
     
-    # Campos de autocompletado (Corregido 'institucional')
+    # =========================================================================
+    # CONFIGURACIÓN VISUAL EXCLUSIVA DE DJANGO UNFOLD
+    # =========================================================================
+    compressed_fields = True
+    warn_unsaved_form = True
+    list_fullwidth = True
+    list_filter_submit = True
+    list_filter_sheet = True
+    list_disable_select_all = False
+    change_form_show_cancel_button = True
+    
+    # Recuerda importar tus componentes personalizados de Unfold si los usas:
+    list_sections = [ProfileComponent, ProfileComponentRepresentante, ProfileComponentTerapeutico]
+
+    # Campos de autocompletado (Corregido 'institucional' por 'institucion' y añadido 'instirucional')
     autocomplete_fields = [
         'user', 'sucursales',
         'user_terapeutas', 'user_terapeutas_1', 'user_terapeutas_3',
-        'institucion', 'institucional', 'valorizacion_terapeutica'
+        'institucion', 'instirucional', 'valorizacion_terapeutica'
     ]
 
+    # Campos de búsqueda global en el listado
     search_fields = [
         'user__username',  
         'user__first_name',  
         'user__last_name',   
+        'nombre_paciente',
+        'apellidos_paciente',
     ]
 
+    # Propiedad condicional nativa de Unfold
     conditional_fields = {
         "nombre_institucion": "es_en_convenio == false",
     }
 
-    compressed_fields = True
-    list_sections = [ProfileComponent, ProfileComponentRepresentante, ProfileComponentTerapeutico]
-    warn_unsaved_form = True
-
+    # Preprocesadores de texto nativos de Unfold
     readonly_preprocess_fields = {
         "model_field_name": "html.unescape",
         "other_field_name": lambda content: content.strip(),
     }
 
-    list_filter_submit = True
-    list_fullwidth = True
-    list_filter_sheet = True
-    list_horizontal_scrollbar_top = False
-    list_disable_select_all = False
-
-    change_form_show_cancel_button = True
-
+    # Sobreescritura de widgets para los campos de tipo Fecha
     formfield_overrides = {
         models.DateField: {
             "widget": CustomDatePickerWidget(),
         },
     }
 
+    # =========================================================================
+    # LISTADO PRINCIPAL (COLUMNAS Y FILTROS)
+    # =========================================================================
     list_display = [
         'get_full_name', 'fecha_inicio', 'fecha_alta', 'es_en_convenio',
         'es_retirado', 'es_en_terapia', 'es_pausa', 'es_alta'
     ]
 
+    list_editable = ['es_retirado', 'es_en_terapia', 'es_pausa', 'es_alta']
+
+    list_filter = [
+        'sucursales', 'es_retirado', 'es_en_terapia', 'es_alta',
+        ('fecha_inicio', RangeDateFilter),
+        ('fecha_alta', RangeDateFilter),
+    ]
+
+    actions = [export_to_csv, export_to_excel]
+
     @admin.display(description='Paciente')
     def get_full_name(self, obj):
-        return obj.user.get_full_name() if obj.user else "Sin usuario"
+        # Devuelve el nombre real del paciente registrado en la ficha médica
+        if obj.nombre_paciente or obj.apellidos_paciente:
+            return f"{obj.nombre_paciente or ''} {obj.apellidos_paciente or ''}".strip()
+        return obj.user.get_full_name() if obj.user else "Sin usuario asignado"
 
+    # =========================================================================
+    # POLÍTICAS DE ACCESO SEGURAS (MÉTODOS DINÁMICOS)
+    # =========================================================================
     def get_readonly_fields(self, request, obj=None):
         """
         🔒 BLINDAJE CRÍTICO FASE 3:
         Si el perfil de paciente ya existe (modo edición/cambio), el campo 'user' 
-        se transforma dinámicamente en Solo Lectura. Esto impide que un operador 
-        reasigne la cuenta raíz rompiendo el aislamiento transaccional 1:1.
+        se transforma dinámicamente en Solo Lectura.
         """
         if obj:
             return self.readonly_fields + ('user',)
@@ -2901,21 +2931,22 @@ class ProfileAdmin(ModelAdmin):
         qs = super().get_queryset(request)
         user = request.user
 
+        # 1. Superusuarios y Personal Administrativo central ven todo el universo de datos
         if user.is_superuser or user.groups.filter(name='administrativo').exists():
             return qs
 
+        # 2. 🔧 CORRECCIÓN FILTRO INSTITUCIONAL: Se mapea hacia el campo real con la errata física
         if user.groups.filter(name='institucional').exists():
             try:
-                # Nota: Valida si tu modelo físico en models.py usa 'instirucional' o 'institucional'
                 perfil_institucional = PerfilInstitucional.objects.get(usuario=user)
-                return qs.filter(institucional=perfil_institucional)
+                return qs.filter(instirucional=perfil_institucional)  # 🧠 Corregido de 'institucional' a 'instirucional'
             except PerfilInstitucional.DoesNotExist:
                 return qs.none()
 
+        # 3. Filtro para el cuerpo terapéutico
         if user.groups.filter(name='terapeutico').exists():
             try:
                 perfil_terapeuta = Perfil_Terapeuta.objects.get(user=user)
-                # Se agrega .distinct() para limpiar duplicados lógicos en las consultas evaluadas por OR (Q)
                 return qs.filter(
                     Q(user_terapeutas=perfil_terapeuta) |
                     Q(user_terapeutas_1=perfil_terapeuta) |
@@ -2926,15 +2957,19 @@ class ProfileAdmin(ModelAdmin):
 
         return qs.none()
 
+    # =========================================================================
+    # ESTRUCTURA DE FORMULARIO (FIELDSETS POR ROL)
+    # =========================================================================
     def get_fieldsets(self, request, obj=None):
         user = request.user
+        # Si no es administrador o superusuario, limitamos visualmente los fieldsets que puede manipular
         if user.groups.filter(name__in=['terapeutico', 'institucional']).exists():
             return (
                 ('Ingresar Información Personal del Paciente', {
                     'fields': (
                         'sucursales', 'photo',
                         'ruc', 'nombre_paciente', 'apellidos_paciente',
-                        'nacionalidad', 'sexo', 'fecha_nacimiento', 'institucion',
+                        'nacionalidad', 'sexo', 'fecha_nacimiento', 'institucion', 'instirucional',
                     ),
                     'classes': ('collapse',),
                 }),
@@ -2968,18 +3003,7 @@ class ProfileAdmin(ModelAdmin):
 
         return inline_instances
 
-    list_editable = ['es_retirado', 'es_en_terapia', 'es_pausa', 'es_alta']
-
-    list_filter = [
-        'sucursales', 'es_retirado', 'es_en_terapia', 'es_alta',
-        ('fecha_inicio', RangeDateFilter),
-        ('fecha_alta', RangeDateFilter),
-    ]
-
-    actions = [export_to_csv, export_to_excel]
-    verbose_name = "Registro Administrativo / Ingreso de Paciente"
-    verbose_name_plural = "Registro Administrativo / Ingreso de Paciente"
-
+    # Fieldset maestro por defecto para la administración central
     fieldsets = (
         ('Información del Sistema ', {
             'fields': ('user', 'contrasena',),
@@ -2989,7 +3013,7 @@ class ProfileAdmin(ModelAdmin):
             'fields': (
                 'sucursales', 'photo',
                 'ruc', 'nombre_paciente', 'apellidos_paciente',
-                'nacionalidad', 'sexo', 'fecha_nacimiento', 'institucion',
+                'nacionalidad', 'sexo', 'fecha_nacimiento', 'institucion', 'instirucional',
             ),
             'classes': ('collapse',),
         }),
@@ -3004,7 +3028,7 @@ class ProfileAdmin(ModelAdmin):
         }),
         ('Ingresar Información Terapéutica', {
             'fields': (
-                'institucional', 'valorizacion_terapeutica', 'tipos',
+                'valorizacion_terapeutica', 'tipos',
                 'user_terapeutas', 'user_terapeutas_1', 'user_terapeutas_3',
                 'fecha_inicio', 'fecha_pausa', 'fecha_re_inicio',
                 'fecha_alta', 'certificado_inicio', 'es_en_convenio', 'nombre_institucion',
@@ -3013,7 +3037,6 @@ class ProfileAdmin(ModelAdmin):
             'classes': ('collapse',),
         }),
     )
-
 
 
 @admin.register(InformesTerapeuticos)
