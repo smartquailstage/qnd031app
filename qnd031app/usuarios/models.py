@@ -1087,6 +1087,14 @@ class Profile(models.Model):
         verbose_name="Responsable Institucional"
     )
 
+    # ➕ AGREGA LA NUEVA RELACIÓN (Campos nuevos)
+    terapeutas = models.ManyToManyField(
+        'Perfil_Terapeuta',
+        through='AsignacionTerapeutaPaciente',
+        related_name='pacientes_asignados',
+        verbose_name="Cuerpo Terapéutico Asignado"
+    )
+
     user_terapeutas = models.ForeignKey(
         'Perfil_Terapeuta',
         verbose_name="Asignar primer terapéuta",
@@ -1199,6 +1207,17 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.nombre_completo
+
+# El nuevo modelo intermedio
+class AsignacionTerapeutaPaciente(models.Model):
+    paciente = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    terapeuta = models.ForeignKey('Perfil_Terapeuta', on_delete=models.CASCADE)
+    tipo_terapia = models.CharField(max_length=100, default='General', verbose_name="Especialidad")
+    fecha_asignacion = models.DateField(auto_now_add=True)
+    activo = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ('paciente', 'terapeuta', 'tipo_terapia')
 
 
 class pagos(models.Model):

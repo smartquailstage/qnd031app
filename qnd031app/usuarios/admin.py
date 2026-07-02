@@ -2824,22 +2824,24 @@ class ValoracionsInline(TabularInline):
 
 
 
-from django.contrib import admin
-from django.db import models
-from django.db.models import Q
-from unfold.admin import ModelAdmin
-from unfold.contrib.filters.admin import RangeDateFilter, RangeDateTimeFilter
 
 from django.contrib import admin
 from django.db.models import Q
-from unfold.admin import ModelAdmin  # Aseguramos la herencia nativa de Unfold
-from unfold.contrib.filters.admin import RangeDateFilter  # Filtro correcto para Unfold
-from .models import Profile, PerfilInstitucional, Perfil_Terapeuta  # Ajusta tus imports
+from django.core.exceptions import ValidationError
+from unfold.admin import ModelAdmin, TabularInline
+from unfold.contrib.filters.admin import RangeDateFilter
+from .models import Profile, PerfilInstitucional, Perfil_Terapeuta, AsignacionTerapeutaPaciente
+
+
+class AsignacionTerapeutaInline(TabularInline):
+    model = AsignacionTerapeutaPaciente
+    extra = 1
+    autocomplete_fields = ['terapeuta']
 
 
 @admin.register(Profile)
 class ProfileAdmin(ModelAdmin):
-    form = ProfileAdminForm  # El formulario blindado que unificaste
+    form = ProfileAdminForm
     
     # =========================================================================
     # CONFIGURACIÓN VISUAL EXCLUSIVA DE DJANGO UNFOLD
@@ -2851,18 +2853,17 @@ class ProfileAdmin(ModelAdmin):
     list_filter_sheet = True
     list_disable_select_all = False
     change_form_show_cancel_button = True
-    
-    # Recuerda importar tus componentes personalizados de Unfold si los usas:
     list_sections = [ProfileComponent, ProfileComponentRepresentante, ProfileComponentTerapeutico]
 
-    # Campos de autocompletado (Corregido 'institucional' por 'institucion' y añadido 'instirucional')
+    # Declaración estática base para asegurar el renderizado en Unfold
+    inlines = [AsignacionTerapeutaInline, TareaItemInline, CitaItemInline]
+
     autocomplete_fields = [
         'user', 'sucursales',
         'user_terapeutas', 'user_terapeutas_1', 'user_terapeutas_3',
         'institucion', 'instirucional', 'valorizacion_terapeutica'
     ]
 
-    # Campos de búsqueda global en el listado
     search_fields = [
         'user__username',  
         'user__first_name',  
@@ -2871,18 +2872,15 @@ class ProfileAdmin(ModelAdmin):
         'apellidos_paciente',
     ]
 
-    # Propiedad condicional nativa de Unfold
     conditional_fields = {
         "nombre_institucion": "es_en_convenio == false",
     }
 
-    # Preprocesadores de texto nativos de Unfold
     readonly_preprocess_fields = {
         "model_field_name": "html.unescape",
         "other_field_name": lambda content: content.strip(),
     }
 
-    # Sobreescritura de widgets para los campos de tipo Fecha
     formfield_overrides = {
         models.DateField: {
             "widget": CustomDatePickerWidget(),
@@ -2909,20 +2907,42 @@ class ProfileAdmin(ModelAdmin):
 
     @admin.display(description='Paciente')
     def get_full_name(self, obj):
-        # Devuelve el nombre real del paciente registrado en la ficha médica
         if obj.nombre_paciente or obj.apellidos_paciente:
             return f"{obj.nombre_paciente or ''} {obj.apellidos_paciente or ''}".strip()
         return obj.user.get_full_name() if obj.user else "Sin usuario asignado"
 
     # =========================================================================
-    # POLÍTICAS DE ACCESO SEGURAS (MÉTODOS DINÁMICOS)
+    # 🔐 INTEGRIDAD EN GUARDADO (CONTROL TRANSICIONAL)
+    # =========================================================================
+    def save_model(self, request, obj, form, change):
+        from django.contrib import messages
+        
+        t1 = form.cleaned_data.get('user_terapeutas')
+        t2 = form.cleaned_data.get('user_terapeutas_1')
+        t3 = form.cleaned_data.get('user_terapeutas_3')
+
+        # Filtramos estrictamente dejando FUERA los valores None (vacíos)
+        terapeutas_asignados = [t for t in [t1, t2, t3] if t is not None]
+        
+        # Validamos duplicados únicamente si el usuario seleccionó terapeutas reales
+        if len(terapeutas_asignados) != len(set(terapeutas_asignados)):
+            # En lugar de romper la app con un Error 500, mandamos un mensaje amigable a Unfold
+            messages.error(
+                request, 
+                "Error de asignación: No se puede asignar el mismo terapeuta en múltiples slots "
+                "para el mismo paciente. Cada rol debe ser único."
+            )
+            return  # Frena el guardado de forma segura devolviendo al usuario al formulario
+
+        try:
+            super().save_model(request, obj, form, change)
+        except ValidationError as e:
+            messages.error(request, f"Error al guardar el perfil: {e.messages[0]}")
+
+    # =========================================================================
+    # POLÍTICAS DE ACCESO SEGURAS (MÉTODOS DINÁMICOS UNIFICADOS)
     # =========================================================================
     def get_readonly_fields(self, request, obj=None):
-        """
-        🔒 BLINDAJE CRÍTICO FASE 3:
-        Si el perfil de paciente ya existe (modo edición/cambio), el campo 'user' 
-        se transforma dinámicamente en Solo Lectura.
-        """
         if obj:
             return self.readonly_fields + ('user',)
         return self.readonly_fields
@@ -2931,23 +2951,21 @@ class ProfileAdmin(ModelAdmin):
         qs = super().get_queryset(request)
         user = request.user
 
-        # 1. Superusuarios y Personal Administrativo central ven todo el universo de datos
         if user.is_superuser or user.groups.filter(name='administrativo').exists():
             return qs
 
-        # 2. 🔧 CORRECCIÓN FILTRO INSTITUCIONAL: Se mapea hacia el campo real con la errata física
         if user.groups.filter(name='institucional').exists():
             try:
                 perfil_institucional = PerfilInstitucional.objects.get(usuario=user)
-                return qs.filter(instirucional=perfil_institucional)  # 🧠 Corregido de 'institucional' a 'instirucional'
+                return qs.filter(instirucional=perfil_institucional)
             except PerfilInstitucional.DoesNotExist:
                 return qs.none()
 
-        # 3. Filtro para el cuerpo terapéutico
         if user.groups.filter(name='terapeutico').exists():
             try:
                 perfil_terapeuta = Perfil_Terapeuta.objects.get(user=user)
                 return qs.filter(
+                    Q(asignacionterapeutapaciente__terapeuta=perfil_terapeuta, asignacionterapeutapaciente__activo=True) |
                     Q(user_terapeutas=perfil_terapeuta) |
                     Q(user_terapeutas_1=perfil_terapeuta) |
                     Q(user_terapeutas_3=perfil_terapeuta)
@@ -2958,11 +2976,29 @@ class ProfileAdmin(ModelAdmin):
         return qs.none()
 
     # =========================================================================
-    # ESTRUCTURA DE FORMULARIO (FIELDSETS POR ROL)
+    # ESTRUCTURA DINÁMICA DE FORMULARIOS E INLINES
     # =========================================================================
+    def get_inline_instances(self, request, obj=None):
+        inline_instances = []
+        user = request.user
+        
+        # Inyectamos el inline de la tabla intermedia de manera prioritaria
+        base_inlines = [AsignacionTerapeutaInline, TareaItemInline, CitaItemInline]
+        for inline_class in base_inlines:
+            inline = inline_class(self.model, self.admin_site)
+            inline_instances.append(inline)
+
+        if user.is_superuser or user.groups.filter(name='administrativo').exists():
+            inline_instances.append(PagosItemInline(self.model, self.admin_site))
+            inline_instances.append(InformesTerapeuticosInline(self.model, self.admin_site))
+        
+        elif user.groups.filter(name='terapeutico').exists():
+            inline_instances.append(InformesTerapeuticosInline(self.model, self.admin_site))
+
+        return inline_instances
+
     def get_fieldsets(self, request, obj=None):
         user = request.user
-        # Si no es administrador o superusuario, limitamos visualmente los fieldsets que puede manipular
         if user.groups.filter(name__in=['terapeutico', 'institucional']).exists():
             return (
                 ('Ingresar Información Personal del Paciente', {
@@ -2982,28 +3018,7 @@ class ProfileAdmin(ModelAdmin):
             )
         return super().get_fieldsets(request, obj)
 
-    def get_inline_instances(self, request, obj=None):
-        inline_instances = []
-        user = request.user
-        
-        # Inlines básicos permitidos para todos los roles válidos
-        base_inlines = [TareaItemInline, CitaItemInline]
-        for inline_class in base_inlines:
-            inline = inline_class(self.model, self.admin_site)
-            inline_instances.append(inline)
-
-        # 🔒 Blindaje Financiero: Solo la administración central y superusuarios ven la facturación
-        if user.is_superuser or user.groups.filter(name='administrativo').exists():
-            inline_instances.append(PagosItemInline(self.model, self.admin_site))
-            inline_instances.append(InformesTerapeuticosInline(self.model, self.admin_site))
-        
-        # El cuerpo terapéutico puede generar reportes pero no auditar los estados de pago
-        elif user.groups.filter(name='terapeutico').exists():
-            inline_instances.append(InformesTerapeuticosInline(self.model, self.admin_site))
-
-        return inline_instances
-
-    # Fieldset maestro por defecto para la administración central
+    # Layout estructural maestro para administradores globales
     fieldsets = (
         ('Información del Sistema ', {
             'fields': ('user', 'contrasena',),
@@ -3037,6 +3052,8 @@ class ProfileAdmin(ModelAdmin):
             'classes': ('collapse',),
         }),
     )
+
+
 
 
 @admin.register(InformesTerapeuticos)

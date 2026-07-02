@@ -163,29 +163,31 @@
                                                         </div>
 
                                                         <!-- Terapeutas -->
-                                                        <div class="mt-5 d-flex align-items-start justify-content-between">
-                                                            <div>
-                                                                <h3 class="mb-2" style="color:#45a851">TERAPEUTAS</h3>
-                                                                <p class="mb-1">
-                                                                    <strong>
-                                                                        {% if profile.user_terapeutas or profile.user_terapeutas_1 or profile.user_terapeutas_3 %}
-                                                                            {% if profile.user_terapeutas %}
-                                                                                <p class="mb-0">{{ profile.user_terapeutas }}</p>
-                                                                            {% endif %}
-                                                                            {% if profile.user_terapeutas_1 %}
-                                                                                <p class="mb-0">{{ profile.user_terapeutas_1 }}</p>
-                                                                            {% endif %}
-                                                                            {% if profile.user_terapeutas_3 %}
-                                                                                <p class="mb-0">{{ profile.user_terapeutas_3 }}</p>
-                                                                            {% endif %}
-                                                                        {% else %}
-                                                                            <p class="mb-0">No hay terapeutas asignados.</p>
-                                                                        {% endif %}
-                                                                    </strong>
-                                                                </p>
-                                                            </div>
-                                                        </div>
-                                                    </div> <!-- end card-body -->
+<!-- Terapeutas -->
+<div class="mt-5 d-flex align-items-start justify-content-between">
+    <div>
+        <h3 class="mb-2" style="color:#45a851">TERAPEUTAS</h3>
+        <div class="mb-1">
+            <strong>
+                {# Accedemos dinámicamente a la tabla intermedia a través del perfil del paciente #}
+                {% if profile.asignacionterapeutapaciente_set.all %}
+                    {% for asignacion in profile.asignacionterapeutapaciente_set.all %}
+                        <p class="mb-1" style="font-weight: 600;">
+                            {{ asignacion.terapeuta.user.get_full_name }}
+                            {% if asignacion.rol %}
+                                <span class="text-muted" style="font-weight: normal; font-size: 0.9em;">
+                                    ({{ asignacion.rol }})
+                                </span>
+                            {% endif %}
+                        </p>
+                    {% endfor %}
+                {% else %}
+                    <p class="mb-0" style="font-weight: normal; color: #6c757d;">No hay terapeutas asignados.</p>
+                {% endif %}
+            </strong>
+        </div>
+    </div>
+</div>                                           </div> <!-- end card-body -->
                                                 </div> <!-- end p-3 -->
                                             </div> <!-- end card-body -->
                                         </div> <!-- end card -->

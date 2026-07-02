@@ -184,21 +184,40 @@ from datetime import date
 
 @login_required
 def profile_view(request):
+    # Traemos el perfil de forma directa
     profile = Profile.objects.get(user=request.user)
 
+    # 1. Mensajes recibidos: Filtro directo por el objeto perfil
     cantidad_mensajes_recibidos = Mensaje.objects.filter(receptor=profile).count()
-    cantidad_mensajes_enviados = Mensaje.objects.filter(emisor__user=request.user).count()
-    cantidad_terapias_realizadas = tareas.objects.filter(profile__user=request.user, actividad_realizada=True).count()
+    
+    # 2. Mensajes enviados: Blindado con distinct() por si 'emisor' cruza tablas con terapeutas
+    cantidad_mensajes_enviados = Mensaje.objects.filter(
+        emisor__user=request.user
+    ).distinct().count()
+    
+    # 3. Terapias realizadas: Filtramos DIRECTO por la instancia 'profile' en lugar de 'profile__user'
+    # Esto evita que Django haga un JOIN innecesario con la tabla User y repita registros por asignaciones múltiples
+    cantidad_terapias_realizadas = tareas.objects.filter(
+        profile=profile, 
+        actividad_realizada=True
+    ).distinct().count()
+    
+    # 4. Citas realizadas: Filtro directo unívoco
     citas_realizadas = Cita.objects.filter(profile=profile).count()
+    
+    # 5. Archivos: Ordenados por fecha de creación
     archivos = InformesTerapeuticos.objects.filter(profile=profile).order_by('-fecha_creado')
+    
+    # 6. Última tarea multimedia: Filtro directo por la instancia del perfil
     ultima_tarea_multimedia = tareas.objects.filter(
-        profile__user=request.user,
+        profile=profile,
         media_terapia__isnull=False
     ).order_by('-fecha_actividad').first()
 
     # Obtener estado de pago desde el modelo `pagos`
     try:
-        pago = pagos.objects.filter(profile__user=request.user).latest('created_at')
+        # Usamos filter directo por la instancia 'profile' para evitar duplicación relacional
+        pago = pagos.objects.filter(profile=profile).latest('created_at')
         if pago.al_dia:
             estado_de_pago = "Al día"
         elif pago.pendiente:
@@ -228,10 +247,13 @@ def profile_view(request):
     else:
         edad_anios, edad_meses = None, None
 
+    terapeutas_nuevos = profile.terapeutas.all()
+
     return render(request, 'usuarios/profile.html', {
         'profile': profile,
         'cantidad_mensajes_recibidos': cantidad_mensajes_recibidos,
         'cantidad_mensajes_enviados': cantidad_mensajes_enviados,
+        'terapeutas_nuevos': terapeutas_nuevos,
         'cantidad_terapias_realizadas': cantidad_terapias_realizadas,
         'citas_realizadas': citas_realizadas,
         'estado_de_pago': estado_de_pago,
@@ -239,8 +261,8 @@ def profile_view(request):
         'ultima_tarea_multimedia': ultima_tarea_multimedia,
         'edad_anios': edad_anios,
         'edad_meses': edad_meses,
+        
     })
-
 @login_required
 def contacto_view(request):
     # Obtenemos el perfil del usuario autenticado
@@ -686,17 +708,18 @@ from django.shortcuts import render
 from .models import tareas  # ajustá si usás otro nombre de app
 
 
+from django.contrib.auth.decorators import login_required
+from django.utils.timezone import now
+from django.shortcuts import render
+
 @login_required
 def tareas_asistidas_view(request):
     mes = request.GET.get('mes')      # Vienen como strings
     anio = request.GET.get('anio')
 
-    # 1. Comenzamos con todas las tareas
-    actividades = tareas.objects.all()
-
-    # 2. Filtramos SOLO las que marcaron asistencia (asistire=True)
-    # y nos aseguramos de que tengan un perfil de paciente asignado (por si acaso hay nulos)
-    actividades = actividades.filter(profile__isnull=False)
+    # 1. Comenzamos filtrando SOLO las tareas del usuario logueado
+    # Filtramos a través de la relación: profile__user
+    actividades = tareas.objects.filter(profile__user=request.user)
 
     # Filtrar por mes y año si vienen y son válidos
     try:
@@ -1000,57 +1023,61 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, DetailView
 from usuarios.models import tareas  # Ajusta según tu estructura
 
+from django.utils.timezone import now
+from django.views.generic import ListView
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 class TerapiaListView(LoginRequiredMixin, ListView):
     model = tareas
     template_name = 'usuarios/terapias/terapia_list.html'
     context_object_name = 'actividades'
 
     def get_queryset(self):
+        user = self.request.user
         mes = self.request.GET.get('mes')
         anio = self.request.GET.get('anio')
 
+        # 1. El paciente solo ve sus actividades confirmadas
         queryset = tareas.objects.filter(
             asistire=True,
-            profile__user=self.request.user
+            profile__user=user
         )
 
+        # 2. Procesamiento de filtros de fecha (Mes / Año)
         try:
-            mes = int(mes)
-            anio = int(anio)
-            if 1 <= mes <= 12:
-                queryset = queryset.filter(
-                    cita_terapeutica_asignada__year=anio,
-                    cita_terapeutica_asignada__month=mes
-                )
+            if mes and anio:
+                mes = int(mes)
+                anio = int(anio)
+                if 1 <= mes <= 12:
+                    queryset = queryset.filter(
+                        cita_terapeutica_asignada__year=anio,
+                        cita_terapeutica_asignada__month=mes
+                    )
         except (TypeError, ValueError):
-            # Si no hay filtro válido, no filtramos
-            pass
+            pass  # Si los parámetros no son válidos, no se aplica el filtro temporal
 
         return queryset.order_by('-cita_terapeutica_asignada')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        user = self.request.user
 
-        # Seleccionamos la primera actividad sin filtro de fecha para mostrar media
+        # Aislamiento estricto de la 'media' visual superior para el paciente logueado
         media = tareas.objects.filter(
             asistire=True,
-            profile__user=self.request.user,
+            profile__user=user,
             media_terapia__isnull=False
         ).order_by('-cita_terapeutica_asignada').first()
 
-        # Filtros actuales o por defecto
+        # Captura y normalización de filtros para mantener el estado en el HTML
         mes = self.request.GET.get('mes')
         anio = self.request.GET.get('anio')
 
-        try:
-            mes = int(mes)
-        except (TypeError, ValueError):
-            mes = now().month
+        try: mes = int(mes)
+        except (TypeError, ValueError): mes = now().month
 
-        try:
-            anio = int(anio)
-        except (TypeError, ValueError):
-            anio = now().year
+        try: anio = int(anio)
+        except (TypeError, ValueError): anio = now().year
 
         context.update({
             'media': media,
@@ -1065,7 +1092,6 @@ class TerapiaListView(LoginRequiredMixin, ListView):
         })
 
         return context
-
 
 
 

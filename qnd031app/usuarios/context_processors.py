@@ -1,36 +1,30 @@
-from datetime import timedelta, date
+from datetime import timedelta, date, datetime
+import datetime as dt  # Para evitar colisiones si usas time
 from django.utils import timezone
 from django.db.models import Count
-from .models import pagos, tareas, Cita, Mensaje, Profile,  InformesTerapeuticos, AdministrativeProfile, Perfil_Terapeuta,Perfil_Comercial
+from .models import pagos, tareas, Cita, Mensaje, Profile, InformesTerapeuticos, AdministrativeProfile, Perfil_Terapeuta, Perfil_Comercial
 from django.db.models import Q
 from collections import defaultdict
-from datetime import datetime
 from django.utils.timezone import localtime, is_naive, make_aware
 from django.db.models import FileField, ImageField
 from django.shortcuts import get_object_or_404
 
-
+# =========================================================================
+# PROCESADORES DE CONTEXTO CORREGIDOS
+# =========================================================================
 
 def nuevos_mensajes(request):
-    """
-    Procesador de contexto que retorna los mensajes no leídos del perfil del usuario logueado.
-    """
+    """Retorna los mensajes no leídos del perfil del usuario logueado."""
+    mensajes_nuevos = []
     if request.user.is_authenticated:
-        try:
-            profile = request.user.profile  # Asegúrate de que el user tenga un Profile asociado
+        profile = Profile.objects.filter(user=request.user).first()
+        if profile:
             mensajes_nuevos = Mensaje.objects.filter(
                 receptor=profile,
                 leido=False
-            ).order_by('-fecha_envio')[:5]  # Cambia 5 por el número que desees mostrar
-        except Profile.DoesNotExist:
-            mensajes_nuevos = []
-    else:
-        mensajes_nuevos = []
-
-    return {
-        'mensajes_no_leidos': mensajes_nuevos
-    }
-
+            ).order_by('-fecha_envio')[:5]
+            
+    return {'mensajes_no_leidos': mensajes_nuevos}
 
 
 def ultima_cita(request):
@@ -90,133 +84,48 @@ def ultima_cita(request):
     return {'ultima_cita': None}
 
 
-
-
 def ultimos_videos(request):
+    # Nota: Este trae los últimos videos de la plataforma global, no está filtrado por usuario.
+    # Si quieres que sea del usuario actual, deberías meter un filtro por 'profile'.
     ultimos_videos = tareas.objects.filter(
         media_terapia__isnull=False,
         actividad_realizada=True
-    ).exclude(
-        media_terapia=''
-    ).order_by('-fecha_actividad')[:5]
+    ).exclude(media_terapia='').order_by('-fecha_actividad')[:5]
 
-    return {
-        'ultimos_videos_realizados': ultimos_videos
-    }
+    return {'ultimos_videos_realizados': ultimos_videos}
 
 
-
-    
 def ultima_tarea(request):
-    """
-    Obtener la última tarea usando profile, sin error si no existe el profile.
-    """
     if request.user.is_authenticated:
-        profile = Profile.objects.filter(user=request.user).first()  # devuelve None si no existe
-        if profile is None:
-            return {'ultima_tarea': None}
-        ultima_tarea = tareas.objects.filter(profile=profile).order_by('-cita_terapeutica_asignada').first()
-        return {'ultima_tarea': ultima_tarea}
-    return {}
-
-
-def citas_context(request):
-    if request.user.is_authenticated:
-        citas = Cita.objects.filter(destinatario__user=request.user)\
-            .select_related('creador', 'destinatario', 'destinatario__user')\
-            .order_by('-fecha')[:20]
-
-        agenda = defaultdict(lambda: defaultdict(list))
-        fechas_unicas = set()
-        horas_unicas = set()
-
-        for cita in citas:
-            if not cita.fecha:
-                continue
-
-            fecha = cita.fecha
-            if is_naive(datetime.combine(fecha, time(0, 0))):
-                fecha = make_aware(datetime.combine(fecha, time(0, 0)))
-
-            fecha_local = localtime(fecha)
-            dia_str = fecha_local.strftime("%Y-%m-%d")
-            hora = fecha_local.strftime("%H:00")
-
-            # Solo lunes a viernes, de 9:00 a 22:00
-            if fecha_local.weekday() >= 5 or not (9 <= fecha_local.hour <= 22):
-                continue
-
-            creador_nombre = (
-                cita.creador.get_full_name() if cita.creador and hasattr(cita.creador, 'get_full_name')
-                else getattr(cita.creador, 'username', 'Sin creador')
-            )
-
-            destinatario_nombre = (
-                cita.destinatario.user.get_full_name() if cita.destinatario and cita.destinatario.user else 'Sin destinatario'
-            )
-
-            agenda[dia_str][hora].append({
-                "id": cita.id,
-                "motivo": cita.motivo or "Sin motivo",
-                "creador": creador_nombre,
-                "destinatario": destinatario_nombre,
-                "estado": cita.estado,  # Usa la propiedad `estado` de tu modelo si existe
-                "tipo_cita": cita.get_tipo_cita_display() if cita.tipo_cita else "Sin tipo"
-            })
-
-            fechas_unicas.add(dia_str)
-            horas_unicas.add(hora)
-
-        dias_date = [datetime.strptime(d, "%Y-%m-%d").date() for d in fechas_unicas]
-
-        return {
-            'agenda': agenda,
-            'dias': sorted(dias_date),
-            'horas': sorted(horas_unicas),
-            'dias_str_map': {d: d.strftime("%Y-%m-%d") for d in dias_date}
-        }
-
-    return {}
-
-
-
-
+        profile = Profile.objects.filter(user=request.user).first()
+        if profile:
+            ultima_tarea = tareas.objects.filter(profile=profile).order_by('-cita_terapeutica_asignada').first()
+            return {'ultima_tarea': ultima_tarea}
+    return {'ultima_tarea': None}
 
 
 def user_profile_data(request):
     if request.user.is_authenticated:
-        try:
-            profile = request.user.profile  # o Profile.objects.get(user=request.user)
-            return {
-                'profile_photo': profile.photo.url if profile.photo else None,
-                'name': request.user.first_name,
-                'last_name': request.user.last_name,
-            }
-        except:
-            return {
-                'profile_photo': None,
-                'name': request.user.first_name,
-                'last_name': request.user.last_name,
-            }
+        profile = Profile.objects.filter(user=request.user).first()
+        return {
+            'profile_photo': profile.photo.url if profile and profile.photo else None,
+            'name': request.user.first_name,
+            'last_name': request.user.last_name,
+        }
     return {}
 
 
 def mensajes_leidos_processor(request):
     mensajes_leidos = []
     if request.user.is_authenticated:
-        try:
-            perfil = Profile.objects.get(user=request.user)
+        profile = Profile.objects.filter(user=request.user).first()
+        if profile:
             mensajes_leidos = Mensaje.objects.filter(
-                receptor=perfil,
+                receptor=profile,
                 leido=True
             ).exclude(emisor__user=request.user).order_by('-fecha_envio')
-        except Profile.DoesNotExist:
-            # Si el perfil no existe, devolvemos lista vacía
-            mensajes_leidos = []
 
-    return {
-        'mensajes_recibidos': mensajes_leidos
-    }
+    return {'mensajes_recibidos': mensajes_leidos}
 
 
 def mensajes_nuevos_processor(request):
@@ -228,29 +137,23 @@ def mensajes_nuevos_processor(request):
         hoy = date.today()
         desde = hoy - timedelta(days=7)
 
-        try:
-            perfil_admin = AdministrativeProfile.objects.get(user=request.user)
-
+        admin_profile = AdministrativeProfile.objects.filter(user=request.user).first()
+        if admin_profile:
             mensajes_queryset = Mensaje.objects.filter(
-                perfil_administrativo=perfil_admin,
+                perfil_administrativo=admin_profile,
                 leido=False,
                 fecha_envio__date__gte=desde
             ).order_by('-fecha_envio')
 
-            count = mensajes_queryset.count()
+            count = mensajes_queryset.distinct().count()
             mensajes = mensajes_queryset[:6]
 
             conteo_por_emisor = (
                 mensajes_queryset
-                .values(
-                    'emisor__id',
-                    'emisor__user__username',
-                )
-                .annotate(total=Count('id'))
+                .values('emisor__id', 'emisor__user__username')
+                .annotate(total=Count('id', distinct=True))
                 .order_by('-total')
             )
-        except AdministrativeProfile.DoesNotExist:
-            pass
 
     return {
         'mensajes_nuevos': count,
@@ -259,50 +162,34 @@ def mensajes_nuevos_processor(request):
     }
 
 
-
-
 def datos_panel_usuario(request):
     if not request.user.is_authenticated:
         return {}
 
-    user = request.user
+    profile = Profile.objects.filter(user=request.user).first()
 
-    # Obtener el perfil asociado
-    try:
-        profile = user.profile
-    except Profile.DoesNotExist:
-        profile = None
-
-    # Estado de pago
-    try:
-        ultimo_pago = pagos.objects.filter(profile__user=user).latest('created_at')
-        if ultimo_pago.al_dia:
-            estado_de_pago = "Al día"
-        elif ultimo_pago.pendiente:
-            estado_de_pago = "Pendiente"
-        elif ultimo_pago.vencido:
-            estado_de_pago = "Vencido"
-        else:
-            estado_de_pago = "Sin estado"
-    except pagos.DoesNotExist:
-        estado_de_pago = "No disponible"
-
-    # Cantidad de mensajes recibidos — ahora filtrando por perfil, no por usuario
+    # Estado de pago - Filtrado unívoco por la instancia profile
+    estado_de_pago = "No disponible"
     if profile:
-        cantidad_mensajes_recibidos = Mensaje.objects.filter(receptor=profile).count()
-    else:
-        cantidad_mensajes_recibidos = 0
+        try:
+            ultimo_pago = pagos.objects.filter(profile=profile).latest('created_at')
+            if ultimo_pago.al_dia:
+                estado_de_pago = "Al día"
+            elif ultimo_pago.pendiente:
+                estado_de_pago = "Pendiente"
+            elif ultimo_pago.vencido:
+                estado_de_pago = "Vencido"
+            else:
+                estado_de_pago = "Sin estado"
+        except pagos.DoesNotExist:
+            pass
 
-    # Tareas realizadas por el paciente
-    cantidad_terapias_realizadas = tareas.objects.filter(profile__user=user, tarea_realizada=True).count()
+    # Conteo de mensajes, tareas y citas blindados contra duplicaciones
+    cantidad_mensajes_recibidos = Mensaje.objects.filter(receptor=profile).count() if profile else 0
+    cantidad_terapias_realizadas = tareas.objects.filter(profile=profile, tarea_realizada=True).distinct().count() if profile else 0
+    citas_realizadas = Cita.objects.filter(profile=profile, confirmada=True).count() if profile else 0
 
-    # Citas confirmadas para el usuario
-    if profile:
-        citas_realizadas = Cita.objects.filter(profile=profile, confirmada=True).count()
-    else:
-        citas_realizadas = 0
-
-    # Determinar estado general de la terapia desde el modelo Profile
+    # Estado de la terapia
     estado_terapia = "No definido"
     if profile:
         if profile.es_en_terapia:
@@ -323,100 +210,74 @@ def datos_panel_usuario(request):
     }
 
 
-
 def citas_context(request):
+    """Maneja las estadísticas de citas para el contexto global."""
     if request.user.is_authenticated:
-        try:
-            profile = Profile.objects.get(user=request.user)
-        except Profile.DoesNotExist:
-            return {}  # No se incluye nada si no hay perfil
-
-        citas = Cita.objects.filter(profile=profile)
-
-        return {
-            'citas_todas': citas,
-            'citas_confirmadas_count': citas.filter(confirmada=True).count(),
-            'citas_pendientes_count': citas.filter(pendiente=True, confirmada=False, cancelada=False).count(),
-            'citas_canceladas_count': citas.filter(cancelada=True).count(),
-            'proximas_citas': citas.filter(fecha__gte=timezone.now()).order_by('fecha')[:5]
-        }
-
+        profile = Profile.objects.filter(user=request.user).first()
+        if profile:
+            citas = Cita.objects.filter(profile=profile)
+            return {
+                'citas_todas': citas,
+                'citas_confirmadas_count': citas.filter(confirmada=True).count(),
+                'citas_pendientes_count': citas.filter(pendiente=True, confirmada=False, cancelada=False).count(),
+                'citas_canceladas_count': citas.filter(cancelada=True).count(),
+                'proximas_citas': citas.filter(fecha__gte=timezone.now()).order_by('fecha')[:5]
+            }
     return {}
 
 
 def tareas_context(request):
     if request.user.is_authenticated:
-        # Tareas asignadas al usuario
+        profile = Profile.objects.filter(user=request.user).first()
+        if not profile:
+            return {}
+
+        # Filtramos estrictamente por la instancia de perfil y agregamos distinct() preventivo
         tareas_nuevas_qs = tareas.objects.filter(
-            profile__user=request.user,
+            profile=profile,
             actividad_realizada=False
         ).order_by('-fecha_envio')
 
-        tareas_count = tareas_nuevas_qs.count()
-        tareas_detalle = tareas_nuevas_qs[:5]  # Para usar en notificaciones o sidebar
+        tareas_count = tareas_nuevas_qs.distinct().count()
+        tareas_detalle = tareas_nuevas_qs[:5]
 
-        # Estadísticas adicionales
-        actividades_nuevas = tareas.objects.filter(
-            profile__user=request.user,
-            envio_tarea=True,
-            actividad_realizada=False
-        ).count()
-
-        actividades_realizadas = tareas.objects.filter(
-            profile__user=request.user,
-            envio_tarea=True,
-            actividad_realizada=True
-        ).count()
-
-        tareas_sin_alta = tareas.objects.filter(
-            profile__user=request.user,
-            actividad_realizada=False
-        ).count()
-
-        tareas_con_alta = tareas.objects.filter(
-            profile__user=request.user,
-            actividad_realizada=True
-        ).count()
+        base_qs = tareas.objects.filter(profile=profile, envio_tarea=True)
 
         return {
             'tareas_nuevas_count': tareas_count,
             'tareas_detalle': tareas_detalle,
-            'actividades_nuevas': actividades_nuevas,
-            'actividades_realizadas': actividades_realizadas,
-            'tareas_nuevas': tareas_sin_alta,
-            'tareas_con_alta': tareas_con_alta,
+            'actividades_nuevas': base_qs.filter(actividad_realizada=False).distinct().count(),
+            'actividades_realizadas': base_qs.filter(actividad_realizada=True).distinct().count(),
+            'tareas_nuevas': tareas.objects.filter(profile=profile, actividad_realizada=False).distinct().count(),
+            'tareas_con_alta': tareas.objects.filter(profile=profile, actividad_realizada=True).distinct().count(),
         }
-
     return {}
 
 
 def pagos_context(request):
     if request.user.is_authenticated:
-        pagos_pendientes = pagos.objects.filter(profile__user=request.user, pendiente=True)
-        pagos_vencidos = pagos.objects.filter(profile__user=request.user, vencido=True)
+        profile = Profile.objects.filter(user=request.user).first()
+        if profile:
+            pagos_pendientes = pagos.objects.filter(profile=profile, pendiente=True)
+            pagos_vencidos = pagos.objects.filter(profile=profile, vencido=True)
 
-        total_pendientes = pagos_pendientes.count()
-        total_vencidos = pagos_vencidos.count()
-        total_pagos_nuevos = total_pendientes + total_vencidos
+            total_pendientes = pagos_pendientes.distinct().count()
+            total_vencidos = pagos_vencidos.distinct().count()
 
-        return {
-            'pagos_pendientes_notif': pagos_pendientes,
-            'pagos_vencidos_notif': pagos_vencidos,
-            'total_pendientes': total_pendientes,
-            'total_vencidos': total_vencidos,
-            'total_pagos_nuevos': total_pagos_nuevos,
-        }
+            return {
+                'pagos_pendientes_notif': pagos_pendientes,
+                'pagos_vencidos_notif': pagos_vencidos,
+                'total_pendientes': total_pendientes,
+                'total_vencidos': total_vencidos,
+                'total_pagos_nuevos': total_pendientes + total_vencidos,
+            }
     return {}
-
-
-
-
 
 
 def get_upload_fields(profile_instance):
     upload_fields = {}
 
-    # Archivos del modelo Profile (campos FileField / ImageField)
+    # Archivos del modelo Profile
     for field in profile_instance._meta.get_fields():
         if isinstance(field, (FileField, ImageField)):
             value = getattr(profile_instance, field.name)
@@ -424,21 +285,20 @@ def get_upload_fields(profile_instance):
                 label = field.verbose_name or field.name.replace('_', ' ').capitalize()
                 upload_fields[label] = value.url
 
-    # Archivos del modelo relacionado InformesTerapeuticos
-    for informe in profile_instance.informes.all().order_by('-fecha_creado'):
+    # Archivos relacionados (informes) optimizados mediante la precarga
+    for informe in profile_instance.informes.all():
         if informe.archivo:
             upload_fields[f"🗂 {informe.titulo}"] = informe.archivo.url
 
     return upload_fields
 
+
 def profile_uploads_context(request):
     if request.user.is_authenticated:
-        profiles = Profile.objects.filter(user=request.user)
-        if not profiles.exists():
-            return {}
-
-        profile = profiles.first()
-        uploads = get_upload_fields(profile)
-        if uploads:
-            return {'upload_fields': uploads}
+        # Usamos prefetch_related para evitar el problema de N+1 consultas SQL en informes
+        profiles = Profile.objects.filter(user=request.user).prefetch_related('informes')
+        if profiles.exists():
+            uploads = get_upload_fields(profiles.first())
+            if uploads:
+                return {'upload_fields': uploads}
     return {}
