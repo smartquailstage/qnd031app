@@ -182,41 +182,56 @@ def admin_cita_detail(request, cita_id):
 
 from datetime import date
 
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from datetime import date
+from .models import Profile, Mensaje, tareas, Cita, InformesTerapeuticos, pagos  # Asegura tus imports
+
 @login_required
 def profile_view(request):
-    # Traemos el perfil de forma directa
-    profile = Profile.objects.get(user=request.user)
+    # 1. Traemos el perfil de forma directa y segura
+    try:
+        profile = Profile.objects.get(user=request.user)
+    except Profile.DoesNotExist:
+        return render(request, 'usuarios/profile.html', {'error': 'El usuario no tiene un perfil clínico asignado.'})
 
-    # 1. Mensajes recibidos: Filtro directo por el objeto perfil
+    # 2. Mensajes: Filtros directos y unívocos por instancia de perfil
     cantidad_mensajes_recibidos = Mensaje.objects.filter(receptor=profile).count()
+    cantidad_mensajes_enviados = Mensaje.objects.filter(emisor=profile).distinct().count()
     
-    # 2. Mensajes enviados: Blindado con distinct() por si 'emisor' cruza tablas con terapeutas
-    cantidad_mensajes_enviados = Mensaje.objects.filter(
-        emisor__user=request.user
-    ).distinct().count()
-    
-    # 3. Terapias realizadas: Filtramos DIRECTO por la instancia 'profile' en lugar de 'profile__user'
-    # Esto evita que Django haga un JOIN innecesario con la tabla User y repita registros por asignaciones múltiples
+    # 3. Terapias realizadas: Filtro directo optimizado
     cantidad_terapias_realizadas = tareas.objects.filter(
         profile=profile, 
         actividad_realizada=True
     ).distinct().count()
     
-    # 4. Citas realizadas: Filtro directo unívoco
+    # 4. Citas realizadas
     citas_realizadas = Cita.objects.filter(profile=profile).count()
     
-    # 5. Archivos: Ordenados por fecha de creación
+    # 5. Archivos / Informes ordenados por fecha
     archivos = InformesTerapeuticos.objects.filter(profile=profile).order_by('-fecha_creado')
     
-    # 6. Última tarea multimedia: Filtro directo por la instancia del perfil
-    ultima_tarea_multimedia = tareas.objects.filter(
+    # =========================================================================
+    # 6. EXTRACCIÓN DE LOGROS Y TAREAS PARA EL HTML (Corrección de nombres)
+    # =========================================================================
+    
+    # Última tarea multimedia para el reproductor de video (Mapeado a lo que pide el HTML)
+    ultima_tarea_enviada = tareas.objects.filter(
         profile=profile,
         media_terapia__isnull=False
     ).order_by('-fecha_actividad').first()
 
-    # Obtener estado de pago desde el modelo `pagos`
+    # Última tarea en general para el recuadro de Tareas Asignadas
+    ultima_tarea = tareas.objects.filter(profile=profile).order_by('-fecha_envio').first()
+    
+    # Bandera para saber si el bloque de video tiene tareas pendientes
+    ultima_tarea_pendiente = tareas.objects.filter(profile=profile, actividad_realizada=False).exists()
+    
+    # Última cita para el recuadro de Asistencia Confirmada/Pendiente
+    ultima_cita = Cita.objects.filter(profile=profile).order_by('-cita_terapeutica_asignada').first()
+
+    # 7. Obtener estado de pago
     try:
-        # Usamos filter directo por la instancia 'profile' para evitar duplicación relacional
         pago = pagos.objects.filter(profile=profile).latest('created_at')
         if pago.al_dia:
             estado_de_pago = "Al día"
@@ -229,26 +244,14 @@ def profile_view(request):
     except pagos.DoesNotExist:
         estado_de_pago = "No registrado"
 
-    # Obtener la edad detallada (años y meses)
-    if profile.fecha_nacimiento:
-        today = date.today()
-        years = today.year - profile.fecha_nacimiento.year
-        months = today.month - profile.fecha_nacimiento.month
-        days = today.day - profile.fecha_nacimiento.day
+    # 8. Edades utilizando tus nuevas propiedades optimizadas del modelo
+    edad_anios = profile.edad_anios
+    edad_meses = profile.edad_meses
 
-        if days < 0:
-            months -= 1
-        if months < 0:
-            years -= 1
-            months += 12
-
-        edad_anios = years
-        edad_meses = months
-    else:
-        edad_anios, edad_meses = None, None
-
+    # 9. El nuevo cuerpo médico asignado gracias a tu ManyToMany
     terapeutas_nuevos = profile.terapeutas.all()
 
+    # 10. Contexto unificado hacia la plantilla
     return render(request, 'usuarios/profile.html', {
         'profile': profile,
         'cantidad_mensajes_recibidos': cantidad_mensajes_recibidos,
@@ -258,11 +261,18 @@ def profile_view(request):
         'citas_realizadas': citas_realizadas,
         'estado_de_pago': estado_de_pago,
         'archivos': archivos,
-        'ultima_tarea_multimedia': ultima_tarea_multimedia,
         'edad_anios': edad_anios,
         'edad_meses': edad_meses,
         
+        # Variables críticas reincorporadas para activar tu HTML de forma segura
+        'ultima_tarea_enviada': ultima_tarea_enviada,
+        'ultima_tarea': ultima_tarea,
+        'ultima_tarea_pendiente': ultima_tarea_pendiente,
+        'ultima_cita': ultima_cita,
     })
+
+
+
 @login_required
 def contacto_view(request):
     # Obtenemos el perfil del usuario autenticado

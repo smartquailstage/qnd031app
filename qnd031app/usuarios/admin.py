@@ -2826,12 +2826,13 @@ class ValoracionsInline(TabularInline):
 
 
 from django.contrib import admin
+from django.db import models
 from django.db.models import Q
+from django.contrib import messages
 from django.core.exceptions import ValidationError
-from unfold.admin import ModelAdmin, TabularInline
-from unfold.contrib.filters.admin import RangeDateFilter
-from .models import Profile, PerfilInstitucional, Perfil_Terapeuta, AsignacionTerapeutaPaciente
+from unfold.admin import ModelAdmin, TabularInline  # Asegura tus imports de Unfold
 
+from .models import Profile, AsignacionTerapeutaPaciente, Perfil_Terapeuta, PerfilInstitucional
 
 class AsignacionTerapeutaInline(TabularInline):
     model = AsignacionTerapeutaPaciente
@@ -2853,11 +2854,14 @@ class ProfileAdmin(ModelAdmin):
     list_filter_sheet = True
     list_disable_select_all = False
     change_form_show_cancel_button = True
+    
+    # Mapeo estético de Unfold Components
     list_sections = [ProfileComponent, ProfileComponentRepresentante, ProfileComponentTerapeutico]
 
-    # Declaración estática base para asegurar el renderizado en Unfold
+    # Declaración estática base para asegurar el renderizado limpio en Unfold
     inlines = [AsignacionTerapeutaInline, TareaItemInline, CitaItemInline]
 
+    # Añadimos soporte de auto-completado para evitar lentitud si hay miles de registros
     autocomplete_fields = [
         'user', 'sucursales',
         'user_terapeutas', 'user_terapeutas_1', 'user_terapeutas_3',
@@ -2915,24 +2919,20 @@ class ProfileAdmin(ModelAdmin):
     # 🔐 INTEGRIDAD EN GUARDADO (CONTROL TRANSICIONAL)
     # =========================================================================
     def save_model(self, request, obj, form, change):
-        from django.contrib import messages
-        
         t1 = form.cleaned_data.get('user_terapeutas')
         t2 = form.cleaned_data.get('user_terapeutas_1')
         t3 = form.cleaned_data.get('user_terapeutas_3')
 
-        # Filtramos estrictamente dejando FUERA los valores None (vacíos)
+        # Control transicional para los slots antiguos en lo que se migra al ManyToMany completo
         terapeutas_asignados = [t for t in [t1, t2, t3] if t is not None]
         
-        # Validamos duplicados únicamente si el usuario seleccionó terapeutas reales
         if len(terapeutas_asignados) != len(set(terapeutas_asignados)):
-            # En lugar de romper la app con un Error 500, mandamos un mensaje amigable a Unfold
             messages.error(
                 request, 
                 "Error de asignación: No se puede asignar el mismo terapeuta en múltiples slots "
                 "para el mismo paciente. Cada rol debe ser único."
             )
-            return  # Frena el guardado de forma segura devolviendo al usuario al formulario
+            return  
 
         try:
             super().save_model(request, obj, form, change)
@@ -2964,8 +2964,11 @@ class ProfileAdmin(ModelAdmin):
         if user.groups.filter(name='terapeutico').exists():
             try:
                 perfil_terapeuta = Perfil_Terapeuta.objects.get(user=user)
+                
+                # ✅ CORREGIDO: Filtro adaptado para resolver de forma segura tanto la nueva tabla
+                # intermedia ManyToMany como los slots antiguos sin generar colisiones en Postgres.
                 return qs.filter(
-                    Q(asignacionterapeutapaciente__terapeuta=perfil_terapeuta, asignacionterapeutapaciente__activo=True) |
+                    Q(asignacionterapeutapaciente__terapeuta=perfil_terapeuta) |
                     Q(user_terapeutas=perfil_terapeuta) |
                     Q(user_terapeutas_1=perfil_terapeuta) |
                     Q(user_terapeutas_3=perfil_terapeuta)
@@ -2979,14 +2982,10 @@ class ProfileAdmin(ModelAdmin):
     # ESTRUCTURA DINÁMICA DE FORMULARIOS E INLINES
     # =========================================================================
     def get_inline_instances(self, request, obj=None):
-        inline_instances = []
+        # ✅ CORREGIDO: Evitamos la duplicación de inlines heredando de forma limpia
+        # los declarados en la tupla `inlines` base y sumando los condicionales por rol.
+        inline_instances = super().get_inline_instances(request, obj)
         user = request.user
-        
-        # Inyectamos el inline de la tabla intermedia de manera prioritaria
-        base_inlines = [AsignacionTerapeutaInline, TareaItemInline, CitaItemInline]
-        for inline_class in base_inlines:
-            inline = inline_class(self.model, self.admin_site)
-            inline_instances.append(inline)
 
         if user.is_superuser or user.groups.filter(name='administrativo').exists():
             inline_instances.append(PagosItemInline(self.model, self.admin_site))
@@ -3052,7 +3051,6 @@ class ProfileAdmin(ModelAdmin):
             'classes': ('collapse',),
         }),
     )
-
 
 
 
