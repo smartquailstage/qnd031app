@@ -195,9 +195,11 @@ def profile_view(request):
     except Profile.DoesNotExist:
         return render(request, 'usuarios/profile.html', {'error': 'El usuario no tiene un perfil clínico asignado.'})
 
-    # 2. Mensajes: Filtros directos y unívocos por instancia de perfil
+    # 2. Mensajes: Filtros directos
     cantidad_mensajes_recibidos = Mensaje.objects.filter(receptor=profile).count()
-    cantidad_mensajes_enviados = Mensaje.objects.filter(emisor=profile).distinct().count()
+    
+    # CORRECCIÓN: Evitamos filtrar por emisor=profile debido a que 'emisor' es ForeignKey a AdministrativeProfile
+    cantidad_mensajes_enviados = 0 
     
     # 3. Terapias realizadas: Filtro directo optimizado
     cantidad_terapias_realizadas = tareas.objects.filter(
@@ -212,23 +214,23 @@ def profile_view(request):
     archivos = InformesTerapeuticos.objects.filter(profile=profile).order_by('-fecha_creado')
     
     # =========================================================================
-    # 6. EXTRACCIÓN DE LOGROS Y TAREAS PARA EL HTML (Corrección de nombres)
+    # 6. EXTRACCIÓN DE LOGROS Y TAREAS PARA EL HTML
     # =========================================================================
     
-    # Última tarea multimedia para el reproductor de video (Mapeado a lo que pide el HTML)
+    # Última tarea multimedia
     ultima_tarea_enviada = tareas.objects.filter(
         profile=profile,
         media_terapia__isnull=False
     ).order_by('-fecha_actividad').first()
 
-    # Última tarea en general para el recuadro de Tareas Asignadas
+    # Última tarea en general
     ultima_tarea = tareas.objects.filter(profile=profile).order_by('-fecha_envio').first()
     
-    # Bandera para saber si el bloque de video tiene tareas pendientes
+    # Bandera de tareas pendientes
     ultima_tarea_pendiente = tareas.objects.filter(profile=profile, actividad_realizada=False).exists()
     
-    # Última cita para el recuadro de Asistencia Confirmada/Pendiente
-    ultima_cita = Cita.objects.filter(profile=profile).order_by('-cita_terapeutica_asignada').first()
+    # CORRECCIÓN: Se cambió el campo de ordenamiento a '-fecha'
+    ultima_cita = Cita.objects.filter(profile=profile).order_by('-fecha').first()
 
     # 7. Obtener estado de pago
     try:
@@ -244,11 +246,9 @@ def profile_view(request):
     except pagos.DoesNotExist:
         estado_de_pago = "No registrado"
 
-    # 8. Edades utilizando tus nuevas propiedades optimizadas del modelo
+    # 8. Edades y terapeutas
     edad_anios = profile.edad_anios
     edad_meses = profile.edad_meses
-
-    # 9. El nuevo cuerpo médico asignado gracias a tu ManyToMany
     terapeutas_nuevos = profile.terapeutas.all()
 
     # 10. Contexto unificado hacia la plantilla
@@ -264,14 +264,11 @@ def profile_view(request):
         'edad_anios': edad_anios,
         'edad_meses': edad_meses,
         
-        # Variables críticas reincorporadas para activar tu HTML de forma segura
         'ultima_tarea_enviada': ultima_tarea_enviada,
         'ultima_tarea': ultima_tarea,
         'ultima_tarea_pendiente': ultima_tarea_pendiente,
         'ultima_cita': ultima_cita,
     })
-
-
 
 @login_required
 def contacto_view(request):
