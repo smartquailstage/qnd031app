@@ -1,11 +1,16 @@
 import os
+import sys # <-- 1. Importamos sys
 import django
 
+# 2. Le decimos a Python que mire la raíz del proyecto (subiendo dos niveles desde utils/)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(BASE_DIR)
+
 # Configurar el entorno de Django
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'qnd031app.settings.pro') # <-- Cambia 'tu_proyecto' por el nombre real de tu carpeta de configuración
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'qnd031app.settings.pro') 
 django.setup()
 
-from usuarios.models import Profile  # <-- Cambia 'usuarios' por el nombre real de tu app
+from usuarios.models import Profile  
 
 def migrar_datos_terapeutas():
     print("Iniciando la migración automática de terapeutas...")
@@ -25,7 +30,6 @@ def migrar_datos_terapeutas():
 
         # Los agregamos a la nueva relación ManyToMany
         if terapeutas_a_vincular:
-            # .add() se encarga de crear los registros en 'AsignacionTerapeutaPaciente' automáticamente
             perfil.terapeutas.add(*terapeutas_a_vincular)
             contador += 1
             print(f"✅ Terapeutas migrados para el paciente: {perfil.nombre_paciente} {perfil.apellidos_paciente}")
