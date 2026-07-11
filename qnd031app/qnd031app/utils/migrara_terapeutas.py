@@ -2,10 +2,10 @@ import os
 import django
 
 # Configurar el entorno de Django
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'tu_proyecto.settings') # <-- Cambia 'tu_proyecto' por el nombre real de tu carpeta de configuración
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'qnd031app.settings.pro') # <-- Cambia 'tu_proyecto' por el nombre real de tu carpeta de configuración
 django.setup()
 
-from usuarios.models import Profile  # <-- Cambia 'usuarios' por el nombre real de tu app
+from qnd031app.models import Profile  # <-- Cambia 'usuarios' por el nombre real de tu app
 
 def migrar_datos_terapeutas():
     print("Iniciando la migración automática de terapeutas...")
