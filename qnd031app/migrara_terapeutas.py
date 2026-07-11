@@ -1,15 +1,17 @@
 import os
-import sys # <-- 1. Importamos sys
+import sys
 import django
 
-# 2. Le decimos a Python que mire la raíz del proyecto (subiendo dos niveles desde utils/)
+# 1. Configuración de rutas para evitar conflictos con Celery y módulos locales
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(BASE_DIR)
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
 
-# Configurar el entorno de Django
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'qnd031app.settings.pro') 
+# 2. Configuración del entorno de Django (Por defecto usa local, se puede cambiar en terminal)
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'qnd031app.settings.local')
 django.setup()
 
+# 3. Importación de modelos (Siempre después de django.setup())
 from usuarios.models import Profile  
 
 def migrar_datos_terapeutas():
@@ -30,11 +32,12 @@ def migrar_datos_terapeutas():
 
         # Los agregamos a la nueva relación ManyToMany
         if terapeutas_a_vincular:
+            # .add() se encarga de crear los registros en la tabla intermedia automáticamente
             perfil.terapeutas.add(*terapeutas_a_vincular)
             contador += 1
             print(f"✅ Terapeutas migrados para el paciente: {perfil.nombre_paciente} {perfil.apellidos_paciente}")
 
-    print(f"🎉 ¡Proceso terminado con éxito! Se actualizaron {contador} perfiles.")
+    print(f"\n🎉 ¡Proceso terminado con éxito! Se actualizaron {contador} perfiles.")
 
 if __name__ == '__main__':
     migrar_datos_terapeutas()
