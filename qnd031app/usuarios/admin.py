@@ -2723,23 +2723,27 @@ class ProfileComponentTerapeutico(BaseComponent):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        p = self.instance  # Instancia actual
+        p = self.instance  # Instancia de Profile
 
-        # Renderizar los terapeutas como una lista de nombres
-        terapeutas = ", ".join(filter(None, [
-            str(p.user_terapeutas.user.get_full_name()) if p.user_terapeutas and p.user_terapeutas.user else None,
-            str(p.user_terapeutas_1.user.get_full_name()) if p.user_terapeutas_1 and p.user_terapeutas_1.user else None,
-            str(p.user_terapeutas_3.user.get_full_name()) if p.user_terapeutas_3 and p.user_terapeutas_3.user else None,
-        ])) or "Sin terapeutas asignados"
+        # 1. Obtener todos los terapeutas desde la nueva relación ManyToMany (tabla through)
+        # Usamos select_related('user') para evitar consultas N+1 en la base de datos
+        lista_terapeutas = p.terapeutas.select_related('user').all()
+        
+        # 2. Extraer los nombres completos y unirlos por comas
+        nombres_terapeutas = [
+            t.user.get_full_name() for t in lista_terapeutas if t.user and t.user.get_full_name()
+        ]
+        
+        terapeutas_str = ", ".join(nombres_terapeutas) or "Sin terapeutas asignados"
 
         headers = [
-            "Terapeuta Asignado", "Valorización Terapéutica",
+            "Terapeutas Asignados", "Valorización Terapéutica",
             "Tipo de Servicio", "Certificado de Inicio",
             "Fecha de Retiro", "Fecha de Pausa",
         ]
 
         row = [
-            terapeutas,
+            terapeutas_str,
             p.valorizacion_terapeutica,
             ", ".join(p.tipos or []) if p.tipos else "Sin tipos",
             format_html('<a href="{}" target="_blank">Ver certificado</a>', p.certificado_inicio.url)
@@ -2864,7 +2868,8 @@ class ProfileAdmin(ModelAdmin):
     # Añadimos soporte de auto-completado para evitar lentitud si hay miles de registros
     autocomplete_fields = [
         'user', 'sucursales',
-        'user_terapeutas', 'user_terapeutas_1', 'user_terapeutas_3',
+        'terapeutas',
+        #'user_terapeutas', 'user_terapeutas_1', 'user_terapeutas_3',
         'institucion', 'instirucional', 'valorizacion_terapeutica'
     ]
 
