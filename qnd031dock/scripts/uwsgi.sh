@@ -29,8 +29,8 @@ python3 manage.py createsuperuser --email $SUPERUSER_EMAIL --noinput || true
 #python3 manage.py imports --settings=$NODE_NAME.settings.pro --noinput
 
 # Recolecta los archivos estáticos de Django (sin necesidad de intervención del usuario)
-echo "Recolectando archivos estáticos..."
-python3 manage.py collectstatic --settings=$NODE_NAME.settings.pro --noinput
+#echo "Recolectando archivos estáticos..."
+#python3 manage.py collectstatic --settings=$NODE_NAME.settings.pro --noinput
 
 
 uwsgi --http :9000  --master  --enable-threads --module $NODE_NAME.wsgi  --ini uwsgi_pro.ini
