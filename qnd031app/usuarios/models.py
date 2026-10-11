@@ -1680,7 +1680,8 @@ class tareas(models.Model):
         upload_to='Videos/%Y/%m/%d/',
         blank=True,
         verbose_name="Video Multimedia de actividad",
-        validators=[FileExtensionValidator(allowed_extensions=['mp4'])]
+        validators=[FileExtensionValidator(allowed_extensions=['mp4'])],
+        null=True
     )
     thumbnail_media = models.ImageField(upload_to='thumbnails/', blank=True, null=True)
 
